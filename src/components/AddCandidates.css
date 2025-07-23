@@ -1,0 +1,655 @@
+/* AddCandidates Page Styles */
+.add-candidates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  height: 100%; /* Ensure container takes full height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+.add-candidates-container::-webkit-scrollbar {
+  display: none;
+}
+
+.add-candidates-top-section {
+  display: flex;
+  align-items: flex-start; /* Align items to the start (top) */
+  gap: 1.5rem; /* Space between cards */
+  flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+  justify-content: flex-start; /* Align cards to the left */
+}
+
+.add-candidates-header-cards {
+  display: flex;
+  gap: 1.5rem; /* Consistent gap for cards */
+  flex-wrap: wrap; /* Allow cards to wrap */
+}
+
+.add-candidates-card {
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  min-width: 180px; /* Minimum width for cards */
+  max-width: 250px; /* Maximum width for cards */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.add-candidates-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--color-muted);
+}
+
+.add-candidates-card p {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Main Content Grid */
+.add-candidates-main-content.fixed-grid {
+  display: grid;
+  grid-template-columns: 1fr 3fr; /* 25% form, 75% table */
+  gap: 1.5rem;
+  align-items: start; /* Align grid items to the start of their cells */
+  flex-grow: 1; /* Allow the main content area to grow */
+}
+
+.preview-section {
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 2rem; /* Consistent padding with form */
+  display: flex; /* Use flexbox for internal layout */
+  flex-direction: column; /* Stack title and table */
+  flex-grow: 1; /* Allows table section to grow within its grid cell */
+  min-height: 0; /* Allow the section to shrink if content is small */
+  overflow-y: auto; /* Enable vertical scrolling for table content */
+  overflow-x: auto; /* Enable horizontal scrolling for table if needed */
+}
+
+.table-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+}
+
+.table-box {
+  overflow-x: auto; /* Enable horizontal scrolling for table if needed */
+  flex-grow: 1;  /* Enable vertical scrolling if content overflows */
+  /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox *//* Allows table container to grow and take available height */
+}
+
+.table-box::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Webkit browsers */
+}
+
+.candidate-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  min-width: 600px; /* Ensure table doesn't shrink too much for horizontal scroll */
+}
+
+.candidate-table th,
+.candidate-table td {
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #eee;
+  color: var(--color-text);
+  vertical-align: middle; /* Align content vertically in middle */
+}
+
+.candidate-table th {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap; /* Prevent header text from wrapping */
+}
+
+.candidate-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.candidate-table tbody tr:hover {
+  background-color: #f9f9f9; /* Light hover effect */
+}
+
+/* Styles for editable table inputs/selects */
+.candidate-table td input[type="text"],
+.candidate-table td input[type="email"],
+.add-candidates-select-inline {
+  width: calc(100% - 36px); /* Adjust width for padding */
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  background-color: white;
+  color: var(--color-text);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); /* Subtle inner shadow */
+  transition: all 0.2s ease;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.candidate-table td input[type="text"]:focus,
+.candidate-table td input[type="email"]:focus,
+.add-candidates-select-inline:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.3);
+}
+
+.no-results-row td { /* Changed class name for consistency */
+  text-align: center;
+  color: var(--color-muted);
+  font-style: italic;
+  padding: 3rem 1rem;
+  position: relative;
+  border-bottom: none;
+}
+
+.no-results-message { /* Changed class name for consistency */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.upload-icon-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload-icon-container svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+.upload-icon-container .second-upload-icon {
+  /* Adjust these values to control the overlap and position relative to the first icon */
+  margin-left: 20px; /* Example: pushes it 20px to the right of its centered position */
+  margin-top: 20px; /* Example: pushes it 20px down from its centered position */
+}
+
+
+/* Form section */
+.add-candidates-form {
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0; /* Allow the section to shrink if content is small */
+  overflow-y: auto; /* Enable vertical scrolling for form content */
+}
+
+.add-candidates-form::-webkit-scrollbar {
+  display: none;
+}
+
+.form-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+}
+
+.form-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-grow: 1; /* Allows form fields to take available space */
+  overflow-y: auto; /* Make the form fields area scrollable */
+  padding-right: 5px; /* Add some padding for scrollbar if it appears */
+  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+.form-box::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Webkit browsers */
+}
+
+.form-box label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-muted);
+  margin-bottom: -0.5rem;
+}
+
+.add-candidates-input,
+.add-candidates-select,
+.add-candidates-textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background-color: #fcfcfc;
+  transition: all 0.2s ease;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.add-candidates-input::placeholder,
+.add-candidates-textarea::placeholder {
+  color: var(--color-muted);
+  opacity: 0.7;
+}
+
+.add-candidates-input:focus,
+.add-candidates-select:focus,
+.add-candidates-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(127, 202, 146, 0.2);
+}
+
+.add-candidates-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%236c7a89" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem;
+}
+
+.add-candidates-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.resume-upload {
+  margin-top: 1rem;
+  border: 1px dashed #d9d9d9;
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.resume-upload:hover {
+  background-color: #f0f0f0;
+  border-color: var(--color-primary);
+}
+
+.resume-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+}
+
+.resume-upload p {
+  margin-bottom: 0.5rem;
+  color: var(--color-muted);
+}
+
+.selected-files-text {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.erroraddcandidate-msg {
+  color: var(--color-error);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.success-msg {
+  color: var(--color-success);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  flex-shrink: 0; /* Prevent this section from shrinking */
+}
+
+.submit-btn {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  width: 100%;
+}
+
+.submit-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+/* Action buttons group for side-by-side display */
+.action-buttons-group {
+  display: flex;
+  gap: 0.5rem; /* Space between the edit and delete buttons */
+  white-space: nowrap; /* Prevent buttons from wrapping to next line */
+}
+
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn { /* Added .cancel-btn */
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  display: flex; /* Use flexbox for icon and text alignment */
+  align-items: center; /* Vertically align icon and text */
+  gap: 0.3rem; /* Space between icon and text */
+}
+
+.edit-btn {
+  background-color: var(--color-primary); /* Use primary theme color */
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background-color: var(--color-error); /* Use error theme color for delete */
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: var(--color-danger-dark); /* Use theme variable */
+  transform: translateY(-1px);
+}
+
+.save-btn {
+  background-color: var(--color-success); /* Green for save, matching submit button */
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: var(--color-success-dark);
+  transform: translateY(-1px);
+}
+
+.cancel-btn { /* New styles for Cancel button */
+  background-color: var(--color-muted); /* A neutral color for cancel */
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: var(--color-gray-dark); /* Use theme variable */
+  transform: translateY(-1px);
+}
+
+.candidate-table td .add-candidates-input-inline,
+.candidate-table td .add-candidates-select-inline {
+  width: calc(100% - 10px); /* Adjust width to fit better in cell with padding */
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.candidate-table td .edit-resume-text {
+  color: var(--color-primary); /* Style for clickable resume text in edit mode */
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Delete Confirmation Modal Styles */
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* Dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+}
+
+.delete-confirm-modal {
+  background-color: var(--color-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.delete-confirm-modal p {
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.confirm-btn {
+  background-color: var(--color-danger);
+  color: white;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-small);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.confirm-btn:hover {
+  background-color: var(--color-danger-dark);
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .add-candidates-top-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .add-candidates-header-cards {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .add-candidates-main-content.fixed-grid {
+    grid-template-columns: 1fr; /* Stack table and form vertically */
+  }
+}
+
+@media (max-width: 768px) {
+  .add-candidates-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  .preview-section,
+  .add-candidates-form {
+    padding: 1rem; /* Reduced padding for smaller screens */
+  }
+
+  .table-title, .form-title {
+    font-size: 1.1rem; /* Slightly smaller title fonts */
+    margin-bottom: 1rem;
+  }
+
+  .candidate-table th,
+  .candidate-table td {
+    padding: 0.5rem 0.6rem; /* Smaller padding in table cells */
+    font-size: 0.8rem; /* Smaller font size in table */
+  }
+
+  /* Make table scrollable horizontally explicitly on smaller screens */
+  .table-box {
+    overflow-x: auto;
+  }
+
+  .candidate-table {
+    min-width: 500px; /* Allow it to be smaller than 600px but still wide enough */
+  }
+
+  .candidate-table td input[type="text"],
+  .candidate-table td input[type="email"],
+  .add-candidates-select-inline {
+    width: calc(100% - 20px); /* Adjust width for smaller padding */
+    padding: 0.3rem 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .form-box label {
+    font-size: 0.85rem;
+  }
+
+  .add-candidates-input,
+  .add-candidates-select,
+  .add-candidates-textarea {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .resume-upload {
+    padding: 0.8rem;
+  }
+
+  .resume-upload p, .selected-files-text {
+    font-size: 0.8rem;
+  }
+
+  .upload-icon-container {
+    width: 80px;
+    height: 80px;
+  }
+
+  .submit-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-candidates-card {
+    padding: 0.8rem 1rem;
+  }
+  .add-candidates-card h3 {
+    font-size: 0.9rem;
+  }
+  .add-candidates-card p {
+    font-size: 1.5rem;
+  }
+
+  .preview-section,
+  .add-candidates-form {
+    padding: 0.8rem;
+  }
+
+  .table-title, .form-title {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .candidate-table th,
+  .candidate-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .candidate-table {
+    min-width: 400px; /* Further reduce min-width for very small screens if necessary */
+  }
+
+  .candidate-table td input[type="text"],
+  .candidate-table td input[type="email"],
+  .add-candidates-select-inline {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.8rem;
+  }
+
+  .form-box label {
+    font-size: 0.8rem;
+  }
+
+  .add-candidates-input,
+  .add-candidates-select,
+  .add-candidates-textarea {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .resume-upload {
+    padding: 0.6rem;
+  }
+
+  .upload-icon-container {
+    width: 60px;
+    height: 60px;
+  }
+
+  .upload-icon-container .second-upload-icon {
+    margin-left: 15px; /* Adjust overlap */
+    margin-top: 15px; /* Adjust overlap */
+  }
+
+  .submit-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}

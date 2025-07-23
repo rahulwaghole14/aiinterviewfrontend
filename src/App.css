@@ -1,0 +1,954 @@
+/* App.css */
+:root {
+  /* Light Theme Variables */
+  --color-bg: #e9f5e9;
+  --color-bg-secondary: #f0f8f0;
+  --color-sidebar: #d9f0d9;
+  --color-card: #ffffff;
+  --color-card-highlight: #fefee0;
+  --color-primary: #7fca92;
+  --color-primary-dark: #5aa173;
+  --color-secondary: #ffdc80;
+  --color-secondary-dark: #ffc240; /* Added for hover states */
+  --color-accent: #a1e0c7;
+  --color-text: #2c3e50;
+  --color-text-primary: #2c3e50; /* Specific for main headings/strong text */
+  --color-text-secondary: #6c7a89; /* Specific for labels/muted text */
+  --color-muted: #6c7a89;
+  --color-success: #4caf50;
+  --color-success-light: #e6ffe6;
+  --color-success-dark: #388e3c;
+  --color-error: #f44336;
+  --color-danger: #f44336; /* Alias for error */
+  --color-danger-light: #ffe6e6;
+  --color-danger-dark: #d32f2f;
+  --color-warning: #ffc107;
+  --color-warning-light: #fff8e1;
+  --color-warning-dark: #ffa000;
+  --color-info: #2196f3;
+  --color-info-light: #e3f2fd;
+  --color-info-dark: #1976d2;
+  --color-border: #dcdcdc;
+  --color-border-light: #eeeeee;
+  --color-gray: #9e9e9e;
+  --color-gray-dark: #757575;
+  --color-hover: #f5f5f5; /* General hover background */
+
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --radius: 12px;
+  --radius-small: 8px;
+  --transition: all 0.3s ease;
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 80px;
+
+  /* RGB values for shadows */
+  --color-primary-rgb: 127, 202, 146;
+}
+
+/* Dark Theme Variables */
+body[data-theme='dark'] {
+  --color-bg: #18191a;
+  --color-bg-secondary: #23272b;
+  --color-sidebar: #23272b;
+  --color-card: #222326;
+  --color-card-highlight: #2c2f34;
+  --color-primary: #4b5563; /* Gray dark for primary */
+  --color-primary-dark: #374151;
+  --color-secondary: #6b7280; /* Muted gray for secondary */
+  --color-secondary-dark: #4b5563;
+  --color-accent: #9ca3af; /* Lighter gray accent */
+  --color-text: #e5e7eb; /* Light gray text */
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #9ca3af;
+  --color-muted: #6b7280;
+  --color-success: #22c55e;
+  --color-success-light: #1e293b;
+  --color-success-dark: #16a34a;
+  --color-error: #ef4444;
+  --color-danger: #ef4444;
+  --color-danger-light: #4b1e1e;
+  --color-danger-dark: #991b1b;
+  --color-warning: #f59e42;
+  --color-warning-light: #3b2c1e;
+  --color-warning-dark: #b45309;
+  --color-info: #60a5fa;
+  --color-info-light: #1e293b;
+  --color-info-dark: #2563eb;
+  --color-border: #374151;
+  --color-border-light: #23272b;
+  --color-gray: #6b7280;
+  --color-gray-dark: #374151;
+  --color-hover: #23272b;
+
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.4);
+
+  /* RGB values for shadows in dark theme */
+  --color-primary-rgb: 75, 85, 99;
+}
+
+
+/* Base Styles */
+body, html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  overflow: hidden;
+  transition: background-color var(--transition), color var(--transition); /* Smooth theme transition */
+}
+
+/* Main Layout Container */
+.app-container {
+  display: grid;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar content";
+  grid-template-columns: var(--sidebar-collapsed-width) 1fr; /* Default collapsed for desktop */
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  transition: grid-template-columns var(--transition);
+}
+
+.app-container.expanded {
+  grid-template-columns: var(--sidebar-width) 1fr; /* Expanded state for desktop */
+}
+
+/* Sidebar Styles - Desktop Default and Collapsed Mobile */
+.sidebar {
+  grid-area: sidebar;
+  background-color: var(--color-sidebar);
+  padding: 2rem 0.5rem;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow-y: auto;
+  transition: all var(--transition);
+  position: relative;
+  z-index: 10;
+  left: 0;
+}
+
+/* Adjust sidebar items for collapsed state (Applies to desktop collapsed and ALL mobile) */
+.sidebar .logo-link {
+  justify-content: center;
+}
+
+.sidebar .brand-name {
+  display: none; /* Hide brand name when collapsed */
+}
+
+.sidebar .sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center content when collapsed/icons-only */
+  padding: 0.75rem 0;
+  height: 40px;
+  transition: var(--transition);
+  gap: 0;
+  flex-direction: column; /* Stack for proper centering of icon */
+}
+
+.sidebar .sidebar-item span:last-child { /* Target the text span */
+  display: none; /* Hide text by default in collapsed state */
+}
+
+/* Ensure sidebar icons are always visible and centered in collapsed state */
+.sidebar .sidebar-item .sidebar-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 24px;
+  color: var(--color-primary-dark);
+}
+
+/* Fix for collapsed sidebar: always show icon, hide only text */
+.sidebar .sidebar-item span.sidebar-icon {
+  display: flex !important;
+}
+.sidebar .sidebar-item span:not(.sidebar-icon) {
+  display: none !important;
+}
+
+/* Sidebar expanded state (Only applies to desktop when expanded) */
+.app-container.expanded .sidebar {
+  padding: 2rem 1rem;
+}
+
+.app-container.expanded .sidebar .logo-link {
+  justify-content: flex-start;
+}
+
+.app-container.expanded .sidebar .brand-name {
+  display: block; /* Show brand name when expanded */
+}
+
+.app-container.expanded .sidebar .sidebar-item {
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
+  height: auto;
+  gap: 0.8rem;
+  flex-direction: row; /* Back to row for expanded state */
+}
+
+.app-container.expanded .sidebar .sidebar-item span:last-child {
+  display: block; /* Show text when expanded */
+}
+
+.app-container.expanded .sidebar .sidebar-item span:not(.sidebar-icon) {
+  display: inline !important;
+}
+
+/* Header Styles */
+.header {
+  grid-area: header;
+  background-color: var(--color-bg);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 5;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.main-content {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.content-area {
+  width: 100%;
+  height: 100%;
+  padding: 1.5em;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--color-bg);
+  transition: var(--transition);
+  overflow-y: auto;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.content-area::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: var(--transition);
+  margin-bottom: 1.5rem;
+}
+
+/* Logo & Branding */
+.logo {
+  width: 50px;
+  height: 50px;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--color-text);
+  transition: var(--transition);
+}
+
+.brand-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+.sidebar-item {
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--color-text);
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.sidebar-item:hover {
+  background-color: var(--color-card);
+}
+
+.sidebar-item.active {
+  background-color: var(--color-primary);
+  font-weight: 600;
+  color: white;
+}
+
+.sidebar-item.active .sidebar-icon {
+  color: white;
+}
+
+/* Header Components */
+.header-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.header-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--color-card); /* Use color-card for search background */
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 0.4rem 0.75rem;
+  width: 250px;
+}
+
+.header-search input {
+  border: none;
+  outline: none;
+  color:var(--color-text);
+  margin-left: 0.5rem;
+  width: 100%;
+  font-size: 0.95rem;
+  background: transparent;
+}
+
+.header-search .search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-card); /* Use color-card for dropdown background */
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  list-style: none;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.header-search .search-dropdown li {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.header-search .search-dropdown li:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.search-icon {
+  color: var(--color-muted);
+}
+
+/* Remove mobile-search-icon display block */
+/* .mobile-search-icon {
+  display: block;
+} */
+
+.header-profile-wrapper {
+  position: relative;
+}
+
+.header-profile {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  background-color: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Search Modal Styles (Keep if you want a search modal for all screen sizes, otherwise remove) */
+.search-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 1000;
+  padding-top: 20px;
+}
+
+.search-modal {
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 1rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-modal-header input {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+}
+
+.close-search-modal {
+  cursor: pointer;
+  color: var(--color-muted);
+}
+
+.search-modal-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-modal-results li {
+  padding: 0.75rem 0.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-light); /* Use theme variable */
+  color: var(--color-text);
+}
+
+.search-modal-results li:last-child {
+  border-bottom: none;
+}
+
+.search-modal-results li:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.no-results {
+  text-align: center;
+  color: var(--color-muted);
+  padding: 1rem;
+}
+
+/* Remove the mobile overlay entirely */
+.overlay {
+  display: none; /* Hide the overlay */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-container {
+    /* Always keep sidebar collapsed on small screens */
+    grid-template-columns: var(--sidebar-collapsed-width) 1fr;
+    grid-template-areas:
+      "sidebar header"
+      "sidebar content";
+  }
+
+  /* Sidebar will now *always* be collapsed on small screens, so apply collapsed styles */
+  .sidebar {
+    position: relative; /* Back to relative positioning */
+    transform: translateX(0); /* Ensure it's not off-screen */
+    width: var(--sidebar-collapsed-width); /* Fixed width for collapsed state */
+    padding: 2rem 0.5rem; /* Padding for collapsed state */
+  }
+
+  .sidebar .logo-link {
+    justify-content: center; /* Center logo */
+  }
+
+  .sidebar .brand-name {
+    display: none; /* Hide brand name */
+  }
+
+  .sidebar .sidebar-item {
+    justify-content: center; /* Center icons */
+    padding: 0.75rem 0;
+    gap: 0;
+    flex-direction: column; /* Stack for vertical centering */
+  }
+
+  .sidebar .sidebar-item span:last-child {
+    display: none; /* Hide text */
+  }
+
+  /* Hide sidebar by default on small screens */
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1001;
+    background: var(--color-sidebar);
+    width: var(--sidebar-collapsed-width);
+    transition: transform var(--transition), opacity var(--transition);
+    box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .app-container.sidebar-mobile-open .sidebar {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+  /* Optional: dark overlay when sidebar is open */
+  .sidebar-mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+
+  .header {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .header-title {
+    font-size: 1.2rem;
+  }
+
+  /* Keep the desktop search bar visible or replace with a responsive version */
+  .header-search {
+    display: flex; /* Ensure it's visible */
+  }
+
+  .header-profile {
+    padding: 0.4rem;
+  }
+
+  .header-profile svg {
+    font-size: 18px;
+  }
+
+  .content-area {
+    margin: 5px;
+    padding: 0.8rem;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+  }
+
+  /* Remove overlay styles as the mobile slide-out sidebar is removed */
+  /* .overlay {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .app-container.mobile-view.expanded .overlay {
+    opacity: 1;
+    pointer-events: auto;
+  } */
+}
+
+/* On small screens, when sidebar is closed, don't reserve space */
+@media (max-width: 768px) {
+  .app-container {
+    grid-template-columns: 0 1fr; /* No sidebar space when closed */
+  }
+  .app-container.sidebar-mobile-open {
+    grid-template-columns: var(--sidebar-collapsed-width) 1fr; /* Show sidebar when open */
+  }
+}
+
+/* Further smaller screen adjustments (e.g., phones) */
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 1.0rem;
+  }
+
+  .header-profile {
+    padding: 0.3rem;
+  }
+
+  .header-profile svg {
+    font-size: 16px;
+  }
+
+  .sidebar-toggle {
+    padding: 0.3rem;
+  }
+
+  .sidebar-toggle svg {
+    font-size: 16px;
+  }
+
+  .search-modal {
+    padding: 0.8rem;
+  }
+
+  .search-modal-header input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .search-modal-results li {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-search {
+    display: none !important; /* Hide full search bar on small screens */
+  }
+  .mobile-search-icon {
+    display: inline-flex !important; /* Ensure search icon is visible and flex-aligned */
+    align-items: center;
+    cursor: pointer;
+  }
+}
+
+/* New Styles for Login and Register Pages */
+.auth-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-bg);
+  z-index: 9999; /* Make sure it's above other content */
+}
+
+.auth-card {
+  margin: 0 auto; /* Center the card horizontally */
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Also increase default border radius for desktop */
+.auth-card {
+  border-radius: 20px; /* Increased border radius */
+}
+
+.auth-title {
+  color: var(--color-primary-dark);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2);
+}
+
+.auth-button {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.9rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color var(--transition), transform 0.2s ease;
+  margin-top: 1rem;
+}
+
+.auth-button:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.auth-link-text {
+  margin-top: 1.5rem;
+  color: var(--color-muted);
+}
+
+.auth-link-text a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link-text a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: var(--color-error);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.success-message {
+  color: var(--color-success);
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Responsive styles for auth (login/register) pages */
+@media (max-width: 600px) {
+  .auth-container {
+    padding-left: 5vw;
+    padding-right: 5vw;
+    box-sizing: border-box;
+  }
+  .auth-card {
+    max-width: 96vw;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+    font-size: 1rem;
+    border-radius: 18px; /* Increased border radius */
+  }
+}
+
+@media (max-width: 400px) {
+  .auth-container {
+    padding-left: 3vw;
+    padding-right: 3vw;
+    box-sizing: border-box;
+  }
+  .auth-card {
+    max-width: 99vw;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+    font-size: 0.95rem;
+    border-radius: 16px; /* Increased border radius */
+  }
+}
+
+/* Profile Context Menu Styles */
+.profile-context-menu {
+  position: absolute;
+  top: 100%; /* Position below the profile icon */
+  right: 0;
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  list-style: none;
+  padding: 0; /* Make more compact */
+  margin-top: 0.5rem;
+  z-index: 100; /* Ensure it's above other header elements */
+  min-width: 140px; /* Slightly reduced width */
+}
+
+.profile-context-menu .menu-item {
+  padding: 0.6rem 1rem; /* Reduced padding for compactness */
+  cursor: pointer;
+  color: var(--color-text);
+  transition: background-color var(--transition);
+  font-size: 0.95rem; /* Slightly smaller font */
+}
+
+.profile-context-menu .menu-item:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.profile-context-menu .menu-item.logout {
+  border-top: none; /* Removed the line above logout */
+  color: var(--color-error); /* Ensure light red color */
+}
+
+.profile-context-menu .menu-item.logout:hover {
+  background-color: rgba(244, 67, 54, 0.1); /* Light red on hover */
+}
+
+/* Profile Page Styles */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.profile-title {
+  color: var(--color-primary-dark);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.profile-details p {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.profile-details p strong {
+  color: var(--color-primary-dark);
+  min-width: 100px; /* Align labels */
+  display: inline-block;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-form .form-group {
+  text-align: left;
+}
+
+.profile-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.profile-form .form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+.profile-form .form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2);
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.profile-actions .auth-button {
+  flex: 1;
+  max-width: 150px;
+  margin-top: 0; /* Override default margin-top from .auth-button */
+}
+
+.profile-actions .cancel-button {
+  background-color: var(--color-muted);
+}
+
+.profile-actions .cancel-button:hover {
+  background-color: #5a6673;
+}
+
+.header-search .clear-search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 2;
+}
