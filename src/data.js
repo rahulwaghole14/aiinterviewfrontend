@@ -457,17 +457,23 @@ export const uniqueJobDomains = [...new Set(initialJobs.map(job => job.domain))]
 
 // Data for Header search (combining relevant names/titles from all sections)
 export const searchableItems = [
-  'Dashboard', 'Candidates', 'Jobs', 'Interviews', 'Settings', 'Profile', 'Add Candidates',
-  ...initialCandidates.map(c => c.name),
-  ...initialCandidates.map(c => c.role),
-  ...initialCandidates.map(c => c.domain),
-  ...initialCandidates.map(c => c.email),
-  ...initialCandidates.map(c => c.poc),
-  ...dashboardClientsData.map(c => c.name),
-  ...dashboardClientsData.map(c => c.email),
-  ...initialInterviews.map(i => i.candidateName),
-  ...initialInterviews.map(i => i.jobRole),
-  ...initialInterviews.map(i => i.poc),
-  ...initialJobs.map(j => j.title), // Add job titles
-  ...initialJobs.map(j => j.domain), // Add job domains
+  { name: 'Dashboard', path: 'dashboard' },
+  { name: 'Candidates', path: 'candidates' },
+  { name: 'Jobs', path: 'jobs' },
+  { name: 'Interviews', path: 'interviews' },
+  { name: 'Settings', path: 'settings' },
+  { name: 'Profile', path: 'profile' },
+  { name: 'Add Candidates', path: 'add-candidates' },
+  ...initialCandidates.map(c => ({ name: c.name, path: 'candidates' })),
+  ...initialCandidates.map(c => ({ name: c.role, path: 'candidates' })),
+  ...initialCandidates.map(c => ({ name: c.domain, path: 'candidates' })),
+  ...initialCandidates.map(c => ({ name: c.email, path: 'candidates' })),
+  ...initialCandidates.map(c => ({ name: c.poc, path: 'candidates' })),
+  ...dashboardClientsData.map(c => ({ name: c.name, path: 'dashboard' })),
+  ...dashboardClientsData.map(c => ({ name: c.email, path: 'dashboard' })),
+  ...initialInterviews.map(i => ({ name: i.candidateName, path: 'interviews' })),
+  ...initialInterviews.map(i => ({ name: i.jobRole, path: 'interviews' })),
+  ...initialInterviews.map(i => ({ name: i.poc, path: 'interviews' })),
+  ...initialJobs.map(j => ({ name: j.title, path: 'jobs' })), // Add job titles
+  ...initialJobs.map(j => ({ name: j.domain, path: 'jobs' })), // Add job domains
 ];

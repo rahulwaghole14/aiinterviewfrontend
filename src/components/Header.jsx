@@ -4,12 +4,12 @@ import { FiSearch, FiUser, FiMenu, FiChevronLeft, FiX } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from '../redux/actions/searchActions';
-import { searchableItems } from '../data';
+import { searchableItems } from '../data'; // Import searchable items from data.js
 
 const Header = ({
   title,
   isSidebarExpanded,
-  sidebarMobileOpen, // <-- Add this prop
+  sidebarMobileOpen,
   onToggleSidebar,
   isMobile,
   onLogout,
@@ -46,7 +46,8 @@ const Header = ({
       // If clicked outside the search input, remove only suggestions
       if (
         searchInputRef.current &&
-        !searchInputRef.current.contains(event.target)
+        !searchInputRef.current.contains(event.target) &&
+        !isSearchModalOpen // Only clear if modal is not open
       ) {
         setSearchResults([]); // Only clear suggestions, keep search term
       }
@@ -55,17 +56,19 @@ const Header = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isSearchModalOpen]); // Added isSearchModalOpen to dependency array
+
 
   const handleSearch = (e) => {
     const term = e.target.value;
     setLocalSearchTerm(term);
-    dispatch(setSearchTerm(term));
+    dispatch(setSearchTerm(term)); // Update Redux search term immediately
+
     if (term) {
+      const lowerCaseTerm = term.toLowerCase(); // Convert term to lowercase once
       const filtered = searchableItems.filter(
         (item) =>
-          item.name.toLowerCase().includes(term.toLowerCase()) &&
-          !item.isTab // Exclude tab options from suggestions
+          item && item.name && item.name.toLowerCase().includes(lowerCaseTerm) // Safely check item and item.name
       );
       setSearchResults(filtered);
     } else {
@@ -81,7 +84,7 @@ const Header = ({
     setIsProfileMenuOpen(false);
     if (path === 'logout') {
       onLogout();
-      navigate('/login');
+      // navigate('/login'); // Handled by onLogout prop
     } else {
       onProfileMenuItemClick(path);
     }
@@ -93,6 +96,10 @@ const Header = ({
     // When closing, clear local state and Redux search term
     if (!isSearchModalOpen) { // If modal is about to open
       setLocalSearchTerm(reduxSearchTerm);
+      // Focus the input when modal opens
+      setTimeout(() => {
+        searchModalInputRef.current?.focus();
+      }, 0);
     } else { // If modal is about to close
       setLocalSearchTerm('');
       setSearchResults([]);
@@ -103,9 +110,9 @@ const Header = ({
   const handleSearchResultClick = (item) => {
     setLocalSearchTerm(item.name);           // Update local search box
     dispatch(setSearchTerm(item.name));      // Update Redux search term
-    navigate(`/${item.path}`);
+    navigate(`/${item.path}`);               // Navigate to the associated path
     setIsSearchModalOpen(false);             // Close modal (for mobile)
-    setSearchResults([]);                    // Only clear dropdown results
+    setSearchResults([]);                    // Clear suggestions
   };
 
   // Handle Enter key to trigger search
@@ -120,6 +127,13 @@ const Header = ({
     setLocalSearchTerm('');
     setSearchResults([]);
     dispatch(setSearchTerm(''));
+    // Focus the input after clearing
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+    if (searchModalInputRef.current) {
+      searchModalInputRef.current.focus();
+    }
   };
 
   return (
@@ -179,10 +193,10 @@ const Header = ({
                 <input
                   type="text"
                   placeholder="Search..."
-                  value={localSearchTerm} // Keep the text here
+                  value={localSearchTerm}
                   onChange={handleSearch}
                   autoFocus
-                  ref={searchModalInputRef} // Attach ref here
+                  ref={searchModalInputRef}
                 />
                 <FiX size={24} onClick={toggleSearchModal} className="close-search-modal" />
               </div>
