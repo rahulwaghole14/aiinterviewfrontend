@@ -139,10 +139,13 @@ body, html {
 /* Adjust sidebar items for collapsed state (Applies to desktop collapsed and ALL mobile) */
 .sidebar .logo-link {
   justify-content: center;
+  background-color: #23272b;
+  border-radius: var(--radius);
 }
 
 .sidebar .brand-name {
-  display: none; /* Hide brand name when collapsed */
+  display: none;
+  color:white; /* Hide brand name when collapsed */
 }
 
 .sidebar .sidebar-item {
@@ -295,6 +298,7 @@ body, html {
   transition: var(--transition);
 }
 
+
 /* Sidebar Menu */
 .sidebar-menu {
   display: flex;
@@ -315,6 +319,7 @@ body, html {
 
 .sidebar-item:hover {
   background-color: var(--color-card);
+  color:var(--color-primary-dark);
 }
 
 .sidebar-item.active {

@@ -17,10 +17,10 @@
 }
 
 .dashboard-card {
-  background: #ffffff;
-  border-radius: 16px;
+  background: var(--color-card); /* Using variable */
+  border-radius: var(--radius); /* Using variable */
   padding: 1.5rem 2rem;
-  box-shadow: 0 4px 16px rgba(0, 128, 0, 0.08);
+  box-shadow: var(--shadow-soft); /* Using variable */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   flex: 1 1 240px;
   min-width: 180px;
@@ -30,17 +30,17 @@
 
 .dashboard-card:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 10px 24px rgba(0, 128, 0, 0.12);
+  box-shadow: 0 10px 24px rgba(var(--color-primary-rgb), 0.12); /* Using RGB variable for shadow */
 }
 
 .dashboard-card h2 {
   font-size: 26px;
-  color: #1a3d1f;
+  color: var(--color-primary-dark); /* Using variable */
 }
 
 .dashboard-card p {
   margin-top: 6px;
-  color: #5d8a67;
+  color: var(--color-text-secondary); /* Using variable */
 }
 
 /* Middle Grid */
@@ -52,14 +52,14 @@
 }
 
 .overview-card, .announcement-card {
-  background: #ffffff;
-  border-radius: 16px;
+  background: var(--color-card); /* Using variable */
+  border-radius: var(--radius); /* Using variable */
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-soft); /* Using variable */
 }
 
 .announcement-card {
-  background: #fff8e5;
+  background: var(--color-warning-light); /* Using variable */
 }
 
 .announcement {
@@ -70,24 +70,24 @@
 }
 
 .announcement button {
-  background: #d7f5db;
+  background: var(--color-success-light); /* Using variable */
   border: none;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-small); /* Using variable */
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .announcement button:hover {
-  background: #b4ebb8;
+  background: var(--color-success); /* Using variable */
 }
 
 /* Clients Table */
 .clients-table {
-  background: #ffffff;
-  border-radius: 16px;
+  background: var(--color-card); /* Using variable */
+  border-radius: var(--radius); /* Using variable */
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft); /* Using variable */
   height: auto;
   margin-bottom: 3rem; /* Increased margin to prevent sticking to bottom */
 }
@@ -108,11 +108,11 @@
 .clients-table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light); /* Using variable */
 }
 
 .clients-table th {
-  background: #f1f9f1;
+  background: var(--color-bg-secondary); /* Using variable */
   font-weight: 600;
 }
 
@@ -124,13 +124,13 @@
 }
 
 .status-badge.active {
-  background-color: #d0f5d4;
-  color: #257d32;
+  background-color: var(--color-success-light); /* Using variable */
+  color: var(--color-success-dark); /* Using variable */
 }
 
 .status-badge.inactive {
-  background-color: #f9e0e0;
-  color: #b60000;
+  background-color: var(--color-danger-light); /* Using variable */
+  color: var(--color-danger-dark); /* Using variable */
 }
 
 .client-row {
@@ -139,7 +139,7 @@
 }
 
 .client-row:hover {
-  background-color: #f0fdf4;
+  background-color: var(--color-hover); /* Using variable */
 }
 
 /* Responsive Design */

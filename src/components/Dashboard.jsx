@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState for sorting
 import {
   LineChart,
   Line,
@@ -16,11 +16,32 @@ const Dashboard = () => {
   const searchTerm = useSelector((state) => state.search.searchTerm); // Get search term from Redux
   const allClients = useSelector((state) => state.clients.allClients); // Get all clients from Redux
 
+  // State for sorting clients table
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
+
   const handleClientClick = (name) => {
     console.log(`Client clicked: ${name}`);
   };
 
-  // Filter clients data based on search term
+  // Handle sorting logic for clients table
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIndicator = (column) => {
+    if (sortColumn === column) {
+      return sortDirection === 'asc' ? ' ▲' : ' ▼';
+    }
+    return '';
+  };
+
+  // Filter and sort clients data based on search term and sort state
   const filteredClientsData = allClients.filter(client => { // Use allClients from Redux
     if (!searchTerm) {
       return true; // If no search term, show all clients
@@ -32,11 +53,28 @@ const Dashboard = () => {
       client.status.toLowerCase().includes(lowerCaseSearchTerm) ||
       client.plan.toLowerCase().includes(lowerCaseSearchTerm)
     );
+  }).sort((a, b) => { // Apply sorting after filtering
+    if (!sortColumn) return 0;
+
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+
+    if (aValue === null || aValue === undefined) return sortDirection === 'asc' ? 1 : -1;
+    if (bValue === null || bValue === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    }
+    // For numbers (like IDs, though not in this table, good for general sorting)
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+    return 0;
   });
 
   return (
     <div className="dashboard-container">
-      {/* Top cards */}
+      {/* Top cards - reverted to original big card style */}
       <div className="top-cards">
         {dashboardTopCards.map((card, index) => ( // Use imported data
           <div key={index} className="dashboard-card" onClick={() => console.log(`${card.subtitle} clicked`)}>
@@ -113,10 +151,10 @@ const Dashboard = () => {
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Plan</th>
+                <th onClick={() => handleSort('name')}>Name {getSortIndicator('name')}</th>
+                <th onClick={() => handleSort('email')}>Email {getSortIndicator('email')}</th>
+                <th onClick={() => handleSort('status')}>Status {getSortIndicator('status')}</th>
+                <th onClick={() => handleSort('plan')}>Plan {getSortIndicator('plan')}</th>
               </tr>
             </thead>
             <tbody>

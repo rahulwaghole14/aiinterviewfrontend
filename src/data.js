@@ -30,7 +30,7 @@ export const candidateJobRoles = [
 // The main candidate data is initialCandidates below.
 export const initialAddCandidates = [
   { name: 'John Doe', domain: 'Cloud Engineering', jobRole: 'FrontEnd Developer', email: 'john.doe@example.com', resumes: [{ name: 'john_doe_resume.pdf' }] },
-  { name: 'Jane Smith', domain: 'Testing', jobRole: 'QA Engineer', email: 'jane.smith@example.com', resumes: [{ name: 'jane_smith_resume.docx' }] },
+  { name: 'Jane Smith', domain: 'Testing', jobRole: 'QA Engineer', email: 'jane_smith_resume.docx', resumes: [{ name: 'jane_smith_resume.docx' }] },
   { name: 'Alice Johnson', domain: 'Data Science', jobRole: 'Data Engineer', email: 'alice.j@example.com', resumes: [{ name: 'alice_resume.pdf' }] },
   { name: 'Bob Williams', domain: 'Software Development', jobRole: 'Full Stack Developer', email: 'bob_dev.pdf', resumes: [{ name: 'bob_dev.pdf' }] },
 ];
@@ -41,121 +41,131 @@ export const initialCandidates = [
     id: 1,
     name: "Rohit Sharma",
     email: "rohit.sharma@example.com",
-    role: "Software Engineer",
+    jobRole: "Software Engineer", // Changed from 'role' to 'jobRole'
     domain: "Backend",
     status: "Requires Action",
     lastUpdated: "2025-06-26",
     evaluation: null,
     poc: "Rahul J. Waghole",
     applicationDate: "2025-06-26",
+    resumes: [{ name: 'rohit_sharma_resume.pdf' }], // Added sample resume
   },
   {
     id: 2,
     name: "John Doe",
     email: "john.doe@example.com",
-    role: "Frontend Developer",
+    jobRole: "Frontend Developer", // Changed from 'role' to 'jobRole'
     domain: "Frontend",
     status: "BR Evaluated",
     lastUpdated: "2025-06-25",
     evaluation: { score: 8.5, result: "Pass", feedback: "Strong technical skills, good problem-solving. Needs to improve on collaborative tools." },
     poc: "Alice Smith",
     applicationDate: "2025-06-25",
+    resumes: [{ name: 'john_doe_cv.pdf' }, { name: 'john_doe_portfolio.zip' }], // Added sample resumes
   },
   {
     id: 3,
     name: "Jane Smith",
     email: "jane.smith@example.com",
-    role: "UI/UX Designer",
+    jobRole: "UI/UX Designer", // Changed from 'role' to 'jobRole'
     domain: "Design",
     status: "Pending Scheduling",
     lastUpdated: "2025-06-24",
     evaluation: null,
     poc: "Bob Johnson",
     applicationDate: "2025-06-24",
+    resumes: [{ name: 'jane_smith_design.pdf' }], // Added sample resume
   },
   {
     id: 4,
     name: "Alice Johnson",
     email: "alice.j@example.com",
-    role: "DevOps Engineer",
+    jobRole: "DevOps Engineer", // Changed from 'role' to 'jobRole'
     domain: "Infrastructure",
     status: "Hired",
     lastUpdated: "2025-06-20",
     evaluation: { score: 9.0, result: "Pass", feedback: "Excellent grasp of DevOps principles and tools. Highly recommended." },
     poc: "Charlie Brown",
     applicationDate: "2025-06-20",
+    resumes: [{ name: 'alice_johnson_cv.docx' }], // Added sample resume
   },
   {
     id: 5,
     name: "Bob Williams",
     email: "bob.w@example.com",
-    role: "Data Scientist",
+    jobRole: "Data Scientist", // Changed from 'role' to 'jobRole'
     domain: "AI/ML",
     status: "Rejected",
     lastUpdated: "2025-06-18",
     evaluation: { score: 6.2, result: "Fail", feedback: "Lacks experience in machine learning frameworks. Communication could be clearer." },
     poc: "David Green",
     applicationDate: "2025-06-18",
+    resumes: [{ name: 'bob_williams_data.pdf' }], // Added sample resume
   },
   {
     id: 6,
     name: "Charlie Davis",
     email: "charlie.d@example.com",
-    role: "Software Engineer",
+    jobRole: "Software Engineer", // Changed from 'role' to 'jobRole'
     domain: "Backend",
     status: "BR In Process",
     lastUpdated: "2025-06-27",
     evaluation: null,
     poc: "Rahul J. Waghole",
     applicationDate: "2025-06-27",
+    resumes: [{ name: 'charlie_davis_resume.pdf' }], // Added sample resume
   },
   {
     id: 7,
     name: "Diana Prince",
     email: "diana.p@example.com",
-    role: "Frontend Developer",
+    jobRole: "Frontend Developer", // Changed from 'role' to 'jobRole'
     domain: "Frontend",
     status: "Internal Interviews",
     lastUpdated: "2025-06-23",
     evaluation: { score: 7.8, result: "Pass", feedback: "Good understanding of React, able to build responsive UIs. Needs to work on performance optimization." },
     poc: "Alice Smith",
     applicationDate: "2025-06-23",
+    resumes: [{ name: 'diana_prince_cv.pdf' }], // Added sample resume
   },
   {
     id: 8,
     name: "Eve Adams",
     email: "eve.a@example.com",
-    role: "UI/UX Designer",
+    jobRole: "UI/UX Designer", // Changed from 'role' to 'jobRole'
     domain: "Design",
     status: "Offered",
     lastUpdated: "2025-06-15",
     evaluation: { score: 8.9, result: "Pass", feedback: "Exceptional design portfolio and user empathy. Great fit for our team culture." },
     poc: "Bob Johnson",
     applicationDate: "2025-06-15",
+    resumes: [{ name: 'eve_adams_portfolio.pdf' }], // Added sample resume
   },
   {
     id: 9,
     name: "Frank White",
     email: "frank.w@example.com",
-    role: "Data Scientist",
+    jobRole: "Data Scientist", // Changed from 'role' to 'jobRole'
     domain: "AI/ML",
     status: "Offer Rejected",
     lastUpdated: "2025-06-10",
     evaluation: { score: 7.0, result: "Pass", feedback: "Solid foundational knowledge. Declined offer due to another opportunity." },
     poc: "David Green",
     applicationDate: "2025-06-10",
+    resumes: [{ name: 'frank_white_data_cv.pdf' }], // Added sample resume
   },
   {
     id: 10,
     name: "Grace Black",
     email: "grace.b@example.com",
-    role: "DevOps Engineer",
+    jobRole: "DevOps Engineer", // Changed from 'role' to 'jobRole'
     domain: "Infrastructure",
     status: "Cancelled",
     lastUpdated: "2025-06-05",
     evaluation: null,
     poc: "Charlie Brown",
     applicationDate: "2025-06-05",
+    resumes: [{ name: 'grace_black_devops.pdf' }], // Added sample resume
   },
 ];
 
@@ -175,7 +185,8 @@ export const candidateStatusList = [
 ];
 
 export const uniqueCandidateDomains = [...new Set(initialCandidates.map(c => c.domain))];
-export const uniqueCandidateJobRoles = [...new Set(initialCandidates.map(c => c.role))];
+// Changed to map from 'jobRole' instead of 'role'
+export const uniqueCandidateJobRoles = [...new Set(initialCandidates.map(c => c.jobRole))];
 export const uniqueCandidatePocs = [...new Set(initialCandidates.map(c => c.poc))];
 
 
@@ -310,7 +321,7 @@ export const initialInterviews = [
   },
   {
     id: 9,
-    name: 'Henry Moore',
+    candidateName: 'Henry Moore', // Changed from 'name' to 'candidateName' for consistency
     status: 'Pending Feedback',
     jobRole: 'BackEnd Developer',
     interviewDate: '2025-07-22', // Today
@@ -464,16 +475,19 @@ export const searchableItems = [
   { name: 'Settings', path: 'settings' },
   { name: 'Profile', path: 'profile' },
   { name: 'Add Candidates', path: 'add-candidates' },
+  // Ensure these maps correctly use 'jobRole' and include 'resumes'
   ...initialCandidates.map(c => ({ name: c.name, path: 'candidates' })),
-  ...initialCandidates.map(c => ({ name: c.role, path: 'candidates' })),
+  ...initialCandidates.map(c => ({ name: c.jobRole, path: 'candidates' })), // Changed from c.role
   ...initialCandidates.map(c => ({ name: c.domain, path: 'candidates' })),
   ...initialCandidates.map(c => ({ name: c.email, path: 'candidates' })),
   ...initialCandidates.map(c => ({ name: c.poc, path: 'candidates' })),
+  // Add resume names to searchable items
+  ...initialCandidates.flatMap(c => (c.resumes || []).map(r => ({ name: r.name, path: 'candidates' }))),
   ...dashboardClientsData.map(c => ({ name: c.name, path: 'dashboard' })),
   ...dashboardClientsData.map(c => ({ name: c.email, path: 'dashboard' })),
   ...initialInterviews.map(i => ({ name: i.candidateName, path: 'interviews' })),
   ...initialInterviews.map(i => ({ name: i.jobRole, path: 'interviews' })),
   ...initialInterviews.map(i => ({ name: i.poc, path: 'interviews' })),
-  ...initialJobs.map(j => ({ name: j.title, path: 'jobs' })), // Add job titles
-  ...initialJobs.map(j => ({ name: j.domain, path: 'jobs' })), // Add job domains
+  ...initialJobs.map(j => ({ name: j.title, path: 'jobs' })),
+  ...initialJobs.map(j => ({ name: j.domain, path: 'jobs' })),
 ];

@@ -3,12 +3,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import './AddCandidates.css';
 import { candidateDomains, candidateJobRoles } from '../data';
-import { addCandidate, deleteCandidate } from '../redux/slices/candidatesSlice'; // Import deleteCandidate action
+import { addCandidate, deleteCandidate, updateCandidate } from '../redux/slices/candidatesSlice'; // Import updateCandidate action
 
 const AddCandidates = () => {
-  const dispatch = useDispatch(); // Get dispatch function
-  const allCandidates = useSelector((state) => state.candidates.allCandidates); // Get all candidates from Redux
-  const searchTerm = useSelector((state) => state.search.searchTerm); // Get search term from Redux
+  const dispatch = useDispatch();
+  const allCandidates = useSelector((state) => state.candidates.allCandidates);
+  const searchTerm = useSelector((state) => state.search.searchTerm);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -21,14 +21,16 @@ const AddCandidates = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const fileInputRef = useRef(null);
 
-  // State for row-wise editing (now operates on a copy for editing, then dispatches update)
   const [editingRowIndex, setEditingRowIndex] = useState(null);
-  const [editedCandidateData, setEditedCandidateData] = useState(null); // Holds data for the row being edited
+  const [editedCandidateData, setEditedCandidateData] = useState(null);
   const editResumeInputRef = useRef([]);
 
-  // State for delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteIndex, setDeleteIndex] = useState(null); // Stores the index of the candidate to be deleted
+  const [deleteIndex, setDeleteIndex] = useState(null);
+
+  // State for sorting
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
 
   // Filtered candidates based on search term
   const filteredCandidates = (allCandidates || []).filter(candidate => {
@@ -47,6 +49,22 @@ const AddCandidates = () => {
         )
       )
     );
+  }).sort((a, b) => { // Apply sorting after filtering
+    if (!sortColumn) return 0;
+
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+
+    if (aValue === null || aValue === undefined) return sortDirection === 'asc' ? 1 : -1;
+    if (bValue === null || bValue === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    }
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+    return 0;
   });
 
 
@@ -70,18 +88,17 @@ const AddCandidates = () => {
     }
     setErrorMessage('');
 
-    // Dispatch addCandidate action to Redux
     dispatch(addCandidate({
-      id: (allCandidates && allCandidates.length > 0) ? Math.max(...allCandidates.map(c => c.id)) + 1 : 1, // Simple ID generation
+      id: (allCandidates && allCandidates.length > 0) ? Math.max(...allCandidates.map(c => c.id)) + 1 : 1,
       name,
       domain,
       jobRole,
       email,
-      resumes: resumes.map(file => ({ name: file.name })), // Store only file names
-      status: "New Application", // Default status for new candidates
+      resumes: resumes.map(file => ({ name: file.name })),
+      status: "New Application",
       lastUpdated: new Date().toISOString().slice(0, 10),
       evaluation: null,
-      poc: "N/A", // Placeholder for new candidates
+      poc: "N/A",
       applicationDate: new Date().toISOString().slice(0, 10),
     }));
 
@@ -94,7 +111,7 @@ const AddCandidates = () => {
       resumes: [],
     });
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // Clear file input
+      fileInputRef.current.value = '';
     }
     setTimeout(() => {
       setShowMessage(false);
@@ -103,7 +120,7 @@ const AddCandidates = () => {
 
   const handleEditClick = (rowIndex) => {
     setEditingRowIndex(rowIndex);
-    setEditedCandidateData({ ...filteredCandidates[rowIndex] }); // Create a copy for editing
+    setEditedCandidateData({ ...filteredCandidates[rowIndex] });
   };
 
   const handleEditCellChange = (e, field) => {
@@ -112,13 +129,11 @@ const AddCandidates = () => {
   };
 
   const handleSaveClick = () => {
-    // Dispatch update action to Redux
-    // Note: You'll need an updateCandidate action in your slice for this
-    // For now, I'll simulate by updating the local state, but in a real app,
-    // you'd dispatch an action like:
-    // dispatch(updateCandidate({ id: editedCandidateData.id, updatedData: editedCandidateData }));
-    setEditingRowIndex(null);
-    setEditedCandidateData(null);
+    if (editedCandidateData) {
+      dispatch(updateCandidate({ id: editedCandidateData.id, updatedData: editedCandidateData }));
+      setEditingRowIndex(null);
+      setEditedCandidateData(null);
+    }
   };
 
   const handleCancelClick = () => {
@@ -133,8 +148,8 @@ const AddCandidates = () => {
 
   const confirmDelete = () => {
     if (deleteIndex !== null) {
-      const candidateId = filteredCandidates[deleteIndex].id; // Get ID from filtered list
-      dispatch(deleteCandidate(candidateId)); // Dispatch delete to Redux
+      const candidateId = filteredCandidates[deleteIndex].id;
+      dispatch(deleteCandidate(candidateId));
       setShowDeleteConfirm(false);
       setDeleteIndex(null);
     }
@@ -159,6 +174,23 @@ const AddCandidates = () => {
     }
   };
 
+  // Handle sorting logic
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIndicator = (column) => {
+    if (sortColumn === column) {
+      return sortDirection === 'asc' ? ' ▲' : ' ▼';
+    }
+    return '';
+  };
+
   return (
     <div className="add-candidates-container">
       {/* Top Section: Header Cards */}
@@ -166,12 +198,11 @@ const AddCandidates = () => {
         <div className="add-candidates-header-cards">
           <div className="add-candidates-card">
             <h3>Total profiles</h3>
-            {/* Display count based on filteredCandidates if searchTerm is active, otherwise total candidates */}
-            <p>{searchTerm ? filteredCandidates.length : (allCandidates?.length || 0)}</p> {/* Added safety check */}
+            <p>{searchTerm ? filteredCandidates.length : (allCandidates?.length || 0)}</p>
           </div>
           <div className="add-candidates-card">
             <h3>Errors</h3>
-            <p>0</p> {/* Placeholder for errors */}
+            <p>0</p>
           </div>
         </div>
       </div>
@@ -197,7 +228,7 @@ const AddCandidates = () => {
               <label htmlFor="domainSelect">Domain</label>
               <select id="domainSelect" name="domain" value={formData.domain} onChange={handleChange} className="add-candidates-select">
                 <option value="">Select Domain</option>
-                {candidateDomains.map((domain) => ( // Use imported domains
+                {candidateDomains.map((domain) => (
                   <option key={domain} value={domain}>
                     {domain}
                   </option>
@@ -207,7 +238,7 @@ const AddCandidates = () => {
               <label htmlFor="jobRoleSelect">Job Role</label>
               <select id="jobRoleSelect" name="jobRole" value={formData.jobRole} onChange={handleChange} className="add-candidates-select">
                 <option value="">Select Job Role</option>
-                {candidateJobRoles.map((role) => ( // Use imported job roles
+                {candidateJobRoles.map((role) => (
                   <option key={role} value={role}>
                     {role}
                   </option>
@@ -257,7 +288,7 @@ const AddCandidates = () => {
                   multiple
                   ref={fileInputRef}
                   onChange={handleResumeChange}
-                  style={{ display: 'none' }} /* Hide the actual input */
+                  style={{ display: 'none' }}
                 />
               </div>
               {errorMessage && <div className="erroraddcandidate-msg">⚠️ {errorMessage}</div>}
@@ -278,19 +309,19 @@ const AddCandidates = () => {
             <table className="candidate-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email address</th>
-                  <th>Job Role</th>
-                  <th>Domain</th>
-                  <th>Resume</th>
-                  <th>Actions</th> {/* New Actions column */}
+                  <th onClick={() => handleSort('name')}>Name {getSortIndicator('name')}</th>
+                  <th onClick={() => handleSort('email')}>Email address {getSortIndicator('email')}</th>
+                  <th onClick={() => handleSort('jobRole')}>Job Role {getSortIndicator('jobRole')}</th>
+                  <th onClick={() => handleSort('domain')}>Domain {getSortIndicator('domain')}</th>
+                  <th>Resume</th> 
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredCandidates.length === 0 ? ( // Use filteredCandidates here
-                  <tr className="no-results-row"> {/* Changed class name for consistency */}
+                {filteredCandidates.length === 0 ? (
+                  <tr className="no-results-row">
                     <td colSpan="6">
-                      <div className="no-results-message"> {/* Changed class name for consistency */}
+                      <div className="no-results-message">
                         {searchTerm ? "No candidates found matching your search." : "Upload Resume (max 15) To Add New Candidates"}
                         {!searchTerm && (
                           <div className="upload-icon-container">
@@ -312,13 +343,13 @@ const AddCandidates = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredCandidates.map((candidate, rowIndex) => ( // Use filteredCandidates here
-                    <tr key={candidate.id}> {/* Use candidate.id for key */}
+                  filteredCandidates.map((candidate, rowIndex) => (
+                    <tr key={candidate.id}>
                       <td>
                         {editingRowIndex === rowIndex ? (
                           <input
                             type="text"
-                            value={editedCandidateData?.name || ''} // Use editedCandidateData
+                            value={editedCandidateData?.name || ''}
                             onChange={(e) => handleEditCellChange(e, 'name')}
                             className="add-candidates-input-inline"
                           />
@@ -330,7 +361,7 @@ const AddCandidates = () => {
                         {editingRowIndex === rowIndex ? (
                           <input
                             type="email"
-                            value={editedCandidateData?.email || ''} // Use editedCandidateData
+                            value={editedCandidateData?.email || ''}
                             onChange={(e) => handleEditCellChange(e, 'email')}
                             className="add-candidates-input-inline"
                           />
@@ -341,35 +372,37 @@ const AddCandidates = () => {
                       <td>
                         {editingRowIndex === rowIndex ? (
                           <select
-                            value={editedCandidateData?.jobRole || ''} // Use editedCandidateData
+                            value={editedCandidateData?.jobRole || ''}
                             onChange={(e) => handleEditCellChange(e, 'jobRole')}
                             className="add-candidates-select-inline"
                           >
-                            {candidateJobRoles.map((role) => ( // Use imported job roles
+                            <option value="">Select Job Role</option> {/* Added default option */}
+                            {candidateJobRoles.map((role) => (
                               <option key={role} value={role}>
                                 {role}
                               </option>
                             ))}
                           </select>
                         ) : (
-                          candidate.jobRole
+                          candidate.jobRole // Display job role when not editing
                         )}
                       </td>
                       <td>
                         {editingRowIndex === rowIndex ? (
                           <select
-                            value={editedCandidateData?.domain || ''} // Use editedCandidateData
+                            value={editedCandidateData?.domain || ''}
                             onChange={(e) => handleEditCellChange(e, 'domain')}
                             className="add-candidates-select-inline"
                           >
-                            {candidateDomains.map((domain) => ( // Use imported domains
+                            <option value="">Select Domain</option> {/* Added default option */}
+                            {candidateDomains.map((domain) => (
                               <option key={domain} value={domain}>
                                 {domain}
                               </option>
                             ))}
                           </select>
                         ) : (
-                          candidate.domain
+                          candidate.domain // Display domain when not editing
                         )}
                       </td>
                       <td onClick={() => handleResumeFieldClick(rowIndex)} className="resume-cell">
@@ -391,6 +424,7 @@ const AddCandidates = () => {
                             </span>
                           </>
                         ) : (
+                          // Display resume file names when not editing
                           Array.isArray(candidate.resumes) && candidate.resumes.length > 0
                             ? candidate.resumes.map((file) => file.name).join(', ')
                             : '—'

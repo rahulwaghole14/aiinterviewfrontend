@@ -1,20 +1,20 @@
 // src/components/Jobs.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import './Jobs.css';
-import { uniqueJobDomains, jobStatusList } from '../data';
-import { addJob, updateJob, deleteJob } from '../redux/slices/jobsSlice';
+import './Jobs.css'; // Import the new CSS file
+import { uniqueJobDomains, jobStatusList } from '../data'; // Import data for dropdowns
+import { addJob, updateJob, deleteJob } from '../redux/slices/jobsSlice'; // Import job actions
 
 const Jobs = () => {
   const dispatch = useDispatch();
-  const allJobs = useSelector((state) => state.jobs.allJobs || []);
+  const allJobs = useSelector((state) => state.jobs.allJobs || []); // Ensure allJobs is an array
   const searchTerm = useSelector((state) => state.search.searchTerm);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     domain: '',
-    status: 'Open',
+    status: 'Open', // Default status
     salaryRange: '',
   });
   const [showMessage, setShowMessage] = useState(false);
@@ -28,16 +28,39 @@ const Jobs = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteJobId, setDeleteJobId] = useState(null);
 
+  // State for sorting
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
+
+  // Filtered jobs based on search term
   const filteredJobs = allJobs.filter(job => {
-    if (!searchTerm) return true;
+    if (!searchTerm) {
+      return true;
+    }
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     return (
-      job.title.toLowerCase().includes(lowerCaseSearchTerm) ||
-      job.description.toLowerCase().includes(lowerCaseSearchTerm) ||
-      job.domain.toLowerCase().includes(lowerCaseSearchTerm) ||
-      job.status.toLowerCase().includes(lowerCaseSearchTerm) ||
-      job.salaryRange.toLowerCase().includes(lowerCaseSearchTerm)
+      (job.title && job.title.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.description && job.description.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.domain && job.domain.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.status && job.status.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.salaryRange && job.salaryRange.toLowerCase().includes(lowerCaseSearchTerm))
     );
+  }).sort((a, b) => { // Apply sorting after filtering
+    if (!sortColumn) return 0;
+
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+
+    if (aValue === null || aValue === undefined) return sortDirection === 'asc' ? 1 : -1;
+    if (bValue === null || bValue === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    }
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+    return 0;
   });
 
   const handleChange = (e) => {
@@ -121,23 +144,38 @@ const Jobs = () => {
     setDeleteJobId(null);
   };
 
+  // Handle sorting logic
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIndicator = (column) => {
+    if (sortColumn === column) {
+      return sortDirection === 'asc' ? ' ▲' : ' ▼';
+    }
+    return '';
+  };
+
   return (
     <div className="jobs-container">
-      {/* Top Section: Header Cards */}
-      <div className="jobs-top-section">
-        <div className="jobs-header-cards">
-          <div className="jobs-card">
-            <h3>Total Jobs</h3>
-            <p>{allJobs.length}</p>
-          </div>
-          <div className="jobs-card">
-            <h3>Open Positions</h3>
-            <p>{allJobs.filter(job => job.status === 'Open').length}</p>
-          </div>
-          <div className="jobs-card">
-            <h3>Closed Positions</h3>
-            <p>{allJobs.filter(job => job.status === 'Closed').length}</p>
-          </div>
+      {/* Top Section: Header Cards - now rendered as button-like status cards */}
+      <div className="candidate-status-cards-container"> {/* Reusing class from Candidates.css */}
+        <div className="status-card"> {/* Reusing class from Candidates.css */}
+          <span className="status-card-count">{allJobs.length}</span>
+          <span className="status-card-label">Total Jobs</span>
+        </div>
+        <div className="status-card"> {/* Reusing class from Candidates.css */}
+          <span className="status-card-count">{allJobs.filter(job => job.status === 'Open').length}</span>
+          <span className="status-card-label">Open Positions</span>
+        </div>
+        <div className="status-card"> {/* Reusing class from Candidates.css */}
+          <span className="status-card-count">{allJobs.filter(job => job.status === 'Closed').length}</span>
+          <span className="status-card-label">Closed Positions</span>
         </div>
       </div>
 
@@ -218,11 +256,11 @@ const Jobs = () => {
             <table className="jobs-table">
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Domain</th>
-                  <th>Status</th>
-                  <th>Applicants</th>
-                  <th>Posted Date</th>
+                  <th onClick={() => handleSort('title')}>Title {getSortIndicator('title')}</th>
+                  <th onClick={() => handleSort('domain')}>Domain {getSortIndicator('domain')}</th>
+                  <th onClick={() => handleSort('status')}>Status {getSortIndicator('status')}</th>
+                  <th onClick={() => handleSort('applicants')}>Applicants {getSortIndicator('applicants')}</th>
+                  <th onClick={() => handleSort('postedDate')}>Posted Date {getSortIndicator('postedDate')}</th>
                   <th>Actions</th>
                 </tr>
               </thead>

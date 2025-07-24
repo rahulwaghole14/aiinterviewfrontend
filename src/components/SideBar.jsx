@@ -9,7 +9,9 @@ import {
   MdSettings,
 } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
-
+import logo from '../../public/RSL_Logo.png';
+import logo2 from "../../public/rsl_solution_private_limited_logo.jpg";
+import logo1 from '../../public/rsl_solution_private_limited_logo-removebg-preview.png'; // Assuming you have a logo image
 // Remove isMobile from props
 const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
   const location = useLocation();
@@ -34,7 +36,7 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
     <div className="sidebar">
       <Link className="logo-link" to="/" onClick={onMenuItemClick}>
         <img
-          src="https://media.licdn.com/dms/image/v2/D4D0BAQE3CHkZdD7RXw/company-logo_200_200/B4DZc0aUFVGkAI-/0/1748931003137/rsl_solution_private_limited_logo?e=2147483647&v=beta&t=yhrMzlFjXtlzM1lj3baQGy39NVpprN-IA6OVle4GK24"
+          src={logo}
           alt="Logo"
           className="logo"
         />
