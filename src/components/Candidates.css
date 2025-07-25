@@ -1,3 +1,4 @@
+/* Candidates Page Styles */
 .candidate-page-wrapper {
   display: flex;
   flex-direction: column;
@@ -10,82 +11,49 @@
   position: relative;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  background-color: var(--color-bg); /* Use theme variable */
+  color: var(--color-text); /* Use theme variable */
 }
 
 .candidate-page-wrapper::-webkit-scrollbar {
   display: none;
 }
 
-.candidate-status-cards-container {
+/* New Status Tabs Container */
+.candidate-status-tabs-container {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 1rem;
-  width: 100%;
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 5px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  flex-wrap: wrap;
+  gap: 8px; /* Space between tabs */
+  margin-bottom: 1rem; /* Reduced space below tabs */
+  border-bottom: 1px solid var(--color-border); /* Subtle separator */
+  padding-bottom: 8px; /* Reduced padding below separator */
 }
 
-.candidate-status-cards-container::-webkit-scrollbar {
-  display: none;
-}
-
-.status-card {
-  background-color: var(--color-card, #ffffff);
-  box-shadow: var(--shadow-soft, 0 4px 12px rgba(0, 0, 0, 0.05));
-  border-radius: var(--radius, 16px);
-  padding: 0.75rem 1rem;
-  flex: 0 0 auto;
-  min-width: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+.status-tab {
+  padding: 8px 15px;
+  border-radius: var(--radius-small);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
-.status-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover, 0 6px 16px rgba(0, 0, 0, 0.1));
+.status-tab:hover {
+  background-color: var(--color-hover);
 }
 
-.status-card.active {
-  border: 2px solid var(--color-primary, #007bff);
-  transform: translateY(-1px);
+.status-tab.active {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: var(--shadow-soft);
 }
 
-.status-card-count {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-text, #333);
-  margin-bottom: 0.1rem;
-}
-
-.status-card-label {
-  font-size: 0.8rem;
-  color: var(--color-muted, #666);
-}
-
-.status-card.status-all {
-  background-color: #e6f2ff;
-}
-.status-card.status-requires-action,
-.status-card.status-pending-scheduling,
-.status-card.status-br-in-process {
-  background-color: #fffbe6;
-}
-.status-card.status-br-evaluated,
-.status-card.status-internal-interviews,
-.status-card.status-offered,
-.status-card.status-hired {
-  background-color: #e6ffe6;
-}
-.status-card.status-rejected,
-.status-card.status-offer-rejected,
-.status-card.status-cancelled {
-  background-color: #ffe6e6;
+/* Removed old status cards container */
+.candidate-status-cards-container {
+  display: none; /* Hide the old status cards */
 }
 
 .candidates-main-content.fixed-grid {
@@ -97,9 +65,9 @@
 }
 
 .candidate-details-section {
-  background-color: var(--color-card, #ffffff);
-  border-radius: var(--radius, 16px);
-  box-shadow: var(--shadow-soft, 0 4px 12px rgba(0, 0, 0, 0.05));
+  background-color: var(--color-card); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
+  box-shadow: var(--shadow-soft); /* Use theme variable */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -114,9 +82,9 @@
 }
 
 .filter-sidebar-section {
-  background-color: var(--color-card, #ffffff);
-  border-radius: var(--radius, 16px);
-  box-shadow: var(--shadow-soft, 0 4px 12px rgba(0, 0, 0, 0.05));
+  background-color: var(--color-card); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
+  box-shadow: var(--shadow-soft); /* Use theme variable */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -130,177 +98,179 @@
 }
 
 .candidate-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 1.5rem;
+  display: grid; /* Changed from flex to grid */
+  grid-template-columns: 1fr; /* Full width cards */
+  gap: 1rem; /* Reduced space between cards */
+  margin-top: 1rem; /* Reduced margin-top */
 }
 
 .candidate-card {
-  padding: 12px;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: var(--radius, 10px);
-  background: var(--color-bg-secondary, #f9f9f9);
-  box-shadow: none;
-  color: var(--color-text, #333);
-  height: auto;
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  padding: 1.2rem; /* Reduced padding */
+  border: 1px solid var(--color-border); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
+  background: var(--color-bg-secondary); /* Use theme variable */
+  box-shadow: var(--shadow-soft); /* Added shadow for cards */
+  color: var(--color-text); /* Use theme variable */
+  height: auto; /* Allow height to adjust to content */
+  display: grid; /* Changed to grid for fixed half spaces */
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 0.8rem; /* Reduced space between grid columns */
+  align-items: flex-start; /* Align items to the top */
+  overflow: hidden; /* Ensure content doesn't spill */
+  transform: scale(1); /* Initial scale for transition */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
 }
 
-.card-header {
+.candidate-card:hover {
+  transform: translateY(-5px); /* Lift effect on hover */
+  box-shadow: var(--shadow-medium); /* Stronger shadow on hover */
+}
+
+.card-left-content {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  flex-direction: column;
+  overflow: hidden; /* Ensure content within left column doesn't overflow */
+  min-width: 0; /* Prevents content from pushing column wider than its grid track */
+}
+
+.card-right-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space out status badge and button vertically */
+  align-items: flex-end; /* Align items to the right */
+  height: 100%; /* Ensure it takes full height of its grid cell to enable space-between */
+  overflow: hidden; /* Ensure content within right column doesn't overflow */
+  min-width: 0; /* Prevents content from pushing column wider than its grid track */
+}
+
+.status-badge {
+  padding: 0.2rem 0.6rem; /* Reduced padding */
+  font-size: 0.7rem; /* Reduced font size */
+  border-radius: 9999px; /* Full rounded corners */
+  border: none; /* Removed border */
+  font-weight: 600;
+  white-space: normal; /* Allow text wrapping */
+  word-break: break-word; /* Force long words to break and wrap strictly */
+  display: inline-block; /* Ensure padding and border apply correctly with normal white-space */
+  line-height: 1.2; /* Adjust line height for wrapped text */
+  text-align: left; /* Align text within the badge itself */
+  max-width: 100%; /* Ensure it wraps within its container */
+  overflow-wrap: break-word; /* Modern property for word breaking */
+}
+
+/* Specific badge colors (reusing existing ones) */
+.status-badge.badge-success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background-color: rgba(var(--color-success-rgb), 0.1);
+}
+
+.status-badge.badge-warning {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+  background-color: rgba(var(--color-warning-rgb), 0.1);
+}
+
+.status-badge.badge-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background-color: rgba(var(--color-danger-rgb), 0.1);
+}
+
+.status-badge.badge-info { /* Added for default/other statuses */
+  color: var(--color-info);
+  border-color: var(--color-info);
+  background-color: rgba(var(--color-info-rgb), 0.1);
 }
 
 .candidate-name {
-  font-size: 18px;
+  font-size: 1.05rem; /* Slightly reduced font size */
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 0.2rem; /* Reduced margin-bottom */
+  display: block; /* Ensure it takes full width */
+  color: var(--color-text-primary); /* text-gray-900 */
 }
 
 .candidate-role,
+.candidate-updated,
+.candidate-domain {
+  font-size: 0.8rem; /* Slightly reduced font size */
+  color: var(--color-muted); /* text-gray-700 / text-gray-500 */
+  margin-bottom: 0.15rem; /* Reduced margin-bottom */
+  display: block;
+}
+
 .candidate-updated {
-  font-size: 12px;
-  color: var(--color-muted, #555);
-  margin-bottom: 4px;
+  font-size: 0.7rem; /* Slightly reduced font size */
+  color: var(--color-muted-light); /* text-gray-500 */
 }
 
-.candidate-status-container { /* New container for badge and dropdown */
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  display: flex;
-  flex-direction: column; /* Stack dropdown below badge */
-  align-items: flex-end; /* Align to the right */
-  z-index: 10; /* Ensure dropdown is above other elements */
+.candidate-domain {
+  color: var(--color-muted); /* text-gray-600 */
 }
 
-/* Apply badge styles directly to the select element */
-.candidate-status-container select.badge {
-  padding: 4px 10px;
-  font-size: 11px;
-  border-radius: 12px;
-  border: 1px solid;
-  cursor: pointer;
-  display: flex; /* To align text and custom arrow if needed */
-  align-items: center;
-  gap: 5px;
-
-  /* Remove default arrow */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-
-  /* Custom arrow */
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%236c7a89" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 5px center; /* Position the arrow */
-  background-size: 1em; /* Size of the arrow */
-  padding-right: 20px; /* Make space for the arrow */
-}
-
-
-.badge-success {
-  color: #28a745;
-  border-color: #28a745;
-  background-color: rgba(40, 167, 69, 0.1);
-}
-
-.badge-warning {
-  color: #ffc107;
-  border-color: #ffc107;
-  background-color: rgba(255, 193, 7, 0.1);
-}
-
-.badge-danger {
-  color: #dc3545;
-  border-color: #dc3545;
-  background-color: rgba(220, 53, 69, 0.1);
-}
-
-.evaluation-section {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: flex-end;
-  gap: 20px;
-}
-
-.eval-score {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.eval-result {
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.eval-result.pass {
-  color: #28a745;
-}
-
-.eval-result.fail {
-  color: #dc3545;
-}
-
-.view-report {
-  background: none;
+.view-details-btn { /* New button style */
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.4rem 0.8rem; /* Reduced padding */
   border: none;
-  color: var(--color-primary, #007bff);
+  border-radius: var(--radius-small); /* rounded-md */
+  font-size: 0.8rem; /* Reduced font size */
+  font-weight: bold;
   cursor: pointer;
-  text-decoration: underline;
-  font-size: 12px;
-  padding: 0;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-soft); /* shadow-md */
 }
+
+.view-details-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px); /* Lift effect */
+  box-shadow: var(--shadow-medium);
+}
+
+/* Removed old evaluation section and view report button styles from card */
+.evaluation-section {
+  display: none;
+}
+.view-report {
+  display: none;
+}
+.candidate-status-container { /* Hide the old status dropdown in card */
+  display: none;
+}
+
 
 .filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem; /* Reduced margin-bottom */
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text, #333);
+  color: var(--color-text); /* Use theme variable */
+  padding-bottom: 0.8rem; /* Reduced padding-bottom */
+  border-bottom: 1px solid var(--color-border-light); /* border-b border-gray-200 */
 }
 
 .clear-filters {
   background: none;
   border: none;
-  color: var(--color-primary, #007bff);
+  color: var(--color-primary); /* Use theme variable */
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.875rem; /* text-sm */
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .clear-filters:hover {
-  color: var(--color-primary-dark, #0056b3);
+  color: var(--color-primary-dark); /* Use theme variable */
   text-decoration: underline;
-}
-
-.filter-group {
-  margin-bottom: 1rem;
-}
-
-.filter-group label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--color-muted, #666);
 }
 
 .form-box {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem; /* Reduced space-y-4 to 0.5rem */
   flex-grow: 1;
   overflow-y: auto;
   padding-right: 5px;
@@ -312,29 +282,44 @@
   display: none;
 }
 
+.filter-group {
+  margin-bottom: 0.5rem; /* Reduced margin-bottom from 1rem to 0.5rem */
+}
+
+.filter-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.15rem; /* Reduced margin-bottom */
+  font-size: 0.8rem; /* Slightly reduced font size */
+  color: var(--color-muted); /* text-gray-700 */
+}
+
 .add-candidates-input,
-.add-candidates-select {
-  padding: 0.75rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: var(--radius, 8px);
-  font-size: 0.95rem;
-  color: var(--color-text, #333);
-  background-color: #fcfcfc;
+.add-candidates-select,
+.add-candidates-textarea { /* Added textarea */
+  padding: 0.4rem 0.6rem; /* Reduced padding */
+  border: 1px solid var(--color-border-light); /* border border-gray-300 */
+  border-radius: var(--radius-small); /* rounded-md */
+  font-size: 0.85rem; /* Reduced font size */
+  color: var(--color-text); /* Use theme variable */
+  background-color: var(--color-bg-secondary); /* Use theme variable */
   transition: all 0.2s ease;
   box-sizing: border-box;
   width: 100%;
 }
 
-.add-candidates-input::placeholder {
-  color: var(--color-muted, #999);
+.add-candidates-input::placeholder,
+.add-candidates-textarea::placeholder {
+  color: var(--color-muted); /* Use theme variable */
   opacity: 0.7;
 }
 
 .add-candidates-input:focus,
-.add-candidates-select:focus {
+.add-candidates-select:focus,
+.add-candidates-textarea:focus { /* Added textarea */
   outline: none;
-  border-color: var(--color-primary, #007bff);
-  box-shadow: 0 0 0 3px rgba(127, 202, 146, 0.2);
+  border-color: var(--color-primary); /* focus:border-blue-500 */
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* focus:ring-blue-500 */
 }
 
 .add-candidates-select {
@@ -348,173 +333,360 @@
   padding-right: 2.5rem;
 }
 
+.add-candidates-textarea { /* New style for textarea */
+  resize: vertical;
+  min-height: 80px;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1.5rem;
+  margin-top: 1.2rem; /* Reduced margin-top */
   flex-shrink: 0;
 }
 
 .submit-btn {
-  background-color: var(--color-primary, #007bff);
+  background-color: var(--color-primary); /* Use theme variable */
   color: white;
-  padding: 0.7rem 1.5rem;
+  padding: 0.6rem 1.2rem; /* Reduced padding */
   border: none;
-  border-radius: var(--radius, 8px);
-  font-size: 1rem;
+  border-radius: var(--radius); /* Use theme variable */
+  font-size: 0.9rem; /* Reduced font size */
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-soft, 0 4px 12px rgba(0, 0, 0, 0.05));
+  box-shadow: var(--shadow-soft); /* Use theme variable */
   transition: background-color 0.2s ease, transform 0.2s ease;
   width: 100%;
 }
 
 .submit-btn:hover {
-  background-color: var(--color-primary-dark, #0056b3);
+  background-color: var(--color-primary-dark); /* Use theme variable */
   transform: translateY(-2px);
 }
 
 .no-results {
   text-align: center;
   margin-top: 20px;
-  color: #777;
+  color: var(--color-muted); /* Use theme variable */
   font-size: 1rem;
 }
 
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+/* Candidate Details Page Specific Styles */
+.candidate-details-page-container {
+  padding: 1.5rem; /* p-6 */
+  background-color: var(--color-bg-light); /* bg-gray-50 */
+  min-height: 100vh; /* min-h-screen */
+  border-radius: var(--radius); /* rounded-lg */
+  box-shadow: var(--shadow-soft); /* shadow-md */
+  color: var(--color-text);
+}
+
+.candidate-details-page-container.not-found { /* Style for "Candidate not found" state */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: var(--color-muted);
+  font-size: 1.25rem; /* text-xl */
+}
+
+.candidate-details-page-container.not-found .back-to-candidates-btn {
+  margin-top: 1rem; /* mt-4 */
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  background-color: var(--color-primary); /* bg-blue-500 */
+  color: white;
+  border-radius: var(--radius-small); /* rounded-md */
+  transition: background-color 0.2s ease; /* transition duration-200 */
+}
+
+.candidate-details-page-container.not-found .back-to-candidates-btn:hover {
+  background-color: var(--color-primary-dark); /* hover:bg-blue-600 */
+}
+
+.back-button-container {
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary); /* text-blue-600 */
+  transition: color 0.2s ease; /* transition duration-200 */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.back-button:hover {
+  color: var(--color-primary-dark); /* hover:text-blue-800 */
+}
+
+.back-button svg {
+  margin-right: 0.5rem; /* mr-2 */
+}
+
+.candidate-details-content {
+  background-color: var(--color-card); /* bg-white */
+  padding: 2rem; /* p-8 */
+  border-radius: var(--radius); /* rounded-lg */
+  box-shadow: var(--shadow-soft); /* shadow-sm */
+}
+
+.candidate-details-content h2 {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: bold;
+  color: var(--color-text-primary); /* text-gray-800 */
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* grid-cols-1 */
+  gap: 1rem; /* gap-4 */
+  margin-bottom: 2rem; /* mb-8 */
+}
+
+.details-grid p {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.details-grid strong {
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.interview-details-section,
+.evaluation-details-section {
+  padding: 1.5rem; /* p-6 */
+  border-radius: var(--radius-small); /* rounded-md */
+  margin-bottom: 2rem; /* mb-8 */
+  box-shadow: var(--shadow-inner); /* shadow-inner */
+}
+
+.interview-details-section {
+  background-color: var(--color-info-light); /* bg-blue-50 */
+}
+
+.interview-details-section h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  color: var(--color-info-dark); /* text-blue-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.evaluation-details-section {
+  background-color: var(--color-success-light); /* bg-green-50 */
+}
+
+.evaluation-details-section h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  color: var(--color-success-dark); /* text-green-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.eval-result {
+  font-weight: 500; /* font-medium */
+}
+
+.eval-result.pass {
+  color: var(--color-success-dark); /* text-green-600 */
+}
+
+.eval-result.fail {
+  color: var(--color-danger-dark); /* text-red-600 */
+}
+
+.update-status-section {
+  background-color: var(--color-bg-light); /* bg-gray-100 */
+  padding: 1.5rem; /* p-6 */
+  border-radius: var(--radius); /* rounded-lg */
+  box-shadow: var(--shadow-inner); /* shadow-inner */
+}
+
+.update-status-section h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  color: var(--color-text-primary); /* text-gray-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.update-status-section .add-candidates-select,
+.update-status-section .add-candidates-input,
+.update-status-section .add-candidates-textarea {
+  width: 100%; /* w-full */
+  padding: 0.5rem; /* p-2 */
+  border: 1px solid var(--color-border-light); /* border border-gray-300 */
+  border-radius: var(--radius-small); /* rounded-md */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.update-status-section .add-candidates-select:focus,
+.update-status-section .add-candidates-input:focus,
+.update-status-section .add-candidates-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary); /* focus:border-blue-500 */
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* focus:ring-blue-500 */
+}
+
+.conditional-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* space-y-3 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.conditional-input-group label {
+  display: block; /* block */
+  color: var(--color-text-primary); /* text-gray-700 */
+  font-weight: 500; /* font-medium */
+}
+
+.save-status-btn {
+  width: 100%; /* w-full */
+  background-color: var(--color-primary); /* bg-blue-600 */
+  color: white;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  border-radius: var(--radius-small); /* rounded-md */
+  transition: background-color 0.2s ease; /* transition duration-200 */
+}
+
+.save-status-btn:hover {
+  background-color: var(--color-primary-dark); /* hover:bg-blue-700 */
+}
+
+/* Pagination Styles */
+.pagination-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
 }
 
-.modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
-  width: 90%;
-  position: relative;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.modal-close-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
+.pagination-button {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
   border: none;
-  font-size: 24px;
+  border-radius: var(--radius-small);
   cursor: pointer;
-  color: #555;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
 }
 
-.modal-close-button:hover {
-  color: #333;
+.pagination-button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
 }
 
-.modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: var(--color-text, #333);
-  font-size: 1.8rem;
+.pagination-button:disabled {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-muted);
+  cursor: not-allowed;
 }
 
-.modal-details p {
-  margin-bottom: 10px;
-  font-size: 1rem;
-  color: var(--color-text, #333);
+.pagination-page-number {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-small);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-weight: 500;
 }
 
-.modal-details strong {
-  color: var(--color-muted, #555);
+.pagination-page-number.active {
+  background-color: var(--color-primary);
+  color: white;
 }
 
-.evaluation-details {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+
+/* Responsive adjustments */
+@media (min-width: 768px) { /* md breakpoint */
+  .details-grid {
+    grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+  }
 }
 
-.evaluation-details h3 {
-  color: var(--color-primary, #007bff);
-  margin-bottom: 10px;
-  font-size: 1.3rem;
-}
-
-@media (max-width: 1024px) {
+@media (min-width: 1024px) { /* lg breakpoint */
   .candidates-main-content.fixed-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 3fr; /* lg:grid-cols-4, lg:col-span-1, lg:col-span-3 */
+  }
+}
+
+@media (max-width: 1023px) { /* Tablet and smaller */
+  .candidates-main-content.fixed-grid {
+    grid-template-columns: 1fr; /* Stack filter and details vertically */
+  }
+}
+
+@media (max-width: 767px) { /* Mobile */
+  .candidate-page-wrapper {
+    padding: 15px;
+  }
+
+  .candidate-status-tabs-container {
+    flex-direction: column; /* Stack tabs vertically on small screens */
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .status-tab {
+    width: 100%; /* Make tabs full width */
+    text-align: center;
+    padding: 10px;
   }
 
   .candidate-details-section,
   .filter-sidebar-section {
-    padding: 1.5rem;
-  }
-
-  .candidate-status-cards-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .status-card {
-    flex: 1 1 100%;
     padding: 1rem;
   }
-}
 
-@media (max-width: 600px) {
+  .candidate-card {
+    padding: 10px;
+    /* On mobile, maintain grid layout for left/right sections */
+    grid-template-columns: 1fr 1fr; /* Still two columns for left and right content */
+    align-items: flex-start;
+    gap: 0.5rem; /* Reduced gap for smaller screens */
+  }
+
+  .card-right-actions {
+    /* On mobile, stack status and button vertically, aligned right */
+    width: auto; /* Allow width to be determined by content */
+    flex-direction: column;
+    justify-content: space-between; /* Space out status and button */
+    align-items: flex-end;
+    gap: 0.5rem; /* Space between status and button */
+  }
+
+  .status-badge {
+    max-width: 100%; /* Ensure it wraps within its column */
+    text-align: right; /* Align text within the badge to right */
+  }
+
   .candidate-name {
     font-size: 16px;
   }
 
   .candidate-role,
-  .candidate-updated {
+  .candidate-updated,
+  .candidate-domain {
     font-size: 11px;
   }
 
-  .eval-score,
-  .eval-result {
-    font-size: 12px;
-  }
-
-  .candidate-card {
-    padding: 10px;
-  }
-
-  .filter-group select,
-  .filter-group input {
-    font-size: 12px;
-  }
-
-  .view-report {
-    font-size: 13px;
-  }
-
-  .status-card {
-    padding: 0.8rem 1rem;
-  }
-
-  .status-card-count {
-    font-size: 1.5rem;
-  }
-
-  .status-card-label {
+  .view-details-btn {
+    padding: 6px 12px;
     font-size: 0.8rem;
   }
 
-  .candidate-details-section,
-  .filter-sidebar-section {
-    padding: 1rem;
+  .filter-group select,
+  .filter-group input,
+  .filter-group textarea { /* Added textarea */
+    font-size: 12px;
   }
 
   .filter-header {
@@ -527,7 +699,8 @@
   }
 
   .add-candidates-input,
-  .add-candidates-select {
+  .add-candidates-select,
+  .add-candidates-textarea { /* Added textarea */
     padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
   }
@@ -537,27 +710,76 @@
     font-size: 0.9rem;
   }
 
-  .modal-content {
-    padding: 20px;
-  }
-
-  .modal-content h2 {
+  .candidate-details-content h2 {
     font-size: 1.5rem;
   }
 
-  .modal-details p {
+  .candidate-details-content p,
+  .interview-details-section p,
+  .evaluation-details-section p {
     font-size: 0.9rem;
+  }
+
+  .interview-details-section h3,
+  .evaluation-details-section h3,
+  .update-status-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .save-status-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .pagination-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .pagination-page-number {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 479px) { /* Very small mobile */
+  .candidate-page-wrapper {
+    padding: 10px;
+  }
+
   .candidate-details-section,
   .filter-sidebar-section {
     padding: 0.8rem;
   }
 
+  .status-tab {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  .candidate-name {
+    font-size: 14px;
+  }
+
+  .candidate-role,
+  .candidate-updated,
+  .candidate-domain {
+    font-size: 10px;
+  }
+
+  .status-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .view-details-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
   .add-candidates-input,
-  .add-candidates-select {
+  .add-candidates-select,
+  .add-candidates-textarea {
     padding: 0.5rem 0.7rem;
     font-size: 0.85rem;
   }
@@ -565,5 +787,36 @@
   .submit-btn {
     padding: 0.5rem 0.8rem;
     font-size: 0.85rem;
+  }
+
+  .candidate-details-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .candidate-details-content p,
+  .interview-details-section p,
+  .evaluation-details-section p {
+    font-size: 0.8rem;
+  }
+
+  .interview-details-section h3,
+  .evaluation-details-section h3,
+  .update-status-section h3 {
+    font-size: 1rem;
+  }
+
+  .save-status-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .pagination-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .pagination-page-number {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
   }
 }

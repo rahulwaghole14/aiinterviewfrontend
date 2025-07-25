@@ -7,7 +7,7 @@ import { setSearchTerm } from '../redux/actions/searchActions';
 import { searchableItems } from '../data'; // Import searchable items from data.js
 
 const Header = ({
-  title,
+  headerTitle, // Changed from 'title' to 'headerTitle' to match prop name in App.jsx
   isSidebarExpanded,
   sidebarMobileOpen,
   onToggleSidebar,
@@ -132,7 +132,7 @@ const Header = ({
       searchInputRef.current.focus();
     }
     if (searchModalInputRef.current) {
-      searchModalInputRef.current.focus();
+      searchModalInputRef.focus();
     }
   };
 
@@ -151,7 +151,7 @@ const Header = ({
             : (isSidebarExpanded ? <FiChevronLeft size={20} /> : <FiMenu size={20} />)
           }
         </div>
-        <h1 className="header-title">{title || 'Dashboard'}</h1>
+        <h1 className="header-title">{headerTitle || 'Dashboard'}</h1> {/* Use headerTitle prop */}
       </div>
 
       <div className="header-right">

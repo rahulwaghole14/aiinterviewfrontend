@@ -3,15 +3,13 @@ import React from 'react';
 import {
   MdDashboard,
   MdPersonAdd,
-  MdCalendarMonth,
   MdGroups,
   MdWork,
   MdSettings,
+  MdBusiness, // Import new icon for Hiring Agencies
 } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../../public/RSL_Logo.png';
-import logo2 from "../../public/rsl_solution_private_limited_logo.jpg";
-import logo1 from '../../public/rsl_solution_private_limited_logo-removebg-preview.png'; // Assuming you have a logo image
+import logo from '../assets/RSL_Logo.png'; // Assuming you have a logo image
 // Remove isMobile from props
 const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
   const location = useLocation();
@@ -20,9 +18,10 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
   const menu = [
     { name: 'Dashboard', path: 'dashboard', icon: <MdDashboard size={20} /> },
     { name: 'Add Candidates', path: 'add-candidates', icon: <MdPersonAdd size={20} /> },
-    { name: 'Interviews', path: 'interviews', icon: <MdCalendarMonth size={20} /> },
+    // Removed 'Interviews' tab
     { name: 'Candidates', path: 'candidates', icon: <MdGroups size={20} /> },
     { name: 'Jobs', path: 'jobs', icon: <MdWork size={20} /> },
+    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} /> }, // New item
     { name: 'Settings', path: 'settings', icon: <MdSettings size={20} /> },
   ];
 
@@ -60,6 +59,10 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
           </li>
         ))}
       </ul>
+
+      <div className="sidebar-footer">
+        {/* You can add footer items here, e.g., user profile, logout */}
+      </div>
     </div>
   );
 };

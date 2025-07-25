@@ -2,8 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import './Jobs.css'; // Import the new CSS file
-import { uniqueJobDomains, jobStatusList } from '../data'; // Import data for dropdowns
-import { addJob, updateJob, deleteJob } from '../redux/slices/jobsSlice'; // Import job actions
+import { uniqueJobDomains, jobStatusList, baseURL } from '../data'; // Import data for dropdowns and baseURL
+import { addJob, updateJob, deleteJob, setJobs } from '../redux/slices/jobsSlice'; // Import job actions and setJobs
 
 const Jobs = () => {
   const dispatch = useDispatch();
@@ -11,11 +11,21 @@ const Jobs = () => {
   const searchTerm = useSelector((state) => state.search.searchTerm);
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    domain: '',
-    status: 'Open', // Default status
-    salaryRange: '',
+    title: '', // Corresponds to job_title
+    description: '', // No direct equivalent, might combine other fields or remove from form
+    domain: '', // No direct equivalent from new API, retaining for now
+    status: 'Open', // Default status, not directly from API
+    salaryRange: '', // No direct equivalent from new API, retaining for now
+    closedDate: '', // No direct equivalent from new API, retaining for now
+    companyName: '', // New field from API: company_name
+    spocEmail: '', // New field from API: spoc_email
+    hiringManagerEmail: '', // New field from API: hiring_manager_email
+    currentTeamSizeInfo: '', // New field from API: current_team_size_info
+    numberToHire: '', // New field from API: number_to_hire
+    positionLevel: '', // New field from API: position_level
+    currentProcess: '', // New field from API: current_process
+    techStackDetails: '', // New field from API: tech_stack_details
+    jdLink: '', // New field from API: jd_link
   });
   const [showMessage, setShowMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -32,6 +42,50 @@ const Jobs = () => {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10); // Show 10 records per page, changed from 20
+
+  // Fetch jobs from API - now a named function to be callable from handleSubmit
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch(`${baseURL}/api/jobs/`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      // Map API data to match existing structure or extend it
+      const formattedJobs = data.map(job => ({
+        id: job.id,
+        title: job.job_title,
+        companyName: job.company_name, // New field
+        spocEmail: job.spoc_email, // New field
+        hiringManagerEmail: job.hiring_manager_email, // New field
+        currentTeamSizeInfo: job.current_team_size_info, // New field
+        numberToHire: job.number_to_hire, // New field
+        positionLevel: job.position_level, // New field
+        currentProcess: job.current_process, // New field
+        techStackDetails: job.tech_stack_details, // New field
+        jdLink: job.jd_link, // New field
+        postedDate: job.created_at ? job.created_at.slice(0, 10) : 'N/A', // Using created_at as postedDate
+        status: 'Open', // Default status as API doesn't provide it directly
+        description: '', // Placeholder, as API doesn't provide a direct 'description'
+        domain: '', // Placeholder, as API doesn't provide a direct 'domain'
+        salaryRange: '', // Placeholder
+        closedDate: null, // Placeholder
+      }));
+      dispatch(setJobs(formattedJobs));
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      setErrorMessage("Failed to load jobs.");
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs(); // Initial fetch when component mounts
+  }, [dispatch]);
+
+
   // Filtered jobs based on search term
   const filteredJobs = allJobs.filter(job => {
     if (!searchTerm) {
@@ -43,7 +97,11 @@ const Jobs = () => {
       (job.description && job.description.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (job.domain && job.domain.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (job.status && job.status.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (job.salaryRange && job.salaryRange.toLowerCase().includes(lowerCaseSearchTerm))
+      (job.salaryRange && job.salaryRange.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.companyName && job.companyName.toLowerCase().includes(lowerCaseSearchTerm)) || // Search by new fields
+      (job.spocEmail && job.spocEmail.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.hiringManagerEmail && job.hiringManagerEmail.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.techStackDetails && job.techStackDetails.toLowerCase().includes(lowerCaseSearchTerm))
     );
   }).sort((a, b) => { // Apply sorting after filtering
     if (!sortColumn) return 0;
@@ -63,44 +121,93 @@ const Jobs = () => {
     return 0;
   });
 
+  // Pagination calculations
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredJobs.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredJobs.length / recordsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Reset to first page when search term or sorting changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortColumn, sortDirection]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { title, description, domain, status, salaryRange } = formData;
-    if (!title || !description || !domain || !status || !salaryRange) {
-      setErrorMessage('Please fill all fields.');
+    const { title, companyName, spocEmail, hiringManagerEmail, numberToHire, positionLevel, currentProcess, techStackDetails, jdLink } = formData;
+    
+    if (!title || !companyName || !spocEmail || !hiringManagerEmail || !numberToHire || !positionLevel || !currentProcess || !techStackDetails) {
+      setErrorMessage('Please fill all required fields.');
       setShowMessage(false);
       return;
     }
     setErrorMessage('');
 
-    dispatch(addJob({
-      id: (allJobs.length > 0) ? Math.max(...allJobs.map(j => j.id)) + 1 : 1, // Simple ID generation
-      title,
-      description,
-      domain,
-      status,
-      salaryRange,
-      postedDate: new Date().toISOString().slice(0, 10),
-      applicants: 0, // New jobs start with 0 applicants
-      hired: 0, // New jobs start with 0 hired
-    }));
+    try {
+      const response = await fetch(`${baseURL}/api/jobs/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          job_title: title,
+          company_name: companyName,
+          spoc_email: spocEmail,
+          hiring_manager_email: hiringManagerEmail,
+          current_team_size_info: formData.currentTeamSizeInfo, // Ensure this is included if needed
+          number_to_hire: parseInt(numberToHire, 10), // Convert to number
+          position_level: positionLevel,
+          current_process: currentProcess,
+          tech_stack_details: techStackDetails,
+          jd_link: jdLink || null, // Send null if empty
+        }),
+      });
 
-    setShowMessage(true);
-    setFormData({
-      title: '',
-      description: '',
-      domain: '',
-      status: 'Open',
-      salaryRange: '',
-    });
-    setTimeout(() => {
-      setShowMessage(false);
-    }, 2000);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const newJobData = await response.json();
+      console.log('Job successfully added:', newJobData);
+
+      // Re-fetch all jobs to update the table with the latest data from the API
+      await fetchJobs();
+
+      setShowMessage(true);
+      // Clear form after successful submission
+      setFormData({
+        title: '',
+        description: '',
+        domain: '',
+        status: 'Open',
+        salaryRange: '',
+        closedDate: '',
+        companyName: '',
+        spocEmail: '',
+        hiringManagerEmail: '',
+        currentTeamSizeInfo: '',
+        numberToHire: '',
+        positionLevel: '',
+        currentProcess: '',
+        techStackDetails: '',
+        jdLink: '',
+      });
+      setTimeout(() => {
+        setShowMessage(false);
+      }, 2000);
+
+    } catch (error) {
+      console.error("Error adding job:", error);
+      setErrorMessage("Failed to add job. Please try again.");
+      setShowMessage(false); // Hide success message in case of error
+    }
   };
 
   const handleEditClick = (job) => {
@@ -115,6 +222,8 @@ const Jobs = () => {
 
   const handleSaveClick = () => {
     if (editedJobData) {
+      // Add validation for edited fields if necessary
+      setErrorMessage('');
       dispatch(updateJob({ id: editedJobData.id, updatedData: editedJobData }));
       setEditingJobId(null);
       setEditedJobData(null);
@@ -191,49 +300,96 @@ const Jobs = () => {
                 type="text"
                 id="jobTitle"
                 name="title"
-                placeholder="e.g., Software Engineer"
+                placeholder="e.g., Data Analyst"
                 value={formData.title}
                 onChange={handleChange}
                 className="jobs-input"
               />
 
-              <label htmlFor="jobDescription">Description</label>
-              <textarea
-                id="jobDescription"
-                name="description"
-                placeholder="Detailed job description"
-                value={formData.description}
-                onChange={handleChange}
-                className="jobs-textarea"
-                rows="4"
-              ></textarea>
-
-              <label htmlFor="jobDomain">Domain</label>
-              <select id="jobDomain" name="domain" value={formData.domain} onChange={handleChange} className="jobs-select">
-                <option value="">Select Domain</option>
-                {uniqueJobDomains.map((domain) => (
-                  <option key={domain} value={domain}>
-                    {domain}
-                  </option>
-                ))}
-              </select>
-
-              <label htmlFor="jobStatus">Status</label>
-              <select id="jobStatus" name="status" value={formData.status} onChange={handleChange} className="jobs-select">
-                {jobStatusList.filter(s => s !== "All").map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-
-              <label htmlFor="salaryRange">Salary Range</label>
+              <label htmlFor="companyName">Company Name</label>
               <input
                 type="text"
-                id="salaryRange"
-                name="salaryRange"
-                placeholder="e.g., $80,000 - $120,000"
-                value={formData.salaryRange}
+                id="companyName"
+                name="companyName"
+                placeholder="e.g., Insight Analytics"
+                value={formData.companyName}
+                onChange={handleChange}
+                className="jobs-input"
+              />
+
+              <label htmlFor="spocEmail">SPOC Email</label>
+              <input
+                type="email"
+                id="spocEmail"
+                name="spocEmail"
+                placeholder="e.g., hr@example.com"
+                value={formData.spocEmail}
+                onChange={handleChange}
+                className="jobs-input"
+              />
+
+              <label htmlFor="hiringManagerEmail">Hiring Manager Email</label>
+              <input
+                type="email"
+                id="hiringManagerEmail"
+                name="hiringManagerEmail"
+                placeholder="e.g., manager@example.com"
+                value={formData.hiringManagerEmail}
+                onChange={handleChange}
+                className="jobs-input"
+              />
+
+              <label htmlFor="numberToHire">Number to Hire</label>
+              <input
+                type="number"
+                id="numberToHire"
+                name="numberToHire"
+                placeholder="e.g., 2"
+                value={formData.numberToHire}
+                onChange={handleChange}
+                className="jobs-input"
+              />
+
+              <label htmlFor="positionLevel">Position Level</label>
+              <input
+                type="text"
+                id="positionLevel"
+                name="positionLevel"
+                placeholder="e.g., IC, Manager"
+                value={formData.positionLevel}
+                onChange={handleChange}
+                className="jobs-input"
+              />
+
+              <label htmlFor="currentProcess">Current Process</label>
+              <textarea
+                id="currentProcess"
+                name="currentProcess"
+                placeholder="e.g., Resume -> Aptitude Test -> Technical Interview"
+                value={formData.currentProcess}
+                onChange={handleChange}
+                className="jobs-textarea"
+                rows="3"
+              ></textarea>
+
+              <label htmlFor="techStackDetails">Tech Stack Details</label>
+              <input
+                type="text"
+                id="techStackDetails"
+                name="techStackDetails"
+                placeholder="e.g., SQL, Power BI, Python"
+                value={formData.techStackDetails}
+                onChange={handleChange}
+                className="jobs-input"
+              />
+
+              <label htmlFor="jdLink">JD Link (Optional)</label>
+              <input
+                type="url"
+                id="jdLink"
+                name="jdLink"
+                placeholder="e.g., https://example.com/job-description"
+                value={formData.jdLink}
                 onChange={handleChange}
                 className="jobs-input"
               />
@@ -256,25 +412,28 @@ const Jobs = () => {
             <table className="jobs-table">
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('title')}>Title {getSortIndicator('title')}</th>
-                  <th onClick={() => handleSort('domain')}>Domain {getSortIndicator('domain')}</th>
-                  <th onClick={() => handleSort('status')}>Status {getSortIndicator('status')}</th>
-                  <th onClick={() => handleSort('applicants')}>Applicants {getSortIndicator('applicants')}</th>
+                  <th onClick={() => handleSort('title')}>Job Title {getSortIndicator('title')}</th>
+                  <th onClick={() => handleSort('companyName')}>Company {getSortIndicator('companyName')}</th>
+                  <th onClick={() => handleSort('spocEmail')}>SPOC Email {getSortIndicator('spocEmail')}</th>
+                  <th onClick={() => handleSort('hiringManagerEmail')}>Hiring Manager Email {getSortIndicator('hiringManagerEmail')}</th>
+                  <th onClick={() => handleSort('numberToHire')}>No. to Hire {getSortIndicator('numberToHire')}</th>
+                  <th onClick={() => handleSort('positionLevel')}>Level {getSortIndicator('positionLevel')}</th>
+                  <th onClick={() => handleSort('techStackDetails')}>Tech Stack {getSortIndicator('techStackDetails')}</th>
                   <th onClick={() => handleSort('postedDate')}>Posted Date {getSortIndicator('postedDate')}</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredJobs.length === 0 ? (
+                {currentRecords.length === 0 ? (
                   <tr className="no-results-row">
-                    <td colSpan="6">
+                    <td colSpan="9"> {/* Updated colspan */}
                       <div className="no-results-message">
                         {searchTerm ? "No jobs found matching your search." : "No jobs available. Create a new job to get started!"}
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  filteredJobs.map((job) => (
+                  currentRecords.map((job) => (
                     <tr key={job.id}>
                       <td>
                         {editingJobId === job.id ? (
@@ -290,41 +449,76 @@ const Jobs = () => {
                       </td>
                       <td>
                         {editingJobId === job.id ? (
-                          <select
-                            value={editedJobData?.domain || ''}
-                            onChange={(e) => handleEditCellChange(e, 'domain')}
-                            className="jobs-select-inline"
-                          >
-                            {uniqueJobDomains.map((domain) => (
-                              <option key={domain} value={domain}>
-                                {domain}
-                              </option>
-                            ))}
-                          </select>
+                          <input
+                            type="text"
+                            value={editedJobData?.companyName || ''}
+                            onChange={(e) => handleEditCellChange(e, 'companyName')}
+                            className="jobs-input-inline"
+                          />
                         ) : (
-                          job.domain
+                          job.companyName
                         )}
                       </td>
                       <td>
                         {editingJobId === job.id ? (
-                          <select
-                            value={editedJobData?.status || ''}
-                            onChange={(e) => handleEditCellChange(e, 'status')}
-                            className="jobs-select-inline"
-                          >
-                            {jobStatusList.filter(s => s !== "All").map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </select>
+                          <input
+                            type="email"
+                            value={editedJobData?.spocEmail || ''}
+                            onChange={(e) => handleEditCellChange(e, 'spocEmail')}
+                            className="jobs-input-inline"
+                          />
                         ) : (
-                          <span className={`status-badge status-badge-${job.status.toLowerCase().replace(/\s/g, '-')}`}>
-                            {job.status}
-                          </span>
+                          job.spocEmail
                         )}
                       </td>
-                      <td>{job.applicants}</td>
+                      <td>
+                        {editingJobId === job.id ? (
+                          <input
+                            type="email"
+                            value={editedJobData?.hiringManagerEmail || ''}
+                            onChange={(e) => handleEditCellChange(e, 'hiringManagerEmail')}
+                            className="jobs-input-inline"
+                          />
+                        ) : (
+                          job.hiringManagerEmail
+                        )}
+                      </td>
+                      <td>
+                        {editingJobId === job.id ? (
+                          <input
+                            type="number"
+                            value={editedJobData?.numberToHire || ''}
+                            onChange={(e) => handleEditCellChange(e, 'numberToHire')}
+                            className="jobs-input-inline"
+                          />
+                        ) : (
+                          job.numberToHire
+                        )}
+                      </td>
+                      <td>
+                        {editingJobId === job.id ? (
+                          <input
+                            type="text"
+                            value={editedJobData?.positionLevel || ''}
+                            onChange={(e) => handleEditCellChange(e, 'positionLevel')}
+                            className="jobs-input-inline"
+                          />
+                        ) : (
+                          job.positionLevel
+                        )}
+                      </td>
+                      <td>
+                        {editingJobId === job.id ? (
+                          <input
+                            type="text"
+                            value={editedJobData?.techStackDetails || ''}
+                            onChange={(e) => handleEditCellChange(e, 'techStackDetails')}
+                            className="jobs-input-inline"
+                          />
+                        ) : (
+                          job.techStackDetails
+                        )}
+                      </td>
                       <td>{job.postedDate}</td>
                       <td className="actions-cell">
                         {editingJobId === job.id ? (
@@ -372,6 +566,34 @@ const Jobs = () => {
               </tbody>
             </table>
           </div>
+          {/* Pagination Controls */}
+          {filteredJobs.length > recordsPerPage && (
+            <div className="pagination">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="pagination-btn"
+              >
+                Previous
+              </button>
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => paginate(index + 1)}
+                  className={`pagination-btn ${currentPage === index + 1 ? 'active' : ''}`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="pagination-btn"
+              >
+                Next
+              </button>
+            </div>
+          )}
           {/* Delete Confirmation Popup */}
           {showDeleteConfirm && (
             <div className="delete-confirm-overlay">

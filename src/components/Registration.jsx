@@ -1,25 +1,28 @@
 // components/Register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { baseURL } from '../data'; // Import baseURL
+import './Registration.css'; // Import the new CSS file for Registration
 
-// In a real application, this would interact with a backend API
-// to create a new user and store their credentials securely.
-// For this example, we'll just simulate a successful registration.
 const Register = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [role, setRole] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     // Basic validation
-    if (!email || !password || !confirmPassword) {
+    if (!username || !email || !fullName || !companyName || !role || !password || !confirmPassword) {
       setError('Please fill in all fields.');
       return;
     }
@@ -29,64 +32,137 @@ const Register = () => {
       return;
     }
 
-    // Simulate registration success
-    // In a real app, you'd send this data to your backend
-    console.log('Registering user:', { email, password });
-    setSuccess('Registration successful! You can now log in.');
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    // Optionally, redirect to login after a short delay
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
+    try {
+      const response = await fetch(`${baseURL}/auth/register/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          full_name: fullName,
+          company_name: companyName,
+          role,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Registration successful:', data);
+        setSuccess('Registration successful! You can now log in.');
+        setUsername('');
+        setEmail('');
+        setFullName('');
+        setCompanyName('');
+        setRole('');
+        setPassword('');
+        setConfirmPassword('');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.detail || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Registration API error:', err);
+      setError('An error occurred during registration. Please try again later.');
+    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Register for IntelliHire</h2>
-        <form onSubmit={handleRegister} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="reg-email">Email</label>
-            <input
-              type="email"
-              id="reg-email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
+    <div className="registration-container">
+      <div className="registration-card">
+        <h2 className="registration-title">Register for IntelliHire</h2>
+        <form onSubmit={handleRegister} className="registration-form">
+          <div className="registration-form-grid"> {/* Container for two-column layout */}
+            <div className="registration-form-group">
+              <label htmlFor="reg-username">Username</label>
+              <input
+                type="text"
+                id="reg-username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                required
+              />
+            </div>
+            <div className="registration-form-group">
+              <label htmlFor="reg-email">Email</label>
+              <input
+                type="email"
+                id="reg-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            <div className="registration-form-group">
+              <label htmlFor="reg-full-name">Full Name</label>
+              <input
+                type="text"
+                id="reg-full-name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                required
+              />
+            </div>
+            <div className="registration-form-group">
+              <label htmlFor="reg-company-name">Company Name</label>
+              <input
+                type="text"
+                id="reg-company-name"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="Enter your company name"
+                required
+              />
+            </div>
+            <div className="registration-form-group">
+              <label htmlFor="reg-role">Role</label>
+              <input
+                type="text"
+                id="reg-role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                placeholder="Enter your role (e.g., Admin, Recruiter)"
+                required
+              />
+            </div>
+            <div className="registration-form-group">
+              <label htmlFor="reg-password">Password</label>
+              <input
+                type="password"
+                id="reg-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create a password"
+                required
+              />
+            </div>
+            <div className="registration-form-group">
+              <label htmlFor="confirm-password">Confirm Password</label>
+              <input
+                type="password"
+                id="confirm-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
+                required
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label htmlFor="reg-password">Password</label>
-            <input
-              type="password"
-              id="reg-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <input
-              type="password"
-              id="confirm-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
-          <button type="submit" className="auth-button">
+          {error && <p className="registration-error-message">{error}</p>}
+          {success && <p className="registration-success-message">{success}</p>}
+          <button type="submit" className="registration-button">
             Register
           </button>
         </form>
-        <p className="auth-link-text">
+        <p className="registration-link-text">
           Already have an account? <Link to="/login">Login here</Link>
         </p>
       </div>

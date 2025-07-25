@@ -1,420 +1,336 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
-import "./Candidates.css"; // Ensure this import is present
-import { candidateStatusList, uniqueCandidateDomains, uniqueCandidateJobRoles, uniqueCandidatePocs } from '../data'; // Import data
-import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Import updateCandidateStatus action
+import { useSelector, useDispatch } from 'react-redux';
+import "./Candidates.css";
+import { candidateStatusList, uniqueCandidateDomains, uniqueCandidateJobRoles, uniqueCandidatePocs, baseURL } from '../data';
+import { updateCandidateStatus, setCandidates } from '../redux/slices/candidatesSlice'; // Import setCandidates
 
-// New Report Modal Component
-const ReportModal = ({ candidate, onClose }) => {
-  if (!candidate) return null;
+const candidateTabsStatusList = [
+  "All",
+  "Requires Action",
+  "Interview Pending",
+  "Interview Scheduled",
+  "Interview Completed",
+  "Evaluated",
+  "Hired",
+  "Rejected",
+];
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-button" onClick={onClose}>
-          &times;
-        </button>
-        <h2>Candidate Report: {candidate.name}</h2>
-        <div className="modal-details">
-          <p><strong>Role:</strong> {candidate.role}</p>
-          <p><strong>Domain:</strong> {candidate.domain}</p>
-          <p><strong>Current Status:</strong> {candidate.status}</p>
-          <p><strong>Last Updated:</strong> {new Date(candidate.lastUpdated).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
-          <p><strong>Application Date:</strong> {new Date(candidate.applicationDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
-          <p><strong>Email:</strong> {candidate.email}</p>
-          <p><strong>POC:</strong> {candidate.poc}</p>
+// Candidate Card Component
+const CandidateCard = ({ candidate, onViewReport }) => {
+  const getStatusBadgeClass = (status) => {
+    if (["Requires Action", "Interview Pending"].includes(status)) {
+      return "badge-warning";
+    } else if (["Rejected", "Offer Rejected", "Cancelled"].includes(status)) {
+      return "badge-danger";
+    } else if (["Interview Scheduled", "Evaluated", "Hired", "Interview Completed"].includes(status)) {
+      return "badge-success";
+    } else {
+      return "badge-info";
+    }
+  };
 
-          {candidate.evaluation && (
-            <div className="evaluation-details">
-              <h3>Evaluation Details</h3>
-              <p><strong>Score:</strong> {candidate.evaluation.score}/10</p>
-              <p><strong>Result:</strong> <span className={`eval-result ${candidate.evaluation.result.toLowerCase()}`}>{candidate.evaluation.result}</span></p>
-              <p><strong>Feedback:</strong> {candidate.evaluation.feedback || "N/A"}</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-const CandidateCard = ({ candidate, onUpdateStatus, onViewReport }) => {
-  const handleStatusChange = (e) => {
-    onUpdateStatus(candidate.id, e.target.value);
+  const renderStatusDisplay = (candidate) => {
+    if (candidate.status === "Interview Scheduled" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
+      return `Scheduled: ${candidate.interviewDetails.date} at ${candidate.interviewDetails.time}`;
+    } else if (candidate.status === "Evaluated" && candidate.evaluation?.feedback) {
+      // Display evaluation feedback as part of the status
+      return `Evaluated: ${candidate.evaluation.score}/10 - ${candidate.evaluation.result}`;
+    } else if (candidate.status === "Requires Action" && candidate.aptitude?.score) {
+      return `Aptitude: ${candidate.aptitude.score}/100`;
+    }
+    return candidate.status || 'N/A'; // Default to 'N/A' if status is missing
   };
 
   return (
     <div className="candidate-card">
-      <div className="card-header">
-        <div>
-          <strong className="candidate-name">{candidate.name}</strong>
-          <div className="candidate-role">{candidate.role}</div>
-          <div className="candidate-updated">
-            Last updated:{" "}
-            {new Date(candidate.lastUpdated).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-          </div>
+      <div className="card-left-content"> {/* Added div for left content */}
+        <div className="candidate-info">
+          <h3 className="candidate-name">{candidate.name || '-'}</h3>
+          <p className="candidate-role">{candidate.jobRole || '-'}</p>
+          <p className="candidate-domain">{candidate.domain || '-'}</p>
+          <p className="candidate-updated">Last Updated: {candidate.lastUpdated || '-'}</p>
         </div>
-
-        {candidate.evaluation && (
-          <div className="evaluation-section">
-            <button className="view-report" onClick={() => onViewReport(candidate)}>
-              View Report
-            </button>
-            <span className="eval-score">{candidate.evaluation.score}/10</span>
-            <span className={`eval-result ${candidate.evaluation.result.toLowerCase()}`}>
-              {candidate.evaluation.result}
-            </span>
-          </div>
-        )}
       </div>
-
-      <div className="candidate-status-container">
-        <select
-          className={`badge ${
-            candidate.status === "Requires Action" ||
-            candidate.status === "Pending Scheduling" ||
-            candidate.status === "BR In Process"
-              ? "badge-warning"
-              : candidate.status === "Rejected" ||
-                candidate.status === "Offer Rejected" ||
-                candidate.status === "Cancelled"
-              ? "badge-danger"
-              : "badge-success"
-          }`}
-          value={candidate.status}
-          onChange={handleStatusChange}
-        >
-          {candidateStatusList.filter(s => s !== "All").map((status) => ( // Use imported status list
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
+      <div className="card-right-actions"> {/* Added div for right actions */}
+        <div className="candidate-status">
+          <span className={`status-badge ${getStatusBadgeClass(candidate.status)}`}>
+            {renderStatusDisplay(candidate)}
+          </span>
+        </div>
+        <button className="view-details-btn" onClick={() => onViewReport(candidate.id)}>
+          View Details
+        </button>
       </div>
     </div>
   );
 };
 
-
 const CandidatePage = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Get dispatch function
-  const allCandidates = useSelector((state) => state.candidates.allCandidates); // Get all candidates from Redux
-  const searchTerm = useSelector((state) => state.search.searchTerm); // Get search term from Redux
+  const dispatch = useDispatch();
+  const allCandidates = useSelector((state) => state.candidates.allCandidates);
+  const searchTerm = useSelector((state) => state.search.searchTerm);
 
-  const [selectedStatus, setSelectedStatus] = useState("All");
-  const [filteredCandidates, setFilteredCandidates] = useState([]);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [selectedCandidateForReport, setSelectedCandidateForReport] = useState(null);
-
-  const [filterFormData, setFilterFormData] = useState({
+  // States for filters (temporary, before applying)
+  const [filters, setFilters] = useState({
     domain: "",
     jobRole: "",
-    evaluationIncludes: "",
     poc: "",
-    applicationStartDate: "",
-    lastStatusUpdateDate: "",
-    scoreOption: "",
-    scoreValue: "",
   });
+  const [activeTab, setActiveTab] = useState("All");
 
-  // This useEffect will handle filtering based on both searchTerm and local filters
-  useEffect(() => {
-    let currentFiltered = allCandidates; // Start filtering from the Redux state
+  // States for applied filters (used for actual filtering)
+  const [appliedFilters, setAppliedFilters] = useState({
+    domain: "",
+    jobRole: "",
+    poc: "",
+  });
+  const [appliedTab, setAppliedTab] = useState("All");
 
-    // Apply global search term first
-    if (searchTerm) {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      currentFiltered = currentFiltered.filter(candidate =>
-        candidate.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.role.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.domain.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.status.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.poc.toLowerCase().includes(lowerCaseSearchTerm) ||
-        (candidate.evaluation && JSON.stringify(candidate.evaluation).toLowerCase().includes(lowerCaseSearchTerm))
-      );
+  const [itemsPerPage] = useState(4);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Function to fetch candidates from the API
+  const fetchCandidates = async () => {
+    try {
+      const authToken = localStorage.getItem('authToken'); // Get token from local storage
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (authToken) {
+        headers['Authorization'] = `Token ${authToken}`; // Use "Token" prefix for Django Token authentication
+      } else {
+        // If no token, log out or redirect to login
+        console.error("No authentication token found. Please log in.");
+        navigate('/login'); // Redirect to login page
+        return;
+      }
+
+      const response = await fetch(`${baseURL}/api/candidates/`, { headers });
+      if (!response.ok) {
+        // Log the error response for debugging
+        const errorText = await response.text();
+        console.error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+        throw new Error(`Failed to fetch candidates: ${response.statusText}`);
+      }
+      const data = await response.json();
+
+      // Map API response to Redux state structure
+      const formattedCandidates = data.map(candidate => ({
+        id: candidate.id,
+        name: candidate.full_name || '-',
+        email: candidate.email || '-',
+        phone: candidate.phone || '-',
+        domain: candidate.domain || '-',
+        jobRole: candidate.job_title || '-', // Map job_title to jobRole
+        poc: candidate.poc_email || '-', // Map poc_email to poc
+        workExperience: candidate.work_experience || '-',
+        status: candidate.status || 'NEW', // Default status if not provided
+        lastUpdated: candidate.last_updated ? candidate.last_updated.slice(0, 10) : '-',
+        resumes: candidate.resume_url ? [{ name: candidate.resume_url.split('/').pop(), url: candidate.resume_url }] : [], // Handle single resume_url
+        // Placeholder for fields not directly from API
+        interviews: [],
+        evaluation: null,
+        aptitude: null,
+        brChats: [],
+      }));
+      dispatch(setCandidates(formattedCandidates)); // Update Redux store
+    } catch (error) {
+      console.error("Error fetching candidates:", error);
+      // Optionally set an error message state here to display to the user
     }
-
-    // Apply status tab filter only if no search term, or to further refine search results
-    // If searchTerm is active, local filters should *further refine* the search results, not override them.
-    // If no searchTerm, then local filters apply as usual.
-    if (!searchTerm || (searchTerm && (selectedStatus !== "All" || Object.values(filterFormData).some(val => val !== "")))) {
-        if (selectedStatus !== "All") {
-            currentFiltered = currentFiltered.filter(c => c.status === selectedStatus);
-        }
-
-        currentFiltered = currentFiltered.filter(candidate => {
-            const matchesDomain = filterFormData.domain === "" || candidate.domain === filterFormData.domain;
-            const matchesJobRole = filterFormData.jobRole === "" || candidate.role === filterFormData.jobRole;
-            const matchesPOC = filterFormData.poc === "" || candidate.poc === filterFormData.poc;
-
-            const matchesApplicationStartDate = filterFormData.applicationStartDate === "" ||
-                new Date(candidate.applicationDate) >= new Date(filterFormData.applicationStartDate);
-            const matchesLastStatusUpdateDate = filterFormData.lastStatusUpdateDate === "" ||
-                new Date(candidate.lastUpdated) >= new Date(filterFormData.lastStatusUpdateDate);
-
-            let matchesScore = true;
-            if (filterFormData.scoreValue !== "" && candidate.evaluation?.score !== undefined) {
-                const score = parseFloat(filterFormData.scoreValue);
-                switch (filterFormData.scoreOption) {
-                    case "Less than":
-                        matchesScore = candidate.evaluation.score < score;
-                        break;
-                    case "Greater than":
-                        matchesScore = candidate.evaluation.score > score;
-                        break;
-                    default:
-                        break;
-                }
-            } else if (filterFormData.scoreValue !== "" && candidate.evaluation?.score === undefined) {
-                matchesScore = false;
-            }
-
-            const matchesEvaluationIncludes = filterFormData.evaluationIncludes === "" ||
-                (candidate.evaluation && JSON.stringify(candidate.evaluation).toLowerCase().includes(filterFormData.evaluationIncludes.toLowerCase()));
-
-            return matchesDomain && matchesJobRole && matchesPOC &&
-                   matchesApplicationStartDate && matchesLastStatusUpdateDate &&
-                   matchesScore && matchesEvaluationIncludes;
-        });
-    }
-
-    currentFiltered.sort((a, b) => new Date(b.applicationDate) - new Date(a.applicationDate));
-    setFilteredCandidates(currentFiltered);
-  }, [selectedStatus, filterFormData, allCandidates, searchTerm]); // Add allCandidates to dependency array
-
-
-  const countByStatus = (status) => {
-    // This count should reflect the *currently filtered* candidates if a search term is active
-    // otherwise, it counts from the full candidatesData.
-    let candidatesToCount = allCandidates; // Count from Redux state
-    if (searchTerm) {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      candidatesToCount = allCandidates.filter(candidate =>
-        candidate.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.role.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.domain.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.status.toLowerCase().includes(lowerCaseSearchTerm) ||
-        candidate.poc.toLowerCase().includes(lowerCaseSearchTerm) ||
-        (candidate.evaluation && JSON.stringify(candidate.evaluation).toLowerCase().includes(lowerCaseSearchTerm))
-      );
-    }
-
-    return status === "All"
-      ? candidatesToCount.length
-      : candidatesToCount.filter((c) => c.status === status).length;
   };
+
+  // Fetch candidates on component mount
+  useEffect(() => {
+    fetchCandidates();
+  }, [dispatch, navigate]); // Dependency array includes dispatch and navigate to avoid lint warnings
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilterFormData((prev) => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setAppliedTab(activeTab);
+    setCurrentPage(1); // Reset pagination on filter application
   };
 
   const handleClearFilters = () => {
-    setFilterFormData({
-      domain: "",
-      jobRole: "",
-      evaluationIncludes: "",
-      poc: "",
-      applicationStartDate: "",
-      lastStatusUpdateDate: "",
-      scoreOption: "",
-      scoreValue: "",
-    });
-    setSelectedStatus("All");
+    setFilters({ domain: "", jobRole: "", poc: "" });
+    setActiveTab("All");
+    setAppliedFilters({ domain: "", jobRole: "", poc: "" });
+    setAppliedTab("All");
+    setCurrentPage(1); // Reset pagination on clearing filters
   };
 
-  const updateCandidateStatusHandler = (id, newStatus) => {
-    dispatch(updateCandidateStatus({ id, newStatus })); // Dispatch action to Redux
+  const handleViewDetails = (id) => {
+    navigate(`/candidates/${id}`);
   };
 
-  const handleViewReport = (candidate) => {
-    setSelectedCandidateForReport(candidate);
-    setShowReportModal(true);
-  };
+  // Filter candidates based on applied tab and applied search term
+  const filteredCandidates = allCandidates.filter((candidate) => {
+    const matchesTab = appliedTab === "All" || candidate.status === appliedTab;
+    const matchesDomain = appliedFilters.domain === "" || candidate.domain === appliedFilters.domain;
+    const matchesJobRole = appliedFilters.jobRole === "" || candidate.jobRole === appliedFilters.jobRole;
+    const matchesPoc = appliedFilters.poc === "" || candidate.poc === appliedFilters.poc;
 
-  const closeReportModal = () => {
-    setShowReportModal(false);
-    setSelectedCandidateForReport(null);
-  };
+    const lowerCaseSearchTerm = searchTerm ? searchTerm.toLowerCase() : '';
+    const matchesSearch =
+      !searchTerm ||
+      (candidate.name && candidate.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (candidate.email && candidate.email.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (candidate.phone && candidate.phone.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (candidate.domain && candidate.domain.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (candidate.jobRole && candidate.jobRole.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (candidate.poc && candidate.poc.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (candidate.status && candidate.status.toLowerCase().includes(lowerCaseSearchTerm));
 
-  const activeFilterCount = Object.values(filterFormData).filter(value => value !== "").length;
+    return matchesTab && matchesDomain && matchesJobRole && matchesPoc && matchesSearch;
+  });
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCandidates = filteredCandidates.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="candidate-page-wrapper">
-      <div className="candidates-main-content fixed-grid">
-        <div className="filter-sidebar-section">
+      <div className="candidates-main-content fixed-grid"> {/* Main content grid */}
+        {/* Filter Sidebar */}
+        <div className="filter-sidebar-section card">
           <div className="filter-header">
-            <span>Filters ({activeFilterCount})</span>
-            <button className="clear-filters" onClick={handleClearFilters}>Clear all</button>
+            <h3>Filters</h3>
+            <button className="clear-filters" onClick={handleClearFilters}>Clear Filters</button>
           </div>
-          <div className="form-box">
+          <div className="form-box"> {/* Using form-box for consistent styling */}
             <div className="filter-group">
-              <label htmlFor="domainSelect">Domain</label>
+              <label htmlFor="domainFilter">Domain</label>
               <select
-                id="domainSelect"
+                id="domainFilter"
                 name="domain"
-                value={filterFormData.domain}
+                value={filters.domain}
                 onChange={handleFilterChange}
                 className="add-candidates-select"
               >
-                <option value="">Select Domain</option>
-                {uniqueCandidateDomains.map((domain) => ( // Use imported domains
-                  <option key={domain} value={domain}>{domain}</option>
+                <option value="">All Domains</option>
+                {uniqueCandidateDomains.map((domain) => (
+                  <option key={domain} value={domain}>
+                    {domain}
+                  </option>
                 ))}
               </select>
             </div>
-
             <div className="filter-group">
-              <label htmlFor="jobRoleSelect">Job Role</label>
+              <label htmlFor="jobRoleFilter">Job Role</label>
               <select
-                id="jobRoleSelect"
+                id="jobRoleFilter"
                 name="jobRole"
-                value={filterFormData.jobRole}
+                value={filters.jobRole}
                 onChange={handleFilterChange}
                 className="add-candidates-select"
               >
-                <option value="">Select Job Role</option>
-                {uniqueCandidateJobRoles.map((role) => ( // Use imported job roles
-                  <option key={role} value={role}>{role}</option>
+                <option value="">All Job Roles</option>
+                {uniqueCandidateJobRoles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
                 ))}
               </select>
             </div>
-
             <div className="filter-group">
-              <label htmlFor="evaluationIncludes">Evaluation Includes</label>
-              <input
-                type="text"
-                id="evaluationIncludes"
-                name="evaluationIncludes"
-                placeholder="e.g., 'Pass', 'Java'"
-                value={filterFormData.evaluationIncludes}
-                onChange={handleFilterChange}
-                className="add-candidates-input"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="pocSelect">Point of Contact (POC)</label>
+              <label htmlFor="pocFilter">POC</label>
               <select
-                id="pocSelect"
+                id="pocFilter"
                 name="poc"
-                value={filterFormData.poc}
+                value={filters.poc}
                 onChange={handleFilterChange}
                 className="add-candidates-select"
               >
-                <option value="">Select POC</option>
-                {uniqueCandidatePocs.map((poc) => ( // Use imported POCs
-                  <option key={poc} value={poc}>{poc}</option>
+                <option value="">All POCs</option>
+                {uniqueCandidatePocs.map((poc) => (
+                  <option key={poc} value={poc}>
+                    {poc}
+                  </option>
                 ))}
               </select>
             </div>
-
-            <div className="filter-group">
-              <label htmlFor="applicationStartDate">Application Start Date (After)</label>
-              <input
-                type="date"
-                id="applicationStartDate"
-                name="applicationStartDate"
-                value={filterFormData.applicationStartDate}
-                onChange={handleFilterChange}
-                className="add-candidates-input"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="lastStatusUpdateDate">Last Status Update Date (After)</label>
-              <input
-                type="date"
-                id="lastStatusUpdateDate"
-                name="lastStatusUpdateDate"
-                value={filterFormData.lastStatusUpdateDate}
-                onChange={handleFilterChange}
-                className="add-candidates-input"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="scoreOption">For score</label>
-              <select
-                id="scoreOption"
-                name="scoreOption"
-                value={filterFormData.scoreOption}
-                onChange={handleFilterChange}
-                className="add-candidates-select"
-              >
-                <option value="">Select Option</option>
-                <option value="Less than">Less than</option>
-                <option value="Greater than">Greater than</option>
-              </select>
-            </div>
-            {filterFormData.scoreOption !== "" && (
-              <div className="filter-group">
-                <label htmlFor="scoreValue">Score Value</label>
-                <input
-                  type="number"
-                  id="scoreValue"
-                  name="scoreValue"
-                  placeholder="Enter score"
-                  value={filterFormData.scoreValue}
-                  onChange={handleFilterChange}
-                  className="add-candidates-input"
-                  min="0"
-                  max="10"
-                  step="0.1"
-                />
-              </div>
-            )}
           </div>
-          <div className="form-actions">
-            <button className="submit-btn" onClick={() => console.log('Apply Filters (Client-side)')}>
+          <div className="form-actions"> {/* Using form-actions for consistent button styling */}
+            <button className="submit-btn" onClick={handleApplyFilters}>
               Apply Filters
             </button>
           </div>
         </div>
-        <div className="candidate-details-section">
-          <div className="candidate-status-cards-container">
-            {candidateStatusList.map((status) => ( // Use imported status list
+
+        {/* Candidate Details Section */}
+        <div className="candidate-details-section card">
+          {/* Status Tabs - Moved inside candidate-details-section */}
+          <div className="candidate-status-tabs-container">
+            {candidateTabsStatusList.map((tab) => (
               <div
-                key={status}
-                className={`status-card status-card-${status.toLowerCase().replace(/\s/g, "-")} ${
-                  selectedStatus === status ? "active" : ""
-                }`}
-                onClick={() => setSelectedStatus(status)}
+                key={tab}
+                className={`status-tab ${activeTab === tab ? "active" : ""}`}
+                onClick={() => handleTabClick(tab)}
               >
-                <span className="status-card-count">{countByStatus(status)}</span>
-                <span className="status-card-label">{status}</span>
+                {tab}
               </div>
             ))}
           </div>
-
-          <div className="candidate-list">
-            {filteredCandidates.length > 0 ? (
-              filteredCandidates.map((candidate) => (
+          <h2 className="section-title">Candidate List</h2>
+          <div className="candidate-list"> {/* This is the grid for cards */}
+            {currentCandidates.length > 0 ? (
+              currentCandidates.map((candidate) => (
                 <CandidateCard
                   key={candidate.id}
                   candidate={candidate}
-                  onUpdateStatus={updateCandidateStatusHandler} // Use the handler that dispatches
-                  onViewReport={handleViewReport}
+                  onViewReport={handleViewDetails}
                 />
               ))
             ) : (
               <p className="no-results">No Candidates Found Matching Your Filters.</p>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {filteredCandidates.length > itemsPerPage && (
+            <div className="pagination-container">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="pagination-button"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`pagination-page-number ${currentPage === i + 1 ? "active" : ""}`}
+                >
+                  {i + 1}
+                </button>
+              ))}.
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="pagination-button"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      {showReportModal && (
-        <ReportModal candidate={selectedCandidateForReport} onClose={closeReportModal} />
-      )}
     </div>
   );
 };

@@ -8,6 +8,9 @@ const jobsSlice = createSlice({
     allJobs: initialJobs,
   },
   reducers: {
+    setJobs: (state, action) => { // New reducer to set jobs from API
+      state.allJobs = action.payload;
+    },
     addJob: (state, action) => {
       // Ensure state.allJobs is an array before pushing
       if (!Array.isArray(state.allJobs)) {
@@ -30,5 +33,5 @@ const jobsSlice = createSlice({
   },
 });
 
-export const { addJob, updateJob, deleteJob } = jobsSlice.actions;
+export const { addJob, updateJob, deleteJob, setJobs } = jobsSlice.actions; // Export setJobs
 export default jobsSlice.reducer;

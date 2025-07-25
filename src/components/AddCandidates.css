@@ -9,6 +9,8 @@
   /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  background-color: var(--color-bg); /* Ensure background matches global theme */
+  color: var(--color-text); /* Ensure text color matches global theme */
 }
 
 /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
@@ -78,12 +80,42 @@
   overflow-x: auto; /* Enable horizontal scrolling for table if needed */
 }
 
+.table-header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1rem; /* Space between title and button */
+}
+
 .table-title {
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0px;
   color: var(--color-text);
+  margin: 0; /* Reset margin as it's handled by gap now */
 }
+
+.process-candidates-btn {
+  background-color: var(--color-primary); /* Use a suitable color, e.g., primary */
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.process-candidates-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
 
 .table-box {
   overflow-x: auto; /* Enable horizontal scrolling for table if needed */
@@ -100,7 +132,7 @@
 .candidate-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 0rem;
   min-width: 600px; /* Ensure table doesn't shrink too much for horizontal scroll */
 }
 
@@ -108,17 +140,22 @@
 .candidate-table td {
   text-align: left;
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light); /* Use theme variable */
   color: var(--color-text);
   vertical-align: middle; /* Align content vertically in middle */
 }
 
 .candidate-table th {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-muted);
+  background-color: var(--color-bg-secondary); /* Use theme variable */
+  color: var(--color-muted); /* Use theme variable */
   font-weight: 600;
   font-size: 0.9rem;
   white-space: nowrap; /* Prevent header text from wrapping */
+  cursor: pointer; /* Indicate sortable columns */
+}
+
+.candidate-table th:hover {
+  background-color: var(--color-hover);
 }
 
 .candidate-table tbody tr:last-child td {
@@ -126,7 +163,7 @@
 }
 
 .candidate-table tbody tr:hover {
-  background-color: #f9f9f9; /* Light hover effect */
+  background-color: var(--color-hover); /* Use theme variable */
 }
 
 /* Styles for editable table inputs/selects */
@@ -135,11 +172,11 @@
 .add-candidates-select-inline {
   width: calc(100% - 36px); /* Adjust width for padding */
   padding: 0.3rem 0.5rem;
-  border: 1px solid var(--color-muted);
-  border-radius: var(--radius);
+  border: 1px solid var(--color-muted); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
   font-size: 0.95rem;
-  background-color: white;
-  color: var(--color-text);
+  background-color: var(--color-card); /* Use theme variable */
+  color: var(--color-text); /* Use theme variable */
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); /* Subtle inner shadow */
   transition: all 0.2s ease;
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
@@ -149,27 +186,44 @@
 .candidate-table td input[type="email"]:focus,
 .add-candidates-select-inline:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.3);
+  border-color: var(--color-primary); /* Use theme variable */
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.3); /* Use theme variable */
 }
 
-.no-results-row td { /* Changed class name for consistency */
+.no-results-row td {
   text-align: center;
-  color: var(--color-muted);
+  color: var(--color-muted); /* Use theme variable */
   font-style: italic;
   padding: 3rem 1rem;
   position: relative;
   border-bottom: none;
 }
 
-.no-results-message { /* Changed class name for consistency */
+/* Styles for the empty table message and icon */
+.no-results-message-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem; /* Reduced gap */
+  min-height: 150px; /* Adjusted height for smaller icon/text */
 }
 
+.no-results-message-container .resume-icon {
+  width: 48px; /* Smaller icon size */
+  height: 48px; /* Smaller icon size */
+  color: var(--color-muted); /* Icon color */
+  margin-bottom: 0.5rem; /* Space between icon and text */
+}
+
+.no-results-message-container p {
+  font-size: 0.9rem; /* Smaller font size for text */
+  color: var(--color-muted);
+  margin: 0; /* Remove default paragraph margin */
+}
+
+
+/* For the smaller icons in the form */
 .upload-icon-container {
   position: relative;
   width: 100px;
@@ -190,17 +244,42 @@
 }
 
 .upload-icon-container .second-upload-icon {
-  /* Adjust these values to control the overlap and position relative to the first icon */
-  margin-left: 20px; /* Example: pushes it 20px to the right of its centered position */
-  margin-top: 20px; /* Example: pushes it 20px down from its centered position */
+  margin-left: 20px;
+  margin-top: 20px;
+}
+
+/* For the larger icons in the empty table */
+.no-data-resume-icon-container {
+  position: relative;
+  width: 150px; /* Larger size */
+  height: 150px; /* Larger size */
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.no-data-resume-icon-container svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+.no-data-resume-icon-container .no-data-second-icon {
+  /* Adjust these values to control the overlap and position */
+  margin-left: 30px; /* Example: pushes it 30px to the right */
+  margin-top: 30px; /* Example: pushes it 30px down */
 }
 
 
 /* Form section */
 .add-candidates-form {
-  background-color: var(--color-card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
+  background-color: var(--color-card); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
+  box-shadow: var(--shadow-soft); /* Use theme variable */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -216,7 +295,7 @@
 .form-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text); /* Use theme variable */
   margin-bottom: 1.5rem;
 }
 
@@ -238,7 +317,7 @@
 .form-box label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--color-muted);
+  color: var(--color-muted); /* Use theme variable */
   margin-bottom: -0.5rem;
 }
 
@@ -246,18 +325,18 @@
 .add-candidates-select,
 .add-candidates-textarea {
   padding: 0.75rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: var(--radius);
+  border: 1px solid var(--color-border-light); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
   font-size: 0.95rem;
-  color: var(--color-text);
-  background-color: #fcfcfc;
+  color: var(--color-text); /* Use theme variable */
+  background-color: var(--color-bg-secondary); /* Use theme variable */
   transition: all 0.2s ease;
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .add-candidates-input::placeholder,
 .add-candidates-textarea::placeholder {
-  color: var(--color-muted);
+  color: var(--color-muted); /* Use theme variable */
   opacity: 0.7;
 }
 
@@ -265,8 +344,8 @@
 .add-candidates-select:focus,
 .add-candidates-textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(127, 202, 146, 0.2);
+  border-color: var(--color-primary); /* Use theme variable */
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* Use theme variable */
 }
 
 .add-candidates-select {
@@ -287,18 +366,18 @@
 
 .resume-upload {
   margin-top: 1rem;
-  border: 1px dashed #d9d9d9;
-  border-radius: var(--radius);
+  border: 1px dashed var(--color-border); /* Use theme variable for border */
+  border-radius: var(--radius); /* Use theme variable */
   padding: 1rem;
   text-align: center;
-  background-color: #f8f8f8;
+  background-color: var(--color-bg-secondary); /* Use theme variable for background */
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .resume-upload:hover {
-  background-color: #f0f0f0;
-  border-color: var(--color-primary);
+  background-color: var(--color-hover); /* Use theme variable for hover background */
+  border-color: var(--color-primary); /* Use theme variable for hover border */
 }
 
 .resume-upload-label {
@@ -313,18 +392,18 @@
 
 .resume-upload p {
   margin-bottom: 0.5rem;
-  color: var(--color-muted);
+  color: var(--color-muted); /* Use theme variable */
 }
 
 .selected-files-text {
   font-size: 0.85rem;
-  color: var(--color-text);
+  color: var(--color-text); /* Use theme variable */
   margin-top: 0.5rem;
   font-weight: 500;
 }
 
 .erroraddcandidate-msg {
-  color: var(--color-error);
+  color: var(--color-error); /* Use theme variable */
   font-size: 0.9rem;
   margin-top: 0.5rem;
   display: flex;
@@ -333,7 +412,7 @@
 }
 
 .success-msg {
-  color: var(--color-success);
+  color: var(--color-success); /* Use theme variable */
   font-size: 0.9rem;
   margin-top: 0.5rem;
   display: flex;
@@ -349,21 +428,21 @@
 }
 
 .submit-btn {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Use theme variable */
   color: white;
   padding: 0.7rem 1.5rem;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius); /* Use theme variable */
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-soft); /* Use theme variable */
   transition: background-color 0.2s ease, transform 0.2s ease;
   width: 100%;
 }
 
 .submit-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Use theme variable */
   transform: translateY(-2px);
 }
 
@@ -377,10 +456,10 @@
 .edit-btn,
 .delete-btn,
 .save-btn,
-.cancel-btn { /* Added .cancel-btn */
+.cancel-btn {
   padding: 0.4rem 0.8rem;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius); /* Use theme variable */
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 500;
@@ -396,7 +475,7 @@
 }
 
 .edit-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Use theme variable */
   transform: translateY(-1px);
 }
 
@@ -416,11 +495,11 @@
 }
 
 .save-btn:hover {
-  background-color: var(--color-success-dark);
+  background-color: var(--color-success-dark); /* Use theme variable */
   transform: translateY(-1px);
 }
 
-.cancel-btn { /* New styles for Cancel button */
+.cancel-btn {
   background-color: var(--color-muted); /* A neutral color for cancel */
   color: white;
 }
@@ -434,9 +513,11 @@
 .candidate-table td .add-candidates-select-inline {
   width: calc(100% - 10px); /* Adjust width to fit better in cell with padding */
   padding: 0.3rem 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: var(--radius);
+  border: 1px solid var(--color-border-light); /* Use theme variable */
+  border-radius: var(--radius); /* Use theme variable */
   font-size: 0.9rem;
+  background-color: var(--color-bg-secondary); /* Use theme variable */
+  color: var(--color-text); /* Use theme variable */
   box-sizing: border-box;
 }
 
@@ -453,7 +534,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); /* Dark overlay */
+  background-color: var(--color-overlay); /* Use theme variable for overlay color */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -461,10 +542,10 @@
 }
 
 .delete-confirm-modal {
-  background-color: var(--color-card);
+  background-color: var(--color-card); /* Use theme variable */
   padding: 2rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius); /* Use theme variable */
+  box-shadow: var(--shadow-soft); /* Use theme variable */
   text-align: center;
   max-width: 400px;
   width: 90%;
@@ -472,7 +553,7 @@
 
 .delete-confirm-modal p {
   font-size: 1.1rem;
-  color: var(--color-text-primary);
+  color: var(--color-text-primary); /* Use theme variable */
   margin-bottom: 1.5rem;
 }
 
@@ -483,11 +564,11 @@
 }
 
 .confirm-btn {
-  background-color: var(--color-danger);
+  background-color: var(--color-danger); /* Use theme variable */
   color: white;
   padding: 0.7rem 1.2rem;
   border: none;
-  border-radius: var(--radius-small);
+  border-radius: var(--radius-small); /* Use theme variable */
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -495,8 +576,61 @@
 }
 
 .confirm-btn:hover {
-  background-color: var(--color-danger-dark);
+  background-color: var(--color-danger-dark); /* Use theme variable */
   transform: translateY(-1px);
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.pagination-list {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap; /* Allow pagination items to wrap */
+  justify-content: center;
+}
+
+.pagination-item button {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-light);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pagination-item button:hover:not(:disabled) {
+  background-color: var(--color-hover);
+  border-color: var(--color-primary);
+}
+
+.pagination-item.active button {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.pagination-item.active button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.pagination-item.disabled button {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--color-bg-secondary); /* Keep background consistent for disabled */
+  color: var(--color-muted); /* Muted text for disabled */
 }
 
 /* Responsive adjustments */
@@ -513,6 +647,14 @@
 
   .add-candidates-main-content.fixed-grid {
     grid-template-columns: 1fr; /* Stack table and form vertically */
+  }
+
+  .table-header-with-button {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .process-candidates-btn {
+    width: 100%; /* Make button full width when stacked */
   }
 }
 
@@ -583,6 +725,14 @@
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
   }
+
+  .pagination-list {
+    gap: 0.3rem;
+  }
+  .pagination-item button {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -648,8 +798,19 @@
     margin-top: 15px; /* Adjust overlap */
   }
 
+  /* Corrected this section to target the resume icon in the table correctly */
+  .no-results-message-container .resume-icon {
+    width: 36px; /* Smaller icon size for very small screens */
+    height: 36px; /* Smaller icon size for very small screens */
+  }
+
   .submit-btn {
     padding: 0.5rem 0.8rem;
     font-size: 0.85rem;
+  }
+
+  .process-candidates-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
   }
 }

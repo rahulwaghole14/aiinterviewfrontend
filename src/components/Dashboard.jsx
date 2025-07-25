@@ -1,188 +1,226 @@
-import React, { useState } from 'react'; // Import useState for sorting
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import { useSelector } from 'react-redux'; // Import useSelector
-import './Dashboard.css'; // Corrected path
-import { dashboardTopCards, dashboardSalesData, dashboardUsersData } from '../data'; // Import data (dashboardClientsData will now come from Redux)
+// src/components/Dashboard.jsx
+import React, { useState, useEffect } from 'react';
+import './Dashboard.css'; // Assuming you have or will create Dashboard.css
+
+// Dummy Data for Dashboard (replace with actual data from Redux/API)
+const dashboardData = {
+  totalHiringAgencies: 15,
+  totalCandidates: 1250,
+  totalInterviews: 320,
+  totalJobs: 75, // Added Total Jobs
+  
+  candidatesHiredPerYear: [
+    { year: 2020, count: 80 },
+    { year: 2021, count: 120 },
+    { year: 2022, count: 150 },
+    { year: 2023, count: 180 },
+    { year: 2024, count: 220 },
+  ],
+  agenciesIncreasedPerYear: [
+    { year: 2020, count: 2 },
+    { year: 2021, count: 3 },
+    { year: 2022, count: 5 },
+    { year: 2023, count: 4 },
+    { year: 2024, count: 6 },
+  ],
+  jobsIncreasedPerYear: [
+    { year: 2020, count: 15 },
+    { year: 2021, count: 25 },
+    { year: 2022, count: 30 },
+    { year: 2023, count: 28 },
+    { year: 2024, count: 35 },
+  ],
+
+  recentActivities: [
+    { id: 'act1', type: 'candidate_added', name: 'Alice Johnson', date: '2024-07-23', detail: 'New candidate added for Senior Developer' },
+    { id: 'act2', type: 'agency_added', name: 'Talent Scout LLC', date: '2024-07-22', detail: 'New hiring agency partnered' },
+    { id: 'act3', type: 'interview_scheduled', name: 'Bob Williams', date: '2024-07-21', detail: 'Interview scheduled for Marketing Manager' },
+    { id: 'act4', type: 'candidate_hired', name: 'Charlie Davis', date: '2024-07-20', detail: 'Hired for UI/UX Designer position' },
+    { id: 'act5', type: 'job_posted', name: 'Senior Data Scientist', date: '2024-07-19', detail: 'New job opening posted' },
+    { id: 'act6', type: 'interview_completed', name: 'Diana Miller', date: '2024-07-18', detail: 'Final interview completed' },
+    { id: 'act7', type: 'agency_removed', name: 'Old Staffing Co.', date: '2024-07-17', detail: 'Hiring agency partnership ended' },
+    { id: 'act8', type: 'candidate_added', name: 'Eve White', date: '2024-07-16', detail: 'New candidate added for Project Lead' },
+    { id: 'act9', type: 'job_closed', name: 'Junior QA Engineer', date: '2024-07-15', detail: 'Job opening closed' },
+    { id: 'act10', type: 'interview_scheduled', name: 'Frank Black', date: '2024-07-14', detail: 'Round 1 interview scheduled for Backend Dev' },
+    { id: 'act11', type: 'candidate_hired', name: 'Grace Green', date: '2024-07-13', detail: 'Hired for Cloud Engineer role' },
+    { id: 'act12', type: 'agency_added', name: 'Elite Recruiters', date: '2024-07-12', detail: 'New agency added' },
+  ],
+};
+
+// Reusable BarChart Component
+const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix }) => {
+  if (!data || data.length === 0) {
+    return <div className="chart-container no-data">No data available for {title}.</div>;
+  }
+
+  const maxCount = Math.max(...data.map(item => item.count));
+  const [hoveredBar, setHoveredBar] = useState(null);
+
+  return (
+    <div className="chart-container card">
+      <h3 className="chart-title">{title}</h3>
+      <div className="chart-bars-wrapper">
+        <div className="y-axis-label">{yLabel}</div>
+        <div className="chart-bars">
+          {data.map((item, index) => (
+            <div
+              key={item.year}
+              className="chart-bar"
+              style={{ height: `${(item.count / maxCount) * 100}%` }}
+              onMouseEnter={() => setHoveredBar({ ...item, index })}
+              onMouseLeave={() => setHoveredBar(null)}
+            >
+              {hoveredBar && hoveredBar.index === index && (
+                <div className="chart-tooltip">
+                  {tooltipLabelPrefix}: {item.count}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="chart-x-axis">
+        {data.map(item => (
+          <span key={item.year} className="x-axis-label">{item.year}</span>
+        ))}
+      </div>
+      <div className="x-axis-title">{xLabel}</div>
+    </div>
+  );
+};
+
 
 const Dashboard = () => {
-  const searchTerm = useSelector((state) => state.search.searchTerm); // Get search term from Redux
-  const allClients = useSelector((state) => state.clients.allClients); // Get all clients from Redux
+  useEffect(() => {
+    // This effect runs when the component mounts
+    // You can fetch data here if needed
+  }, []);
 
-  // State for sorting clients table
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Display 5 items per page for recent activities
 
-  const handleClientClick = (name) => {
-    console.log(`Client clicked: ${name}`);
-  };
+  // Calculate items for the current page
+  const indexOfLastActivity = currentPage * itemsPerPage;
+  const indexOfFirstActivity = indexOfLastActivity - itemsPerPage;
+  const currentActivities = dashboardData.recentActivities.slice(indexOfFirstActivity, indexOfLastActivity);
 
-  // Handle sorting logic for clients table
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
+  // Calculate total pages
+  const totalPages = Math.ceil(dashboardData.recentActivities.length / itemsPerPage);
 
-  const getSortIndicator = (column) => {
-    if (sortColumn === column) {
-      return sortDirection === 'asc' ? ' ▲' : ' ▼';
-    }
-    return '';
-  };
-
-  // Filter and sort clients data based on search term and sort state
-  const filteredClientsData = allClients.filter(client => { // Use allClients from Redux
-    if (!searchTerm) {
-      return true; // If no search term, show all clients
-    }
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    return (
-      client.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-      client.email.toLowerCase().includes(lowerCaseSearchTerm) ||
-      client.status.toLowerCase().includes(lowerCaseSearchTerm) ||
-      client.plan.toLowerCase().includes(lowerCaseSearchTerm)
-    );
-  }).sort((a, b) => { // Apply sorting after filtering
-    if (!sortColumn) return 0;
-
-    const aValue = a[sortColumn];
-    const bValue = b[sortColumn];
-
-    if (aValue === null || aValue === undefined) return sortDirection === 'asc' ? 1 : -1;
-    if (bValue === null || bValue === undefined) return sortDirection === 'asc' ? -1 : 1;
-
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-    }
-    // For numbers (like IDs, though not in this table, good for general sorting)
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
-    }
-    return 0;
-  });
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="dashboard-container">
-      {/* Top cards - reverted to original big card style */}
-      <div className="top-cards">
-        {dashboardTopCards.map((card, index) => ( // Use imported data
-          <div key={index} className="dashboard-card" onClick={() => console.log(`${card.subtitle} clicked`)}>
-            <h2>{card.title}</h2>
-            <p>{card.subtitle}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Middle grid */}
-      <div className="middle-grid">
-        <div className="overview-card">
-          <h3>Sales Overview</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={dashboardSalesData}> {/* Use imported data */}
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="sales"
-                stroke="#4ade80"
-                strokeWidth={3}
-                dot={{ r: 5 }}
-                activeDot={{ r: 7 }}
-                isAnimationActive
-                animationDuration={800}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Top Cards Section */}
+      <div className="dashboard-cards-container">
+        <div className="dashboard-card card">
+          <h3>Total Hiring Agencies</h3>
+          <p>{dashboardData.totalHiringAgencies}</p>
         </div>
-
-        <div className="overview-card">
-          <h3>Active Users</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={dashboardUsersData}> {/* Use imported data */}
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="users"
-                stroke="#60a5fa"
-                strokeWidth={3}
-                dot={{ r: 5 }}
-                activeDot={{ r: 7 }}
-                isAnimationActive
-                animationDuration={800}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="dashboard-card card">
+          <h3>Total Candidates</h3>
+          <p>{dashboardData.totalCandidates}</p>
         </div>
-
-        <div className="announcement-card">
-          <h3>Announcement</h3>
-          <div className="announcement">
-            <button>▶</button>
-            <span>Treare reserves learning</span>
-          </div>
-          <div className="announcement">
-            <button>⚠️</button>
-            <span>Stangte le taming lion</span>
-          </div>
+        <div className="dashboard-card card">
+          <h3>Total Interviews</h3>
+          <p>{dashboardData.totalInterviews}</p>
+        </div>
+        <div className="dashboard-card card"> {/* New card for Total Jobs */}
+          <h3>Total Jobs</h3>
+          <p>{dashboardData.totalJobs}</p>
         </div>
       </div>
 
-      {/* Clients table - showing all records */}
-      {/* Only show the table if there is no search term, or if there are filtered results */}
-      <div className="clients-table">
-        <h3>Clients</h3>
-        <div className="clients-table-wrapper">
-          <table>
+      {/* Graphs Section */}
+      <div className="dashboard-graphs-container">
+        <BarChart
+          data={dashboardData.candidatesHiredPerYear}
+          title="Candidates Hired Per Year"
+          xLabel="Year"
+          yLabel="Candidates"
+          tooltipLabelPrefix="Hired"
+        />
+        <BarChart
+          data={dashboardData.agenciesIncreasedPerYear}
+          title="Hiring Agencies Growth Per Year"
+          xLabel="Year"
+          yLabel="Agencies Added"
+          tooltipLabelPrefix="Agencies"
+        />
+        <BarChart
+          data={dashboardData.jobsIncreasedPerYear}
+          title="Jobs Posted Per Year"
+          xLabel="Year"
+          yLabel="Jobs"
+          tooltipLabelPrefix="Jobs"
+        />
+      </div>
+
+      {/* Recent Activity Table */}
+      <div className="dashboard-recent-activity card">
+        <h3 className="table-title">New Candidates, Hiring Agencies, and Latest Updates</h3>
+        <div className="table-responsive">
+          <table className="activity-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('name')}>Name {getSortIndicator('name')}</th>
-                <th onClick={() => handleSort('email')}>Email {getSortIndicator('email')}</th>
-                <th onClick={() => handleSort('status')}>Status {getSortIndicator('status')}</th>
-                <th onClick={() => handleSort('plan')}>Plan {getSortIndicator('plan')}</th>
+                <th>Name/Subject</th>
+                <th>Detail</th>
+                <th>Date</th>
+                <th>Category</th> {/* Changed from Type to Category */}
               </tr>
             </thead>
             <tbody>
-              {filteredClientsData.length > 0 ? ( // Use filtered data
-                filteredClientsData.map((client, index) => (
-                  <tr
-                    key={index}
-                    onClick={() => handleClientClick(client.name)}
-                    className="client-row"
-                  >
-                    <td>{client.name}</td>
-                    <td>{client.email}</td>
+              {currentActivities.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="no-results">No recent activities.</td>
+                </tr>
+              ) : (
+                currentActivities.map((activity) => (
+                  <tr key={activity.id}>
+                    <td>{activity.name}</td>
+                    <td>{activity.detail}</td>
+                    <td>{activity.date}</td>
                     <td>
-                      <span className={`status-badge ${client.status.toLowerCase()}`}>
-                        {client.status}
+                      <span className={`activity-type-badge ${activity.type}`}>
+                        {activity.type.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td>{client.plan}</td>
                   </tr>
                 ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="no-results">No clients found matching your search.</td>
-                </tr>
               )}
             </tbody>
           </table>
         </div>
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-btn"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => paginate(i + 1)}
+                className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

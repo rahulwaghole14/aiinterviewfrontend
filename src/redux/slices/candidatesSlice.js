@@ -15,12 +15,19 @@ const candidatesSlice = createSlice({
       }
       state.allCandidates.push(action.payload);
     },
+    // Modified updateCandidateStatus to handle comprehensive updates
     updateCandidateStatus: (state, action) => {
-      const { id, newStatus } = action.payload;
+      const { id, newStatus, updatedData } = action.payload;
       const candidate = (state.allCandidates || []).find(c => c.id === id); // Safety check
       if (candidate) {
         candidate.status = newStatus;
         candidate.lastUpdated = new Date().toISOString().slice(0, 10); // Update last updated date
+
+        // Merge updatedData if provided (for interviewDetails, evaluation, aptitude etc.)
+        if (updatedData) {
+          // This will overwrite or add properties like interviewDetails or evaluation
+          Object.assign(candidate, updatedData);
+        }
       }
     },
     deleteCandidate: (state, action) => {
@@ -35,8 +42,11 @@ const candidatesSlice = createSlice({
         state.allCandidates[index] = { ...state.allCandidates[index], ...updatedData };
       }
     },
+    setCandidates: (state, action) => { // New reducer to set all candidates
+      state.allCandidates = action.payload;
+    },
   },
 });
 
-export const { addCandidate, updateCandidateStatus, deleteCandidate, updateCandidate } = candidatesSlice.actions;
+export const { addCandidate, updateCandidateStatus, deleteCandidate, updateCandidate, setCandidates } = candidatesSlice.actions;
 export default candidatesSlice.reducer;

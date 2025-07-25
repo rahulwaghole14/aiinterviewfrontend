@@ -1,6 +1,7 @@
 // src/data.js
 
-// Data from AddCandidates.jsx
+export const baseURL = "https://ai-interviewer-backend-gx2r.onrender.com"; // Added base URL
+
 export const candidateDomains = [
   'Cloud Engineering',
   'Testing',
@@ -25,445 +26,196 @@ export const candidateJobRoles = [
   'Technical Support Executive',
 ];
 
-// NOTE: initialAddCandidates is not directly used by Redux slices,
-// but kept for reference if you have logic that uses it outside Redux.
-// The main candidate data is initialCandidates below.
-export const initialAddCandidates = [
-  { name: 'John Doe', domain: 'Cloud Engineering', jobRole: 'FrontEnd Developer', email: 'john.doe@example.com', resumes: [{ name: 'john_doe_resume.pdf' }] },
-  { name: 'Jane Smith', domain: 'Testing', jobRole: 'QA Engineer', email: 'jane_smith_resume.docx', resumes: [{ name: 'jane_smith_resume.docx' }] },
-  { name: 'Alice Johnson', domain: 'Data Science', jobRole: 'Data Engineer', email: 'alice.j@example.com', resumes: [{ name: 'alice_resume.pdf' }] },
-  { name: 'Bob Williams', domain: 'Software Development', jobRole: 'Full Stack Developer', email: 'bob_dev.pdf', resumes: [{ name: 'bob_dev.pdf' }] },
-];
+// Removed initialAddCandidates as data will be fetched from API
+export const initialAddCandidates = [];
 
-// Main Candidate Data for Redux
-export const initialCandidates = [
-  {
-    id: 1,
-    name: "Rohit Sharma",
-    email: "rohit.sharma@example.com",
-    jobRole: "Software Engineer", // Changed from 'role' to 'jobRole'
-    domain: "Backend",
-    status: "Requires Action",
-    lastUpdated: "2025-06-26",
-    evaluation: null,
-    poc: "Rahul J. Waghole",
-    applicationDate: "2025-06-26",
-    resumes: [{ name: 'rohit_sharma_resume.pdf' }], // Added sample resume
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    jobRole: "Frontend Developer", // Changed from 'role' to 'jobRole'
-    domain: "Frontend",
-    status: "BR Evaluated",
-    lastUpdated: "2025-06-25",
-    evaluation: { score: 8.5, result: "Pass", feedback: "Strong technical skills, good problem-solving. Needs to improve on collaborative tools." },
-    poc: "Alice Smith",
-    applicationDate: "2025-06-25",
-    resumes: [{ name: 'john_doe_cv.pdf' }, { name: 'john_doe_portfolio.zip' }], // Added sample resumes
-  },
-  {
-    id: 3,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    jobRole: "UI/UX Designer", // Changed from 'role' to 'jobRole'
-    domain: "Design",
-    status: "Pending Scheduling",
-    lastUpdated: "2025-06-24",
-    evaluation: null,
-    poc: "Bob Johnson",
-    applicationDate: "2025-06-24",
-    resumes: [{ name: 'jane_smith_design.pdf' }], // Added sample resume
-  },
-  {
-    id: 4,
-    name: "Alice Johnson",
-    email: "alice.j@example.com",
-    jobRole: "DevOps Engineer", // Changed from 'role' to 'jobRole'
-    domain: "Infrastructure",
-    status: "Hired",
-    lastUpdated: "2025-06-20",
-    evaluation: { score: 9.0, result: "Pass", feedback: "Excellent grasp of DevOps principles and tools. Highly recommended." },
-    poc: "Charlie Brown",
-    applicationDate: "2025-06-20",
-    resumes: [{ name: 'alice_johnson_cv.docx' }], // Added sample resume
-  },
-  {
-    id: 5,
-    name: "Bob Williams",
-    email: "bob.w@example.com",
-    jobRole: "Data Scientist", // Changed from 'role' to 'jobRole'
-    domain: "AI/ML",
-    status: "Rejected",
-    lastUpdated: "2025-06-18",
-    evaluation: { score: 6.2, result: "Fail", feedback: "Lacks experience in machine learning frameworks. Communication could be clearer." },
-    poc: "David Green",
-    applicationDate: "2025-06-18",
-    resumes: [{ name: 'bob_williams_data.pdf' }], // Added sample resume
-  },
-  {
-    id: 6,
-    name: "Charlie Davis",
-    email: "charlie.d@example.com",
-    jobRole: "Software Engineer", // Changed from 'role' to 'jobRole'
-    domain: "Backend",
-    status: "BR In Process",
-    lastUpdated: "2025-06-27",
-    evaluation: null,
-    poc: "Rahul J. Waghole",
-    applicationDate: "2025-06-27",
-    resumes: [{ name: 'charlie_davis_resume.pdf' }], // Added sample resume
-  },
-  {
-    id: 7,
-    name: "Diana Prince",
-    email: "diana.p@example.com",
-    jobRole: "Frontend Developer", // Changed from 'role' to 'jobRole'
-    domain: "Frontend",
-    status: "Internal Interviews",
-    lastUpdated: "2025-06-23",
-    evaluation: { score: 7.8, result: "Pass", feedback: "Good understanding of React, able to build responsive UIs. Needs to work on performance optimization." },
-    poc: "Alice Smith",
-    applicationDate: "2025-06-23",
-    resumes: [{ name: 'diana_prince_cv.pdf' }], // Added sample resume
-  },
-  {
-    id: 8,
-    name: "Eve Adams",
-    email: "eve.a@example.com",
-    jobRole: "UI/UX Designer", // Changed from 'role' to 'jobRole'
-    domain: "Design",
-    status: "Offered",
-    lastUpdated: "2025-06-15",
-    evaluation: { score: 8.9, result: "Pass", feedback: "Exceptional design portfolio and user empathy. Great fit for our team culture." },
-    poc: "Bob Johnson",
-    applicationDate: "2025-06-15",
-    resumes: [{ name: 'eve_adams_portfolio.pdf' }], // Added sample resume
-  },
-  {
-    id: 9,
-    name: "Frank White",
-    email: "frank.w@example.com",
-    jobRole: "Data Scientist", // Changed from 'role' to 'jobRole'
-    domain: "AI/ML",
-    status: "Offer Rejected",
-    lastUpdated: "2025-06-10",
-    evaluation: { score: 7.0, result: "Pass", feedback: "Solid foundational knowledge. Declined offer due to another opportunity." },
-    poc: "David Green",
-    applicationDate: "2025-06-10",
-    resumes: [{ name: 'frank_white_data_cv.pdf' }], // Added sample resume
-  },
-  {
-    id: 10,
-    name: "Grace Black",
-    email: "grace.b@example.com",
-    jobRole: "DevOps Engineer", // Changed from 'role' to 'jobRole'
-    domain: "Infrastructure",
-    status: "Cancelled",
-    lastUpdated: "2025-06-05",
-    evaluation: null,
-    poc: "Charlie Brown",
-    applicationDate: "2025-06-05",
-    resumes: [{ name: 'grace_black_devops.pdf' }], // Added sample resume
-  },
-];
-
+// Removed initialCandidates as data will be fetched from API
+export const initialCandidates = [];
 
 export const candidateStatusList = [
-  "All",
   "Requires Action",
-  "Pending Scheduling",
-  "BR In Process",
-  "BR Evaluated",
-  "Internal Interviews",
-  "Offered",
+  "Interview Pending",
+  "Interview Scheduled",
+  "Interview Completed",
+  "Evaluated",
   "Hired",
   "Rejected",
-  "Offer Rejected",
-  "Cancelled",
 ];
 
-export const uniqueCandidateDomains = [...new Set(initialCandidates.map(c => c.domain))];
-// Changed to map from 'jobRole' instead of 'role'
-export const uniqueCandidateJobRoles = [...new Set(initialCandidates.map(c => c.jobRole))];
-export const uniqueCandidatePocs = [...new Set(initialCandidates.map(c => c.poc))];
+// Generate unique lists for filters - these will now be derived dynamically or left empty if not used
+export const uniqueCandidateDomains = []; // Will be populated by fetched data or remain empty
+export const uniqueCandidateJobRoles = []; // Will be populated by fetched data or remain empty
+export const uniqueCandidatePocs = []; // Will be populated by fetched data or remain empty
 
 
-// Data from Dashboard.jsx
-export const dashboardTopCards = [
-  { title: '12,345', subtitle: 'Ssare' },
-  { title: '$54,280', subtitle: 'Reviews' },
-  { title: '3,278', subtitle: 'Customers' },
-  { title: '2,470', subtitle: 'Services' },
+// Dashboard Data (keeping as is, assuming it's static or fetched elsewhere)
+export const dashboardSummaryData = {
+  totalCandidates: 1200,
+  activeJobs: 75,
+  hiredLastMonth: 45,
+  interviewsScheduled: 30,
+};
+
+export const dashboardCandidatesByStatus = [
+  { status: 'Applied', count: 300 },
+  { status: 'Interviewing', count: 250 },
+  { status: 'Evaluated', count: 150 },
+  { status: 'Offer Extended', count: 80 },
+  { status: 'Hired', count: 100 },
+  { status: 'Rejected', count: 320 },
 ];
 
-export const dashboardSalesData = [
-  { name: 'Jan', sales: 400 },
-  { name: 'Feb', sales: 600 },
-  { name: 'Mar', sales: 800 },
-  { name: 'Apr', sales: 500 },
-  { name: 'May', sales: 900 },
-  { name: 'Jun', sales: 750 },
+export const dashboardInterviewsToday = [
+  { time: '10:00 AM', candidate: 'Alice Wonderland', role: 'Software Engineer', interviewer: 'Bob The Builder' },
+  { time: '02:00 PM', candidate: 'Ivy League', role: 'Data Engineer', interviewer: 'Severus Snape' },
 ];
 
-export const dashboardUsersData = [
-  { name: 'Jan', users: 200 },
-  { name: 'Feb', users: 300 },
-  { name: 'Mar', users: 500 },
-  { name: 'Apr', users: 450 },
-  { name: 'May', users: 600 },
-  { name: 'Jun', users: 550 },
+export const dashboardRecentActivities = [
+  { type: 'interview', description: 'Interview scheduled for Alice Wonderland', date: '2023-05-25' },
+  { type: 'status_change', description: 'Bob The Great status changed to Evaluated', date: '2023-05-18' },
+  { type: 'new_candidate', description: 'New candidate Charlie Brown added', date: '2023-05-15' },
 ];
 
 export const dashboardClientsData = [
-  { name: 'Arna Nusiniey', email: 'jamegonzot@example.com', status: 'Active', plan: 'Active' },
-  { name: 'Auad Stachem', email: 'mali@example.com', status: 'Active', plan: 'Active' },
-  { name: 'Aradee Spash', email: 'quier@example.com', status: 'Inactive', plan: 'Inactive' },
-  { name: 'Datkawz Starven', email: 'spac@example.com', status: 'Active', plan: 'Inactive' },
-  { name: 'Joan Carl', email: 'joan@carl.com', status: 'Active', plan: 'Active' },
-  { name: 'Duke Hall', email: 'duke@hall.com', status: 'Inactive', plan: 'Inactive' },
-  { name: 'Emma Watson', email: 'emma@example.com', status: 'Active', plan: 'Active' },
-  { name: 'Robert Downey', email: 'robert@example.com', status: 'Active', plan: 'Active' },
-  { name: 'Chris Evans', email: 'chris@example.com', status: 'Inactive', plan: 'Inactive' },
-  { name: 'Scarlett Johansson', email: 'scarlett@example.com', status: 'Active', plan: 'Active' },
-];
-
-// Data from Interviews.jsx
-export const initialInterviews = [
   {
-    id: 1,
-    candidateName: 'John Doe',
-    status: 'Scheduled',
-    jobRole: 'Full Stack Developer',
-    interviewDate: '2025-07-23', // Tomorrow
-    interviewTime: '10:00 AM',
-    round: 'Round 1',
-    poc: 'Alice Smith',
-    notes: 'Strong technical skills, good cultural fit.'
+    id: 'client-1',
+    name: 'Tech Solutions Inc.',
+    contactPerson: 'Maria Garcia',
+    email: 'maria.g@techsolutions.com',
+    phone: '123-456-7890',
+    status: 'Active',
+    jobs: [
+      { id: 'job-1', title: 'Senior Backend Developer', status: 'Open', applications: 50, interviews: 10, hired: 2 },
+      { id: 'job-2', title: 'DevOps Engineer', status: 'Open', applications: 30, interviews: 5, hired: 1 },
+    ],
   },
   {
-    id: 2,
-    candidateName: 'Jane Smith',
-    status: 'Pending Feedback',
-    jobRole: 'QA Engineer',
-    interviewDate: '2025-07-21', // Yesterday
-    interviewTime: '02:00 PM',
-    round: 'Round 2',
-    poc: 'Bob Johnson',
-    notes: 'Needs to improve on automation testing knowledge.'
+    id: 'client-2',
+    name: 'Global Innovations Ltd.',
+    contactPerson: 'David Lee',
+    email: 'david.l@globalinnovations.com',
+    phone: '098-765-4321',
+    status: 'Active',
+    jobs: [
+      { id: 'job-3', title: 'Product Manager', status: 'Open', applications: 40, interviews: 8, hired: 1 },
+    ],
   },
   {
-    id: 3,
-    candidateName: 'Alice Johnson',
-    status: 'Completed',
-    jobRole: 'Data Engineer',
-    interviewDate: '2025-07-19', // Past
-    interviewTime: '11:00 AM',
-    round: 'Final Round',
-    poc: 'Charlie Brown',
-    notes: 'Excellent candidate, recommended for hire.'
-  },
-  {
-    id: 4,
-    candidateName: 'Bob Williams',
-    status: 'Scheduled',
-    jobRole: 'FrontEnd Developer',
-    interviewDate: '2025-07-24', // Upcoming
-    interviewTime: '03:30 PM',
-    round: 'Round 1',
-    poc: 'Alice Smith',
-    notes: 'Initial screening, good communication.'
-  },
-  {
-    id: 5,
-    candidateName: 'Charlie Davis',
-    status: 'Cancelled',
-    jobRole: 'UI/UX Designer',
-    interviewDate: '2025-07-20', // Past
-    interviewTime: '09:00 AM',
-    round: 'Initial Screen',
-    poc: 'David Green',
-    notes: 'Candidate withdrew application.'
-  },
-  {
-    id: 6,
-    candidateName: 'Diana Miller',
-    status: 'Pending Decision',
-    jobRole: 'Software Engineer',
-    interviewDate: '2025-07-22', // Today
-    interviewTime: '04:00 PM',
-    round: 'Round 3',
-    poc: 'Eve White',
-    notes: 'Final interview completed, awaiting team decision.'
-  },
-  {
-    id: 7,
-    candidateName: 'Frank Wilson',
-    status: 'Scheduled',
-    jobRole: 'Technical Support Executive',
-    interviewDate: '2025-07-25', // Upcoming
-    interviewTime: '01:00 PM',
-    round: 'Round 1',
-    poc: 'Bob Johnson',
-    notes: 'Scheduled for next week.'
-  },
-  {
-    id: 8,
-    candidateName: 'Grace Taylor',
-    status: 'Completed',
-    jobRole: 'Project Manager',
-    interviewDate: '2025-07-18', // Past
-    interviewTime: '10:30 AM',
-    round: 'Final Round',
-    poc: 'Charlie Brown',
-    notes: 'Hired for Project Manager position.'
-  },
-  {
-    id: 9,
-    candidateName: 'Henry Moore', // Changed from 'name' to 'candidateName' for consistency
-    status: 'Pending Feedback',
-    jobRole: 'BackEnd Developer',
-    interviewDate: '2025-07-22', // Today
-    interviewTime: '09:30 AM',
-    round: 'Round 2',
-    poc: 'Eve White',
-    notes: 'Interviewer feedback pending.'
-  },
-  {
-    id: 10,
-    candidateName: 'Ivy Clark',
-    status: 'Scheduled',
-    jobRole: 'Cyber Security Analyst',
-    interviewDate: '2025-07-26', // Upcoming
-    interviewTime: '02:00 PM',
-    round: 'Round 1',
-    poc: 'David Green',
-    notes: 'First round interview scheduled.'
+    id: 'client-3',
+    name: 'Creative Minds Agency',
+    contactPerson: 'Sophia Chen',
+    email: 'sophia.c@creativeminds.com',
+    phone: '112-233-4455',
+    status: 'Inactive',
+    jobs: [
+      { id: 'job-4', title: 'UX/UI Designer', status: 'Closed', applications: 25, interviews: 7, hired: 1 },
+    ],
   },
 ];
 
-export const interviewTabs = ["All", "Today", "Tomorrow", "Upcoming", "Pending Feedback", "Completed"];
-export const allInterviewStatuses = ["Scheduled", "Completed", "Pending Feedback", "Pending Decision", "Cancelled"];
-export const uniqueInterviewJobRoles = [...new Set(initialInterviews.map(interview => interview.jobRole))];
-export const uniqueInterviewPocs = [...new Set(initialInterviews.map(interview => interview.poc))];
-
-// New Job Data
 export const initialJobs = [
   {
-    id: 1,
-    title: 'Senior Frontend Developer',
-    description: 'Developing and maintaining user-facing features using React.js.',
+    id: 'JOB001',
+    title: 'Senior Software Engineer',
     domain: 'Software Development',
+    client: 'Tech Solutions Inc.',
     status: 'Open',
-    salaryRange: '$100,000 - $150,000',
-    postedDate: '2025-06-01',
-    applicants: 15,
-    hired: 2,
+    datePosted: '2023-01-01',
+    applications: 150,
+    interviews: 30,
+    hires: 5,
+    description: 'Developing scalable backend services using Node.js and microservices architecture.',
+    requirements: [
+      '5+ years experience in backend development',
+      'Proficiency in Node.js, Express.js',
+      'Experience with microservices and REST APIs',
+      'Knowledge of SQL/NoSQL databases',
+      'Familiarity with cloud platforms (AWS/Azure/GCP)',
+    ],
   },
   {
-    id: 2,
-    title: 'Cloud Solutions Architect',
-    description: 'Designing and implementing scalable cloud solutions on AWS.',
-    domain: 'Cloud Engineering',
-    status: 'Open',
-    salaryRange: '$120,000 - $180,000',
-    postedDate: '2025-05-15',
-    applicants: 10,
-    hired: 1,
-  },
-  {
-    id: 3,
-    title: 'QA Automation Engineer',
-    description: 'Building and maintaining automated test frameworks.',
-    domain: 'Testing',
-    status: 'Closed',
-    salaryRange: '$80,000 - $120,000',
-    postedDate: '2025-04-20',
-    applicants: 25,
-    hired: 3,
-  },
-  {
-    id: 4,
-    title: 'Data Scientist',
-    description: 'Analyzing complex datasets and building predictive models.',
-    domain: 'Data Science',
-    status: 'Open',
-    salaryRange: '$110,000 - $160,000',
-    postedDate: '2025-06-10',
-    applicants: 8,
-    hired: 0,
-  },
-  {
-    id: 5,
-    title: 'UI/UX Lead Designer',
-    description: 'Leading design efforts for new product features.',
-    domain: 'UI/UX Design',
-    status: 'On Hold',
-    salaryRange: '$95,000 - $140,000',
-    postedDate: '2025-05-01',
-    applicants: 12,
-    hired: 0,
-  },
-  {
-    id: 6,
-    title: 'Cybersecurity Analyst',
-    description: 'Monitoring and responding to security incidents.',
-    domain: 'Cyber Security',
-    status: 'Open',
-    salaryRange: '$90,000 - $130,000',
-    postedDate: '2025-06-20',
-    applicants: 5,
-    hired: 0,
-  },
-  {
-    id: 7,
-    title: 'Technical Support Specialist',
-    description: 'Providing technical assistance to customers.',
-    domain: 'Technical Support',
-    status: 'Open',
-    salaryRange: '$60,000 - $80,000',
-    postedDate: '2025-07-01',
-    applicants: 20,
-    hired: 0,
-  },
-  {
-    id: 8,
-    title: 'Network Engineer',
-    description: 'Designing and implementing network infrastructure.',
-    domain: 'Networking and Infrastructure',
-    status: 'Closed',
-    salaryRange: '$85,000 - $125,000',
-    postedDate: '2025-03-01',
-    applicants: 18,
-    hired: 2,
-  },
-  {
-    id: 9,
+    id: 'JOB002',
     title: 'Product Manager',
-    description: 'Defining product vision, strategy, and roadmap.',
     domain: 'Product Management',
+    client: 'Global Innovations Ltd.',
     status: 'Open',
-    salaryRange: '$115,000 - $170,000',
-    postedDate: '2025-06-25',
-    applicants: 7,
-    hired: 0,
+    datePosted: '2023-02-10',
+    applications: 80,
+    interviews: 15,
+    hires: 2,
+    description: 'Define product vision, strategy, and roadmap for innovative software products.',
+    requirements: [
+      '3+ years experience in product management',
+      'Strong understanding of agile methodologies',
+      'Excellent communication and leadership skills',
+      'Experience with market research and competitive analysis',
+    ],
   },
   {
-    id: 10,
-    title: 'Project Manager (IT)',
-    description: 'Overseeing IT projects from initiation to closure.',
-    domain: 'Project Management',
+    id: 'JOB003',
+    title: 'UX/UI Designer',
+    domain: 'UI/UX Design',
+    client: 'Creative Minds Agency',
+    status: 'Closed',
+    datePosted: '2023-03-01',
+    applications: 120,
+    interviews: 25,
+    hires: 3,
+    description: 'Design intuitive and visually appealing user interfaces for web and mobile applications.',
+    requirements: [
+      '4+ years experience in UX/UI design',
+      'Proficiency in Figma, Sketch, Adobe XD',
+      'Strong portfolio showcasing design projects',
+      'Understanding of user-centered design principles',
+    ],
+  },
+  {
+    id: 'JOB004',
+    title: 'Data Scientist',
+    domain: 'Data Science',
+    client: 'Data Insights Corp.',
     status: 'Open',
-    salaryRange: '$105,000 - $155,000',
-    postedDate: '2025-07-05',
-    applicants: 3,
-    hired: 0,
+    datePosted: '2023-04-05',
+    applications: 90,
+    interviews: 18,
+    hires: 1,
+    description: 'Analyze complex datasets, build predictive models, and provide data-driven insights.',
+    requirements: [
+      'Master\'s or Ph.D. in a quantitative field',
+      'Proficiency in Python or R',
+      'Experience with machine learning algorithms',
+      'Strong statistical modeling skills',
+    ],
+  },
+  {
+    id: 'JOB005',
+    title: 'Cloud Engineer',
+    domain: 'Cloud Engineering',
+    client: 'Cloud Innovations',
+    status: 'Open',
+    datePosted: '2023-05-01',
+    applications: 70,
+    interviews: 10,
+    hires: 0,
+    description: 'Design, implement, and manage cloud infrastructure on AWS, Azure, or GCP.',
+    requirements: [
+      '3+ years experience with cloud platforms',
+      'Experience with infrastructure as code (Terraform, CloudFormation)',
+      'Knowledge of containerization (Docker, Kubernetes)',
+      'Strong scripting skills (Python, Bash)',
+    ],
   },
 ];
 
-export const jobStatusList = ["All", "Open", "Closed", "On Hold", "Filled"];
 export const uniqueJobDomains = [...new Set(initialJobs.map(job => job.domain))];
+
+// Add jobStatusList for Jobs.jsx
+export const jobStatusList = [
+  "Open",
+  "Closed",
+  "On Hold",
+  "Filled"
+];
 
 
 // Data for Header search (combining relevant names/titles from all sections)
@@ -471,23 +223,14 @@ export const searchableItems = [
   { name: 'Dashboard', path: 'dashboard' },
   { name: 'Candidates', path: 'candidates' },
   { name: 'Jobs', path: 'jobs' },
-  { name: 'Interviews', path: 'interviews' },
   { name: 'Settings', path: 'settings' },
   { name: 'Profile', path: 'profile' },
   { name: 'Add Candidates', path: 'add-candidates' },
+  { name: 'Hiring Agencies', path: 'hiring-agencies' },
   // Ensure these maps correctly use 'jobRole' and include 'resumes'
-  ...initialCandidates.map(c => ({ name: c.name, path: 'candidates' })),
-  ...initialCandidates.map(c => ({ name: c.jobRole, path: 'candidates' })), // Changed from c.role
-  ...initialCandidates.map(c => ({ name: c.domain, path: 'candidates' })),
-  ...initialCandidates.map(c => ({ name: c.email, path: 'candidates' })),
-  ...initialCandidates.map(c => ({ name: c.poc, path: 'candidates' })),
-  // Add resume names to searchable items
-  ...initialCandidates.flatMap(c => (c.resumes || []).map(r => ({ name: r.name, path: 'candidates' }))),
+  // Removed mapping of initialCandidates as it's no longer present
   ...dashboardClientsData.map(c => ({ name: c.name, path: 'dashboard' })),
-  ...dashboardClientsData.map(c => ({ name: c.email, path: 'dashboard' })),
-  ...initialInterviews.map(i => ({ name: i.candidateName, path: 'interviews' })),
-  ...initialInterviews.map(i => ({ name: i.jobRole, path: 'interviews' })),
-  ...initialInterviews.map(i => ({ name: i.poc, path: 'interviews' })),
-  ...initialJobs.map(j => ({ name: j.title, path: 'jobs' })),
-  ...initialJobs.map(j => ({ name: j.domain, path: 'jobs' })),
+  ...dashboardClientsData.flatMap(c => c.jobs.map(job => ({ name: job.title, path: `jobs/${job.id}` }))),
+  ...initialJobs.map(job => ({ name: job.title, path: `jobs/${job.id}` })),
+  ...initialJobs.map(job => ({ name: job.domain, path: 'jobs' })),
 ];

@@ -11,22 +11,24 @@ const Settings = ({ onTitleChange }) => {
   const [dataExportFormat, setDataExportFormat] = useState('csv'); // 'csv', 'json', 'pdf'
   const [defaultJobStatus, setDefaultJobStatus] = useState('Open'); // 'Open', 'Closed', 'On Hold'
   const [autoArchiveJobs, setAutoArchiveJobs] = useState(false); // Toggle for auto-archiving
+  const [showSaveMessage, setShowSaveMessage] = useState(false); // State for save success message
 
   useEffect(() => {
-    // Apply the theme from state to the document element
-    document.body.setAttribute('data-theme', theme); // <-- Use body for theme
-    localStorage.setItem('theme', theme); // Persist theme preference
+    // Apply the theme from state to the document body
+    document.body.setAttribute('data-theme', theme);
+    // Persist theme preference to localStorage
+    localStorage.setItem('theme', theme);
 
     // Update the header title when this component mounts
     if (onTitleChange) {
       onTitleChange('Settings');
     }
-  }, [theme, onTitleChange]);
+  }, [theme, onTitleChange]); // Re-run when theme or onTitleChange prop changes
 
   const handleThemeChange = (e) => {
     const newTheme = e.target.value;
     setTheme(newTheme);
-    // Theme will be applied by useEffect above
+    // The useEffect above will handle applying and persisting the new theme
   };
 
   const handleEmailNotificationsToggle = () => {
@@ -59,8 +61,12 @@ const Settings = ({ onTitleChange }) => {
       defaultJobStatus,
       autoArchiveJobs,
     });
-    // For demonstration, just show a success message
-    alert('Settings saved successfully!'); // Using alert for simplicity, consider a custom modal
+
+    // Show success message
+    setShowSaveMessage(true);
+    setTimeout(() => {
+      setShowSaveMessage(false);
+    }, 3000); // Hide message after 3 seconds
   };
 
   return (
@@ -134,6 +140,9 @@ const Settings = ({ onTitleChange }) => {
         <button className="save-changes-btn" onClick={handleSaveChanges}>
           Save Changes
         </button>
+        {showSaveMessage && (
+          <p className="save-success-message">Settings saved successfully!</p>
+        )}
       </div>
     </div>
   );

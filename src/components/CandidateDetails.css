@@ -1,0 +1,781 @@
+/* CandidateDetails.css */
+
+/* Candidate Details Page Specific Styles */
+/* Removed .candidate-details-page-container as it's no longer the outer container */
+
+.candidate-not-found-container { /* New style for "Candidate not found" state */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  color: var(--color-muted);
+  font-size: 1.25rem;
+  background-color: var(--color-bg); /* Match background color */
+  padding: 3rem 1.5rem; /* Reverted padding */
+  box-sizing: border-box;
+  border-radius: 0; /* Removed border-radius */
+  box-shadow: none; /* Removed box-shadow */
+  overflow: hidden; /* Hide scrollbar if content overflows */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.candidate-not-found-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+.candidate-not-found-container .back-to-candidates-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-small);
+  transition: background-color 0.2s ease;
+}
+
+.candidate-not-found-container .back-to-candidates-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+
+.back-button-container {
+  /* Positioned within candidate-details-content */
+  margin-bottom: 0.5rem; /* Reduced margin-bottom to lessen gap */
+  /* Removed padding-bottom and border-bottom as it's now inside the card */
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary); /* text-blue-600 */
+  transition: color 0.2s ease; /* transition duration-200 */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0; /* Remove default button padding */
+}
+
+.back-button:hover {
+  color: var(--color-primary-dark); /* hover:text-blue-800 */
+}
+
+.back-button svg {
+  margin-right: 0; /* Remove margin as text is removed */
+}
+
+/* New layout for CandidateDetails */
+.candidate-details-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Left 2/3, Right 1/3 */
+  gap: 1.5rem; /* Space between columns */
+  background-color: var(--color-bg); /* Match the background color */
+  padding: 3rem 1.5rem; /* Reverted padding to ensure consistent spacing from page edges */
+  border-radius: 0; /* Removed border-radius */
+  box-shadow: none; /* Removed box-shadow */
+  width: 100%; /* Ensure it takes full width */
+  height: 100%; /* Ensure it takes full height */
+  box-sizing: border-box; /* Include padding in dimensions */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.candidate-details-layout::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+.candidate-details-left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.candidate-details-right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.candidate-details-content {
+  /* This is the "card" where the back button is now located */
+  background-color: var(--color-card); /* bg-white */
+  padding: 2rem; /* p-8 */
+  border-radius: var(--radius); /* rounded-lg */
+  box-shadow: var(--shadow-soft); /* shadow-sm */
+  display: flex; /* Use flexbox for internal layout */
+  flex-direction: column; /* Stack items vertically */
+  gap: 0.75rem; /* Reduced gap between elements inside the card */
+}
+
+.candidate-details-content h2 {
+  display: none; /* Removed Candidate Details title */
+}
+
+.candidate-name-display {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem; /* Reduced margin-bottom */
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* grid-cols-1 */
+  gap: 0.5rem; /* Reduced gap between details */
+  margin-bottom: 2rem; /* Kept margin-bottom for space before update section */
+}
+
+.details-grid p {
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.details-grid strong {
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.blank-space {
+  height: 1.5rem; /* Adjust height for desired blank space */
+}
+
+.aptitude-details-section, /* New section for Aptitude */
+.interview-details-section,
+.evaluation-details-section,
+.poc-details-section, /* Added POC details section */
+.br-chats-section { /* Added BR Chats section */
+  padding: 1.5rem; /* p-6 */
+  border-radius: var(--radius-small); /* rounded-md */
+  margin-bottom: 0; /* Removed margin-bottom as gap handles spacing */
+  box-shadow: var(--shadow-inner); /* shadow-inner */
+}
+
+/* Summary Cards for Aptitude, Interview, Evaluation */
+.aptitude-summary-card,
+.interview-summary-card,
+.evaluation-summary-card {
+  padding: 1.5rem;
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow-inner);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; /* For the "View More" link positioning */
+}
+
+.aptitude-summary-card {
+  background-color: var(--color-warning-light);
+}
+.aptitude-summary-card h3 {
+  color: var(--color-warning-dark);
+}
+
+.interview-summary-card {
+  background-color: var(--color-info-light);
+}
+.interview-summary-card h3 {
+  color: var(--color-info-dark);
+}
+
+.evaluation-summary-card {
+  background-color: var(--color-success-light);
+}
+.evaluation-summary-card h3 {
+  color: var(--color-success-dark);
+}
+
+.aptitude-summary-card:hover,
+.interview-summary-card:hover,
+.evaluation-summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-medium);
+}
+
+.aptitude-summary-card h3,
+.interview-summary-card h3,
+.evaluation-summary-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.aptitude-summary-card p,
+.interview-summary-card p,
+.evaluation-summary-card p {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.view-details-link {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.5rem;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.aptitude-details-section {
+  background-color: var(--color-warning-light); /* Example color */
+}
+
+.aptitude-details-section h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  color: var(--color-warning-dark); /* text-orange-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.interview-details-section {
+  background-color: var(--color-info-light); /* bg-blue-50 */
+}
+
+.interview-details-section h3,
+.poc-details-section h3,
+.br-chats-section h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  color: var(--color-info-dark); /* text-blue-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.poc-details-section {
+  background-color: var(--color-success-light); /* Example color */
+}
+
+.poc-details-section h3 {
+  color: var(--color-success-dark);
+}
+
+.br-chats-section {
+  background-color: var(--color-warning-light); /* Example color */
+}
+
+.br-chats-section h3 {
+  color: var(--color-warning-dark);
+}
+
+
+.evaluation-details-section h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  color: var(--color-success-dark); /* text-green-700 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.eval-result {
+  font-weight: 500; /* font-medium */
+}
+
+.eval-result.pass {
+  color: var(--color-success-dark); /* text-green-600 */
+}
+
+.eval-result.fail {
+  color: var(--color-danger-dark); /* text-red-600 */
+}
+
+.update-status-section {
+  background-color: var(--color-bg-light); /* bg-gray-100 */
+  padding: 1.5rem; /* p-6 */
+  border-radius: var(--radius); /* rounded-lg */
+  box-shadow: var(--shadow-inner); /* shadow-inner */
+}
+
+/* Removed h3 for update status section */
+.update-status-section h3 {
+  display: none;
+}
+
+.update-status-section .add-candidates-select,
+.update-status-section .add-candidates-input,
+.update-status-section .add-candidates-textarea {
+  width: 100%; /* w-full */
+  padding: 0.5rem; /* p-2 */
+  border: 1px solid var(--color-border-light); /* border border-gray-300 */
+  border-radius: var(--radius-small); /* rounded-md */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.update-status-section .add-candidates-select:focus,
+.update-status-section .add-candidates-input:focus,
+.update-status-section .add-candidates-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary); /* focus:border-blue-500 */
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* focus:ring-blue-500 */
+}
+
+.conditional-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* space-y-3 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.conditional-input-group label {
+  display: block; /* block */
+  color: var(--color-text-primary); /* text-gray-700 */
+  font-weight: 500; /* font-medium */
+}
+
+.save-status-btn {
+  width: 100%; /* w-full */
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-small);
+  transition: background-color 0.2s ease;
+}
+
+.save-status-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.status-badge {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 9999px;
+  border: none;
+  font-weight: 600;
+  white-space: normal;
+  word-break: break-word;
+  display: inline-block;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+/* Specific badge colors */
+.status-badge.badge-success {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background-color: rgba(var(--color-success-rgb), 0.1);
+}
+
+.status-badge.badge-warning {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+  background-color: rgba(var(--color-warning-rgb), 0.1);
+}
+
+.status-badge.badge-danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background-color: rgba(var(--color-danger-rgb), 0.1);
+}
+
+.status-badge.badge-info {
+  color: var(--color-info);
+  border-color: var(--color-info);
+  background-color: rgba(var(--color-info-rgb), 0.1);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--color-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-medium);
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  color: var(--color-text-primary);
+}
+
+/* Specific style for update status modal content */
+.update-status-modal-content {
+  width: 750px; /* Explicitly set width */
+  min-height: 600px; /* Explicitly set min-height */
+  /* These properties are inherited from .modal-content now, no need to duplicate unless overriding */
+}
+
+/* Modified style for the interview modal (remove fixed size) */
+.interview-modal-large {
+  width: auto; /* Allow width to be determined by content */
+  height: auto; /* Allow height to be determined by content */
+  max-width: 90vw; /* Ensure it's responsive on smaller screens */
+  max-height: 90vh; /* Ensure it's responsive on smaller screens */
+}
+
+/* New style for the larger evaluation modal */
+.evaluation-modal-large {
+  width: 1200px;
+  height: 700px;
+  max-width: 90vw; /* Ensure it's responsive on smaller screens */
+  max-height: 90vh; /* Ensure it's responsive on smaller screens */
+}
+
+
+.update-status-form-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* Evenly space items vertically */
+  align-items: flex-start; /* Align items to the start (left) */
+  text-align: left; /* Align text to the left */
+  flex-grow: 1; /* Allows form content to take available space */
+  gap: 1rem; /* Adjust gap as needed within the modal form */
+  margin-top: 0.5rem; /* Space below process flow - REDUCED */
+  padding-bottom: 80px; /* Add padding to prevent content from being hidden by fixed buttons */
+  overflow-y: auto; /* Allow scrolling for the form content if it overflows */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.update-status-form-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}
+
+.update-status-form-content .conditional-input-group {
+  width: 100%; /* Ensure input groups take full width */
+}
+
+.update-status-form-content .conditional-input-group label,
+.update-status-form-content .conditional-input-group input,
+.update-status-form-content .conditional-input-group textarea {
+  width: 100%; /* Ensure form elements take full width */
+}
+
+.process-info-text {
+  margin: auto; /* Center the text */
+  max-width: 80%; /* Limit width for readability */
+}
+
+.process-flow-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  padding: 0 10px; /* Padding for the ends of the flow */
+}
+
+.process-flow-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-border); /* Line color */
+  z-index: 0;
+  transform: translateY(-50%);
+}
+
+.process-step {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-muted);
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+  text-align: center;
+  flex-shrink: 0; /* Prevent shrinking */
+  margin: 0 15px; /* Increased space between steps */
+}
+
+.process-step.completed {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+  border-color: var(--color-success);
+}
+
+.process-step.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
+}
+
+.process-arrow {
+  flex-grow: 1;
+  height: 2px;
+  background-color: var(--color-border);
+  margin: 0 -15px; /* Overlap with step margin to create continuous line */
+  transition: background-color 0.3s ease;
+}
+
+.process-arrow.completed {
+  background-color: var(--color-success);
+}
+
+.modal-navigation-buttons {
+  display: flex;
+  justify-content: space-between; /* Distribute items with space between them */
+  align-items: center; /* Align items vertically in the middle */
+  gap: 15px; /* Gap between buttons */
+  padding: 1rem 2rem; /* Padding to match modal content padding */
+  position: absolute; /* Fixed position relative to modal-content */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-card); /* Match modal background */
+  border-top: 1px solid var(--color-border-light); /* Optional: a separator line */
+  z-index: 10; /* Ensure buttons are above scrollable content */
+}
+
+.modal-navigation-buttons .cancel-btn,
+.modal-navigation-buttons .submit-btn,
+.modal-navigation-buttons .final-action-btn { /* Apply consistent styles to all buttons in this container */
+  height: 40px; /* Consistent height for all buttons */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem; /* Default padding for buttons */
+  border-radius: var(--radius-small); /* Consistent border-radius */
+  transition: background-color 0.2s ease; /* Consistent transition */
+  border: none; /* Remove default border */
+  cursor: pointer; /* Indicate clickable */
+  min-width: 100px; /* Minimum width for all buttons */
+  flex: 1; /* Make all buttons take equal available space */
+  line-height: 1; /* Explicitly set line-height to help vertical centering */
+}
+
+.modal-navigation-buttons .cancel-btn {
+  background-color: var(--color-danger);
+  margin-top: 15px;
+  color: white;
+}
+
+.modal-navigation-buttons .cancel-btn:hover {
+  background-color: var(--color-danger-dark);
+}
+
+.modal-navigation-buttons .submit-btn {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.modal-navigation-buttons .submit-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.modal-navigation-buttons .final-action-btn.submit-btn { /* Specific style for Hired */
+  background-color: var(--color-success);
+  color: white;
+}
+
+.modal-navigation-buttons .final-action-btn.submit-btn:hover {
+  background-color: var(--color-success-dark);
+}
+
+.modal-navigation-buttons .final-action-btn.cancel-btn { /* Specific style for Rejected */
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.modal-navigation-buttons .final-action-btn.cancel-btn:hover {
+  background-color: var(--color-danger-dark);
+}
+
+/* New style for error messages */
+.error-message {
+  color: var(--color-danger); /* Red color for errors */
+  font-size: 0.85rem;
+  margin-top: -0.5rem; /* Pull it closer to the input field */
+  margin-bottom: 0.5rem; /* Space below the error message */
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) { /* md breakpoint */
+  .details-grid {
+    grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+  }
+}
+
+@media (min-width: 1024px) { /* lg breakpoint */
+  /* No specific grid changes for candidate-details-page-container here,
+     as it's handled by .candidate-details-layout */
+}
+
+@media (max-width: 1023px) { /* Tablet and smaller */
+  .candidate-details-layout {
+    grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
+  }
+}
+
+@media (max-width: 767px) { /* Mobile */
+  .candidate-details-layout {
+    padding: 15px; /* Adjust padding for mobile */
+  }
+
+  .candidate-details-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .candidate-name-display {
+    font-size: 1.2rem;
+  }
+
+  .candidate-details-content p,
+  .interview-details-section p,
+  .evaluation-details-section p,
+  .aptitude-details-section p, /* Added for new sections */
+  .poc-details-section p, /* Added for new sections */
+  .br-chats-section p, /* Added for new sections */
+  .aptitude-summary-card p,
+  .interview-summary-card p,
+  .evaluation-summary-card p {
+    font-size: 0.9rem;
+  }
+
+  .interview-details-section h3,
+  .evaluation-details-section h3,
+  .aptitude-details-section h3, /* Added for new sections */
+  .update-status-section h3,
+  .poc-details-section h3,
+  .br-chats-section h3,
+  .aptitude-summary-card h3,
+  .interview-summary-card h3,
+  .evaluation-summary-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .save-status-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .view-details-link {
+    bottom: 0.5rem;
+    right: 1rem;
+    font-size: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+  }
+
+  .process-step {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    margin: 0 2px;
+  }
+  .process-flow-container {
+    overflow-x: auto; /* Allow horizontal scroll on small screens */
+    justify-content: flex-start; /* Align to start for scrolling */
+    padding: 0;
+  }
+  .process-flow-container::before {
+    left: 10px; /* Adjust line start */
+    right: 10px; /* Adjust line end */
+  }
+
+  .modal-navigation-buttons {
+    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+    justify-content: center; /* Center buttons when wrapped */
+  }
+
+  .modal-navigation-buttons .cancel-btn,
+  .modal-navigation-buttons .submit-btn.next-step-btn,
+  .modal-navigation-buttons .submit-btn.center-submit-btn {
+    width: 100%; /* Full width for buttons on small screens */
+    max-width: none; /* Remove max-width constraint */
+  }
+  .interview-modal-large {
+    width: auto; /* Ensure it's auto on small screens */
+    height: auto; /* Ensure it's auto on small screens */
+  }
+  .evaluation-modal-large {
+    width: 95vw; /* Make it nearly full width on very small screens */
+    height: 90vh; /* Adjust height for very small screens */
+  }
+}
+
+@media (max-width: 479px) { /* Very small mobile */
+  .candidate-details-layout {
+    padding: 10px; /* Adjust padding for very small mobile */
+  }
+
+  .candidate-details-content h2 {
+    font-size: 1.3rem;
+  }
+
+  .candidate-name-display {
+    font-size: 1.1rem;
+  }
+
+  .candidate-details-content p,
+  .interview-details-section p,
+  .evaluation-details-section p,
+  .aptitude-details-section p,
+  .poc-details-section p,
+  .br-chats-section p,
+  .aptitude-summary-card p,
+  .interview-summary-card p,
+  .evaluation-summary-card p {
+    font-size: 0.8rem;
+  }
+
+  .interview-details-section h3,
+  .evaluation-details-section h3,
+  .aptitude-details-section h3,
+  .update-status-section h3,
+  .poc-details-section h3,
+  .br-chats-section h3,
+  .aptitude-summary-card h3,
+  .interview-summary-card h3,
+  .evaluation-summary-card h3 {
+    font-size: 1rem;
+  }
+
+  .save-status-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .view-details-link {
+    bottom: 0.25rem;
+    right: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .modal-content {
+    padding: 1rem;
+  }
+
+  .process-step {
+    font-size: 0.7rem;
+    padding: 5px 7px;
+  }
+}
