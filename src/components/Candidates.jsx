@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import "./Candidates.css";
-import { candidateStatusList, uniqueCandidateDomains, uniqueCandidateJobRoles, uniqueCandidatePocs, baseURL } from '../data';
-import { updateCandidateStatus, setCandidates } from '../redux/slices/candidatesSlice'; // Import setCandidates
+// Removed direct imports for uniqueCandidateDomains, uniqueCandidateJobRoles, uniqueCandidatePocs
+import { candidateStatusList, baseURL } from '../data';
+import { updateCandidateStatus, setCandidates } from '../redux/slices/candidatesSlice';
 
 const candidateTabsStatusList = [
   "All",
@@ -77,6 +78,8 @@ const CandidatePage = () => {
     domain: "",
     jobRole: "",
     poc: "",
+    minWorkExperience: "", // New filter field
+    status: "", // New filter field for dropdown, distinct from tab
   });
   const [activeTab, setActiveTab] = useState("All");
 
@@ -85,6 +88,8 @@ const CandidatePage = () => {
     domain: "",
     jobRole: "",
     poc: "",
+    minWorkExperience: "",
+    status: "",
   });
   const [appliedTab, setAppliedTab] = useState("All");
 
@@ -125,7 +130,7 @@ const CandidatePage = () => {
         domain: candidate.domain || '-',
         jobRole: candidate.job_title || '-', // Map job_title to jobRole
         poc: candidate.poc_email || '-', // Map poc_email to poc
-        workExperience: candidate.work_experience || '-',
+        workExperience: candidate.work_experience || 0, // Ensure it's a number
         status: candidate.status || 'NEW', // Default status if not provided
         lastUpdated: candidate.last_updated ? candidate.last_updated.slice(0, 10) : '-',
         resumes: candidate.resume_url ? [{ name: candidate.resume_url.split('/').pop(), url: candidate.resume_url }] : [], // Handle single resume_url
@@ -147,6 +152,28 @@ const CandidatePage = () => {
     fetchCandidates();
   }, [dispatch, navigate]); // Dependency array includes dispatch and navigate to avoid lint warnings
 
+  // Dynamically generate unique filter options from allCandidates
+  const uniqueDomains = useMemo(() => {
+    const domains = new Set(allCandidates.map(c => c.domain).filter(Boolean));
+    return Array.from(domains).sort();
+  }, [allCandidates]);
+
+  const uniqueJobRoles = useMemo(() => {
+    const jobRoles = new Set(allCandidates.map(c => c.jobRole).filter(Boolean));
+    return Array.from(jobRoles).sort();
+  }, [allCandidates]);
+
+  const uniquePocs = useMemo(() => {
+    const pocs = new Set(allCandidates.map(c => c.poc).filter(Boolean));
+    return Array.from(pocs).sort();
+  }, [allCandidates]);
+
+  const uniqueStatuses = useMemo(() => {
+    const statuses = new Set(allCandidates.map(c => c.status).filter(Boolean));
+    return Array.from(statuses).sort();
+  }, [allCandidates]);
+
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -154,18 +181,32 @@ const CandidatePage = () => {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
+    // When a tab is clicked, also update the status filter in the dropdown
+    setFilters(prev => ({ ...prev, status: tab === "All" ? "" : tab }));
   };
 
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
-    setAppliedTab(activeTab);
+    setAppliedTab(activeTab); // Keep appliedTab for the visual active tab
     setCurrentPage(1); // Reset pagination on filter application
   };
 
   const handleClearFilters = () => {
-    setFilters({ domain: "", jobRole: "", poc: "" });
+    setFilters({
+      domain: "",
+      jobRole: "",
+      poc: "",
+      minWorkExperience: "",
+      status: "",
+    });
     setActiveTab("All");
-    setAppliedFilters({ domain: "", jobRole: "", poc: "" });
+    setAppliedFilters({
+      domain: "",
+      jobRole: "",
+      poc: "",
+      minWorkExperience: "",
+      status: "",
+    });
     setAppliedTab("All");
     setCurrentPage(1); // Reset pagination on clearing filters
   };
@@ -176,23 +217,40 @@ const CandidatePage = () => {
 
   // Filter candidates based on applied tab and applied search term
   const filteredCandidates = allCandidates.filter((candidate) => {
-    const matchesTab = appliedTab === "All" || candidate.status === appliedTab;
-    const matchesDomain = appliedFilters.domain === "" || candidate.domain === appliedFilters.domain;
-    const matchesJobRole = appliedFilters.jobRole === "" || candidate.jobRole === appliedFilters.jobRole;
-    const matchesPoc = appliedFilters.poc === "" || candidate.poc === appliedFilters.poc;
-
     const lowerCaseSearchTerm = searchTerm ? searchTerm.toLowerCase() : '';
-    const matchesSearch =
-      !searchTerm ||
-      (candidate.name && candidate.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (candidate.email && candidate.email.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (candidate.phone && candidate.phone.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (candidate.domain && candidate.domain.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (candidate.jobRole && candidate.jobRole.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (candidate.poc && candidate.poc.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (candidate.status && candidate.status.toLowerCase().includes(lowerCaseSearchTerm));
+    const lowerCaseCandidateName = candidate.name ? candidate.name.toLowerCase() : '';
+    const lowerCaseCandidateEmail = candidate.email ? candidate.email.toLowerCase() : '';
+    // const lowerCaseCandidatePhone = candidate.phone ? candidate.phone.toLowerCase() : ''; // Removed
+    const lowerCaseCandidateDomain = candidate.domain ? candidate.domain.toLowerCase() : '';
+    const lowerCaseCandidateJobRole = candidate.jobRole ? candidate.jobRole.toLowerCase() : '';
+    const lowerCaseCandidatePoc = candidate.poc ? candidate.poc.toLowerCase() : '';
+    const lowerCaseCandidateStatus = candidate.status ? candidate.status.toLowerCase() : '';
 
-    return matchesTab && matchesDomain && matchesJobRole && matchesPoc && matchesSearch;
+    // Search term filter (global search bar)
+    const matchesSearchTerm =
+      !searchTerm ||
+      lowerCaseCandidateName.includes(lowerCaseSearchTerm) ||
+      lowerCaseCandidateEmail.includes(lowerCaseSearchTerm) ||
+      // lowerCaseCandidatePhone.includes(lowerCaseSearchTerm) || // Removed
+      lowerCaseCandidateDomain.includes(lowerCaseSearchTerm) ||
+      lowerCaseCandidateJobRole.includes(lowerCaseSearchTerm) ||
+      lowerCaseCandidatePoc.includes(lowerCaseSearchTerm) ||
+      lowerCaseCandidateStatus.includes(lowerCaseSearchTerm);
+
+    // Tab filter
+    const matchesTab = appliedTab === "All" || lowerCaseCandidateStatus === appliedTab.toLowerCase();
+
+    // Form filters
+    // const matchesPhone = appliedFilters.phone === "" || lowerCaseCandidatePhone.includes(appliedFilters.phone.toLowerCase()); // Removed
+    const matchesDomain = appliedFilters.domain === "" || lowerCaseCandidateDomain === appliedFilters.domain.toLowerCase();
+    const matchesJobRole = appliedFilters.jobRole === "" || lowerCaseCandidateJobRole === appliedFilters.jobRole.toLowerCase();
+    const matchesPoc = appliedFilters.poc === "" || lowerCaseCandidatePoc === appliedFilters.poc.toLowerCase();
+    const matchesStatusDropdown = appliedFilters.status === "" || lowerCaseCandidateStatus === appliedFilters.status.toLowerCase();
+
+    const matchesWorkExperience = appliedFilters.minWorkExperience === "" ||
+      (candidate.workExperience !== null && candidate.workExperience >= parseInt(appliedFilters.minWorkExperience, 10));
+
+    return matchesSearchTerm && matchesTab && matchesDomain && matchesJobRole && matchesPoc && matchesWorkExperience && matchesStatusDropdown;
   });
 
   // Pagination logic
@@ -223,7 +281,7 @@ const CandidatePage = () => {
                 className="add-candidates-select"
               >
                 <option value="">All Domains</option>
-                {uniqueCandidateDomains.map((domain) => (
+                {uniqueDomains.map((domain) => (
                   <option key={domain} value={domain}>
                     {domain}
                   </option>
@@ -240,7 +298,7 @@ const CandidatePage = () => {
                 className="add-candidates-select"
               >
                 <option value="">All Job Roles</option>
-                {uniqueCandidateJobRoles.map((role) => (
+                {uniqueJobRoles.map((role) => (
                   <option key={role} value={role}>
                     {role}
                   </option>
@@ -257,9 +315,39 @@ const CandidatePage = () => {
                 className="add-candidates-select"
               >
                 <option value="">All POCs</option>
-                {uniqueCandidatePocs.map((poc) => (
+                {uniquePocs.map((poc) => (
                   <option key={poc} value={poc}>
                     {poc}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="minWorkExperienceFilter">Min. Work Experience (Years)</label>
+              <input
+                type="number"
+                id="minWorkExperienceFilter"
+                name="minWorkExperience"
+                placeholder="e.g., 5"
+                value={filters.minWorkExperience}
+                onChange={handleFilterChange}
+                className="add-candidates-input"
+                min="0"
+              />
+            </div>
+            <div className="filter-group">
+              <label htmlFor="statusFilter">Status</label>
+              <select
+                id="statusFilter"
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                className="add-candidates-select"
+              >
+                <option value="">All Statuses</option>
+                {uniqueStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
                   </option>
                 ))}
               </select>
@@ -319,7 +407,7 @@ const CandidatePage = () => {
                 >
                   {i + 1}
                 </button>
-              ))}.
+              ))}
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}

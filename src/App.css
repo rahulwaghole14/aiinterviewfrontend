@@ -33,10 +33,13 @@
   --color-gray: #9e9e9e;
   --color-gray-dark: #757575;
   --color-hover: #f5f5f5; /* General hover background */
+  --color-overlay: rgba(0, 0, 0, 0.5); /* Added for consistent overlay color */
 
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
   --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.1); /* Added for hover effects */
+  --shadow-inner: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Added for inner shadows */
   --radius: 12px;
   --radius-small: 8px;
   --transition: all 0.3s ease;
@@ -45,6 +48,27 @@
 
   /* RGB values for shadows */
   --color-primary-rgb: 127, 202, 146;
+  --color-success-rgb: 76, 175, 80; /* Added for rgba usage */
+  --color-danger-rgb: 244, 67, 54; /* Added for rgba usage */
+  --color-warning-rgb: 255, 193, 7; /* Added for rgba usage */
+  --color-info-rgb: 33, 150, 243; /* Added for rgba usage */
+
+  /* Global Font Family */
+  --font-family-base: 'Roboto', sans-serif;
+
+  /* Table Heading Variables */
+  --table-heading-font-size: 0.9rem;
+  --table-heading-color: var(--color-text-primary);
+  --table-heading-font-weight: 600;
+
+  /* Table Data Variables */
+  --table-data-font-size: 0.85rem;
+  --table-data-color: var(--color-text);
+  --table-data-font-weight: 400;
+
+  /* Button Accent Color */
+  --color-button-accent: var(--color-primary);
+  --color-button-active: var(--color-primary-dark);
 }
 
 /* Dark Theme Variables */
@@ -64,32 +88,39 @@ body[data-theme='dark'] {
   --color-text-secondary: #9ca3af;
   --color-muted: #6b7280;
   --color-success: #22c55e;
-  --color-success-light: #1e293b;
+  --color-success-light: #1e3a24;
   --color-success-dark: #16a34a;
   --color-error: #ef4444;
   --color-danger: #ef4444;
-  --color-danger-light: #4b1e1e;
-  --color-danger-dark: #991b1b;
-  --color-warning: #f59e42;
-  --color-warning-light: #3b2c1e;
-  --color-warning-dark: #b45309;
-  --color-info: #60a5fa;
-  --color-info-light: #1e293b;
+  --color-danger-light: #450a0a;
+  --color-danger-dark: #dc2626;
+  --color-warning: #facc15;
+  --color-warning-light: #422006;
+  --color-warning-dark: #eab308;
+  --color-info: #3b82f6;
+  --color-info-light: #1e3a8a;
   --color-info-dark: #2563eb;
   --color-border: #374151;
-  --color-border-light: #23272b;
+  --color-border-light: #4b5563;
   --color-gray: #6b7280;
-  --color-gray-dark: #374151;
-  --color-hover: #23272b;
+  --color-gray-dark: #4b5563;
+  --color-hover: #2e3033;
+  --color-overlay: rgba(0, 0, 0, 0.7); /* Darker overlay for dark theme */
 
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-button-hover: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.4); /* Dark theme adjustment */
+  --shadow-inner: inset 0 1px 3px rgba(0, 0, 0, 0.2); /* Dark theme adjustment */
 
-  /* RGB values for shadows in dark theme */
-  --color-primary-rgb: 75, 85, 99;
+  /* Table Heading Variables (Dark Theme Adjustments) */
+  --table-heading-color: var(--color-text-primary);
+  --table-data-color: var(--color-text);
+
+  /* Button Accent Color (Dark Theme Adjustments) */
+  --color-button-accent: var(--color-primary);
+  --color-button-active: var(--color-primary-dark);
 }
-
 
 /* Base Styles */
 body, html {
@@ -97,7 +128,7 @@ body, html {
   width: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: var(--font-family-base); /* Applied global font */
   color: var(--color-text);
   background-color: var(--color-bg);
   overflow: hidden;
@@ -434,7 +465,7 @@ body, html {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay); /* Use theme variable */
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -809,4 +840,7 @@ body, html {
   border: none;
   padding: 0;
   z-index: 2;
+}
+h2, h3{
+ color:var(--color-primary-dark)
 }

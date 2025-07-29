@@ -10,7 +10,7 @@ const AddCandidates = () => {
   const navigate = useNavigate();
   const searchTerm = useSelector((state) => state.search.searchTerm);
 
-  // Form state
+  // Form state for adding new candidates
   const [formData, setFormData] = useState({
     full_name: "",
     domain: "",
@@ -26,12 +26,21 @@ const AddCandidates = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef(null);
   const [addedCandidates, setAddedCandidates] = useState([]);
+
+  // State for row-wise editing
+  const [editingCandidateId, setEditingCandidateId] = useState(null);
+  const [editedCandidateData, setEditedCandidateData] = useState(null);
+
+  // Popup state for deletion
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  // State for modal animation control for delete confirmation
+  const [showDeleteModalOverlay, setShowDeleteModalOverlay] = useState(false);
+
+  // State for sorting
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingCandidate, setEditingCandidate] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,10 +67,6 @@ const AddCandidates = () => {
     }
     if (!/^\S+@\S+\.\S+$/.test(formData.poc_email)) {
       setErrorMessage("Please enter a valid POC email");
-      return false;
-    }
-    if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
-      setErrorMessage("Please enter a valid candidate email");
       return false;
     }
     if (formData.resumes.length === 0) {
@@ -91,23 +96,21 @@ const AddCandidates = () => {
     candidatePayload.append("job_title", formData.job_title);
     candidatePayload.append("poc_email", formData.poc_email);
     
-    // Optional fields
-    if (formData.full_name) candidatePayload.append("full_name", formData.full_name);
-    if (formData.email) candidatePayload.append("email", formData.email);
-    if (formData.phone) candidatePayload.append("phone", formData.phone);
-    if (formData.work_experience) candidatePayload.append("work_experience", formData.work_experience);
+    // Optional fields (if backend expects them even if empty)
+    candidatePayload.append("full_name", formData.full_name);
+    candidatePayload.append("email", formData.email);
+    candidatePayload.append("phone", formData.phone);
+    candidatePayload.append("work_experience", formData.work_experience);
     
     // System fields
     candidatePayload.append("status", "Requires Action");
     candidatePayload.append("last_updated", new Date().toISOString().slice(0, 10));
     candidatePayload.append("created_at", new Date().toISOString().slice(0, 10));
 
-    // *** MODIFICATION START ***
-    // Send only the first resume file under the name 'resume_file'
-    if (formData.resumes.length > 0) {
-      candidatePayload.append("resume_file", formData.resumes[0]);
-    }
-    // *** MODIFICATION END ***
+    // Iterate and append all resume files using the singular "resume_file" key
+    formData.resumes.forEach((file) => {
+      candidatePayload.append("resume_file", file);
+    });
 
     try {
       const response = await axios.post(
@@ -121,31 +124,39 @@ const AddCandidates = () => {
         }
       );
 
-      const newCandidate = {
-        id: response.data.id,
-        name: response.data.full_name || '-',
-        email: response.data.email || '-',
-        phone: response.data.phone || '-',
-        domain: response.data.domain || '-',
-        jobRole: response.data.job_title || '-',
-        poc: response.data.poc_email || '-',
-        workExperience: response.data.work_experience || '-',
-        resumes: response.data.resume_urls ? 
-          response.data.resume_urls.map(url => ({ name: url.split('/').pop(), url })) : [],
-      };
+      console.log("Backend Response Data:", response.data);
 
-      setAddedCandidates(prev => [...prev, newCandidate]);
+      const newCandidatesData = Array.isArray(response.data) ? response.data : [response.data];
+
+      const newCandidates = newCandidatesData.map(data => ({
+        id: data.id,
+        name: data.full_name || '-',
+        email: data.email || '-',
+        phone: data.phone || '-',
+        domain: data.domain || '-',
+        jobRole: data.job_title || '-',
+        poc: data.poc_email || '-',
+        workExperience: data.work_experience || '-',
+        resumes: data.resume_urls ? 
+          data.resume_urls.map(url => ({ name: url.split('/').pop(), url })) : [],
+      }));
+
+      console.log("Processed New Candidates:", newCandidates);
+
+      setAddedCandidates(prev => [...prev, ...newCandidates]);
       setShowMessage(true);
       
-      // Reset form but keep the required fields that might be reused
-      setFormData(prev => ({
-        ...prev,
+      // Reset form fields after successful submission
+      setFormData({
         full_name: "",
+        domain: "",
+        job_title: "",
+        poc_email: "",
         email: "",
         phone: "",
         work_experience: "",
-        resumes: [], // Clear resumes after successful submission
-      }));
+        resumes: [],
+      });
 
       if (fileInputRef.current) fileInputRef.current.value = "";
 
@@ -160,8 +171,9 @@ const AddCandidates = () => {
   };
 
   const handleDeleteClick = (id) => {
-    setShowDeleteConfirm(true);
     setDeleteId(id);
+    setShowDeleteModalOverlay(true);
+    setShowDeleteConfirm(true);
   };
 
   const confirmDelete = async () => {
@@ -185,35 +197,34 @@ const AddCandidates = () => {
         navigate('/login');
       }
     } finally {
+      setShowDeleteModalOverlay(false);
       setShowDeleteConfirm(false);
       setDeleteId(null);
     }
   };
 
   const cancelDelete = () => {
+    setShowDeleteModalOverlay(false);
     setShowDeleteConfirm(false);
     setDeleteId(null);
   };
 
-  const handleEdit = (candidate) => {
-    setEditingCandidate({
-      id: candidate.id,
-      full_name: candidate.name,
-      email: candidate.email,
-      phone: candidate.phone,
-      work_experience: candidate.workExperience,
-      domain: candidate.domain,
-      job_title: candidate.jobRole,
-      poc_email: candidate.poc,
-      resumeUrl: candidate.resumes[0]?.url || '',
-      newResumeFile: null,
-    });
-    setEditModalOpen(true);
+  // Function to handle inline editing
+  const handleEditClick = (candidate) => {
+    setEditingCandidateId(candidate.id);
+    setEditedCandidateData({ ...candidate }); // Create a mutable copy for editing
   };
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    setErrorMessage("");
+  const handleEditCellChange = (e, field) => {
+    const newValue = e.target.value;
+    setEditedCandidateData(prev => ({
+      ...prev,
+      [field]: newValue
+    }));
+  };
+
+  const handleSaveClick = async () => {
+    if (!editedCandidateData || !editingCandidateId) return;
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
@@ -222,27 +233,24 @@ const AddCandidates = () => {
       return;
     }
 
-    const updatePayload = new FormData();
-    if (editingCandidate.full_name) updatePayload.append("full_name", editingCandidate.full_name);
-    if (editingCandidate.email) updatePayload.append("email", editingCandidate.email);
-    if (editingCandidate.phone) updatePayload.append("phone", editingCandidate.phone);
-    if (editingCandidate.work_experience) updatePayload.append("work_experience", editingCandidate.work_experience);
-    if (editingCandidate.domain) updatePayload.append("domain", editingCandidate.domain);
-    if (editingCandidate.job_title) updatePayload.append("job_title", editingCandidate.job_title);
-    if (editingCandidate.poc_email) updatePayload.append("poc_email", editingCandidate.poc_email);
-    
-    if (editingCandidate.newResumeFile) {
-      updatePayload.append("resume_file", editingCandidate.newResumeFile);
-    }
+    const updatePayload = {
+      full_name: editedCandidateData.name, // Map 'name' back to 'full_name' for API
+      email: editedCandidateData.email,
+      phone: editedCandidateData.phone,
+      work_experience: editedCandidateData.workExperience,
+      domain: editedCandidateData.domain,
+      job_title: editedCandidateData.jobRole, // Map 'jobRole' back to 'job_title'
+      poc_email: editedCandidateData.poc, // Map 'poc' back to 'poc_email'
+    };
 
     try {
       const response = await axios.patch(
-        `${baseURL}/api/candidates/`,
+        `${baseURL}/api/candidates/${editingCandidateId}/`,
         updatePayload,
         {
           headers: {
             Authorization: `Token ${authToken}`,
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json", // Changed to application/json for non-file updates
           },
         }
       );
@@ -263,7 +271,9 @@ const AddCandidates = () => {
       setAddedCandidates(prev => 
         prev.map(c => c.id === updatedCandidate.id ? updatedCandidate : c)
       );
-      setEditModalOpen(false);
+      setEditingCandidateId(null); // Exit edit mode
+      setEditedCandidateData(null); // Clear edited data
+      setErrorMessage(''); // Clear any previous error messages
     } catch (error) {
       console.error("Update failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Failed to update candidate.");
@@ -272,6 +282,13 @@ const AddCandidates = () => {
       }
     }
   };
+
+  const handleCancelEdit = () => {
+    setEditingCandidateId(null); // Exit edit mode
+    setEditedCandidateData(null); // Clear edited data
+    setErrorMessage(''); // Clear any error messages
+  };
+
 
   const handleSort = (column) => {
     if (sortColumn === column) {
@@ -311,6 +328,10 @@ const AddCandidates = () => {
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
+      // Handle cases where values might not be strings for sorting (e.g., numbers)
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
       return 0;
     });
 
@@ -335,19 +356,7 @@ const AddCandidates = () => {
           <h2 className="form-title">Add New Candidate</h2>
           <form id="candidateForm" onSubmit={handleSubmit}>
             <div className="form-box">
-              {/* Optional Fields */}
-              <div className="form-group">
-                <label htmlFor="fullName">Full Name</label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="full_name"
-                  placeholder="Candidate name (optional)"
-                  value={formData.full_name}
-                  onChange={handleChange}
-                  className="add-candidates-input"
-                />
-              </div>
+              {/* Removed Full Name (Optional) */}
 
               {/* Required Fields */}
               <div className="form-group">
@@ -399,46 +408,6 @@ const AddCandidates = () => {
                   onChange={handleChange}
                   className="add-candidates-input"
                   required
-                />
-              </div>
-
-              {/* Optional Fields */}
-              <div className="form-group">
-                <label htmlFor="candidateEmail">Candidate Email</label>
-                <input
-                  type="email"
-                  id="candidateEmail"
-                  name="email"
-                  placeholder="Candidate email (optional)"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="add-candidates-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="candidatePhone">Phone Number</label>
-                <input
-                  type="tel"
-                  id="candidatePhone"
-                  name="phone"
-                  placeholder="Phone number (optional)"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="add-candidates-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="workExperience">Work Experience</label>
-                <input
-                  type="text"
-                  id="workExperience"
-                  name="work_experience"
-                  placeholder="Work experience (optional)"
-                  value={formData.work_experience}
-                  onChange={handleChange}
-                  className="add-candidates-input"
                 />
               </div>
 
@@ -505,7 +474,7 @@ const AddCandidates = () => {
                   <th onClick={() => handleSort('domain')}>Domain {getSortIndicator('domain')}</th>
                   <th onClick={() => handleSort('jobRole')}>Job Role {getSortIndicator('jobRole')}</th>
                   <th onClick={() => handleSort('workExperience')}>Experience {getSortIndicator('workExperience')}</th>
-                  <th>Resume</th>
+                  <th>Resume(s)</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -513,41 +482,143 @@ const AddCandidates = () => {
                 {filteredCandidates.length > 0 ? (
                   filteredCandidates.map((candidate) => (
                     <tr key={candidate.id}>
-                      <td>{candidate.name || '-'}</td>
-                      <td>{candidate.email || '-'}</td>
-                      <td>{candidate.phone || '-'}</td>
-                      <td>{candidate.domain || '-'}</td>
-                      <td>{candidate.jobRole || '-'}</td>
-                      <td>{candidate.workExperience || '-'}</td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <input
+                            type="text"
+                            value={editedCandidateData?.name || ''}
+                            onChange={(e) => handleEditCellChange(e, 'name')}
+                            className="add-candidates-input-inline"
+                          />
+                        ) : (
+                          candidate.name || '-'
+                        )}
+                      </td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <input
+                            type="email"
+                            value={editedCandidateData?.email || ''}
+                            onChange={(e) => handleEditCellChange(e, 'email')}
+                            className="add-candidates-input-inline"
+                          />
+                        ) : (
+                          candidate.email || '-'
+                        )}
+                      </td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <input
+                            type="tel"
+                            value={editedCandidateData?.phone || ''}
+                            onChange={(e) => handleEditCellChange(e, 'phone')}
+                            className="add-candidates-input-inline"
+                          />
+                        ) : (
+                          candidate.phone || '-'
+                        )}
+                      </td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <select
+                            value={editedCandidateData?.domain || ''}
+                            onChange={(e) => handleEditCellChange(e, 'domain')}
+                            className="add-candidates-select-inline"
+                          >
+                            <option value="">Select Domain</option>
+                            {candidateDomains.map((domain) => (
+                              <option key={domain} value={domain}>
+                                {domain}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          candidate.domain || '-'
+                        )}
+                      </td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <select
+                            value={editedCandidateData?.jobRole || ''}
+                            onChange={(e) => handleEditCellChange(e, 'jobRole')}
+                            className="add-candidates-select-inline"
+                          >
+                            <option value="">Select Job Title</option>
+                            {candidateJobRoles.map((role) => (
+                              <option key={role} value={role}>
+                                {role}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          candidate.jobRole || '-'
+                        )}
+                      </td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <input
+                            type="text"
+                            value={editedCandidateData?.workExperience || ''}
+                            onChange={(e) => handleEditCellChange(e, 'workExperience')}
+                            className="add-candidates-input-inline"
+                          />
+                        ) : (
+                          candidate.workExperience || '-'
+                        )}
+                      </td>
                       <td>
                         {candidate.resumes.length > 0 ? (
-                          <a
-                            href={candidate.resumes[0].url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="resume-link"
-                          >
-                            View
-                          </a>
+                          <div className="resume-links-container">
+                            {candidate.resumes.map((resume, index) => (
+                              <a
+                                key={index}
+                                href={resume.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="resume-link"
+                              >
+                                View {index + 1}
+                              </a>
+                            ))}
+                          </div>
                         ) : (
                           "No Resume"
                         )}
                       </td>
                       <td className="actions-cell">
-                        <button
-                          onClick={() => handleEdit(candidate)}
-                          className="edit-btn"
-                          title="Edit"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(candidate.id)}
-                          className="delete-btn"
-                          title="Delete"
-                        >
-                          <FaTrash />
-                        </button>
+                        {editingCandidateId === candidate.id ? (
+                          <div className="action-buttons-group">
+                            <button onClick={handleSaveClick} className="save-btn" title="Save">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H12L21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M17 21V13H7V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M7 3V8H15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button onClick={handleCancelEdit} className="cancel-btn" title="Cancel">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="action-buttons-group">
+                            <button
+                              onClick={() => handleEditClick(candidate)}
+                              className="edit-btn"
+                              title="Edit"
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(candidate.id)}
+                              className="delete-btn"
+                              title="Delete"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -573,172 +644,10 @@ const AddCandidates = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
-      {editModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Edit Candidate</h3>
-            <form onSubmit={handleUpdate}>
-              <div className="modal-form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  value={editingCandidate.full_name || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      full_name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>Domain</label>
-                <select
-                  value={editingCandidate.domain || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      domain: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select Domain</option>
-                  {candidateDomains.map((domain) => (
-                    <option key={domain} value={domain}>
-                      {domain}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="modal-form-group">
-                <label>Job Title</label>
-                <select
-                  value={editingCandidate.job_title || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      job_title: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select Job Title</option>
-                  {candidateJobRoles.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="modal-form-group">
-                <label>POC Email</label>
-                <input
-                  type="email"
-                  value={editingCandidate.poc_email || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      poc_email: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={editingCandidate.email || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      email: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>Phone</label>
-                <input
-                  type="tel"
-                  value={editingCandidate.phone || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      phone: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>Work Experience</label>
-                <input
-                  type="text"
-                  value={editingCandidate.work_experience || ''}
-                  onChange={(e) =>
-                    setEditingCandidate({
-                      ...editingCandidate,
-                      work_experience: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="modal-form-group">
-                <label>Resume</label>
-                <div className="resume-upload-container">
-                  {editingCandidate.resumeUrl && (
-                    <a
-                      href={editingCandidate.resumeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="resume-link"
-                    >
-                      Current Resume
-                    </a>
-                  )}
-                  <input
-                    type="file"
-                    onChange={(e) =>
-                      setEditingCandidate({
-                        ...editingCandidate,
-                        newResumeFile: e.target.files[0],
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              {errorMessage && (
-                <div className="modal-error-message">⚠️ {errorMessage}</div>
-              )}
-
-              <div className="modal-actions">
-                <button type="submit" className="modal-submit-btn">
-                  Save Changes
-                </button>
-                <button
-                  type="button"
-                  className="modal-cancel-btn"
-                  onClick={() => setEditModalOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="modal-overlay">
-          <div className="delete-confirm-modal">
+      {showDeleteModalOverlay && (
+        <div className={`modal-overlay ${showDeleteConfirm ? 'show' : ''}`}>
+          <div className={`delete-confirm-modal ${showDeleteConfirm ? 'show' : ''}`}>
             <h3>Confirm Deletion</h3>
             <p>Are you sure you want to delete this candidate? This action cannot be undone.</p>
             <div className="delete-confirm-actions">

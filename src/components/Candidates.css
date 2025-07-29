@@ -6,8 +6,7 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  font-family: Arial, sans-serif;
-  padding: 20px;
+  font-family: var(--font-family-base); /* Consistent font */
   position: relative;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -46,7 +45,7 @@
 }
 
 .status-tab.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   box-shadow: var(--shadow-soft);
 }
@@ -158,7 +157,7 @@
   overflow-wrap: break-word; /* Modern property for word breaking */
 }
 
-/* Specific badge colors (reusing existing ones) */
+/* Specific badge colors */
 .status-badge.badge-success {
   color: var(--color-success);
   border-color: var(--color-success);
@@ -210,7 +209,7 @@
 }
 
 .view-details-btn { /* New button style */
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   padding: 0.4rem 0.8rem; /* Reduced padding */
   border: none;
@@ -223,7 +222,7 @@
 }
 
 .view-details-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-1px); /* Lift effect */
   box-shadow: var(--shadow-medium);
 }
@@ -247,7 +246,7 @@
   margin-bottom: 1.2rem; /* Reduced margin-bottom */
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text); /* Use theme variable */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   padding-bottom: 0.8rem; /* Reduced padding-bottom */
   border-bottom: 1px solid var(--color-border-light); /* border-b border-gray-200 */
 }
@@ -288,8 +287,7 @@
 
 .filter-group label {
   display: block;
-  font-weight: 500;
-  margin-bottom: 0.15rem; /* Reduced margin-bottom */
+  font-weight: 500; /* Adjusted margin-bottom to prevent overlap */
   font-size: 0.8rem; /* Slightly reduced font size */
   color: var(--color-muted); /* text-gray-700 */
 }
@@ -297,10 +295,11 @@
 .add-candidates-input,
 .add-candidates-select,
 .add-candidates-textarea { /* Added textarea */
-  padding: 0.4rem 0.6rem; /* Reduced padding */
-  border: 1px solid var(--color-border-light); /* border border-gray-300 */
+  /* Updated padding to match AddCandidates.css form input height for consistency */
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-muted);
   border-radius: var(--radius-small); /* rounded-md */
-  font-size: 0.85rem; /* Reduced font size */
+  font-size: 0.95rem; /* Adjusted font size for consistency */
   color: var(--color-text); /* Use theme variable */
   background-color: var(--color-bg-secondary); /* Use theme variable */
   transition: all 0.2s ease;
@@ -316,7 +315,7 @@
 
 .add-candidates-input:focus,
 .add-candidates-select:focus,
-.add-candidates-textarea:focus { /* Added textarea */
+.add-candidates-textarea:focus {
   outline: none;
   border-color: var(--color-primary); /* focus:border-blue-500 */
   box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* focus:ring-blue-500 */
@@ -335,7 +334,7 @@
 
 .add-candidates-textarea { /* New style for textarea */
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px; /* Adjusted min-height for consistency */
 }
 
 .form-actions {
@@ -346,7 +345,7 @@
 }
 
 .submit-btn {
-  background-color: var(--color-primary); /* Use theme variable */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   padding: 0.6rem 1.2rem; /* Reduced padding */
   border: none;
@@ -360,7 +359,7 @@
 }
 
 .submit-btn:hover {
-  background-color: var(--color-primary-dark); /* Use theme variable */
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -394,14 +393,14 @@
 .candidate-details-page-container.not-found .back-to-candidates-btn {
   margin-top: 1rem; /* mt-4 */
   padding: 0.5rem 1rem; /* px-4 py-2 */
-  background-color: var(--color-primary); /* bg-blue-500 */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   border-radius: var(--radius-small); /* rounded-md */
   transition: background-color 0.2s ease; /* transition duration-200 */
 }
 
 .candidate-details-page-container.not-found .back-to-candidates-btn:hover {
-  background-color: var(--color-primary-dark); /* hover:bg-blue-600 */
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 .back-button-container {
@@ -474,7 +473,7 @@
 .interview-details-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-info-dark); /* text-blue-700 */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
@@ -485,7 +484,7 @@
 .evaluation-details-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-success-dark); /* text-green-700 */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
@@ -503,9 +502,7 @@
 
 .update-status-section {
   background-color: var(--color-bg-light); /* bg-gray-100 */
-  padding: 1.5rem; /* p-6 */
-  border-radius: var(--radius); /* rounded-lg */
-  box-shadow: var(--shadow-inner); /* shadow-inner */
+ 
 }
 
 .update-status-section h3 {
@@ -548,15 +545,15 @@
 
 .save-status-btn {
   width: 100%; /* w-full */
-  background-color: var(--color-primary); /* bg-blue-600 */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
-  padding: 0.5rem 1rem; /* py-2 px-4 */
+  padding: 0.5rem 1rem;
   border-radius: var(--radius-small); /* rounded-md */
   transition: background-color 0.2s ease; /* transition duration-200 */
 }
 
 .save-status-btn:hover {
-  background-color: var(--color-primary-dark); /* hover:bg-blue-700 */
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 /* Pagination Styles */
@@ -571,7 +568,7 @@
 }
 
 .pagination-button {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   padding: 0.5rem 1rem;
   border: none;
@@ -582,7 +579,7 @@
 }
 
 .pagination-button:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 .pagination-button:disabled {
@@ -600,7 +597,7 @@
 }
 
 .pagination-page-number.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
@@ -686,7 +683,9 @@
   .filter-group select,
   .filter-group input,
   .filter-group textarea { /* Added textarea */
-    font-size: 12px;
+    /* Updated padding to match AddCandidates.css form input height for consistency on smaller screens */
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
   }
 
   .filter-header {
@@ -780,6 +779,7 @@
   .add-candidates-input,
   .add-candidates-select,
   .add-candidates-textarea {
+    /* Updated padding to match AddCandidates.css form input height for consistency on very small screens */
     padding: 0.5rem 0.7rem;
     font-size: 0.85rem;
   }

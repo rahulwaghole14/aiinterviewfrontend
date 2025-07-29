@@ -13,13 +13,14 @@
   color: var(--color-muted);
   font-size: 1.25rem;
   background-color: var(--color-bg); /* Match background color */
-  padding: 3rem 1.5rem; /* Reverted padding */
+  /* padding: 3rem 1.5rem; Reverted padding */
   box-sizing: border-box;
   border-radius: 0; /* Removed border-radius */
   box-shadow: none; /* Removed box-shadow */
   overflow: hidden; /* Hide scrollbar if content overflows */
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+  font-family: var(--font-family-base); /* Consistent font */
 }
 
 .candidate-not-found-container::-webkit-scrollbar {
@@ -29,14 +30,14 @@
 .candidate-not-found-container .back-to-candidates-btn {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   border-radius: var(--radius-small);
   transition: background-color 0.2s ease;
 }
 
 .candidate-not-found-container .back-to-candidates-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 
@@ -73,15 +74,17 @@
   grid-template-columns: 2fr 1fr; /* Left 2/3, Right 1/3 */
   gap: 1.5rem; /* Space between columns */
   background-color: var(--color-bg); /* Match the background color */
-  padding: 3rem 1.5rem; /* Reverted padding to ensure consistent spacing from page edges */
+  /* padding: 3rem 1.5rem; Reverted padding to ensure consistent spacing from page edges */
   border-radius: 0; /* Removed border-radius */
   box-shadow: none; /* Removed box-shadow */
   width: 100%; /* Ensure it takes full width */
   height: 100%; /* Ensure it takes full height */
   box-sizing: border-box; /* Include padding in dimensions */
   overflow-y: auto; /* Allow scrolling if content overflows */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+  font-family: var(--font-family-base); /* Consistent font */
 }
 
 .candidate-details-layout::-webkit-scrollbar {
@@ -126,12 +129,13 @@
   display: grid;
   grid-template-columns: 1fr; /* grid-cols-1 */
   gap: 0.5rem; /* Reduced gap between details */
-  margin-bottom: 2rem; /* Kept margin-bottom for space before update section */
+  /* Removed margin-bottom as the gap will be handled by the update-status-section's margin-top */
 }
 
 .details-grid p {
   font-size: 1rem;
   color: var(--color-text);
+  overflow-wrap: break-word; /* Ensure long text wraps */
 }
 
 .details-grid strong {
@@ -139,9 +143,7 @@
   color: var(--color-text-primary);
 }
 
-.blank-space {
-  height: 1.5rem; /* Adjust height for desired blank space */
-}
+/* Removed .blank-space as requested */
 
 .aptitude-details-section, /* New section for Aptitude */
 .interview-details-section,
@@ -208,6 +210,7 @@
   font-size: 0.95rem;
   color: var(--color-text);
   margin-bottom: 0.25rem;
+  overflow-wrap: break-word; /* Ensure long text wraps */
 }
 
 .view-details-link {
@@ -226,7 +229,7 @@
 .aptitude-details-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-warning-dark); /* text-orange-700 */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
@@ -239,16 +242,21 @@
 .br-chats-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-info-dark); /* text-blue-700 */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
 .poc-details-section {
-  background-color: var(--color-success-light); /* Example color */
+  background-color: var(--color-info-light); /* Changed to info-light */
 }
 
 .poc-details-section h3 {
-  color: var(--color-success-dark);
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
+}
+
+.poc-details-section p,
+.br-chats-section p {
+  overflow-wrap: break-word; /* Ensure long text wraps */
 }
 
 .br-chats-section {
@@ -256,14 +264,14 @@
 }
 
 .br-chats-section h3 {
-  color: var(--color-warning-dark);
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
 }
 
 
 .evaluation-details-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-success-dark); /* text-green-700 */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
@@ -281,9 +289,7 @@
 
 .update-status-section {
   background-color: var(--color-bg-light); /* bg-gray-100 */
-  padding: 1.5rem; /* p-6 */
-  border-radius: var(--radius); /* rounded-lg */
-  box-shadow: var(--shadow-inner); /* shadow-inner */
+
 }
 
 /* Removed h3 for update status section */
@@ -324,7 +330,7 @@
 
 .save-status-btn {
   width: 100%; /* w-full */
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   padding: 0.5rem 1rem;
   border-radius: var(--radius-small);
@@ -332,7 +338,7 @@
 }
 
 .save-status-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 .status-badge {
@@ -341,13 +347,13 @@
   border-radius: 9999px;
   border: none;
   font-weight: 600;
-  white-space: normal;
-  word-break: break-word;
+  white-space: nowrap; /* Prevent text wrapping */
+  word-break: normal; /* Allow normal word breaking */
   display: inline-block;
   line-height: 1.2;
   text-align: center;
-  max-width: 100%;
-  overflow-wrap: break-word;
+  width: fit-content; /* Make badge take only necessary width */
+  margin-bottom: 0.5rem; /* Add some space below the badge */
 }
 
 /* Specific badge colors */
@@ -376,17 +382,45 @@
 }
 
 /* Modal Styles */
+/* Keyframe for fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Keyframe for slide-up and fade-in animation for modal content */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) translateX(-50%); /* Start slightly above and centered */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%); /* End at natural position and centered */
+  }
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--color-overlay); /* Use theme variable */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0; /* Initial state for animation */
+  transition: opacity 0.3s ease-in-out; /* Fade-in transition */
+}
+
+.modal-overlay.show {
+  opacity: 1;
 }
 
 .modal-content {
@@ -400,6 +434,13 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
+  transform: scale(0.9); /* Initial state for animation */
+  transition: transform 0.3s ease-in-out; /* Scale-in transition */
+}
+
+.modal-overlay.show .modal-content {
+  transform: scale(1);
 }
 
 .modal-close-button {
@@ -419,9 +460,10 @@
 
 /* Specific style for update status modal content */
 .update-status-modal-content {
-  width: 750px; /* Explicitly set width */
+  width: auto; /* Changed from fixed width to auto */
   min-height: 600px; /* Explicitly set min-height */
-  /* These properties are inherited from .modal-content now, no need to duplicate unless overriding */
+  max-width: 90vw; /* Ensure it's responsive on smaller screens */
+  max-height: 90vh; /* Ensure it's responsive on smaller screens */
 }
 
 /* Modified style for the interview modal (remove fixed size) */
@@ -434,10 +476,46 @@
 
 /* New style for the larger evaluation modal */
 .evaluation-modal-large {
-  width: 1200px;
-  height: 700px;
+  width: auto; /* Changed from fixed width to auto */
+  height: auto; /* Changed from fixed height to auto */
   max-width: 90vw; /* Ensure it's responsive on smaller screens */
   max-height: 90vh; /* Ensure it's responsive on smaller screens */
+}
+
+/* Modal Overlay (specifically for evaluation modal) */
+.evaluation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.5s ease-out forwards; /* Apply fade-in animation */
+}
+
+/* Modal Content (specifically for evaluation modal) */
+.evaluation-modal-content {
+  background-color: var(--color-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-medium); /* Stronger shadow for modals */
+  width: 90vw; /* Responsive width */
+  max-width: 800px; /* Maximum width for larger screens */
+  max-height: 90vh; /* Max height to prevent overflow */
+  overflow-y: auto; /* Enable scrolling for modal content */
+  position: relative;
+  /* Center the modal content using transform for animation */
+  top: 0; /* Reset top for transform */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for accurate centering */
+  animation: slideInFromTop 0.5s ease-out forwards; /* Apply slide-in and fade-in animation */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 
@@ -503,7 +581,7 @@
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
-  white-space: nowrap;
+  white-space: nowrap; /* Keep nowrap by default for larger screens */
   position: relative;
   z-index: 1;
   border: 1px solid var(--color-border);
@@ -520,9 +598,9 @@
 }
 
 .process-step.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary); /* Changed to primary color as requested */
   box-shadow: var(--shadow-soft);
   transform: translateY(-2px);
 }
@@ -572,40 +650,40 @@
 }
 
 .modal-navigation-buttons .cancel-btn {
-  background-color: var(--color-danger);
+  background-color: var(--color-muted); /* Changed to muted color as requested */
   margin-top: 15px;
   color: white;
 }
 
 .modal-navigation-buttons .cancel-btn:hover {
-  background-color: var(--color-danger-dark);
+  background-color: var(--color-gray-dark); /* Changed to gray-dark on hover */
 }
 
 .modal-navigation-buttons .submit-btn {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
 .modal-navigation-buttons .submit-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 .modal-navigation-buttons .final-action-btn.submit-btn { /* Specific style for Hired */
-  background-color: var(--color-success);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
 .modal-navigation-buttons .final-action-btn.submit-btn:hover {
-  background-color: var(--color-success-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 .modal-navigation-buttons .final-action-btn.cancel-btn { /* Specific style for Rejected */
-  background-color: var(--color-danger);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
 .modal-navigation-buttons .final-action-btn.cancel-btn:hover {
-  background-color: var(--color-danger-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
 /* New style for error messages */
@@ -690,6 +768,8 @@
     font-size: 0.75rem;
     padding: 6px 8px;
     margin: 0 2px;
+    white-space: normal; /* Allow text to wrap on small screens */
+    word-break: break-word; /* Force long words to break and wrap strictly */
   }
   .process-flow-container {
     overflow-x: auto; /* Allow horizontal scroll on small screens */
@@ -777,5 +857,7 @@
   .process-step {
     font-size: 0.7rem;
     padding: 5px 7px;
+    white-space: normal; /* Ensure text wraps on very small screens */
+    word-break: break-word; /* Ensure long words break */
   }
 }

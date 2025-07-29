@@ -137,7 +137,7 @@ function App() {
         title = 'User Profile';
         break;
       case 'hiring-agencies':
-        title = 'Hiring Agencies';
+        title = 'All Users';
         break;
       case 'login':
         title = 'Login';

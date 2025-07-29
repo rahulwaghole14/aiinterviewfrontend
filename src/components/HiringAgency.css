@@ -12,6 +12,7 @@
   /* Ensure background matches global theme */
   background-color: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-family-base); /* Consistent font */
 }
 
 .hiring-agencies-container::-webkit-scrollbar {
@@ -20,9 +21,9 @@
 
 .hiring-agencies-header {
   display: flex;
-  justify-content: space-between; /* Pushes items to opposite ends */
+  justify-content: flex-end; /* Aligns button to the end (right) */
   align-items: center;
-  margin-bottom: 1rem; /* Space between header and list section */
+  margin-bottom: 1rem;
 }
 
 .hiring-agencies-list-section {
@@ -34,7 +35,7 @@
 }
 
 .form-title, .table-title {
-  color: var(--color-primary-dark);
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -44,20 +45,22 @@
 .hiring-agencies-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  /* Removed gap here as form-group will handle vertical spacing */
 }
 
 .form-row {
   display: flex;
-  gap: 1rem;
+  flex-direction: column; /* Force single column layout for all screen sizes */
+  /* Removed gap: 1.5rem; as it's no longer needed for horizontal spacing */
   width: 100%;
 }
 
 .form-group {
-  flex: 1;
+  /* Removed flex: 1; as it's not relevant when the parent is a column */
   display: flex;
   flex-direction: column;
   text-align: left;
+  margin-bottom: 1rem; /* Provides vertical spacing between each form field */
 }
 
 .form-group label {
@@ -83,24 +86,24 @@
 .form-group select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3); /* Slightly larger shadow for emphasis */
 }
 
 .submit-btn {
-  background-color: var(--color-primary);
-  color: white; /* Ensures white text as per theme */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
+  color: white;
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: var(--radius);
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  align-self: flex-start; /* Align button to the left */
+  align-self: flex-start;
   margin-top: 1rem;
 }
 
 .submit-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -113,19 +116,19 @@
 
 .table-responsive {
   overflow-x: auto;
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .table-responsive::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
 .hiring-agencies-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
-  min-width: 800px; /* Ensure table is wide enough */
+  min-width: 800px;
 }
 
 .hiring-agencies-table th,
@@ -133,14 +136,15 @@
   padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--color-border-light);
   text-align: left;
-  color: var(--color-text);
+  color: var(--color-text); /* Consistent table data color */
 }
 
 .hiring-agencies-table th {
   background-color: var(--color-bg-secondary);
-  font-weight: 600;
+  font-weight: 600; /* Consistent font weight for table headings */
+  color: var(--color-text-primary); /* Consistent table heading color */
   cursor: pointer;
-  white-space: nowrap; /* Prevent text wrapping in headers */
+  white-space: nowrap;
 }
 
 .hiring-agencies-table th:hover {
@@ -151,7 +155,7 @@
 .hiring-agencies-table td input[type="email"],
 .hiring-agencies-table td input[type="tel"],
 .hiring-agencies-table td select {
-  width: calc(100% - 16px); /* Account for padding */
+  width: calc(100% - 16px);
   padding: 0.5rem;
   border: 1px solid var(--color-muted);
   border-radius: var(--radius-small);
@@ -170,19 +174,19 @@
 }
 
 .status-badge.active {
-  background-color: var(--color-success);
+  background-color: var(--color-success); /* Retained success color */
 }
 
 .status-badge.inactive {
-  background-color: var(--color-danger);
+  background-color: var(--color-danger); /* Retained danger color */
 }
 
 .status-badge.on-hold {
-  background-color: var(--color-warning);
+  background-color: var(--color-warning); /* Retained warning color */
 }
 
 .actions-column {
-  white-space: nowrap; /* Prevent buttons from wrapping */
+  white-space: nowrap;
 }
 
 .action-buttons {
@@ -200,24 +204,24 @@
   align-items: center;
   gap: 0.3rem;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  color: white; /* Default text color for action buttons */
+  color: white;
 }
 
 .edit-btn {
-  background-color: var(--color-info);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
 }
 
 .edit-btn:hover {
-  background-color: var(--color-info-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-1px);
 }
 
 .save-btn {
-  background-color: var(--color-success);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
 }
 
 .save-btn:hover {
-  background-color: var(--color-success-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-1px);
 }
 
@@ -231,11 +235,11 @@
 }
 
 .delete-btn {
-  background-color: var(--color-danger);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
 }
 
 .delete-btn:hover {
-  background-color: var(--color-danger-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-1px);
 }
 
@@ -245,10 +249,9 @@
   padding: 1rem;
 }
 
-/* Add New Agency Button */
 .add-agency-btn {
-  background-color: var(--color-primary);
-  color: white; /* Ensures white text as per theme */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
+  color: white;
   padding: 0.7rem 1.2rem;
   border: none;
   border-radius: var(--radius);
@@ -261,7 +264,7 @@
 }
 
 .add-agency-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -273,11 +276,19 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay); /* Use theme variable for overlay color */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0; /* Initial state for animation */
+  transition: opacity 1s ease-in-out; /* Fade-in transition - Made slower */
+  pointer-events: none; /* Allows clicks to pass through when hidden */
+}
+
+.add-agency-modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto; /* Re-enable clicks when shown */
 }
 
 .add-agency-modal-content {
@@ -286,9 +297,19 @@
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
   position: relative;
-  max-width: 600px; /* Adjust as needed */
+  max-width: 600px;
   width: 90%;
   box-sizing: border-box;
+  max-height: 90vh; /* Limit height to 90% of viewport height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  transform: scale(0.9); /* Initial state for animation */
+  transition: transform 1s ease-in-out, opacity 1s ease-in-out; /* Scale-in and fade-in transition - Made slower */
+  opacity: 0; /* Initial state for animation */
+}
+
+.add-agency-modal-overlay.show .add-agency-modal-content {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .modal-close-button {
@@ -314,11 +335,19 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay); /* Use theme variable for overlay color */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0; /* Initial state for animation */
+  transition: opacity 1s ease-in-out; /* Fade-in transition - Made slower */
+  pointer-events: none; /* Allows clicks to pass through when hidden */
+}
+
+.delete-confirm-overlay.show {
+  opacity: 1;
+  pointer-events: auto; /* Re-enable clicks when shown */
 }
 
 .delete-confirm-modal {
@@ -330,6 +359,14 @@
   max-width: 400px;
   width: 90%;
   box-sizing: border-box;
+  transform: scale(0.9); /* Initial state for animation */
+  transition: transform 1s ease-in-out, opacity 1s ease-in-out; /* Scale-in and fade-in transition - Made slower */
+  opacity: 0; /* Initial state for animation */
+}
+
+.delete-confirm-overlay.show .delete-confirm-modal {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .delete-confirm-modal p {
@@ -354,13 +391,13 @@
 }
 
 .delete-confirm-actions .delete-btn {
-  background-color: var(--color-danger);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   border: none;
 }
 
 .delete-confirm-actions .delete-btn:hover {
-  background-color: var(--color-danger-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -382,14 +419,14 @@
   align-items: center;
   margin-top: 1.5rem;
   gap: 0.5rem;
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+  flex-wrap: wrap;
 }
 
 .pagination-btn {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
+  background-color: var(--color-primary); /* Changed to primary color as requested */
+  color: white;
   padding: 0.6rem 1rem;
-  border: 1px solid var(--color-border-light);
+  border: none; /* Removed border */
   border-radius: var(--radius-small);
   cursor: pointer;
   font-size: 0.9rem;
@@ -397,19 +434,22 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: var(--color-hover);
-  border-color: var(--color-primary);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
+  border-color: var(--color-primary-dark); /* Ensure border color matches */
 }
 
 .pagination-btn.active {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on active */
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-dark); /* Ensure border color matches */
 }
 
 .pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: var(--color-bg-secondary); /* Keep background consistent for disabled */
+  color: var(--color-muted); /* Muted text for disabled */
+  border: 1px solid var(--color-muted); /* Add a subtle border for disabled */
 }
 
 
@@ -421,19 +461,21 @@
   }
 
   .hiring-agencies-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: row; /* Keep as row */
+    justify-content: flex-end; /* Align button to end (right) */
+    align-items: center; /* Vertically center button */
+    gap: 0; /* Remove gap if only one item */
   }
 
-  .form-title, .table-title {
-    font-size: 1.3rem;
-    margin-bottom: 0; /* Adjusted for flex column */
-  }
-
+  /* These specific overrides for form-row and form-group are now less critical
+     as the default is already column, but kept for fine-tuning if needed */
   .form-row {
-    flex-direction: column;
-    gap: 0.8rem;
+    /* flex-direction: column; - Redundant now as it's default */
+    gap: 0.8rem; /* Adjusted for smaller screens, now applies vertically if form-row uses gap */
+  }
+
+  .form-group {
+    margin-bottom: 0.8rem; /* Adjusted for smaller screens */
   }
 
   .submit-btn {
@@ -442,7 +484,7 @@
   }
 
   .hiring-agencies-table {
-    min-width: 600px; /* Adjust min-width for smaller screens */
+    min-width: 600px;
   }
 
   .hiring-agencies-table th,
@@ -471,7 +513,7 @@
 
 @media (max-width: 480px) {
   .hiring-agencies-table {
-    min-width: 450px; /* Further adjust min-width for very small screens */
+    min-width: 450px;
   }
 
   .hiring-agencies-table th,

@@ -10,10 +10,11 @@ const Header = ({
   headerTitle, // Changed from 'title' to 'headerTitle' to match prop name in App.jsx
   isSidebarExpanded,
   sidebarMobileOpen,
-  onToggleSidebar,
+  onToggleSidebar, // For desktop sidebar expand/collapse
   isMobile,
   onLogout,
-  onProfileMenuItemClick
+  onProfileMenuItemClick,
+  onMobileSidebarToggle // New prop for mobile sidebar open/close
 }) => {
   const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -141,7 +142,8 @@ const Header = ({
       <div className="header-left">
         <div
           className="sidebar-toggle"
-          onClick={onToggleSidebar}
+          // Conditional onClick: use onMobileSidebarToggle for mobile, onToggleSidebar for desktop
+          onClick={isMobile ? onMobileSidebarToggle : onToggleSidebar}
           title={isMobile
             ? sidebarMobileOpen ? 'Close sidebar' : 'Open sidebar'
             : isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}

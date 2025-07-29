@@ -23,9 +23,10 @@ const Jobs = () => {
     currentTeamSizeInfo: '', // New field from API: current_team_size_info
     numberToHire: '', // New field from API: number_to_hire
     positionLevel: '', // New field from API: position_level
-    currentProcess: '', // New field from API: current_process
+    workExperience: '', // New field: Work Experience
+    // currentProcess: '', // REMOVED FROM UI
     techStackDetails: '', // New field from API: tech_stack_details
-    jdLink: '', // New field from API: jd_link
+    // jdLink: '', // REMOVED FROM UI
   });
   const [showMessage, setShowMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -46,7 +47,7 @@ const Jobs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(10); // Show 10 records per page, changed from 20
 
-  // Fetch jobs from API - now a named function to be callable from handleSubmit
+  // Function to fetch jobs from the API
   const fetchJobs = async () => {
     try {
       const response = await fetch(`${baseURL}/api/jobs/`);
@@ -64,6 +65,7 @@ const Jobs = () => {
         currentTeamSizeInfo: job.current_team_size_info, // New field
         numberToHire: job.number_to_hire, // New field
         positionLevel: job.position_level, // New field
+        workExperience: job.work_experience || '-', // Map new field
         currentProcess: job.current_process, // New field
         techStackDetails: job.tech_stack_details, // New field
         jdLink: job.jd_link, // New field
@@ -101,7 +103,8 @@ const Jobs = () => {
       (job.companyName && job.companyName.toLowerCase().includes(lowerCaseSearchTerm)) || // Search by new fields
       (job.spocEmail && job.spocEmail.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (job.hiringManagerEmail && job.hiringManagerEmail.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (job.techStackDetails && job.techStackDetails.toLowerCase().includes(lowerCaseSearchTerm))
+      (job.techStackDetails && job.techStackDetails.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (job.workExperience && job.workExperience.toLowerCase().includes(lowerCaseSearchTerm)) // Search by workExperience
     );
   }).sort((a, b) => { // Apply sorting after filtering
     if (!sortColumn) return 0;
@@ -134,6 +137,20 @@ const Jobs = () => {
     setCurrentPage(1);
   }, [searchTerm, sortColumn, sortDirection]);
 
+  // Effect to add/remove 'show' class for modal animations
+  useEffect(() => {
+    const deleteModalOverlay = document.querySelector('.delete-confirm-overlay');
+
+    if (deleteModalOverlay) {
+      if (showDeleteConfirm) {
+        deleteModalOverlay.classList.add('show');
+      } else {
+        deleteModalOverlay.classList.remove('show');
+      }
+    }
+  }, [showDeleteConfirm]);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -141,10 +158,11 @@ const Jobs = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { title, companyName, spocEmail, hiringManagerEmail, numberToHire, positionLevel, currentProcess, techStackDetails, jdLink } = formData;
+    const { title, companyName, spocEmail, hiringManagerEmail, numberToHire, positionLevel, techStackDetails, workExperience } = formData;
     
-    if (!title || !companyName || !spocEmail || !hiringManagerEmail || !numberToHire || !positionLevel || !currentProcess || !techStackDetails) {
-      setErrorMessage('Please fill all required fields.');
+    // Validate only truly required fields
+    if (!title || !companyName || !spocEmail || !hiringManagerEmail || !numberToHire || !positionLevel || !techStackDetails) {
+      setErrorMessage('Please fill all required fields: Job Title, Company Name, SPOC Email, Hiring Manager Email, Number to Hire, Position Level, and Tech Stack Details.');
       setShowMessage(false);
       return;
     }
@@ -161,12 +179,13 @@ const Jobs = () => {
           company_name: companyName,
           spoc_email: spocEmail,
           hiring_manager_email: hiringManagerEmail,
-          current_team_size_info: formData.currentTeamSizeInfo, // Ensure this is included if needed
+          current_team_size_info: formData.currentTeamSizeInfo, // This field is already optional in API
           number_to_hire: parseInt(numberToHire, 10), // Convert to number
           position_level: positionLevel,
-          current_process: currentProcess,
+          work_experience: workExperience || null, // Include workExperience, send null if empty
+          current_process: formData.currentProcess || null, // Make currentProcess optional, send null if empty
           tech_stack_details: techStackDetails,
-          jd_link: jdLink || null, // Send null if empty
+          jd_link: formData.jdLink || null, // Make jdLink optional, send null if empty
         }),
       });
 
@@ -195,9 +214,10 @@ const Jobs = () => {
         currentTeamSizeInfo: '',
         numberToHire: '',
         positionLevel: '',
-        currentProcess: '',
+        workExperience: '', // Clear workExperience after submission
+        currentProcess: '', // Keep in state for consistency with API structure, but it's not in UI
         techStackDetails: '',
-        jdLink: '',
+        jdLink: '', // Keep in state for consistency with API structure, but it's not in UI
       });
       setTimeout(() => {
         setShowMessage(false);
@@ -361,16 +381,20 @@ const Jobs = () => {
                 className="jobs-input"
               />
 
-              <label htmlFor="currentProcess">Current Process</label>
-              <textarea
-                id="currentProcess"
-                name="currentProcess"
-                placeholder="e.g., Resume -> Aptitude Test -> Technical Interview"
-                value={formData.currentProcess}
+              {/* New Work Experience Field */}
+              <label htmlFor="workExperience">Work Experience</label>
+              <input
+                type="text"
+                id="workExperience"
+                name="workExperience"
+                placeholder="e.g., 3+ years"
+                value={formData.workExperience}
                 onChange={handleChange}
-                className="jobs-textarea"
-                rows="3"
-              ></textarea>
+                className="jobs-input"
+              />
+
+              {/* REMOVED: Current Process Field */}
+              {/* REMOVED: JD Link Field */}
 
               <label htmlFor="techStackDetails">Tech Stack Details</label>
               <input
@@ -379,17 +403,6 @@ const Jobs = () => {
                 name="techStackDetails"
                 placeholder="e.g., SQL, Power BI, Python"
                 value={formData.techStackDetails}
-                onChange={handleChange}
-                className="jobs-input"
-              />
-
-              <label htmlFor="jdLink">JD Link (Optional)</label>
-              <input
-                type="url"
-                id="jdLink"
-                name="jdLink"
-                placeholder="e.g., https://example.com/job-description"
-                value={formData.jdLink}
                 onChange={handleChange}
                 className="jobs-input"
               />
@@ -418,6 +431,7 @@ const Jobs = () => {
                   <th onClick={() => handleSort('hiringManagerEmail')}>Hiring Manager Email {getSortIndicator('hiringManagerEmail')}</th>
                   <th onClick={() => handleSort('numberToHire')}>No. to Hire {getSortIndicator('numberToHire')}</th>
                   <th onClick={() => handleSort('positionLevel')}>Level {getSortIndicator('positionLevel')}</th>
+                  <th onClick={() => handleSort('workExperience')}>Work Experience {getSortIndicator('workExperience')}</th> {/* New Table Header */}
                   <th onClick={() => handleSort('techStackDetails')}>Tech Stack {getSortIndicator('techStackDetails')}</th>
                   <th onClick={() => handleSort('postedDate')}>Posted Date {getSortIndicator('postedDate')}</th>
                   <th>Actions</th>
@@ -426,7 +440,7 @@ const Jobs = () => {
               <tbody>
                 {currentRecords.length === 0 ? (
                   <tr className="no-results-row">
-                    <td colSpan="9"> {/* Updated colspan */}
+                    <td colSpan="10"> {/* Updated colspan to account for new column */}
                       <div className="no-results-message">
                         {searchTerm ? "No jobs found matching your search." : "No jobs available. Create a new job to get started!"}
                       </div>
@@ -507,6 +521,18 @@ const Jobs = () => {
                           job.positionLevel
                         )}
                       </td>
+                      <td> {/* New Table Data Cell */}
+                        {editingJobId === job.id ? (
+                          <input
+                            type="text"
+                            value={editedJobData?.workExperience || ''}
+                            onChange={(e) => handleEditCellChange(e, 'workExperience')}
+                            className="jobs-input-inline"
+                          />
+                        ) : (
+                          job.workExperience
+                        )}
+                      </td>
                       <td>
                         {editingJobId === job.id ? (
                           <input
@@ -529,14 +555,11 @@ const Jobs = () => {
                                   <path d="M17 21V13H7V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                   <path d="M7 3V8H15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
-                              Save
                             </button>
                             <button onClick={handleCancelClick} className="cancel-btn">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 6L6 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
-                                Cancel
                             </button>
                           </div>
                         ) : (
@@ -546,7 +569,6 @@ const Jobs = () => {
                                     <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                     <path d="M18.5 2.5C18.8978 2.10217 19.4391 1.87868 20 1.87868C20.5609 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43913 22.1213 4C22.1213 4.56087 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
-                              Edit
                             </button>
                             <button onClick={() => handleDeleteClick(job.id)} className="delete-btn">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -555,7 +577,6 @@ const Jobs = () => {
                                     <path d="M10 11V17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                     <path d="M14 11V17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
-                              Delete
                             </button>
                           </div>
                         )}
@@ -596,11 +617,11 @@ const Jobs = () => {
           )}
           {/* Delete Confirmation Popup */}
           {showDeleteConfirm && (
-            <div className="delete-confirm-overlay">
+            <div className={`delete-confirm-overlay ${showDeleteConfirm ? 'show' : ''}`}> {/* Added conditional 'show' class */}
               <div className="delete-confirm-modal">
                 <p>Are you sure you want to delete this job?</p>
                 <div className="delete-confirm-actions">
-                  <button className="confirm-btn" onClick={confirmDelete}>Yes, Delete</button>
+                  <button className="delete-btn" onClick={confirmDelete}>Delete</button> {/* Changed button class and text */}
                   <button className="cancel-btn" onClick={cancelDelete}>Cancel</button>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 // src/components/HiringAgencies.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux'; // Assuming search term might be used
-import './HiringAgency.css'; // Changed CSS file name
+import { useSelector } from 'react-redux';
+import './HiringAgency.css';
 
 // Dummy data for hiring agencies (replace with Redux/API in a real app)
 const initialHiringAgencies = [
@@ -23,7 +23,7 @@ const initialHiringAgencies = [
 ];
 
 const HiringAgencies = () => {
-  const searchTerm = useSelector((state) => state.search.searchTerm); // Get search term from Redux
+  const searchTerm = useSelector((state) => state.search.searchTerm);
 
   const [allAgencies, setAllAgencies] = useState(initialHiringAgencies);
   const [formData, setFormData] = useState({
@@ -31,27 +31,25 @@ const HiringAgencies = () => {
     contactPerson: '',
     email: '',
     phone: '',
-    status: 'Active', // Default status
-    userType: 'Hiring Agency', // Default user type
+    status: 'Active',
+    userType: 'Hiring Agency',
   });
   const [showMessage, setShowMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false); // New state for modal visibility
+  const [showAddModal, setShowAddModal] = useState(false); // State to control add modal visibility
 
   const [editingAgencyId, setEditingAgencyId] = useState(null);
   const [editedAgencyData, setEditedAgencyData] = useState(null);
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // State to control delete confirmation modal visibility
   const [deleteAgencyId, setDeleteAgencyId] = useState(null);
 
   const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
+  const [sortDirection, setSortDirection] = useState('asc');
 
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(10); // Show 10 records per page
+  const [recordsPerPage] = useState(10);
 
-  // Filtered agencies based on search term
   const filteredAgencies = allAgencies.filter(agency => {
     if (!searchTerm) {
       return true;
@@ -63,11 +61,10 @@ const HiringAgencies = () => {
       agency.email.toLowerCase().includes(lowerCaseSearchTerm) ||
       agency.phone.toLowerCase().includes(lowerCaseSearchTerm) ||
       agency.status.toLowerCase().includes(lowerCaseSearchTerm) ||
-      agency.userType.toLowerCase().includes(lowerCaseSearchTerm) // Include userType in search
+      agency.userType.toLowerCase().includes(lowerCaseSearchTerm)
     );
   });
 
-  // Sorting logic
   const sortedAgencies = [...filteredAgencies].sort((a, b) => {
     if (!sortColumn) return 0;
 
@@ -83,7 +80,6 @@ const HiringAgencies = () => {
     return 0;
   });
 
-  // Pagination calculations
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = sortedAgencies.slice(indexOfFirstRecord, indexOfLastRecord);
@@ -91,10 +87,32 @@ const HiringAgencies = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Reset to first page when search term or sorting changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, sortColumn, sortDirection]);
+
+  // Effect to add/remove 'show' class for modal animations
+  useEffect(() => {
+    const addModalOverlay = document.querySelector('.add-agency-modal-overlay');
+    const deleteModalOverlay = document.querySelector('.delete-confirm-overlay');
+
+    if (addModalOverlay) {
+      if (showAddModal) {
+        addModalOverlay.classList.add('show');
+      } else {
+        addModalOverlay.classList.remove('show');
+      }
+    }
+
+    if (deleteModalOverlay) {
+      if (showDeleteConfirm) {
+        deleteModalOverlay.classList.add('show');
+      } else {
+        deleteModalOverlay.classList.remove('show');
+      }
+    }
+  }, [showAddModal, showDeleteConfirm]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +132,7 @@ const HiringAgencies = () => {
     }
 
     const newAgency = {
-      id: Date.now().toString(), // Simple unique ID
+      id: Date.now().toString(),
       ...formData,
       lastUpdated: new Date().toISOString().slice(0, 10),
     };
@@ -130,12 +148,12 @@ const HiringAgencies = () => {
     });
     setErrorMessage('');
     setShowMessage(false);
-    setShowAddModal(false); // Close modal on successful add
+    setShowAddModal(false); // Close modal after adding
   };
 
   const handleEditClick = (agency) => {
     setEditingAgencyId(agency.id);
-    setEditedAgencyData({ ...agency }); // Create a copy for editing
+    setEditedAgencyData({ ...agency });
   };
 
   const handleEditedInputChange = (e) => {
@@ -165,17 +183,17 @@ const HiringAgencies = () => {
 
   const handleDeleteClick = (agencyId) => {
     setDeleteAgencyId(agencyId);
-    setShowDeleteConfirm(true);
+    setShowDeleteConfirm(true); // Open delete confirmation modal
   };
 
   const confirmDelete = () => {
     setAllAgencies((prevAgencies) => prevAgencies.filter((agency) => agency.id !== deleteAgencyId));
-    setShowDeleteConfirm(false);
+    setShowDeleteConfirm(false); // Close delete confirmation modal
     setDeleteAgencyId(null);
   };
 
   const cancelDelete = () => {
-    setShowDeleteConfirm(false);
+    setShowDeleteConfirm(false); // Close delete confirmation modal
     setDeleteAgencyId(null);
   };
 
@@ -195,16 +213,29 @@ const HiringAgencies = () => {
     return '';
   };
 
+  // Helper to get status badge class
+  const getStatusBadgeClass = (status) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'status-badge active';
+      case 'inactive':
+        return 'status-badge inactive';
+      case 'on hold':
+        return 'status-badge on-hold';
+      default:
+        return 'status-badge';
+    }
+  };
+
   return (
     <div className="hiring-agencies-container">
-      <div className="hiring-agencies-header">
-        <h3 className="table-title">Users</h3> {/* Changed title here */}
-        <button className="add-agency-btn" onClick={() => setShowAddModal(true)}>
-          Add New User {/* Changed button text here */}
-        </button>
-      </div>
-
       <div className="hiring-agencies-list-section card">
+        <div className="hiring-agencies-header">
+          {/* Removed the <h3> tag */}
+          <button className="add-agency-btn" onClick={() => setShowAddModal(true)}>
+            Add New User
+          </button>
+        </div>
         <div className="table-responsive">
           <table className="hiring-agencies-table">
             <thead>
@@ -214,7 +245,7 @@ const HiringAgencies = () => {
                 <th onClick={() => handleSort('email')}>Email {getSortIndicator('email')}</th>
                 <th onClick={() => handleSort('phone')}>Phone {getSortIndicator('phone')}</th>
                 <th onClick={() => handleSort('status')}>Status {getSortIndicator('status')}</th>
-                <th onClick={() => handleSort('userType')}>User Type {getSortIndicator('userType')}</th> {/* New column */}
+                <th onClick={() => handleSort('userType')}>User Type {getSortIndicator('userType')}</th>
                 <th onClick={() => handleSort('lastUpdated')}>Last Updated {getSortIndicator('lastUpdated')}</th>
                 <th>Actions</th>
               </tr>
@@ -222,7 +253,7 @@ const HiringAgencies = () => {
             <tbody>
               {currentRecords.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="no-results">No users found.</td> {/* Adjusted colspan */}
+                  <td colSpan="8" className="no-results">No users found.</td>
                 </tr>
               ) : (
                 currentRecords.map((agency) => (
@@ -287,12 +318,12 @@ const HiringAgencies = () => {
                           <option value="On Hold">On Hold</option>
                         </select>
                       ) : (
-                        <span className={`status-badge ${agency.status.toLowerCase().replace(/\s/g, '-')}`}>
+                        <span className={getStatusBadgeClass(agency.status)}>
                           {agency.status}
                         </span>
                       )}
                     </td>
-                    <td> {/* New column for userType */}
+                    <td>
                       {editingAgencyId === agency.id ? (
                         <select
                           name="userType"
@@ -314,13 +345,11 @@ const HiringAgencies = () => {
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M5 13L9 17L19 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            Save
                           </button>
                           <button onClick={handleCancelEdit} className="cancel-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            Cancel
                           </button>
                         </div>
                       ) : (
@@ -329,7 +358,6 @@ const HiringAgencies = () => {
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M12 20H20.5M18 2L22 6L12 16L8 16L8 12L18 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            Edit
                           </button>
                           <button onClick={() => handleDeleteClick(agency.id)} className="delete-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -337,7 +365,6 @@ const HiringAgencies = () => {
                               <path d="M10 11V17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               <path d="M14 11V17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            Delete
                           </button>
                         </div>
                       )}
@@ -379,9 +406,9 @@ const HiringAgencies = () => {
 
         {/* Delete Confirmation Popup */}
         {showDeleteConfirm && (
-          <div className="delete-confirm-overlay">
+          <div className={`delete-confirm-overlay ${showDeleteConfirm ? 'show' : ''}`}>
             <div className="delete-confirm-modal">
-              <p>Are you sure you want to delete this user?</p> {/* Changed text here */}
+              <p>Are you sure you want to delete this user?</p>
               <div className="delete-confirm-actions">
                 <button onClick={confirmDelete} className="delete-btn">Delete</button>
                 <button onClick={cancelDelete} className="cancel-btn">Cancel</button>
@@ -391,16 +418,16 @@ const HiringAgencies = () => {
         )}
       </div>
 
-      {/* Add New Agency Modal */}
+
       {showAddModal && (
-        <div className="add-agency-modal-overlay">
+        <div className={`add-agency-modal-overlay ${showAddModal ? 'show' : ''}`}>
           <div className="add-agency-modal-content card">
             <button className="modal-close-button" onClick={() => setShowAddModal(false)}>&times;</button>
-            <h3 className="form-title">Add New User</h3> {/* Changed title here */}
+            <h3 className="form-title">Add New User</h3>
             <form onSubmit={handleAddAgency} className="hiring-agencies-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="agencyName">Name</label> {/* Changed label here */}
+                  <label htmlFor="agencyName">Name</label>
                   <input
                     type="text"
                     id="agencyName"
@@ -465,7 +492,7 @@ const HiringAgencies = () => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="userType">User Type</label> {/* New field */}
+                  <label htmlFor="userType">User Type</label>
                   <select
                     id="userType"
                     name="userType"
@@ -481,7 +508,7 @@ const HiringAgencies = () => {
                 <p className="error-message">{errorMessage}</p>
               )}
               <button type="submit" className="submit-btn">
-                Add User {/* Changed button text here */}
+                Add User
               </button>
             </form>
           </div>

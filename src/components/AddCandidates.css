@@ -11,6 +11,7 @@
   scrollbar-width: none; /* Firefox */
   background-color: var(--color-bg); /* Ensure background matches global theme */
   color: var(--color-text); /* Ensure text color matches global theme */
+  font-family: var(--font-family-base); /* Consistent font */
 }
 
 /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
@@ -48,7 +49,8 @@
 .add-candidates-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
-  color: var(--color-muted);
+  /* Changed to use --color-primary-dark as requested for titles */
+  color: var(--color-primary-dark);
 }
 
 .add-candidates-card p {
@@ -93,12 +95,13 @@
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 0px;
-  color: var(--color-text);
+  /* Changed to use --color-primary-dark as requested for titles */
+  color: var(--color-primary-dark);
   margin: 0; /* Reset margin as it's handled by gap now */
 }
 
 .process-candidates-btn {
-  background-color: var(--color-primary); /* Use a suitable color, e.g., primary */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   padding: 0.6rem 1.2rem;
   border: none;
@@ -112,7 +115,7 @@
 }
 
 .process-candidates-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -141,14 +144,14 @@
   text-align: left;
   padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--color-border-light); /* Use theme variable */
-  color: var(--color-text);
+  color: var(--color-text); /* Consistent text color for table data */
   vertical-align: middle; /* Align content vertically in middle */
 }
 
 .candidate-table th {
   background-color: var(--color-bg-secondary); /* Use theme variable */
-  color: var(--color-muted); /* Use theme variable */
-  font-weight: 600;
+  color: var(--color-text-primary); /* Consistent text color for table headings */
+  font-weight: 600; /* Consistent font weight for table headings */
   font-size: 0.9rem;
   white-space: nowrap; /* Prevent header text from wrapping */
   cursor: pointer; /* Indicate sortable columns */
@@ -190,34 +193,31 @@
   box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.3); /* Use theme variable */
 }
 
-.no-results-row td {
-  text-align: center;
-  color: var(--color-muted); /* Use theme variable */
-  font-style: italic;
-  padding: 3rem 1rem;
-  position: relative;
-  border-bottom: none;
+/* Styles for the empty table message and icon */
+.empty-table-message {
+  text-align: center; /* Ensures content within the td is centered */
+  vertical-align: middle; /* Vertically aligns content in the td */
 }
 
-/* Styles for the empty table message and icon */
-.no-results-message-container {
+.empty-state {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem; /* Reduced gap */
-  min-height: 150px; /* Adjusted height for smaller icon/text */
+  align-items: center; /* Centers items horizontally */
+  justify-content: center; /* Centers items vertically */
+  gap: 0.5rem; /* Space between icon and text */
+  min-height: 150px; /* Adjust this value to control the height of the empty state area */
+  padding: 1rem 0; /* Add some vertical padding for visual spacing */
 }
 
-.no-results-message-container .resume-icon {
-  width: 48px; /* Smaller icon size */
-  height: 48px; /* Smaller icon size */
+.empty-state svg {
+  width: 48px; /* Icon size */
+  height: 48px; /* Icon size */
   color: var(--color-muted); /* Icon color */
   margin-bottom: 0.5rem; /* Space between icon and text */
 }
 
-.no-results-message-container p {
-  font-size: 0.9rem; /* Smaller font size for text */
+.empty-state p {
+  font-size: 0.9rem;
   color: var(--color-muted);
   margin: 0; /* Remove default paragraph margin */
 }
@@ -295,7 +295,7 @@
 .form-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text); /* Use theme variable */
+  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
   margin-bottom: 1.5rem;
 }
 
@@ -318,7 +318,7 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--color-muted); /* Use theme variable */
-  margin-bottom: -0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .add-candidates-input,
@@ -402,7 +402,7 @@
   font-weight: 500;
 }
 
-.erroraddcandidate-msg {
+.error-message {
   color: var(--color-error); /* Use theme variable */
   font-size: 0.9rem;
   margin-top: 0.5rem;
@@ -411,7 +411,7 @@
   gap: 0.5rem;
 }
 
-.success-msg {
+.success-message {
   color: var(--color-success); /* Use theme variable */
   font-size: 0.9rem;
   margin-top: 0.5rem;
@@ -428,7 +428,7 @@
 }
 
 .submit-btn {
-  background-color: var(--color-primary); /* Use theme variable */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
   padding: 0.7rem 1.5rem;
   border: none;
@@ -442,7 +442,7 @@
 }
 
 .submit-btn:hover {
-  background-color: var(--color-primary-dark); /* Use theme variable */
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -470,32 +470,32 @@
 }
 
 .edit-btn {
-  background-color: var(--color-primary); /* Use primary theme color */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
 .edit-btn:hover {
-  background-color: var(--color-primary-dark); /* Use theme variable */
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-1px);
 }
 
 .delete-btn {
-  background-color: var(--color-error); /* Use error theme color for delete */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
 .delete-btn:hover {
-  background-color: var(--color-danger-dark); /* Use theme variable */
+  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
   transform: translateY(-1px);
 }
 
 .save-btn {
-  background-color: var(--color-success); /* Green for save, matching submit button */
+  background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
 }
 
 .save-btn:hover {
-  background-color: var(--color-success-dark); /* Use theme variable */
+  background-color: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 
@@ -505,7 +505,7 @@
 }
 
 .cancel-btn:hover {
-  background-color: var(--color-gray-dark); /* Use theme variable */
+  background-color: var(--color-gray-dark);
   transform: translateY(-1px);
 }
 
@@ -527,8 +527,8 @@
   text-decoration: underline;
 }
 
-/* Delete Confirmation Modal Styles */
-.delete-confirm-overlay {
+/* Modal Overlay Styles */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -539,46 +539,165 @@
   justify-content: center;
   align-items: center;
   z-index: 1000; /* Ensure it's on top */
+  opacity: 0; /* Initial state for animation */
+  transition: opacity 0.3s ease-in-out; /* Fade-in transition */
+  pointer-events: none; /* Allows clicks to pass through when hidden */
 }
 
-.delete-confirm-modal {
-  background-color: var(--color-card); /* Use theme variable */
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto; /* Re-enable clicks when shown */
+}
+
+/* Modal Content Styles */
+.modal-content,
+.delete-confirm-modal { /* Apply to both modals */
+  background-color: var(--color-card);
   padding: 2rem;
-  border-radius: var(--radius); /* Use theme variable */
-  box-shadow: var(--shadow-soft); /* Use theme variable */
-  text-align: center;
-  max-width: 400px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft); /* Consistent shadow */
+  text-align: center; /* For delete modal, can be removed for edit modal if content is left-aligned */
+  max-width: 600px; /* Adjust as needed for edit modal */
   width: 90%;
+  transform: scale(0.9); /* Initial state for animation */
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Scale-in and fade-in transition */
+  opacity: 0; /* Initial state for animation */
+}
+
+.modal-overlay.show .modal-content,
+.modal-overlay.show .delete-confirm-modal {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Specific styles for the edit modal form groups */
+.modal-form-group {
+  margin-bottom: 1rem;
+  text-align: left; /* Align labels and inputs to the left within the modal */
+}
+
+.modal-form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.modal-form-group input,
+.modal-form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width */
+}
+
+.modal-form-group input:focus,
+.modal-form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.modal-submit-btn,
+.modal-cancel-btn {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.modal-submit-btn {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.modal-submit-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.modal-cancel-btn {
+  background-color: var(--color-muted);
+  color: white;
+}
+
+.modal-cancel-btn:hover {
+  background-color: var(--color-gray-dark);
+  transform: translateY(-2px);
+}
+
+.modal-error-message {
+  color: var(--color-error);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Delete Confirmation Modal Specific Styles */
+.delete-confirm-modal h3 {
+  font-size: 1.2rem; /* Consistent with other modal titles */
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  margin-bottom: 1rem;
 }
 
 .delete-confirm-modal p {
   font-size: 1.1rem;
-  color: var(--color-text-primary); /* Use theme variable */
+  color: var(--color-text); /* Consistent text color */
   margin-bottom: 1.5rem;
 }
 
 .delete-confirm-actions {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 1rem; /* Space between buttons */
 }
 
-.confirm-btn {
-  background-color: var(--color-danger); /* Use theme variable */
-  color: white;
-  padding: 0.7rem 1.2rem;
+.confirm-delete-btn, /* Renamed to match JSX */
+.cancel-delete-btn { /* Added style for cancel button */
+  padding: 0.7rem 1.5rem; /* Consistent padding */
   border: none;
-  border-radius: var(--radius-small); /* Use theme variable */
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: var(--radius); /* Consistent border-radius */
+  font-size: 1rem; /* Consistent font size */
+  font-weight: 600; /* Consistent font weight */
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.confirm-btn:hover {
-  background-color: var(--color-danger-dark); /* Use theme variable */
-  transform: translateY(-1px);
+.confirm-delete-btn {
+  background-color: var(--color-primary);
+  color: white;
 }
+
+.confirm-delete-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.cancel-delete-btn { /* Style for the cancel button in delete modal */
+  background-color: var(--color-muted);
+  color: white;
+}
+
+.cancel-delete-btn:hover {
+  background-color: var(--color-gray-dark);
+  transform: translateY(-2px);
+}
+
 
 /* Pagination Styles */
 .pagination {
@@ -676,8 +795,8 @@
 
   .candidate-table th,
   .candidate-table td {
-    padding: 0.5rem 0.6rem; /* Smaller padding in table cells */
-    font-size: 0.8rem; /* Smaller font size in table */
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
   }
 
   /* Make table scrollable horizontally explicitly on smaller screens */
@@ -692,7 +811,6 @@
   .candidate-table td input[type="text"],
   .candidate-table td input[type="email"],
   .add-candidates-select-inline {
-    width: calc(100% - 20px); /* Adjust width for smaller padding */
     padding: 0.3rem 0.4rem;
     font-size: 0.85rem;
   }
@@ -721,16 +839,24 @@
     height: 80px;
   }
 
-  .submit-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+  .upload-icon-container .second-upload-icon {
+    margin-left: 15px; /* Adjust overlap */
+    margin-top: 15px; /* Adjust overlap */
   }
 
-  .pagination-list {
-    gap: 0.3rem;
+  /* Corrected this section to target the resume icon in the table correctly */
+  .empty-state svg {
+    width: 36px; /* Smaller icon size for very small screens */
+    height: 36px; /* Smaller icon size for very small screens */
   }
-  .pagination-item button {
-    padding: 0.4rem 0.7rem;
+
+  .submit-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .process-candidates-btn {
+    padding: 0.5rem 1rem;
     font-size: 0.8rem;
   }
 }
@@ -799,7 +925,7 @@
   }
 
   /* Corrected this section to target the resume icon in the table correctly */
-  .no-results-message-container .resume-icon {
+  .empty-state svg {
     width: 36px; /* Smaller icon size for very small screens */
     height: 36px; /* Smaller icon size for very small screens */
   }

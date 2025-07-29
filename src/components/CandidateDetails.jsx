@@ -12,11 +12,24 @@ import "./CandidateDetails.css";
 
 // Interview Modal
 const InterviewDetailModal = ({ interviewDetails, onClose }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    // Trigger animation when component mounts
+    setShowModal(true);
+  }, []);
+
+  const handleClose = () => {
+    setShowModal(false);
+    // Delay onClose to allow animation to complete
+    setTimeout(onClose, 300); // Match CSS transition duration
+  };
+
   if (!interviewDetails) return null;
   return (
-    <div className="modal-overlay">
-      <div className="modal-content interview-modal-large"> {/* Re-added interview-modal-large */}
-        <button className="modal-close-button" onClick={onClose}>
+    <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
+      <div className={`modal-content interview-modal-large ${showModal ? 'show' : ''}`}>
+        <button className="modal-close-button" onClick={handleClose}>
           <FiX size={24} />
         </button>
         <h3>Interview Details</h3>
@@ -38,11 +51,24 @@ const InterviewDetailModal = ({ interviewDetails, onClose }) => {
 
 // Evaluation Modal
 const EvaluationDetailModal = ({ evaluation, onClose }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    // Trigger animation when component mounts
+    setShowModal(true);
+  }, []);
+
+  const handleClose = () => {
+    setShowModal(false);
+    // Delay onClose to allow animation to complete
+    setTimeout(onClose, 300); // Match CSS transition duration
+  };
+
   if (!evaluation) return null;
   return (
-    <div className="modal-overlay">
-      <div className="modal-content evaluation-modal-large"> {/* Added evaluation-modal-large here */}
-        <button className="modal-close-button" onClick={onClose}>
+    <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
+      <div className={`modal-content evaluation-modal-large ${showModal ? 'show' : ''}`}>
+        <button className="modal-close-button" onClick={handleClose}>
           <FiX size={24} />
         </button>
         <h3>Evaluation Details</h3>
@@ -60,6 +86,19 @@ const EvaluationDetailModal = ({ evaluation, onClose }) => {
 
 // Update Status Modal
 const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    // Trigger animation when component mounts
+    setShowModal(true);
+  }, []);
+
+  const handleClose = () => {
+    setShowModal(false);
+    // Delay onClose to allow animation to complete
+    setTimeout(onClose, 300); // Match CSS transition duration
+  };
+
   const processSteps = [
     "Requires Action",
     "Interview Pending",
@@ -194,16 +233,16 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
 
   const handleSaveFinalStatus = (finalStatus) => {
     onSave(finalStatus, {});
-    onClose(); // Close modal after final status selection
+    handleClose(); // Close modal after final status selection
   };
 
   const isFormPresent = ["Interview Pending", "Interview Completed"].includes(currentProcessStatus);
   const showNextButton = currentStepIndex < processSteps.length - 1 && currentProcessStatus !== "Evaluated";
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content update-status-modal-content">
-        <button className="modal-close-button" onClick={onClose}>
+    <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
+      <div className={`modal-content update-status-modal-content ${showModal ? 'show' : ''}`}>
+        <button className="modal-close-button" onClick={handleClose}>
           <FiX size={24} />
         </button>
         <h3>Update Candidate Status</h3>
@@ -475,6 +514,17 @@ const CandidateDetails = ({ onTitleChange }) => {
     }
   };
 
+  // Function to truncate text based on screen width
+  const truncateResumeName = (name) => {
+    // Check if the screen width is less than a certain breakpoint (e.g., 768px for mobile)
+    if (window.innerWidth <= 767) { // Corresponds to the @media (max-width: 767px) in CSS
+      if (!name) return '';
+      const maxLength = 10; // Truncate to 10 characters on mobile
+      return name.length <= maxLength ? name : name.substring(0, maxLength) + '...';
+    }
+    return name; // Show full name on larger screens
+  };
+
   return (
     <div className="candidate-details-layout">
       <div className="candidate-details-left-panel">
@@ -505,7 +555,7 @@ const CandidateDetails = ({ onTitleChange }) => {
                   {candidate.resumes.map((resume, index) => (
                     <li key={index}>
                       <a href={resume.url} target="_blank" rel="noopener noreferrer" className="resume-link-detail">
-                        {resume.name}
+                        {truncateResumeName(resume.name)}
                       </a>
                     </li>
                   ))}
@@ -516,8 +566,7 @@ const CandidateDetails = ({ onTitleChange }) => {
             </p>
           </div>
 
-          {/* Blank space before update button section */}
-          <div className="blank-space"></div>
+          {/* The blank-space div is removed from here */}
 
           <div className="update-status-section">
             {candidate.status !== "Hired" && candidate.status !== "Rejected" && (

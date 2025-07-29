@@ -11,6 +11,7 @@
   scrollbar-width: none;
   background-color: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-family-base); /* Consistent font */
 }
 
 .dashboard-container::-webkit-scrollbar {
@@ -44,7 +45,7 @@
 .dashboard-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
-  color: var(--color-muted);
+  color: var(--color-primary-dark);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -104,13 +105,17 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
+  transform-origin: left center;
   font-size: 0.8rem;
   color: var(--color-muted);
   white-space: nowrap;
   z-index: 1;
-  width: 180px;
-  text-align: center;
-  margin-left: -80px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  margin-left: 5px;
 }
 
 .chart-bars {
@@ -185,7 +190,7 @@
 .table-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-text-primary); /* Consistent table heading color */
   margin-bottom: 1rem;
   text-align: left;
 }
@@ -211,14 +216,15 @@
 .activity-table td {
   padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--color-border-light);
-  vertical-align: middle;
   text-align: left;
+  vertical-align: middle;
+  color: var(--color-text); /* Consistent table data color */
 }
 
 .activity-table th {
   background-color: var(--color-bg-secondary);
-  color: var(--color-muted);
-  font-weight: 600;
+  color: var(--color-text-primary); /* Consistent table heading color */
+  font-weight: 600; /* Consistent font weight for table headings */
   font-size: 0.9rem;
   white-space: nowrap;
 }
@@ -368,7 +374,8 @@
   }
 
   .y-axis-label {
-    margin-left: -70px;
+    height: 150px;
+    font-size: 0.7rem;
   }
 
   .chart-bars {
@@ -421,7 +428,8 @@
   }
 
   .y-axis-label {
-    margin-left: -60px;
+    height: 120px;
+    font-size: 0.65rem;
   }
 
   .chart-bars {
@@ -460,6 +468,23 @@
   
   .chart-title {
     font-size: 0.9rem;
+  }
+
+  .chart-bars-wrapper {
+    height: 100px;
+  }
+
+  .y-axis-label {
+    height: 100px;
+    font-size: 0.6rem;
+  }
+
+  .chart-bars {
+    padding-left: 15px;
+  }
+  
+  .chart-x-axis {
+    width: calc(100% - 15px);
   }
   
   .activity-table th,
