@@ -1,6 +1,8 @@
 // components/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { setUser } from '../redux/slices/userSlice'; // Import setUser action
 import { baseURL } from '../data'; // Import baseURL
 import './Login.css'; // Import the new CSS file for Login
 
@@ -10,6 +12,7 @@ const Login = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize useDispatch
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,9 +37,10 @@ const Login = ({ onLogin }) => {
 
       if (response.ok) {
         const data = await response.json();
-        // Store the token and user data
+        // Store the token
         localStorage.setItem('authToken', data.token);
-        localStorage.setItem('userData', JSON.stringify(data.user)); // Store user details
+        // Dispatch user data to Redux store
+        dispatch(setUser(data.user));
 
         onLogin(); // Call the onLogin function passed from App.jsx
         navigate('/dashboard'); // Redirect to dashboard on successful login
@@ -104,3 +108,4 @@ const Login = ({ onLogin }) => {
 };
 
 export default Login;
+

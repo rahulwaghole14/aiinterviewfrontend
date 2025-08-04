@@ -9,6 +9,7 @@ import TimePicker from 'react-time-picker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-time-picker/dist/TimePicker.css';
 import "./CandidateDetails.css";
+import { useSelector } from 'react-redux'; // Import useSelector to get jobs data
 
 // Interview Modal
 const InterviewDetailModal = ({ interviewDetails, onClose }) => {
@@ -25,7 +26,6 @@ const InterviewDetailModal = ({ interviewDetails, onClose }) => {
     setTimeout(onClose, 300); // Match CSS transition duration
   };
 
-  if (!interviewDetails) return null;
   return (
     <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
       <div className={`modal-content interview-modal-large ${showModal ? 'show' : ''}`}>
@@ -33,17 +33,23 @@ const InterviewDetailModal = ({ interviewDetails, onClose }) => {
           <FiX size={24} />
         </button>
         <h3>Interview Details</h3>
-        <p><strong>Date:</strong> {interviewDetails.date || '-'}</p>
-        <p><strong>Time:</strong> {interviewDetails.time || '-'}</p>
-        {interviewDetails.duration && <p><strong>Duration:</strong> {interviewDetails.duration || '-'}</p>}
-        {interviewDetails.interviewer && <p><strong>Interviewer:</strong> {interviewDetails.interviewer || '-'}</p>}
-        {interviewDetails.type && <p><strong>Type:</strong> {interviewDetails.type || '-'}</p>}
-        {interviewDetails.platform && <p><strong>Platform:</strong> {interviewDetails.platform || '-'}</p>}
-        {interviewDetails.link && (
-          <p><strong>Meeting Link:</strong> {interviewDetails.link !== '-' ? <a href={interviewDetails.link} target="_blank" rel="noopener noreferrer">{interviewDetails.link}</a> : '-'}</p>
+        {interviewDetails ? (
+          <>
+            <p><strong>Date:</strong> {interviewDetails.date || '-'}</p>
+            <p><strong>Time:</strong> {interviewDetails.time || '-'}</p>
+            {interviewDetails.duration && <p><strong>Duration:</strong> {interviewDetails.duration || '-'}</p>}
+            {interviewDetails.interviewer && <p><strong>Interviewer:</strong> {interviewDetails.interviewer || '-'}</p>}
+            {interviewDetails.type && <p><strong>Type:</strong> {interviewDetails.type || '-'}</p>}
+            {interviewDetails.platform && <p><strong>Platform:</strong> {interviewDetails.platform || '-'}</p>}
+            {interviewDetails.link && (
+              <p><strong>Meeting Link:</strong> {interviewDetails.link !== '-' ? <a href={interviewDetails.link} target="_blank" rel="noopener noreferrer">{interviewDetails.link}</a> : '-'}</p>
+            )}
+            {interviewDetails.agenda && <p><strong>Agenda:</strong> {interviewDetails.agenda || '-'}</p>}
+            {interviewDetails.notes && <p><strong>Notes:</strong> {interviewDetails.notes || '-'}</p>}
+          </>
+        ) : (
+          <p>No interview details available. Please update the candidate status to schedule an interview.</p>
         )}
-        {interviewDetails.agenda && <p><strong>Agenda:</strong> {interviewDetails.agenda || '-'}</p>}
-        {interviewDetails.notes && <p><strong>Notes:</strong> {interviewDetails.notes || '-'}</p>}
       </div>
     </div>
   );
@@ -64,7 +70,6 @@ const EvaluationDetailModal = ({ evaluation, onClose }) => {
     setTimeout(onClose, 300); // Match CSS transition duration
   };
 
-  if (!evaluation) return null;
   return (
     <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
       <div className={`modal-content evaluation-modal-large ${showModal ? 'show' : ''}`}>
@@ -72,13 +77,19 @@ const EvaluationDetailModal = ({ evaluation, onClose }) => {
           <FiX size={24} />
         </button>
         <h3>Evaluation Details</h3>
-        <p><strong>Score:</strong> {evaluation.score || '-'}/10</p>
-        <p><strong>Result:</strong> <span className={`eval-result ${evaluation.result?.toLowerCase() || ''}`}>{evaluation.result || '-'}</span></p>
-        {evaluation.interviewDuration && <p><strong>Interview Duration:</strong> {evaluation.interviewDuration || '-'}</p>}
-        <p><strong>Feedback:</strong> {evaluation.feedback || '-'}</p>
-        {evaluation.strengths && <p><strong>Strengths:</strong> {evaluation.strengths || '-'}</p>}
-        {evaluation.areasForImprovement && <p><strong>Areas for Improvement:</strong> {evaluation.areasForImprovement || '-'}</p>}
-        {evaluation.recommendation && <p><strong>Recommendation:</strong> {evaluation.recommendation || '-'}</p>}
+        {evaluation ? (
+          <>
+            <p><strong>Score:</strong> {evaluation.score || '-'}/10</p>
+            <p><strong>Result:</strong> <span className={`eval-result ${evaluation.result?.toLowerCase() || ''}`}>{evaluation.result || '-'}</span></p>
+            {evaluation.interviewDuration && <p><strong>Interview Duration:</strong> {evaluation.interviewDuration || '-'}</p>}
+            <p><strong>Feedback:</strong> {evaluation.feedback || '-'}</p>
+            {evaluation.strengths && <p><strong>Strengths:</strong> {evaluation.strengths || '-'}</p>}
+            {evaluation.areasForImprovement && <p><strong>Areas for Improvement:</strong> {evaluation.areasForImprovement || '-'}</p>}
+            {evaluation.recommendation && <p><strong>Recommendation:</strong> {evaluation.recommendation || '-'}</p>}
+          </>
+        ) : (
+          <p>No evaluation details available. Please update the candidate status to complete evaluation.</p>
+        )}
       </div>
     </div>
   );
@@ -87,6 +98,7 @@ const EvaluationDetailModal = ({ evaluation, onClose }) => {
 // Update Status Modal
 const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
   const [showModal, setShowModal] = useState(false);
+  const allJobs = useSelector((state) => state.jobs.allJobs); // Get all jobs from Redux
 
   useEffect(() => {
     // Trigger animation when component mounts
@@ -178,17 +190,84 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     return isValid;
   };
 
-  const handleSaveCurrentStepData = (nextStep = false) => {
+  const handleSaveCurrentStepData = async (nextStep = false) => { // Made async
     let updatedData = {};
     let statusToSave = currentProcessStatus;
 
     if (currentProcessStatus === "Interview Pending") {
       if (!isFormValid()) return;
-      updatedData.interviewDetails = {
-        date: interviewDate.toISOString().split("T")[0],
-        time: interviewTime
+
+      // Find the job ID based on candidate's jobRole (which is job_title in backend)
+      const job = allJobs.find(job => job.title === candidate.jobRole);
+      if (!job) {
+        console.error("Job not found for candidate's job role:", candidate.jobRole);
+        // Optionally, show an error message to the user
+        return;
+      }
+
+      // Construct started_at and ended_at
+      const startDate = interviewDate.toISOString().split("T")[0]; // YYYY-MM-DD
+      const [hours, minutes] = interviewTime.split(':');
+      const startedAt = new Date(`${startDate}T${hours}:${minutes}:00Z`); // Assuming UTC for simplicity
+      const endedAt = new Date(startedAt.getTime() + 30 * 60 * 1000); // Add 30 minutes for end time
+
+      const interviewPayload = {
+        candidate: candidate.id,
+        job: job.id,
+        interview_round: "Technical Round 1", // Hardcoding as per example
+        started_at: startedAt.toISOString(),
+        ended_at: endedAt.toISOString(),
       };
-      statusToSave = "Interview Scheduled";
+
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        if (authToken) {
+          headers['Authorization'] = `Token ${authToken}`;
+        } else {
+          console.error("No authentication token found. Please log in.");
+          // Handle navigation to login or show error
+          return;
+        }
+
+        const response = await fetch(`${baseURL}/api/interviews/`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(interviewPayload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Failed to schedule interview:", errorData);
+          // Show error to user, e.g., using a state variable for modal error
+          return;
+        }
+
+        const scheduledInterview = await response.json();
+        console.log("Interview scheduled successfully:", scheduledInterview);
+
+        // Update candidate's interviewDetails locally (optional, as fetchCandidateDetails will refresh)
+        // This data will be refreshed by fetchCandidateDetails after onSave
+        updatedData.interviewDetails = {
+          date: startDate,
+          time: interviewTime,
+          duration: "30 minutes", // Default or from API response if available
+          interviewer: "Auto-assigned", // Placeholder
+          type: "Technical", // Placeholder
+          platform: "Google Meet", // Placeholder
+          link: "https://meet.google.com/xyz-abc", // Placeholder
+          agenda: "Technical assessment", // Placeholder
+          notes: "Initial screening interview", // Placeholder
+        };
+        statusToSave = "Interview Scheduled"; // Update status to Interview Scheduled
+      } catch (apiError) {
+        console.error("API call failed during interview scheduling:", apiError);
+        // Show error to user
+        return;
+      }
+
     } else if (currentProcessStatus === "Interview Completed") {
       if (!isFormValid()) return;
       updatedData.evaluation = {
@@ -202,6 +281,7 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
       statusToSave = "Interview Pending";
     }
 
+    // Call onSave which will PATCH the candidate status and re-fetch details
     onSave(statusToSave, updatedData);
 
     // Only move to the next step if the save was successful and nextStep is true
@@ -402,8 +482,8 @@ const CandidateDetails = ({ onTitleChange }) => {
         lastUpdated: apiCandidate.last_updated ? new Date(apiCandidate.last_updated).toLocaleDateString("en-GB") : '-',
         applicationDate: apiCandidate.created_at ? new Date(apiCandidate.created_at).toLocaleDateString("en-GB") : '-',
         resumes: apiCandidate.resume_url ? [{ name: apiCandidate.resume_url.split('/').pop(), url: apiCandidate.resume_url }] : [],
-        interviewDetails: apiCandidate.interview_details || null,
-        evaluation: apiCandidate.evaluation_details || null,
+        interviewDetails: apiCandidate.interview_details || null, // Ensure this is null if no data
+        evaluation: apiCandidate.evaluation_details || null, // Ensure this is null if no data
         aptitude: apiCandidate.aptitude_details || null,
         brChats: apiCandidate.br_chats || [],
       };
@@ -462,7 +542,7 @@ const CandidateDetails = ({ onTitleChange }) => {
         throw new Error(`Failed to update candidate status: ${response.statusText}`);
       }
 
-      fetchCandidateDetails(id);
+      fetchCandidateDetails(id); // Re-fetch candidate details to update UI
 
     } catch (err) {
       console.error("Error updating candidate status:", err);
@@ -566,8 +646,6 @@ const CandidateDetails = ({ onTitleChange }) => {
             </p>
           </div>
 
-          {/* The blank-space div is removed from here */}
-
           <div className="update-status-section">
             {candidate.status !== "Hired" && candidate.status !== "Rejected" && (
               <button onClick={() => setShowUpdateStatusModal(true)} className="submit-btn save-status-btn">
@@ -589,20 +667,32 @@ const CandidateDetails = ({ onTitleChange }) => {
         {/* Interview Details Summary Card */}
         <div className="interview-summary-card card" onClick={() => setShowInterviewModal(true)}>
           <h3>Interview Details</h3>
-          <p>Date: {candidate.interviewDetails?.date || '-'}</p>
-          <p>Time: {candidate.interviewDetails?.time || '-'}</p>
-          {candidate.interviewDetails?.duration && <p>Duration: {candidate.interviewDetails.duration || '-'}</p>}
-          <span className="view-details-link">View More</span>
+          {candidate.interviewDetails ? (
+            <>
+              <p>Date: {candidate.interviewDetails.date || '-'}</p>
+              <p>Time: {candidate.interviewDetails.time || '-'}</p>
+              {candidate.interviewDetails.duration && <p>Duration: {candidate.interviewDetails.duration || '-'}</p>}
+              <span className="view-details-link">View More</span>
+            </>
+          ) : (
+            <p>Interview needs to be scheduled.</p>
+          )}
         </div>
 
         {/* Evaluation Details Summary Card */}
         <div className="evaluation-summary-card card" onClick={() => setShowEvaluationModal(true)}>
           <h3>Evaluation Details</h3>
-          <p>Score: {candidate.evaluation?.score || '-'}/10</p>
-          <p>Result: {candidate.evaluation?.result || '-'}</p>
-          {candidate.evaluation?.interviewDuration && <p>Interview Duration: {candidate.evaluation.interviewDuration || '-'}</p>}
-          <p>Feedback: {candidate.evaluation?.feedback || '-'}</p>
-          <span className="view-details-link">View More</span>
+          {candidate.evaluation ? (
+            <>
+              <p>Score: {candidate.evaluation.score || '-'}/10</p>
+              <p>Result: {candidate.evaluation.result || '-'}</p>
+              {candidate.evaluation.interviewDuration && <p>Interview Duration: {candidate.evaluation.interviewDuration || '-'}</p>}
+              <p>Feedback: {candidate.evaluation.feedback || '-'}</p>
+              <span className="view-details-link">View More</span>
+            </>
+          ) : (
+            <p>Evaluation needs to be completed.</p>
+          )}
         </div>
 
         {/* Placeholder for BR Chats or Aptitude if needed in the future */}

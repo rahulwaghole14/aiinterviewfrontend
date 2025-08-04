@@ -2,18 +2,19 @@
 import { configureStore } from '@reduxjs/toolkit';
 import searchReducer from './reducers/searchReducer';
 import candidatesReducer from './slices/candidatesSlice';
-// Removed interviewsReducer as interview data is now part of candidates
 import clientsReducer from './slices/clientsSlice';
-import jobsReducer from './slices/jobsSlice'; // Import the new jobs slice
+import jobsReducer from './slices/jobsSlice';
+import userReducer from './slices/userSlice'; // Import the new user slice
 
 const store = configureStore({
   reducer: {
     search: searchReducer,
     candidates: candidatesReducer,
-    // Removed interviews reducer
     clients: clientsReducer,
-    jobs: jobsReducer, // Add the jobs reducer
+    jobs: jobsReducer,
+    user: userReducer, // Add the user reducer
   },
 });
 
-export default store; // Export as default
+export default store;
+

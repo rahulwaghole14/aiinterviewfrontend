@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import "./Candidates.css";
-// Removed direct imports for uniqueCandidateDomains, uniqueCandidateJobRoles, uniqueCandidatePocs
 import { candidateStatusList, baseURL } from '../data';
 import { updateCandidateStatus, setCandidates } from '../redux/slices/candidatesSlice';
 
@@ -72,6 +71,11 @@ const CandidatePage = () => {
   const dispatch = useDispatch();
   const allCandidates = useSelector((state) => state.candidates.allCandidates);
   const searchTerm = useSelector((state) => state.search.searchTerm);
+  const loggedInUser = useSelector((state) => state.user.user); // Get logged-in user from Redux
+  const userRole = loggedInUser?.role;
+  const userEmail = loggedInUser?.email; // For Recruiter/Hiring Agency POC
+  const userCompany = loggedInUser?.company_name; // For Company POC
+  const allJobs = useSelector((state) => state.jobs.allJobs || []); // Get all jobs from Redux
 
   // States for filters (temporary, before applying)
   const [filters, setFilters] = useState({
@@ -121,8 +125,22 @@ const CandidatePage = () => {
       }
       const data = await response.json();
 
+      // Frontend filtering based on user role
+      let filteredApiCandidates = data;
+      if (userRole === 'COMPANY') {
+        // Company can only see candidates whose job's company_name matches their company_name
+        filteredApiCandidates = fetchedApiCandidates.filter(candidate => {
+          const job = allJobs.find(j => j.job_title === candidate.job_title);
+          return job && job.companyName === userCompany;
+        });
+      } else if (userRole === 'HIRING_AGENCY' || userRole === 'RECRUITER') {
+        // Hiring Agency and Recruiter can only see candidates they added (via poc_email)
+        filteredApiCandidates = fetchedApiCandidates.filter(candidate => candidate.poc_email === userEmail);
+      }
+      // Admin sees all, no filtering needed for Admin here
+
       // Map API response to Redux state structure
-      const formattedCandidates = data.map(candidate => ({
+      const formattedCandidates = filteredApiCandidates.map(candidate => ({
         id: candidate.id,
         name: candidate.full_name || '-',
         email: candidate.email || '-',
@@ -147,10 +165,12 @@ const CandidatePage = () => {
     }
   };
 
-  // Fetch candidates on component mount
+  // Fetch candidates on component mount and when user/jobs data changes
   useEffect(() => {
-    fetchCandidates();
-  }, [dispatch, navigate]); // Dependency array includes dispatch and navigate to avoid lint warnings
+    if (loggedInUser && allJobs.length > 0) { // Ensure jobs are loaded before filtering candidates by job company
+      fetchCandidates();
+    }
+  }, [dispatch, navigate, loggedInUser, userRole, userEmail, userCompany, allJobs]);
 
   // Dynamically generate unique filter options from allCandidates
   const uniqueDomains = useMemo(() => {

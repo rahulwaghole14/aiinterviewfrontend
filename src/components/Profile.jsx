@@ -1,18 +1,47 @@
 // components/Profile.jsx
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux'; // Import useSelector
 
 const Profile = ({ onTitleChange }) => {
-  // Sample user data (in a real app, this would come from an API or context)
-  const [user, setUser] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    role: 'Recruiter',
-    company: 'IntelliHire Solutions',
-    phone: '123-456-7890',
+  // Get user data from Redux store
+  const loggedInUser = useSelector((state) => state.user.user);
+
+  // Initialize user state with data from Redux, mapping fields
+  const [user, setUser] = useState(() => {
+    if (loggedInUser) {
+      return {
+        name: loggedInUser.full_name || loggedInUser.username || 'N/A',
+        email: loggedInUser.email || 'N/A',
+        role: loggedInUser.role || 'N/A',
+        company: loggedInUser.company_name || 'N/A',
+        phone: loggedInUser.phone || 'N/A', // Assuming phone might be part of user data later
+      };
+    }
+    return {
+      name: 'N/A',
+      email: 'N/A',
+      role: 'N/A',
+      company: 'N/A',
+      phone: 'N/A',
+    };
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    // Update user state if loggedInUser changes (e.g., after login)
+    if (loggedInUser) {
+      setUser({
+        name: loggedInUser.full_name || loggedInUser.username || 'N/A',
+        email: loggedInUser.email || 'N/A',
+        role: loggedInUser.role || 'N/A',
+        company: loggedInUser.company_name || 'N/A',
+        phone: loggedInUser.phone || 'N/A',
+      });
+    }
+  }, [loggedInUser]);
+
 
   useEffect(() => {
     // Initialize form data with current user data when component mounts or isEditing changes
@@ -44,8 +73,8 @@ const Profile = ({ onTitleChange }) => {
     console.log('Updating profile:', formData);
     setUser(formData); // Update local state with new data
     setIsEditing(false);
-    // Optionally, show a success message
-    alert('Profile updated successfully!'); // Using alert for simplicity, replace with custom modal
+    // TODO: Replace alert with a custom modal for user feedback
+    // alert('Profile updated successfully!');
   };
 
   return (
@@ -86,6 +115,7 @@ const Profile = ({ onTitleChange }) => {
                   name="role"
                   value={formData.role || ''}
                   onChange={handleChange}
+                  readOnly // Role usually not editable by user
                 />
               </div>
               <div className="form-group">
@@ -118,6 +148,7 @@ const Profile = ({ onTitleChange }) => {
           <>
             <h2 className="profile-title">User Profile</h2>
             <div className="profile-details">
+              <p><strong>Username:</strong> {loggedInUser?.username || 'N/A'}</p>
               <p><strong>Name:</strong> {user.name}</p>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Role:</strong> {user.role}</p>
@@ -133,3 +164,4 @@ const Profile = ({ onTitleChange }) => {
 };
 
 export default Profile;
+

@@ -1,21 +1,28 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import "./AddCandidates.css";
-import { candidateDomains, candidateJobRoles, baseURL } from "../data";
+import { candidateDomains, baseURL } from "../data";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const AddCandidates = () => {
   const navigate = useNavigate();
   const searchTerm = useSelector((state) => state.search.searchTerm);
+  const loggedInUser = useSelector((state) => state.user.user);
+  const userRole = loggedInUser?.role;
+  const userEmail = loggedInUser?.email;
+  const userCompany = loggedInUser?.company_name;
 
-  // Form state for adding new candidates
+  const allJobs = useSelector((state) => state.jobs.allJobs || []);
+
+  const openJobs = allJobs.filter(job => job.status === 'Open');
+
   const [formData, setFormData] = useState({
     full_name: "",
     domain: "",
     job_title: "",
-    poc_email: "",
+    poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
     email: "",
     phone: "",
     work_experience: "",
@@ -27,20 +34,80 @@ const AddCandidates = () => {
   const fileInputRef = useRef(null);
   const [addedCandidates, setAddedCandidates] = useState([]);
 
-  // State for row-wise editing
   const [editingCandidateId, setEditingCandidateId] = useState(null);
   const [editedCandidateData, setEditedCandidateData] = useState(null);
 
-  // Popup state for deletion
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  // State for modal animation control for delete confirmation
   const [showDeleteModalOverlay, setShowDeleteModalOverlay] = useState(false);
 
-  // State for sorting
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
+
+  const fetchCandidates = async () => {
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      setErrorMessage("Authentication token not found. Please log in.");
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${baseURL}/api/candidates/`, {
+        headers: {
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      // Log the raw data received from the backend
+      console.log("Fetched candidates from backend:", response.data);
+
+      let fetchedCandidates = response.data;
+
+      if (userRole === 'COMPANY') {
+        fetchedCandidates = fetchedCandidates.filter(candidate => {
+          const job = allJobs.find(j => j.job_title === candidate.job_title);
+          return job && job.companyName === userCompany;
+        });
+      } else if (userRole === 'HIRING_AGENCY' || userRole === 'RECRUITER') {
+        fetchedCandidates = fetchedCandidates.filter(candidate => candidate.poc_email === userEmail);
+      }
+
+      const formattedCandidates = fetchedCandidates.map(data => ({
+        id: data.id,
+        name: data.full_name || '-',
+        email: data.email || '-',
+        phone: data.phone || '-',
+        domain: data.domain || '-',
+        jobRole: data.job_title || '-',
+        poc: data.poc_email || '-',
+        workExperience: data.work_experience || '-',
+      }));
+      setAddedCandidates(formattedCandidates);
+    } catch (error) {
+      console.error("Error fetching candidates:", error.response?.data || error.message);
+      setErrorMessage(error.response?.data?.detail || "Failed to load candidates.");
+      setShowMessage(true);
+      setTimeout(() => setShowMessage(false), 3000);
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Log current user details to the console
+    if (loggedInUser) {
+      console.log("Current User Details:", loggedInUser);
+    }
+
+    if (loggedInUser && allJobs.length > 0) {
+      fetchCandidates();
+    }
+  }, [loggedInUser, userRole, userEmail, userCompany, allJobs]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,25 +156,23 @@ const AddCandidates = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     const candidatePayload = new FormData();
-    
-    // Required fields
+
     candidatePayload.append("domain", formData.domain);
     candidatePayload.append("job_title", formData.job_title);
     candidatePayload.append("poc_email", formData.poc_email);
-    
-    // Optional fields (if backend expects them even if empty)
+
     candidatePayload.append("full_name", formData.full_name);
     candidatePayload.append("email", formData.email);
     candidatePayload.append("phone", formData.phone);
     candidatePayload.append("work_experience", formData.work_experience);
-    
-    // System fields
+
     candidatePayload.append("status", "Requires Action");
     candidatePayload.append("last_updated", new Date().toISOString().slice(0, 10));
     candidatePayload.append("created_at", new Date().toISOString().slice(0, 10));
 
-    // Iterate and append all resume files using the singular "resume_file" key
     formData.resumes.forEach((file) => {
       candidatePayload.append("resume_file", file);
     });
@@ -124,7 +189,8 @@ const AddCandidates = () => {
         }
       );
 
-      console.log("Backend Response Data:", response.data);
+      // Log the raw data received from the backend after adding a new candidate
+      console.log("New candidate data from backend:", response.data);
 
       const newCandidatesData = Array.isArray(response.data) ? response.data : [response.data];
 
@@ -137,21 +203,18 @@ const AddCandidates = () => {
         jobRole: data.job_title || '-',
         poc: data.poc_email || '-',
         workExperience: data.work_experience || '-',
-        resumes: data.resume_urls ? 
-          data.resume_urls.map(url => ({ name: url.split('/').pop(), url })) : [],
       }));
 
       console.log("Processed New Candidates:", newCandidates);
 
       setAddedCandidates(prev => [...prev, ...newCandidates]);
       setShowMessage(true);
-      
-      // Reset form fields after successful submission
+
       setFormData({
         full_name: "",
         domain: "",
         job_title: "",
-        poc_email: "",
+        poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
         email: "",
         phone: "",
         work_experience: "",
@@ -167,10 +230,13 @@ const AddCandidates = () => {
       if (error.response?.status === 401) {
         navigate('/login');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteClick = (id) => {
+
+  const handleDeleteClick = async (id) => {
     setDeleteId(id);
     setShowDeleteModalOverlay(true);
     setShowDeleteConfirm(true);
@@ -209,10 +275,9 @@ const AddCandidates = () => {
     setDeleteId(null);
   };
 
-  // Function to handle inline editing
   const handleEditClick = (candidate) => {
     setEditingCandidateId(candidate.id);
-    setEditedCandidateData({ ...candidate }); // Create a mutable copy for editing
+    setEditedCandidateData({ ...candidate });
   };
 
   const handleEditCellChange = (e, field) => {
@@ -234,13 +299,13 @@ const AddCandidates = () => {
     }
 
     const updatePayload = {
-      full_name: editedCandidateData.name, // Map 'name' back to 'full_name' for API
+      full_name: editedCandidateData.name,
       email: editedCandidateData.email,
       phone: editedCandidateData.phone,
       work_experience: editedCandidateData.workExperience,
       domain: editedCandidateData.domain,
-      job_title: editedCandidateData.jobRole, // Map 'jobRole' back to 'job_title'
-      poc_email: editedCandidateData.poc, // Map 'poc' back to 'poc_email'
+      job_title: editedCandidateData.jobRole,
+      poc_email: editedCandidateData.poc,
     };
 
     try {
@@ -250,7 +315,7 @@ const AddCandidates = () => {
         {
           headers: {
             Authorization: `Token ${authToken}`,
-            "Content-Type": "application/json", // Changed to application/json for non-file updates
+            "Content-Type": "application/json",
           },
         }
       );
@@ -264,16 +329,14 @@ const AddCandidates = () => {
         jobRole: response.data.job_title || '-',
         poc: response.data.poc_email || '-',
         workExperience: response.data.work_experience || '-',
-        resumes: response.data.resume_urls ? 
-          response.data.resume_urls.map(url => ({ name: url.split('/').pop(), url })) : [],
       };
 
-      setAddedCandidates(prev => 
+      setAddedCandidates(prev =>
         prev.map(c => c.id === updatedCandidate.id ? updatedCandidate : c)
       );
-      setEditingCandidateId(null); // Exit edit mode
-      setEditedCandidateData(null); // Clear edited data
-      setErrorMessage(''); // Clear any previous error messages
+      setEditingCandidateId(null);
+      setEditedCandidateData(null);
+      setErrorMessage('');
     } catch (error) {
       console.error("Update failed:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Failed to update candidate.");
@@ -284,11 +347,10 @@ const AddCandidates = () => {
   };
 
   const handleCancelEdit = () => {
-    setEditingCandidateId(null); // Exit edit mode
-    setEditedCandidateData(null); // Clear edited data
-    setErrorMessage(''); // Clear any error messages
+    setEditingCandidateId(null);
+    setEditedCandidateData(null);
+    setErrorMessage('');
   };
-
 
   const handleSort = (column) => {
     if (sortColumn === column) {
@@ -328,7 +390,6 @@ const AddCandidates = () => {
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
-      // Handle cases where values might not be strings for sorting (e.g., numbers)
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       }
@@ -351,14 +412,10 @@ const AddCandidates = () => {
       </div>
 
       <div className="add-candidates-main-content fixed-grid">
-        {/* Form Section */}
         <div className="add-candidates-form card">
           <h2 className="form-title">Add New Candidate</h2>
           <form id="candidateForm" onSubmit={handleSubmit}>
             <div className="form-box">
-              {/* Removed Full Name (Optional) */}
-
-              {/* Required Fields */}
               <div className="form-group">
                 <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
                 <select
@@ -389,9 +446,9 @@ const AddCandidates = () => {
                   required
                 >
                   <option value="">Select Job Title</option>
-                  {candidateJobRoles.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
+                  {openJobs.map((job) => (
+                    <option key={job.id} value={job.title}>
+                      {job.title} ({job.companyName})
                     </option>
                   ))}
                 </select>
@@ -408,16 +465,16 @@ const AddCandidates = () => {
                   onChange={handleChange}
                   className="add-candidates-input"
                   required
+                  readOnly={userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY'}
                 />
               </div>
 
-              {/* Required Resume Upload */}
               <div className="form-group resume-upload">
                 <label htmlFor="resumeUploadInput" className="resume-upload-label">
                   <p>Upload Resumes (Max 15) <span className="required-field">*</span></p>
                   <div className="upload-icon-container">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" 
+                      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
                         stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M14 2V8H20" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M12 13V17" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -454,14 +511,17 @@ const AddCandidates = () => {
               )}
             </div>
             <div className="form-actions">
-              <button className="submit-btn" type="submit">
-                Submit
+              <button
+                className="submit-btn"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Adding Candidate...' : 'Submit'}
               </button>
             </div>
           </form>
         </div>
 
-        {/* Table Section */}
         <div className="preview-section card">
           <div className="table-box">
             <h2>Candidate List</h2>
@@ -473,8 +533,8 @@ const AddCandidates = () => {
                   <th onClick={() => handleSort('phone')}>Phone {getSortIndicator('phone')}</th>
                   <th onClick={() => handleSort('domain')}>Domain {getSortIndicator('domain')}</th>
                   <th onClick={() => handleSort('jobRole')}>Job Role {getSortIndicator('jobRole')}</th>
+                  <th onClick={() => handleSort('poc')}>POC Email {getSortIndicator('poc')}</th>
                   <th onClick={() => handleSort('workExperience')}>Experience {getSortIndicator('workExperience')}</th>
-                  <th>Resume(s)</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -544,14 +604,26 @@ const AddCandidates = () => {
                             className="add-candidates-select-inline"
                           >
                             <option value="">Select Job Title</option>
-                            {candidateJobRoles.map((role) => (
-                              <option key={role} value={role}>
-                                {role}
+                            {openJobs.map((job) => (
+                              <option key={job.id} value={job.title}>
+                                {job.title} ({job.companyName})
                               </option>
                             ))}
                           </select>
                         ) : (
                           candidate.jobRole || '-'
+                        )}
+                      </td>
+                      <td>
+                        {editingCandidateId === candidate.id ? (
+                          <input
+                            type="text"
+                            value={editedCandidateData?.poc || ''}
+                            onChange={(e) => handleEditCellChange(e, 'poc')}
+                            className="add-candidates-input-inline"
+                          />
+                        ) : (
+                          candidate.poc || '-'
                         )}
                       </td>
                       <td>
@@ -564,25 +636,6 @@ const AddCandidates = () => {
                           />
                         ) : (
                           candidate.workExperience || '-'
-                        )}
-                      </td>
-                      <td>
-                        {candidate.resumes.length > 0 ? (
-                          <div className="resume-links-container">
-                            {candidate.resumes.map((resume, index) => (
-                              <a
-                                key={index}
-                                href={resume.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="resume-link"
-                              >
-                                View {index + 1}
-                              </a>
-                            ))}
-                          </div>
-                        ) : (
-                          "No Resume"
                         )}
                       </td>
                       <td className="actions-cell">
@@ -627,7 +680,7 @@ const AddCandidates = () => {
                     <td colSpan="8" className="empty-table-message">
                       <div className="empty-state">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" 
+                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
                             stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M14 2V8H20" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M12 13V17" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -644,7 +697,6 @@ const AddCandidates = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModalOverlay && (
         <div className={`modal-overlay ${showDeleteConfirm ? 'show' : ''}`}>
           <div className={`delete-confirm-modal ${showDeleteConfirm ? 'show' : ''}`}>

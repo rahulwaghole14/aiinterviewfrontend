@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import './HiringAgency.css';
+import { baseURL } from '../data'; // Imported the baseURL from data.js
 
 // Dummy data for hiring agencies (replace with Redux/API in a real app)
 const initialHiringAgencies = [
@@ -10,7 +11,7 @@ const initialHiringAgencies = [
   { id: '3', name: 'TalentLink Agency', contactPerson: 'Charlie Green', email: 'charlie@talentlink.com', phone: '777-888-9999', status: 'Inactive', userType: 'Hiring Agency', lastUpdated: '2023-03-10' },
   { id: '4', name: 'Diana Prince', contactPerson: 'HR Coordinator', email: 'diana@corp.com', phone: '123-456-7890', status: 'Active', userType: 'Staff', lastUpdated: '2023-04-05' },
   { id: '5', name: 'Innovate Staffing', contactPerson: 'Eve Adams', email: 'eve@innovatestaff.com', phone: '222-333-4444', status: 'Active', userType: 'Hiring Agency', lastUpdated: '2023-05-01' },
-  { id: '6', name: 'Frank Miller', contactPerson: 'Senior Recruiter', email: 'frank@company.com', phone: '555-666-7777', status: 'Active', userType: 'Staff', lastUpdated: '2023-05-15' },
+  { id: '6', name: 'Frank Miller', contactPerson: 'Senior Recruiter', email: 'frank@company.com', phone: '555-666-7777', status: 'Active', userUpdated: 'Staff', lastUpdated: '2023-05-15' },
   { id: '7', name: 'Peak Talent Group', contactPerson: 'Grace Lee', email: 'grace@peaktalent.com', phone: '888-999-0000', status: 'On Hold', userType: 'Hiring Agency', lastUpdated: '2023-06-01' },
   { id: '8', name: 'Hannah Scott', contactPerson: 'Recruiting Assistant', email: 'hannah@company.com', phone: '111-000-9999', status: 'Active', userType: 'Staff', lastUpdated: '2023-06-10' },
   { id: '9', name: 'Synergy Solutions', contactPerson: 'Ivan Petrov', email: 'ivan@synergysolutions.com', phone: '333-444-5555', status: 'Active', userType: 'Hiring Agency', lastUpdated: '2023-07-01' },
@@ -27,16 +28,18 @@ const HiringAgencies = () => {
 
   const [allAgencies, setAllAgencies] = useState(initialHiringAgencies);
   const [formData, setFormData] = useState({
-    name: '',
-    contactPerson: '',
+    username: '',
+    full_name: '',
     email: '',
-    phone: '',
-    status: 'Active',
-    userType: 'Hiring Agency',
+    company_name: '',
+    role: 'ADMIN', // Initial role set to 'ADMIN'
+    password: '',
   });
   const [showMessage, setShowMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showAddModal, setShowAddModal] = useState(false); // State to control add modal visibility
+  const [apiMessage, setApiMessage] = useState(''); // State for API response messages
+  const [isLoading, setIsLoading] = useState(false); // New state to manage loading
 
   const [editingAgencyId, setEditingAgencyId] = useState(null);
   const [editedAgencyData, setEditedAgencyData] = useState(null);
@@ -122,33 +125,69 @@ const HiringAgencies = () => {
     }));
   };
 
-  const handleAddAgency = (e) => {
+  const handleAddAgency = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.contactPerson || !formData.email || !formData.phone) {
-      setErrorMessage('Please fill in all required fields.');
-      setShowMessage(true);
-      setTimeout(() => setShowMessage(false), 3000);
-      return;
-    }
-
-    const newAgency = {
-      id: Date.now().toString(),
-      ...formData,
-      lastUpdated: new Date().toISOString().slice(0, 10),
+    setIsLoading(true); // Set loading state to true
+    
+    // Construct the payload for the API call from the new form data
+    const payload = {
+      username: formData.username,
+      email: formData.email,
+      full_name: formData.full_name,
+      company_name: formData.company_name,
+      // Ensure the role is sent as 'ADMIN' or 'STAFF' as expected by the API
+      role: formData.role.toUpperCase(),
+      password: formData.password,
     };
 
-    setAllAgencies((prevAgencies) => [...prevAgencies, newAgency]);
-    setFormData({
-      name: '',
-      contactPerson: '',
-      email: '',
-      phone: '',
-      status: 'Active',
-      userType: 'Hiring Agency',
-    });
-    setErrorMessage('');
-    setShowMessage(false);
-    setShowAddModal(false); // Close modal after adding
+    try {
+      // Use the imported baseURL
+      const response = await fetch(`${baseURL}/auth/register/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        // More robust error handling for non-JSON responses
+        let errorMessage = `Failed to add user. Status: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          console.error("Failed to parse JSON error response:", jsonError);
+        }
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      // Log the successful response to the console, as requested
+      console.log('User added successfully:', result);
+      setApiMessage(`User ${result.full_name} added successfully!`);
+      
+      // Reset form and close modal on success
+      setFormData({
+        username: '',
+        full_name: '',
+        email: '',
+        company_name: '',
+        role: 'ADMIN',
+        password: '',
+      });
+      setShowAddModal(false); 
+      setErrorMessage('');
+      setShowMessage(false);
+
+    } catch (error) {
+      console.error('Error adding user:', error);
+      setApiMessage(`Error: ${error.message}`);
+    } finally {
+        setIsLoading(false); // Always set loading state to false at the end
+    }
+    
+    setTimeout(() => setApiMessage(''), 5000); // Clear message after 5 seconds
   };
 
   const handleEditClick = (agency) => {
@@ -427,26 +466,26 @@ const HiringAgencies = () => {
             <form onSubmit={handleAddAgency} className="hiring-agencies-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="agencyName">Name</label>
+                  <label htmlFor="username">Username</label>
                   <input
                     type="text"
-                    id="agencyName"
-                    name="name"
-                    value={formData.name}
+                    id="username"
+                    name="username"
+                    value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="e.g., John Doe or Tech Talent Agency"
+                    placeholder="e.g., user5"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="contactPerson">Contact Person</label>
+                  <label htmlFor="full_name">Full Name</label>
                   <input
                     type="text"
-                    id="contactPerson"
-                    name="contactPerson"
-                    value={formData.contactPerson}
+                    id="full_name"
+                    name="full_name"
+                    value={formData.full_name}
                     onChange={handleInputChange}
-                    placeholder="e.g., Jane Doe"
+                    placeholder="e.g., Bob Sharma"
                     required
                   />
                 </div>
@@ -465,50 +504,52 @@ const HiringAgencies = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="agencyPhone">Phone</label>
+                  <label htmlFor="company_name">Company Name</label>
                   <input
-                    type="tel"
-                    id="agencyPhone"
-                    name="phone"
-                    value={formData.phone}
+                    type="text"
+                    id="company_name"
+                    name="company_name"
+                    value={formData.company_name}
                     onChange={handleInputChange}
-                    placeholder="e.g., +1 (123) 456-7890"
+                    placeholder="e.g., TechCorp"
                     required
                   />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="agencyStatus">Status</label>
-                  <select
-                    id="agencyStatus"
-                    name="status"
-                    value={formData.status}
+                  <label htmlFor="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
                     onChange={handleInputChange}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="On Hold">On Hold</option>
-                  </select>
+                    placeholder="Password@123"
+                    required
+                  />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="userType">User Type</label>
+                  <label htmlFor="role">Role</label>
                   <select
-                    id="userType"
-                    name="userType"
-                    value={formData.userType}
+                    id="role"
+                    name="role"
+                    value={formData.role}
                     onChange={handleInputChange}
                   >
-                    <option value="Hiring Agency">Hiring Agency</option>
-                    <option value="Staff">Staff</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="STAFF">Staff</option>
                   </select>
                 </div>
               </div>
-              {showMessage && errorMessage && (
-                <p className="error-message">{errorMessage}</p>
+              {/* API Message display */}
+              {apiMessage && (
+                <p className={`api-message ${apiMessage.startsWith('Error') ? 'error-message' : 'success-message'}`}>
+                  {apiMessage}
+                </p>
               )}
-              <button type="submit" className="submit-btn">
-                Add User
+              <button type="submit" className="submit-btn" disabled={isLoading}>
+                {isLoading ? 'Adding User...' : 'Add User'}
               </button>
             </form>
           </div>
