@@ -49,7 +49,8 @@ const CandidateCard = ({ candidate, onViewReport }) => {
           <h3 className="candidate-name">{candidate.name || '-'}</h3>
           <p className="candidate-role">{candidate.jobRole || '-'}</p>
           <p className="candidate-domain">{candidate.domain || '-'}</p>
-          <p className="candidate-updated">Last Updated: {candidate.lastUpdated || '-'}</p>
+          {/* Ensure lastUpdated is displayed correctly */}
+          <p className="candidate-updated">Last Updated: {candidate.lastUpdated ? new Date(candidate.lastUpdated).toLocaleDateString("en-GB") : '-'}</p>
         </div>
       </div>
       <div className="card-right-actions"> {/* Added div for right actions */}
@@ -71,10 +72,6 @@ const CandidatePage = () => {
   const dispatch = useDispatch();
   const allCandidates = useSelector((state) => state.candidates.allCandidates);
   const searchTerm = useSelector((state) => state.search.searchTerm);
-  const loggedInUser = useSelector((state) => state.user.user); // Get logged-in user from Redux
-  const userRole = loggedInUser?.role;
-  const userEmail = loggedInUser?.email; // For Recruiter/Hiring Agency POC
-  const userCompany = loggedInUser?.company_name; // For Company POC
   const allJobs = useSelector((state) => state.jobs.allJobs || []); // Get all jobs from Redux
 
   // States for filters (temporary, before applying)
@@ -125,22 +122,10 @@ const CandidatePage = () => {
       }
       const data = await response.json();
 
-      // Frontend filtering based on user role
-      let filteredApiCandidates = data;
-      if (userRole === 'COMPANY') {
-        // Company can only see candidates whose job's company_name matches their company_name
-        filteredApiCandidates = fetchedApiCandidates.filter(candidate => {
-          const job = allJobs.find(j => j.job_title === candidate.job_title);
-          return job && job.companyName === userCompany;
-        });
-      } else if (userRole === 'HIRING_AGENCY' || userRole === 'RECRUITER') {
-        // Hiring Agency and Recruiter can only see candidates they added (via poc_email)
-        filteredApiCandidates = fetchedApiCandidates.filter(candidate => candidate.poc_email === userEmail);
-      }
-      // Admin sees all, no filtering needed for Admin here
+      let fetchedApiCandidates = data;
 
       // Map API response to Redux state structure
-      const formattedCandidates = filteredApiCandidates.map(candidate => ({
+      const formattedCandidates = fetchedApiCandidates.map(candidate => ({
         id: candidate.id,
         name: candidate.full_name || '-',
         email: candidate.email || '-',
@@ -150,13 +135,13 @@ const CandidatePage = () => {
         poc: candidate.poc_email || '-', // Map poc_email to poc
         workExperience: candidate.work_experience || 0, // Ensure it's a number
         status: candidate.status || 'NEW', // Default status if not provided
-        lastUpdated: candidate.last_updated ? candidate.last_updated.slice(0, 10) : '-',
+        lastUpdated: candidate.last_updated, // Keep as is, will be formatted in CandidateCard
+        applicationDate: candidate.created_at, // Add applicationDate
         resumes: candidate.resume_url ? [{ name: candidate.resume_url.split('/').pop(), url: candidate.resume_url }] : [], // Handle single resume_url
-        // Placeholder for fields not directly from API
-        interviews: [],
-        evaluation: null,
-        aptitude: null,
-        brChats: [],
+        interviewDetails: candidate.interview_details || null, // Ensure this is null if no data
+        evaluation: candidate.evaluation_details || null, // Ensure this is null if no data
+        aptitude: candidate.aptitude_details || null,
+        brChats: candidate.br_chats || [],
       }));
       dispatch(setCandidates(formattedCandidates)); // Update Redux store
     } catch (error) {
@@ -165,12 +150,13 @@ const CandidatePage = () => {
     }
   };
 
-  // Fetch candidates on component mount and when user/jobs data changes
+  // Fetch candidates on component mount and when jobs data changes (user data is no longer a dependency for filtering)
   useEffect(() => {
-    if (loggedInUser && allJobs.length > 0) { // Ensure jobs are loaded before filtering candidates by job company
+    // We still want to fetch candidates if jobs are loaded, as job titles are used in candidate data
+    if (allJobs.length > 0) {
       fetchCandidates();
     }
-  }, [dispatch, navigate, loggedInUser, userRole, userEmail, userCompany, allJobs]);
+  }, [dispatch, navigate, allJobs]); // Removed loggedInUser dependencies
 
   // Dynamically generate unique filter options from allCandidates
   const uniqueDomains = useMemo(() => {
@@ -240,7 +226,6 @@ const CandidatePage = () => {
     const lowerCaseSearchTerm = searchTerm ? searchTerm.toLowerCase() : '';
     const lowerCaseCandidateName = candidate.name ? candidate.name.toLowerCase() : '';
     const lowerCaseCandidateEmail = candidate.email ? candidate.email.toLowerCase() : '';
-    // const lowerCaseCandidatePhone = candidate.phone ? candidate.phone.toLowerCase() : ''; // Removed
     const lowerCaseCandidateDomain = candidate.domain ? candidate.domain.toLowerCase() : '';
     const lowerCaseCandidateJobRole = candidate.jobRole ? candidate.jobRole.toLowerCase() : '';
     const lowerCaseCandidatePoc = candidate.poc ? candidate.poc.toLowerCase() : '';
@@ -251,7 +236,6 @@ const CandidatePage = () => {
       !searchTerm ||
       lowerCaseCandidateName.includes(lowerCaseSearchTerm) ||
       lowerCaseCandidateEmail.includes(lowerCaseSearchTerm) ||
-      // lowerCaseCandidatePhone.includes(lowerCaseSearchTerm) || // Removed
       lowerCaseCandidateDomain.includes(lowerCaseSearchTerm) ||
       lowerCaseCandidateJobRole.includes(lowerCaseSearchTerm) ||
       lowerCaseCandidatePoc.includes(lowerCaseSearchTerm) ||
@@ -261,7 +245,6 @@ const CandidatePage = () => {
     const matchesTab = appliedTab === "All" || lowerCaseCandidateStatus === appliedTab.toLowerCase();
 
     // Form filters
-    // const matchesPhone = appliedFilters.phone === "" || lowerCaseCandidatePhone.includes(appliedFilters.phone.toLowerCase()); // Removed
     const matchesDomain = appliedFilters.domain === "" || lowerCaseCandidateDomain === appliedFilters.domain.toLowerCase();
     const matchesJobRole = appliedFilters.jobRole === "" || lowerCaseCandidateJobRole === appliedFilters.jobRole.toLowerCase();
     const matchesPoc = appliedFilters.poc === "" || lowerCaseCandidatePoc === appliedFilters.poc.toLowerCase();
@@ -427,7 +410,7 @@ const CandidatePage = () => {
                 >
                   {i + 1}
                 </button>
-              ))}
+              ))}\
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}

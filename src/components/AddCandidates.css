@@ -940,3 +940,37 @@
     font-size: 0.8rem;
   }
 }
+
+/* Table actions and submit candidates button styles */
+.table-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.submit-candidates-btn {
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+}
+
+.submit-candidates-btn:hover {
+  background-color: var(--color-success-dark);
+  transform: translateY(-1px);
+}
+
+.submit-candidates-btn:disabled {
+  background-color: var(--color-muted);
+  cursor: not-allowed;
+  transform: none;
+}

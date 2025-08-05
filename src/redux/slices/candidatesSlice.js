@@ -1,11 +1,10 @@
 // src/redux/slices/candidatesSlice.js
-import { createSlice } from '@reduxjs/toolkit';
-import { initialCandidates } from '../../data'; // Import initial data
+import { createSlice } from '@reduxjs/toolkit';// Import initial data
 
 const candidatesSlice = createSlice({
   name: 'candidates',
   initialState: {
-    allCandidates: initialCandidates || [], // Ensure it's an array even if initialCandidates is undefined
+    allCandidates: [], // Ensure it's an array even if initialCandidates is undefined
   },
   reducers: {
     addCandidate: (state, action) => {

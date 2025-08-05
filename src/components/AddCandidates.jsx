@@ -19,13 +19,9 @@ const AddCandidates = () => {
   const openJobs = allJobs.filter(job => job.status === 'Open');
 
   const [formData, setFormData] = useState({
-    full_name: "",
     domain: "",
     job_title: "",
     poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
-    email: "",
-    phone: "",
-    work_experience: "",
     resumes: [],
   });
 
@@ -33,6 +29,11 @@ const AddCandidates = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef(null);
   const [addedCandidates, setAddedCandidates] = useState([]);
+
+  // New state for parsed resume data
+  const [parsedResumeData, setParsedResumeData] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmittingCandidates, setIsSubmittingCandidates] = useState(false);
 
   const [editingCandidateId, setEditingCandidateId] = useState(null);
   const [editedCandidateData, setEditedCandidateData] = useState(null);
@@ -80,11 +81,16 @@ const AddCandidates = () => {
         id: data.id,
         name: data.full_name || '-',
         email: data.email || '-',
-        phone: data.phone || '-',
+        phone: data.phone_number || '-',
         domain: data.domain || '-',
         jobRole: data.job_title || '-',
         poc: data.poc_email || '-',
-        workExperience: data.work_experience || '-',
+        workExperience: data.experience_years || '-',
+        currentCompany: data.current_company || '-',
+        currentRole: data.current_role || '-',
+        expectedSalary: data.expected_salary || '-',
+        noticePeriod: data.notice_period || '-',
+        resumeFile: data.resume_file || '-',
       }));
       setAddedCandidates(formattedCandidates);
     } catch (error) {
@@ -115,7 +121,7 @@ const AddCandidates = () => {
   };
 
   const handleResumeChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 15);
+    const files = Array.from(e.target.files).slice(0, 10); // Changed to 10 files max
     setFormData((prev) => ({ ...prev, resumes: files }));
   };
 
@@ -143,6 +149,137 @@ const AddCandidates = () => {
     return true;
   };
 
+  // New function to handle bulk resume upload
+  const handleBulkResumeUpload = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+
+    if (!validateForm()) return;
+
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      setErrorMessage("Please log in to upload resumes.");
+      navigate('/login');
+      return;
+    }
+
+    setIsUploading(true);
+
+    const uploadPayload = new FormData();
+    uploadPayload.append("domain", formData.domain);
+    uploadPayload.append("job_title", formData.job_title);
+    uploadPayload.append("poc_email", formData.poc_email);
+
+    formData.resumes.forEach((file) => {
+      uploadPayload.append("resume_files", file);
+    });
+
+    try {
+      const response = await axios.post(
+        `${baseURL}/api/resumes/bulk-upload/`,
+        uploadPayload,
+        {
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Bulk upload response:", response.data);
+      setParsedResumeData(response.data);
+      setShowMessage(true);
+      setErrorMessage("");
+
+      setTimeout(() => setShowMessage(false), 2000);
+    } catch (error) {
+      console.error("Bulk upload error:", error.response?.data || error.message);
+      setErrorMessage(error.response?.data?.message || "Failed to upload resumes. Please try again.");
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // New function to handle submitting candidates from parsed data
+  const handleSubmitCandidates = async () => {
+    if (parsedResumeData.length === 0) {
+      setErrorMessage("No candidate data to submit");
+      return;
+    }
+
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+      setErrorMessage("Please log in to submit candidates.");
+      navigate('/login');
+      return;
+    }
+
+    setIsSubmittingCandidates(true);
+
+    try {
+      const candidatePromises = parsedResumeData.map(async (candidateData) => {
+        const candidatePayload = {
+          full_name: candidateData.full_name || "",
+          email: candidateData.email || "",
+          phone_number: candidateData.phone_number || "",
+          domain: formData.domain,
+          job_title: formData.job_title,
+          experience_years: candidateData.experience_years || 0,
+          current_company: candidateData.current_company || "",
+          current_role: candidateData.current_role || "",
+          expected_salary: candidateData.expected_salary || 0,
+          notice_period: candidateData.notice_period || 0,
+          resume_file: null, // This will be handled by the backend
+          poc_email: formData.poc_email,
+        };
+
+        return axios.post(
+          `${baseURL}/api/candidates/`,
+          candidatePayload,
+          {
+            headers: {
+              Authorization: `Token ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      });
+
+      const responses = await Promise.all(candidatePromises);
+      console.log("Candidates submitted:", responses.map(r => r.data));
+
+      // Refresh the candidates list
+      await fetchCandidates();
+
+      // Clear the parsed data and form
+      setParsedResumeData([]);
+      setFormData({
+        domain: "",
+        job_title: "",
+        poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
+        resumes: [],
+      });
+
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      setShowMessage(true);
+      setErrorMessage("");
+      setTimeout(() => setShowMessage(false), 3000);
+    } catch (error) {
+      console.error("Submit candidates error:", error.response?.data || error.message);
+      setErrorMessage(error.response?.data?.message || "Failed to submit candidates. Please try again.");
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
+    } finally {
+      setIsSubmittingCandidates(false);
+    }
+  };
+
+  // Legacy submit function - keeping for backward compatibility
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -471,7 +608,7 @@ const AddCandidates = () => {
 
               <div className="form-group resume-upload">
                 <label htmlFor="resumeUploadInput" className="resume-upload-label">
-                  <p>Upload Resumes (Max 15) <span className="required-field">*</span></p>
+                  <p>Upload Resumes (Max 10) <span className="required-field">*</span></p>
                   <div className="upload-icon-container">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
@@ -506,25 +643,80 @@ const AddCandidates = () => {
               )}
               {showMessage && (
                 <div className="success-message">
-                  ✅ Candidate successfully added!
+                  ✅ Resumes uploaded successfully! Review the parsed data below.
                 </div>
               )}
             </div>
             <div className="form-actions">
               <button
                 className="submit-btn"
-                type="submit"
-                disabled={isSubmitting}
+                type="button"
+                onClick={handleBulkResumeUpload}
+                disabled={isUploading}
               >
-                {isSubmitting ? 'Adding Candidate...' : 'Submit'}
+                {isUploading ? 'Uploading Resumes...' : 'Upload & Parse Resumes'}
               </button>
             </div>
           </form>
         </div>
 
+        {/* Parsed Resume Data Table */}
+        {parsedResumeData.length > 0 && (
+          <div className="preview-section card">
+            <div className="table-box">
+              <h2>Parsed Resume Data</h2>
+              <table className="candidate-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Domain</th>
+                    <th>Job Title</th>
+                    <th>POC Email</th>
+                    <th>Experience (Years)</th>
+                    <th>Current Company</th>
+                    <th>Current Role</th>
+                    <th>Expected Salary</th>
+                    <th>Notice Period</th>
+                    <th>Resume</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parsedResumeData.map((candidate, index) => (
+                    <tr key={index}>
+                      <td>{candidate.full_name || '-'}</td>
+                      <td>{candidate.email || '-'}</td>
+                      <td>{candidate.phone_number || '-'}</td>
+                      <td>{formData.domain || '-'}</td>
+                      <td>{formData.job_title || '-'}</td>
+                      <td>{formData.poc_email || '-'}</td>
+                      <td>{candidate.experience_years || '-'}</td>
+                      <td>{candidate.current_company || '-'}</td>
+                      <td>{candidate.current_role || '-'}</td>
+                      <td>{candidate.expected_salary || '-'}</td>
+                      <td>{candidate.notice_period || '-'}</td>
+                      <td>{candidate.resume_file || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="table-actions">
+                <button
+                  className="submit-candidates-btn"
+                  onClick={handleSubmitCandidates}
+                  disabled={isSubmittingCandidates}
+                >
+                  {isSubmittingCandidates ? 'Submitting Candidates...' : 'Submit All Candidates'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="preview-section card">
           <div className="table-box">
-            <h2>Candidate List</h2>
+            <h2>Existing Candidates</h2>
             <table className="candidate-table">
               <thead>
                 <tr>
@@ -535,6 +727,11 @@ const AddCandidates = () => {
                   <th onClick={() => handleSort('jobRole')}>Job Role {getSortIndicator('jobRole')}</th>
                   <th onClick={() => handleSort('poc')}>POC Email {getSortIndicator('poc')}</th>
                   <th onClick={() => handleSort('workExperience')}>Experience {getSortIndicator('workExperience')}</th>
+                  <th>Current Company</th>
+                  <th>Current Role</th>
+                  <th>Expected Salary</th>
+                  <th>Notice Period</th>
+                  <th>Resume</th>
                   <th>Actions</th>
                 </tr>
               </thead>

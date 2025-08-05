@@ -1,11 +1,10 @@
 // src/redux/slices/jobsSlice.js
-import { createSlice } from '@reduxjs/toolkit';
-import { initialJobs } from '../../data'; // Import initial job data
+import { createSlice } from '@reduxjs/toolkit';// Import initial job data
 
 const jobsSlice = createSlice({
   name: 'jobs',
   initialState: {
-    allJobs: initialJobs,
+    allJobs: [],
   },
   reducers: {
     setJobs: (state, action) => { // New reducer to set jobs from API

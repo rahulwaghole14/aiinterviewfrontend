@@ -119,8 +119,9 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     "Evaluated"
   ];
 
-  const initialStepIndex = processSteps.indexOf(candidate.status);
-  const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex !== -1 ? initialStepIndex : 0);
+  // Derive currentStepIndex directly from candidate.status
+  const currentStepIndex = processSteps.indexOf(candidate.status);
+  const currentProcessStatus = processSteps[currentStepIndex];
 
   const [interviewDate, setInterviewDate] = useState(candidate?.interviewDetails?.date ? new Date(candidate.interviewDetails.date) : null);
   const [interviewTime, setInterviewTime] = useState(candidate?.interviewDetails?.time || '');
@@ -136,8 +137,6 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
   const [scoreError, setScoreError] = useState('');
   const [resultError, setResultError] = useState('');
   const [feedbackError, setFeedbackError] = useState('');
-
-  const currentProcessStatus = processSteps[currentStepIndex];
 
   const resetErrors = () => {
     setDateError('');
@@ -190,47 +189,38 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     return isValid;
   };
 
-  const handleSaveCurrentStepData = async (nextStep = false) => { // Made async
-    let updatedData = {};
-    let statusToSave = currentProcessStatus;
+  // This function now takes the target status to save as an argument
+  const handleSaveCurrentStepData = async (statusToUpdate, updatedFormData = {}) => {
+    let payloadData = updatedFormData;
 
-    if (currentProcessStatus === "Interview Pending") {
+    // Logic to prepare payload based on the current step and form fields
+    if (currentProcessStatus === "Interview Pending" && statusToUpdate === "Interview Scheduled") {
       if (!isFormValid()) return;
 
-      // Find the job ID based on candidate's jobRole (which is job_title in backend)
       const job = allJobs.find(job => job.title === candidate.jobRole);
       if (!job) {
         console.error("Job not found for candidate's job role:", candidate.jobRole);
-        // Optionally, show an error message to the user
         return;
       }
 
-      // Construct started_at and ended_at
       const startDate = interviewDate.toISOString().split("T")[0]; // YYYY-MM-DD
       const [hours, minutes] = interviewTime.split(':');
-      const startedAt = new Date(`${startDate}T${hours}:${minutes}:00Z`); // Assuming UTC for simplicity
-      const endedAt = new Date(startedAt.getTime() + 30 * 60 * 1000); // Add 30 minutes for end time
+      const scheduledAt = new Date(`${startDate}T${hours}:${minutes}:00Z`); // Assuming UTC for simplicity
 
       const interviewPayload = {
         candidate: candidate.id,
         job: job.id,
-        interview_round: "Technical Round 1", // Hardcoding as per example
-        started_at: startedAt.toISOString(),
-        ended_at: endedAt.toISOString(),
+        interview_round: 1, // Assuming first round for now
+        started_at: scheduledAt.toISOString(),
+        status: "SCHEDULED"
       };
 
       try {
         const authToken = localStorage.getItem('authToken');
         const headers = {
           'Content-Type': 'application/json',
+          ...(authToken && { 'Authorization': `Token ${authToken}` }) // Conditionally add auth header
         };
-        if (authToken) {
-          headers['Authorization'] = `Token ${authToken}`;
-        } else {
-          console.error("No authentication token found. Please log in.");
-          // Handle navigation to login or show error
-          return;
-        }
 
         const response = await fetch(`${baseURL}/api/interviews/`, {
           method: 'POST',
@@ -241,73 +231,72 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
         if (!response.ok) {
           const errorData = await response.json();
           console.error("Failed to schedule interview:", errorData);
-          // Show error to user, e.g., using a state variable for modal error
           return;
         }
 
-        const scheduledInterview = await response.json();
-        console.log("Interview scheduled successfully:", scheduledInterview);
+        const interviewResponse = await response.json();
+        console.log("Interview scheduled successfully:", interviewResponse);
 
-        // Update candidate's interviewDetails locally (optional, as fetchCandidateDetails will refresh)
-        // This data will be refreshed by fetchCandidateDetails after onSave
-        updatedData.interviewDetails = {
+        // Update local data that will be passed to onSave for candidate PATCH
+        // Use data from the API response if available, otherwise placeholders
+        payloadData.interviewDetails = {
           date: startDate,
           time: interviewTime,
-          duration: "30 minutes", // Default or from API response if available
-          interviewer: "Auto-assigned", // Placeholder
-          type: "Technical", // Placeholder
-          platform: "Google Meet", // Placeholder
-          link: "https://meet.google.com/xyz-abc", // Placeholder
-          agenda: "Technical assessment", // Placeholder
-          notes: "Initial screening interview", // Placeholder
+          duration: interviewResponse.duration || "30 minutes", // Use API response or default
+          interviewer: interviewResponse.interviewer || "Auto-assigned", // Placeholder
+          type: interviewResponse.interview_type || "Technical", // Placeholder
+          platform: interviewResponse.platform || "Google Meet", // Placeholder
+          link: interviewResponse.meeting_link || "https://meet.google.com/xyz-abc", // Placeholder
+          agenda: interviewResponse.agenda || "Technical assessment", // Placeholder
+          notes: interviewResponse.notes || "Initial screening interview", // Placeholder
         };
-        statusToSave = "Interview Scheduled"; // Update status to Interview Scheduled
       } catch (apiError) {
         console.error("API call failed during interview scheduling:", apiError);
-        // Show error to user
         return;
       }
 
-    } else if (currentProcessStatus === "Interview Completed") {
+    } else if (currentProcessStatus === "Interview Completed" && statusToUpdate === "Evaluated") {
       if (!isFormValid()) return;
-      updatedData.evaluation = {
+      payloadData.evaluation = {
         score: parseFloat(evaluationScore),
         result: evaluationResult,
         feedback: evaluationRemark,
         interviewDuration
       };
-      statusToSave = "Evaluated";
-    } else if (currentProcessStatus === "Requires Action") {
-      statusToSave = "Interview Pending";
     }
 
     // Call onSave which will PATCH the candidate status and re-fetch details
-    onSave(statusToSave, updatedData);
-
-    // Only move to the next step if the save was successful and nextStep is true
-    if (nextStep && currentStepIndex < processSteps.length - 1) {
-      setCurrentStepIndex(prev => prev + 1);
-      resetErrors(); // Clear errors when moving to next step
-    }
+    await onSave(statusToUpdate, payloadData);
+    
+    // Close the modal only after the save operation (and re-fetch in parent) is complete
+    // This prevents the modal from re-rendering with stale data
+    onClose();
   };
 
   const handleNextStep = () => {
-    const isCurrentStepFormPresent = ["Interview Pending", "Interview Completed"].includes(currentProcessStatus);
-
-    if (isCurrentStepFormPresent) {
-      if (isFormValid()) {
-        handleSaveCurrentStepData(true); // Save and then move next
+    const nextStepIndex = currentStepIndex + 1;
+    if (nextStepIndex < processSteps.length) {
+      const nextStatus = processSteps[nextStepIndex];
+      // Check if current step requires form validation before proceeding
+      if (currentProcessStatus === "Interview Pending" || currentProcessStatus === "Interview Completed") {
+        if (isFormValid()) {
+          handleSaveCurrentStepData(nextStatus);
+        }
+      } else {
+        // For steps like "Requires Action" where no form is present, just trigger the save for the next status
+        handleSaveCurrentStepData(nextStatus);
       }
-    } else {
-      // For "Requires Action" or "Interview Scheduled" (where no form is present for current step)
-      handleSaveCurrentStepData(true); // Just move to next step, data might be saved if "Requires Action"
     }
   };
 
   const handleGoBack = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(prev => prev - 1);
-      resetErrors(); // Clear errors when going back
+    const prevStepIndex = currentStepIndex - 1;
+    if (prevStepIndex >= 0) {
+      const prevStatus = processSteps[prevStepIndex];
+      // For going back, we typically just update the status without sending form data
+      // and then close the modal.
+      onSave(prevStatus, {}); // This will trigger re-fetch in parent
+      onClose(); // Close the modal immediately after triggering the save
     }
   };
 
@@ -316,7 +305,7 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     handleClose(); // Close modal after final status selection
   };
 
-  const isFormPresent = ["Interview Pending", "Interview Completed"].includes(currentProcessStatus);
+  // Show Next button if not on the last step and not "Evaluated" (as "Evaluated" branches to Hired/Rejected)
   const showNextButton = currentStepIndex < processSteps.length - 1 && currentProcessStatus !== "Evaluated";
 
   return (
@@ -330,11 +319,11 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
         <div className="process-flow-container">
           {processSteps.map((step, index) => (
             <React.Fragment key={step}>
-              <div className={`process-step ${index <= processSteps.indexOf(candidate.status) ? 'completed' : ''} ${index === currentStepIndex ? 'active' : ''}`}>
+              <div className={`process-step ${index <= currentStepIndex ? 'completed' : ''} ${index === currentStepIndex ? 'active' : ''}`}>
                 {step}
               </div>
               {index < processSteps.length - 1 && (
-                <div className={`process-arrow ${index < processSteps.indexOf(candidate.status) ? 'completed' : ''}`}></div>
+                <div className={`process-arrow ${index < currentStepIndex ? 'completed' : ''}`}></div>
               )}
             </React.Fragment>
           ))}
@@ -482,8 +471,27 @@ const CandidateDetails = ({ onTitleChange }) => {
         lastUpdated: apiCandidate.last_updated ? new Date(apiCandidate.last_updated).toLocaleDateString("en-GB") : '-',
         applicationDate: apiCandidate.created_at ? new Date(apiCandidate.created_at).toLocaleDateString("en-GB") : '-',
         resumes: apiCandidate.resume_url ? [{ name: apiCandidate.resume_url.split('/').pop(), url: apiCandidate.resume_url }] : [],
-        interviewDetails: apiCandidate.interview_details || null, // Ensure this is null if no data
-        evaluation: apiCandidate.evaluation_details || null, // Ensure this is null if no data
+        // Map interview_details and evaluation_details directly from API response
+        interviewDetails: apiCandidate.interview_details ? {
+          date: apiCandidate.interview_details.started_at ? new Date(apiCandidate.interview_details.started_at).toLocaleDateString("en-GB") : '-',
+          time: apiCandidate.interview_details.started_at ? new Date(apiCandidate.interview_details.started_at).toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' }) : '-',
+          duration: apiCandidate.interview_details.duration || '-',
+          interviewer: apiCandidate.interview_details.interviewer || '-',
+          type: apiCandidate.interview_details.interview_type || '-',
+          platform: apiCandidate.interview_details.platform || '-',
+          link: apiCandidate.interview_details.meeting_link || '-',
+          agenda: apiCandidate.interview_details.agenda || '-',
+          notes: apiCandidate.interview_details.notes || '-',
+        } : null,
+        evaluation: apiCandidate.evaluation_details ? {
+          score: apiCandidate.evaluation_details.score || '-',
+          result: apiCandidate.evaluation_details.result || '-',
+          feedback: apiCandidate.evaluation_details.feedback || '-',
+          strengths: apiCandidate.evaluation_details.strengths || '-',
+          areasForImprovement: apiCandidate.evaluation_details.areas_for_improvement || '-',
+          recommendation: apiCandidate.evaluation_details.recommendation || '-',
+          interviewDuration: apiCandidate.evaluation_details.interview_duration || '-',
+        } : null,
         aptitude: apiCandidate.aptitude_details || null,
         brChats: apiCandidate.br_chats || [],
       };
@@ -523,11 +531,31 @@ const CandidateDetails = ({ onTitleChange }) => {
         status: newStatus,
       };
 
+      // Conditionally add interview_details or evaluation_details if present in updatedData
       if (updatedData.interviewDetails) {
-        payload.interview_details = updatedData.interviewDetails;
+        // Map back to API expected format if necessary, or ensure it's already in that format
+        payload.interview_details = {
+          started_at: new Date(`${updatedData.interviewDetails.date}T${updatedData.interviewDetails.time}:00Z`).toISOString(),
+          duration: updatedData.interviewDetails.duration,
+          interviewer: updatedData.interviewDetails.interviewer,
+          interview_type: updatedData.interviewDetails.type,
+          platform: updatedData.interviewDetails.platform,
+          meeting_link: updatedData.interviewDetails.link,
+          agenda: updatedData.interviewDetails.agenda,
+          notes: updatedData.interviewDetails.notes,
+          status: "SCHEDULED", // Assuming status is handled during interview scheduling
+        };
       }
       if (updatedData.evaluation) {
-        payload.evaluation_details = updatedData.evaluation;
+        payload.evaluation_details = {
+          score: updatedData.evaluation.score,
+          result: updatedData.evaluation.result,
+          feedback: updatedData.evaluation.feedback,
+          strengths: updatedData.evaluation.strengths || '', // Add these fields
+          areas_for_improvement: updatedData.evaluation.areasForImprovement || '',
+          recommendation: updatedData.evaluation.recommendation || '',
+          interview_duration: updatedData.evaluation.interviewDuration,
+        };
       }
 
       const response = await fetch(`${baseURL}/api/candidates/${id}/`, {

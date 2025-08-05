@@ -1,11 +1,10 @@
 // src/redux/slices/interviewsSlice.js
-import { createSlice } from '@reduxjs/toolkit';
-import { initialInterviews } from '../../data'; // Import initial data
+import { createSlice } from '@reduxjs/toolkit'; // Import initial data
 
 const interviewsSlice = createSlice({
   name: 'interviews',
   initialState: {
-    allInterviews: initialInterviews,
+    allInterviews: [],
   },
   reducers: {
     addInterview: (state, action) => {

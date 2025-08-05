@@ -1,11 +1,10 @@
 // src/redux/slices/clientsSlice.js
-import { createSlice } from '@reduxjs/toolkit';
-import { dashboardClientsData } from '../../data'; // Import initial client data
+import { createSlice } from '@reduxjs/toolkit'; // Import initial client data
 
 const clientsSlice = createSlice({
   name: 'clients',
   initialState: {
-    allClients: dashboardClientsData,
+    allClients: [],
   },
   reducers: {
     // Add reducers for clients if needed (e.g., addClient, updateClientStatus)
