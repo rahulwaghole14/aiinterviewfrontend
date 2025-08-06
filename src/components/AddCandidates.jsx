@@ -1,26 +1,40 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import "./AddCandidates.css";
-import { candidateDomains, baseURL } from "../data";
+import { baseURL } from "../data";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 
 const AddCandidates = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const searchTerm = useSelector((state) => state.search.searchTerm);
   const loggedInUser = useSelector((state) => state.user.user);
   const userRole = loggedInUser?.role;
   const userEmail = loggedInUser?.email;
   const userCompany = loggedInUser?.company_name;
 
+  // Get jobs and domains from Redux store
   const allJobs = useSelector((state) => state.jobs.allJobs || []);
+  const domains = useSelector((state) => state.jobs.domains || []);
+  const jobsStatus = useSelector((state) => state.jobs.jobsStatus);
+  const domainsStatus = useSelector((state) => state.jobs.domainsStatus);
 
-  const openJobs = allJobs.filter(job => job.status === 'Open');
+  // Fetch jobs and domains on component mount if not already loaded
+  useEffect(() => {
+    if (jobsStatus === 'idle') {
+      dispatch(fetchJobs());
+    }
+    if (domainsStatus === 'idle') {
+      dispatch(fetchDomains());
+    }
+  }, [jobsStatus, domainsStatus, dispatch]);
 
   const [formData, setFormData] = useState({
-    domain: "",
-    job_title: "",
+    domain: "", // This will be the domain ID from the dropdown
+    job_title: "", // This will be the job ID from the dropdown
     poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
     resumes: [],
   });
@@ -28,92 +42,47 @@ const AddCandidates = () => {
   const [showMessage, setShowMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef(null);
-  const [addedCandidates, setAddedCandidates] = useState([]);
 
-  // New state for parsed resume data
+  // State for parsed resume data from the 'extract' step
   const [parsedResumeData, setParsedResumeData] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSubmittingCandidates, setIsSubmittingCandidates] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // For the 'extract' step
+  const [isSubmittingCandidates, setIsSubmittingCandidates] = useState(false); // For the 'submit' step
 
-  const [editingCandidateId, setEditingCandidateId] = useState(null);
+  // Use a temporary ID for client-side editing of parsed data
+  const [editingCandidateTempId, setEditingCandidateTempId] = useState(null);
   const [editedCandidateData, setEditedCandidateData] = useState(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
-
+  const [deleteTempId, setDeleteTempId] = useState(null); // Use temp ID for delete
   const [showDeleteModalOverlay, setShowDeleteModalOverlay] = useState(false);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // New state for extraction summary cards
+  const [extractionSummary, setExtractionSummary] = useState({
+    total_files: 0,
+    successful_extractions: 0,
+    failed_extractions: 0,
+  });
 
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
+  // NEW: State for success modal
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const fetchCandidates = async () => {
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      setErrorMessage("Authentication token not found. Please log in.");
-      navigate('/login');
-      return;
-    }
+  // State for filtered jobs based on selected domain
+  const [filteredJobsByDomain, setFilteredJobsByDomain] = useState([]);
 
-    try {
-      const response = await axios.get(`${baseURL}/api/candidates/`, {
-        headers: {
-          Authorization: `Token ${authToken}`,
-        },
-      });
-
-      // Log the raw data received from the backend
-      console.log("Fetched candidates from backend:", response.data);
-
-      let fetchedCandidates = response.data;
-
-      if (userRole === 'COMPANY') {
-        fetchedCandidates = fetchedCandidates.filter(candidate => {
-          const job = allJobs.find(j => j.job_title === candidate.job_title);
-          return job && job.companyName === userCompany;
-        });
-      } else if (userRole === 'HIRING_AGENCY' || userRole === 'RECRUITER') {
-        fetchedCandidates = fetchedCandidates.filter(candidate => candidate.poc_email === userEmail);
-      }
-
-      const formattedCandidates = fetchedCandidates.map(data => ({
-        id: data.id,
-        name: data.full_name || '-',
-        email: data.email || '-',
-        phone: data.phone_number || '-',
-        domain: data.domain || '-',
-        jobRole: data.job_title || '-',
-        poc: data.poc_email || '-',
-        workExperience: data.experience_years || '-',
-        currentCompany: data.current_company || '-',
-        currentRole: data.current_role || '-',
-        expectedSalary: data.expected_salary || '-',
-        noticePeriod: data.notice_period || '-',
-        resumeFile: data.resume_file || '-',
-      }));
-      setAddedCandidates(formattedCandidates);
-    } catch (error) {
-      console.error("Error fetching candidates:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.detail || "Failed to load candidates.");
-      setShowMessage(true);
-      setTimeout(() => setShowMessage(false), 3000);
-      if (error.response?.status === 401) {
-        navigate('/login');
-      }
-    }
-  };
-
+  // Effect to update filteredJobsByDomain when domain or allJobs changes
   useEffect(() => {
-    // Log current user details to the console
-    if (loggedInUser) {
-      console.log("Current User Details:", loggedInUser);
+    if (formData.domain && allJobs.length > 0) {
+      const selectedDomainId = parseInt(formData.domain, 10);
+      const jobsInSelectedDomain = allJobs.filter(job => job.domain === selectedDomainId);
+      setFilteredJobsByDomain(jobsInSelectedDomain);
+    } else {
+      setFilteredJobsByDomain([]);
     }
+    // Reset job title when domain changes
+    setFormData(prev => ({ ...prev, job_title: "" }));
+  }, [formData.domain, allJobs]);
 
-    if (loggedInUser && allJobs.length > 0) {
-      fetchCandidates();
-    }
-  }, [loggedInUser, userRole, userEmail, userCompany, allJobs]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -130,10 +99,24 @@ const AddCandidates = () => {
       setErrorMessage("Domain is required");
       return false;
     }
+    // New validation: Check if selected domain ID exists in the domains list
+    const selectedDomainExists = domains.some(d => d.id === parseInt(formData.domain, 10));
+    if (!selectedDomainExists) {
+      setErrorMessage("Selected domain is invalid or no longer exists.");
+      return false;
+    }
+
     if (!formData.job_title) {
       setErrorMessage("Job title is required");
       return false;
     }
+    // New validation: Check if selected job title ID exists in the filteredJobsByDomain list
+    const selectedJobExists = filteredJobsByDomain.some(job => job.id === parseInt(formData.job_title, 10));
+    if (!selectedJobExists) {
+      setErrorMessage("Selected job title is invalid or no longer exists for the chosen domain.");
+      return false;
+    }
+
     if (!formData.poc_email) {
       setErrorMessage("POC email is required");
       return false;
@@ -149,10 +132,12 @@ const AddCandidates = () => {
     return true;
   };
 
-  // New function to handle bulk resume upload
+  // Function to handle bulk resume upload and extraction
   const handleBulkResumeUpload = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+    setShowMessage(false); // Clear previous success message
+    setShowSuccessModal(false); // Clear any previous success modal
 
     if (!validateForm()) return;
 
@@ -166,9 +151,13 @@ const AddCandidates = () => {
     setIsUploading(true);
 
     const uploadPayload = new FormData();
-    uploadPayload.append("domain", formData.domain);
-    uploadPayload.append("job_title", formData.job_title);
-    uploadPayload.append("poc_email", formData.poc_email);
+    // Get domain name from ID
+    const selectedDomainName = domains.find(d => d.id === parseInt(formData.domain, 10))?.name;
+    // Get job title from ID
+    const selectedJobTitle = allJobs.find(job => job.id === parseInt(formData.job_title, 10))?.job_title;
+
+    uploadPayload.append("domain", selectedDomainName); // Send domain name
+    uploadPayload.append("role", selectedJobTitle); // Send job title (role)
 
     formData.resumes.forEach((file) => {
       uploadPayload.append("resume_files", file);
@@ -176,7 +165,7 @@ const AddCandidates = () => {
 
     try {
       const response = await axios.post(
-        `${baseURL}/api/resumes/bulk-upload/`,
+        `${baseURL}/api/candidates/bulk-create/?step=extract`, // New API endpoint
         uploadPayload,
         {
           headers: {
@@ -186,15 +175,23 @@ const AddCandidates = () => {
         }
       );
 
-      console.log("Bulk upload response:", response.data);
-      setParsedResumeData(response.data);
-      setShowMessage(true);
+      console.log("Bulk upload and extract response:", response.data);
+      // Set parsed resume data and extraction summary
+      // Add a temporary unique ID to each parsed candidate for client-side operations
+      const parsedDataWithTempId = (response.data.extracted_candidates || []).map(candidate => ({
+        ...candidate,
+        tempId: crypto.randomUUID() // Generate a unique ID for client-side use
+      }));
+      setParsedResumeData(parsedDataWithTempId);
+      setExtractionSummary(response.data.summary || { total_files: 0, successful_extractions: 0, failed_extractions: 0 });
+
+      setShowMessage(true); // Show success message for extraction
       setErrorMessage("");
 
-      setTimeout(() => setShowMessage(false), 2000);
+      setTimeout(() => setShowMessage(false), 3000);
     } catch (error) {
-      console.error("Bulk upload error:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Failed to upload resumes. Please try again.");
+      console.error("Bulk upload and extract error:", error.response?.data || error.message);
+      setErrorMessage(error.response?.data?.message || "Failed to upload and parse resumes. Please try again.");
       if (error.response?.status === 401) {
         navigate('/login');
       }
@@ -203,7 +200,7 @@ const AddCandidates = () => {
     }
   };
 
-  // New function to handle submitting candidates from parsed data
+  // Function to handle submitting candidates from parsed data
   const handleSubmitCandidates = async () => {
     if (parsedResumeData.length === 0) {
       setErrorMessage("No candidate data to submit");
@@ -218,56 +215,72 @@ const AddCandidates = () => {
     }
 
     setIsSubmittingCandidates(true);
+    setErrorMessage(""); // Clear previous errors
+    setShowSuccessModal(false); // Clear any previous success modal
+
+    // Get domain name from ID
+    const selectedDomainName = domains.find(d => d.id === parseInt(formData.domain, 10))?.name;
+    // Get job title from ID
+    const selectedJobTitle = allJobs.find(job => job.id === parseInt(formData.job_title, 10))?.job_title;
+
+
+    const candidatesToSubmit = parsedResumeData.map(candidate => ({
+      filename: candidate.filename,
+      edited_data: {
+        // Use the keys expected by the API as per your example payload
+        name: candidate.extracted_data.name || "",
+        email: candidate.extracted_data.email || "",
+        phone: candidate.extracted_data.phone || "",
+        work_experience: candidate.extracted_data.work_experience || 0,
+        // Include other fields if they are part of the API's expected edited_data structure
+        current_company: candidate.extracted_data.current_company || "",
+        current_role: candidate.extracted_data.current_role || "",
+        expected_salary: candidate.extracted_data.expected_salary || 0,
+        notice_period: candidate.extracted_data.notice_period || 0,
+      }
+    }));
+
+    const submissionPayload = {
+      domain: selectedDomainName, // Send domain name
+      role: selectedJobTitle, // Send job title (role)
+      poc_email: formData.poc_email,
+      candidates: candidatesToSubmit,
+    };
 
     try {
-      const candidatePromises = parsedResumeData.map(async (candidateData) => {
-        const candidatePayload = {
-          full_name: candidateData.full_name || "",
-          email: candidateData.email || "",
-          phone_number: candidateData.phone_number || "",
-          domain: formData.domain,
-          job_title: formData.job_title,
-          experience_years: candidateData.experience_years || 0,
-          current_company: candidateData.current_company || "",
-          current_role: candidateData.current_role || "",
-          expected_salary: candidateData.expected_salary || 0,
-          notice_period: candidateData.notice_period || 0,
-          resume_file: null, // This will be handled by the backend
-          poc_email: formData.poc_email,
-        };
+      const response = await axios.post(
+        `${baseURL}/api/candidates/bulk-create/?step=submit`, // New API endpoint
+        submissionPayload,
+        {
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-        return axios.post(
-          `${baseURL}/api/candidates/`,
-          candidatePayload,
-          {
-            headers: {
-              Authorization: `Token ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      });
+      console.log("Bulk candidates submission response:", response.data);
 
-      const responses = await Promise.all(candidatePromises);
-      console.log("Candidates submitted:", responses.map(r => r.data));
+      // Display success message if any candidates were successfully created
+      if (response.data.summary.successful_creations > 0) {
+        setSuccessMessage("Candidates added successfully!");
+        setShowSuccessModal(true); // Show the new success modal
+        // Clear parsed data after successful submission
+        setParsedResumeData([]);
+        setExtractionSummary({ total_files: 0, successful_extractions: 0, failed_extractions: 0 });
+        // Reset form fields
+        setFormData({
+          domain: "",
+          job_title: "",
+          poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
+          resumes: [],
+        });
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      } else {
+        setErrorMessage(response.data.message || "No candidates were successfully added.");
+      }
 
-      // Refresh the candidates list
-      await fetchCandidates();
-
-      // Clear the parsed data and form
-      setParsedResumeData([]);
-      setFormData({
-        domain: "",
-        job_title: "",
-        poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
-        resumes: [],
-      });
-
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-      setShowMessage(true);
-      setErrorMessage("");
-      setTimeout(() => setShowMessage(false), 3000);
+      // No need for setTimeout here, modal will be closed by user
     } catch (error) {
       console.error("Submit candidates error:", error.response?.data || error.message);
       setErrorMessage(error.response?.data?.message || "Failed to submit candidates. Please try again.");
@@ -279,144 +292,48 @@ const AddCandidates = () => {
     }
   };
 
-  // Legacy submit function - keeping for backward compatibility
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage("");
-
-    if (!validateForm()) return;
-
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      setErrorMessage("Please log in to add candidates.");
-      navigate('/login');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const candidatePayload = new FormData();
-
-    candidatePayload.append("domain", formData.domain);
-    candidatePayload.append("job_title", formData.job_title);
-    candidatePayload.append("poc_email", formData.poc_email);
-
-    candidatePayload.append("full_name", formData.full_name);
-    candidatePayload.append("email", formData.email);
-    candidatePayload.append("phone", formData.phone);
-    candidatePayload.append("work_experience", formData.work_experience);
-
-    candidatePayload.append("status", "Requires Action");
-    candidatePayload.append("last_updated", new Date().toISOString().slice(0, 10));
-    candidatePayload.append("created_at", new Date().toISOString().slice(0, 10));
-
-    formData.resumes.forEach((file) => {
-      candidatePayload.append("resume_file", file);
-    });
-
-    try {
-      const response = await axios.post(
-        `${baseURL}/api/candidates/`,
-        candidatePayload,
-        {
-          headers: {
-            Authorization: `Token ${authToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      // Log the raw data received from the backend after adding a new candidate
-      console.log("New candidate data from backend:", response.data);
-
-      const newCandidatesData = Array.isArray(response.data) ? response.data : [response.data];
-
-      const newCandidates = newCandidatesData.map(data => ({
-        id: data.id,
-        name: data.full_name || '-',
-        email: data.email || '-',
-        phone: data.phone || '-',
-        domain: data.domain || '-',
-        jobRole: data.job_title || '-',
-        poc: data.poc_email || '-',
-        workExperience: data.work_experience || '-',
-      }));
-
-      console.log("Processed New Candidates:", newCandidates);
-
-      setAddedCandidates(prev => [...prev, ...newCandidates]);
-      setShowMessage(true);
-
-      setFormData({
-        full_name: "",
-        domain: "",
-        job_title: "",
-        poc_email: userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY' ? userEmail : "",
-        email: "",
-        phone: "",
-        work_experience: "",
-        resumes: [],
-      });
-
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-      setTimeout(() => setShowMessage(false), 2000);
-    } catch (error) {
-      console.error("POST error:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Failed to submit. Please try again.");
-      if (error.response?.status === 401) {
-        navigate('/login');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  // NEW: Function to close the success modal
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage("");
   };
 
-
-  const handleDeleteClick = async (id) => {
-    setDeleteId(id);
+  // Modified handleDeleteClick to work with parsedResumeData (client-side)
+  const handleDeleteClick = async (tempId) => {
+    setDeleteTempId(tempId);
     setShowDeleteModalOverlay(true);
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = async () => {
-    if (!deleteId) return;
+  // Modified confirmDelete to work with parsedResumeData (client-side)
+  const confirmDelete = () => {
+    if (!deleteTempId) return;
 
-    const authToken = localStorage.getItem('authToken');
-    try {
-      await axios.delete(
-        `${baseURL}/api/candidates/${deleteId}/`,
-        {
-          headers: {
-            Authorization: `Token ${authToken}`,
-          },
-        }
-      );
-      setAddedCandidates(prev => prev.filter(c => c.id !== deleteId));
-    } catch (error) {
-      console.error("Delete failed:", error.response?.data || error.message);
-      setErrorMessage("Failed to delete candidate. Please try again.");
-      if (error.response?.status === 401) {
-        navigate('/login');
-      }
-    } finally {
-      setShowDeleteModalOverlay(false);
-      setShowDeleteConfirm(false);
-      setDeleteId(null);
-    }
+    setParsedResumeData(prev => prev.filter(c => c.tempId !== deleteTempId));
+    setErrorMessage(""); // Clear any previous error messages
+    setShowDeleteModalOverlay(false);
+    setShowDeleteConfirm(false);
+    setDeleteTempId(null);
   };
 
   const cancelDelete = () => {
     setShowDeleteModalOverlay(false);
     setShowDeleteConfirm(false);
-    setDeleteId(null);
+    setDeleteTempId(null);
   };
 
+  // Modified handleEditClick to work with parsedResumeData (client-side)
   const handleEditClick = (candidate) => {
-    setEditingCandidateId(candidate.id);
-    setEditedCandidateData({ ...candidate });
+    setEditingCandidateTempId(candidate.tempId);
+    // Ensure all fields are present in editedCandidateData, even if empty
+    setEditedCandidateData({
+      ...candidate.extracted_data, // Edit the extracted_data part
+      filename: candidate.filename, // Keep filename for reference
+      tempId: candidate.tempId // Keep tempId for identification
+    });
   };
 
+  // Modified handleEditCellChange to update editedCandidateData
   const handleEditCellChange = (e, field) => {
     const newValue = e.target.value;
     setEditedCandidateData(prev => ({
@@ -425,125 +342,79 @@ const AddCandidates = () => {
     }));
   };
 
-  const handleSaveClick = async () => {
-    if (!editedCandidateData || !editingCandidateId) return;
+  // Modified handleSaveClick to update parsedResumeData (client-side)
+  const handleSaveClick = () => {
+    if (!editedCandidateData || !editingCandidateTempId) return;
 
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-      setErrorMessage("Please log in to update candidates.");
-      navigate('/login');
-      return;
-    }
-
-    const updatePayload = {
-      full_name: editedCandidateData.name,
-      email: editedCandidateData.email,
-      phone: editedCandidateData.phone,
-      work_experience: editedCandidateData.workExperience,
-      domain: editedCandidateData.domain,
-      job_title: editedCandidateData.jobRole,
-      poc_email: editedCandidateData.poc,
-    };
-
-    try {
-      const response = await axios.patch(
-        `${baseURL}/api/candidates/${editingCandidateId}/`,
-        updatePayload,
-        {
-          headers: {
-            Authorization: `Token ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const updatedCandidate = {
-        id: response.data.id,
-        name: response.data.full_name || '-',
-        email: response.data.email || '-',
-        phone: response.data.phone || '-',
-        domain: response.data.domain || '-',
-        jobRole: response.data.job_title || '-',
-        poc: response.data.poc_email || '-',
-        workExperience: response.data.work_experience || '-',
-      };
-
-      setAddedCandidates(prev =>
-        prev.map(c => c.id === updatedCandidate.id ? updatedCandidate : c)
-      );
-      setEditingCandidateId(null);
-      setEditedCandidateData(null);
-      setErrorMessage('');
-    } catch (error) {
-      console.error("Update failed:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Failed to update candidate.");
-      if (error.response?.status === 401) {
-        navigate('/login');
-      }
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingCandidateId(null);
+    setParsedResumeData(prev =>
+      prev.map(c =>
+        c.tempId === editingCandidateTempId
+          ? {
+              ...c,
+              extracted_data: {
+                name: editedCandidateData.name,
+                email: editedCandidateData.email,
+                phone: editedCandidateData.phone,
+                work_experience: editedCandidateData.work_experience,
+                current_company: editedCandidateData.current_company,
+                current_role: editedCandidateData.current_role,
+                expected_salary: editedCandidateData.expected_salary,
+                notice_period: editedCandidateData.notice_period,
+              }
+            }
+          : c
+      )
+    );
+    setEditingCandidateTempId(null);
     setEditedCandidateData(null);
     setErrorMessage('');
   };
 
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
+  const handleCancelEdit = () => {
+    setEditingCandidateTempId(null);
+    setEditedCandidateData(null);
+    setErrorMessage('');
   };
 
-  const getSortIndicator = (column) => {
-    if (sortColumn === column) {
-      return sortDirection === "asc" ? " ▲" : " ▼";
-    }
-    return "";
+  // Helper function to get domain name by ID
+  const getDomainName = (domainId) => {
+    const domain = domains.find(d => d.id === domainId);
+    return domain ? domain.name : `Domain ${domainId}`;
   };
 
-  const filteredCandidates = addedCandidates
-    .filter((candidate) => {
-      if (!searchTerm) return true;
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      return (
-        (candidate.name && candidate.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (candidate.email && candidate.email.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (candidate.jobRole && candidate.jobRole.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (candidate.domain && candidate.domain.toLowerCase().includes(lowerCaseSearchTerm))
-      );
-    })
-    .sort((a, b) => {
-      if (!sortColumn) return 0;
-      const aValue = a[sortColumn];
-      const bValue = b[sortColumn];
-      if (aValue === null || aValue === undefined) return sortDirection === "asc" ? 1 : -1;
-      if (bValue === null || bValue === undefined) return sortDirection === "asc" ? -1 : 1;
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortDirection === "asc"
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-      if (typeof aValue === "number" && typeof bValue === "number") {
-        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-      }
-      return 0;
-    });
+  // Helper function to get job title by ID
+  const getJobTitle = (jobId) => {
+    const job = allJobs.find(j => j.id === jobId);
+    return job ? job.job_title : `Job ${jobId}`;
+  };
+
+  // Helper function to get domain ID by name (not used in this version for editing)
+  const getDomainId = (domainName) => {
+    const domain = domains.find(d => d.name === domainName);
+    return domain ? domain.id : '';
+  };
+
+  // Helper function to get job ID by title (not used in this version for editing)
+  const getJobId = (jobTitle) => {
+    const job = allJobs.find(j => j.job_title === jobTitle);
+    return job ? job.id : '';
+  };
 
   return (
     <div className="add-candidates-container">
       <div className="add-candidates-top-section">
         <div className="add-candidates-header-cards">
           <div className="add-candidates-card">
-            <h3>Total profiles</h3>
-            <p>{filteredCandidates.length}</p>
+            <h3>Total Files</h3>
+            <p>{extractionSummary.total_files}</p>
           </div>
           <div className="add-candidates-card">
-            <h3>Errors</h3>
-            <p>0</p>
+            <h3>Successful Extractions</h3>
+            <p>{extractionSummary.successful_extractions}</p>
+          </div>
+          <div className="add-candidates-card">
+            <h3>Failed Extractions</h3>
+            <p>{extractionSummary.failed_extractions}</p>
           </div>
         </div>
       </div>
@@ -551,7 +422,7 @@ const AddCandidates = () => {
       <div className="add-candidates-main-content fixed-grid">
         <div className="add-candidates-form card">
           <h2 className="form-title">Add New Candidate</h2>
-          <form id="candidateForm" onSubmit={handleSubmit}>
+          <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
             <div className="form-box">
               <div className="form-group">
                 <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
@@ -562,11 +433,12 @@ const AddCandidates = () => {
                   onChange={handleChange}
                   className="add-candidates-select"
                   required
+                  disabled={domainsStatus === 'loading'}
                 >
                   <option value="">Select Domain</option>
-                  {candidateDomains.map((domain) => (
-                    <option key={domain} value={domain}>
-                      {domain}
+                  {domains.map((domain) => (
+                    <option key={domain.id} value={domain.id}>
+                      {domain.name}
                     </option>
                   ))}
                 </select>
@@ -581,11 +453,12 @@ const AddCandidates = () => {
                   onChange={handleChange}
                   className="add-candidates-select"
                   required
+                  disabled={!formData.domain || jobsStatus === 'loading'}
                 >
                   <option value="">Select Job Title</option>
-                  {openJobs.map((job) => (
-                    <option key={job.id} value={job.title}>
-                      {job.title} ({job.companyName})
+                  {filteredJobsByDomain.map((job) => (
+                    <option key={job.id} value={job.id}>
+                      {job.job_title} ({job.company_name})
                     </option>
                   ))}
                 </select>
@@ -608,7 +481,7 @@ const AddCandidates = () => {
 
               <div className="form-group resume-upload">
                 <label htmlFor="resumeUploadInput" className="resume-upload-label">
-                  <p>Upload Resumes (Max 10) <span className="required-field">*</span></p>
+                  <p className="resume-upload-text">Upload Resumes (Max 10) <span className="required-field">*</span></p>
                   <div className="upload-icon-container">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
@@ -619,11 +492,11 @@ const AddCandidates = () => {
                     </svg>
                   </div>
                   {formData.resumes.length > 0 ? (
-                    <p className="selected-files-text">
+                    <p className="selected-files-text resume-upload-text">
                       Selected: {formData.resumes.map((file) => file.name).join(", ")}
                     </p>
                   ) : (
-                    <p className="selected-files-text">No files selected</p>
+                    <p className="selected-files-text resume-upload-text">No files selected</p>
                   )}
                 </label>
                 <input
@@ -643,104 +516,49 @@ const AddCandidates = () => {
               )}
               {showMessage && (
                 <div className="success-message">
-                  ✅ Resumes uploaded successfully! Review the parsed data below.
+                  ✅ Resumes uploaded and parsed successfully! Review the extracted data below.
                 </div>
               )}
             </div>
             <div className="form-actions">
               <button
                 className="submit-btn"
-                type="button"
-                onClick={handleBulkResumeUpload}
+                type="submit"
                 disabled={isUploading}
               >
-                {isUploading ? 'Uploading Resumes...' : 'Upload & Parse Resumes'}
+                {isUploading ? 'Uploading & Parsing...' : 'Upload & Parse Resumes'}
               </button>
             </div>
           </form>
         </div>
 
-        {/* Parsed Resume Data Table */}
-        {parsedResumeData.length > 0 && (
-          <div className="preview-section card">
-            <div className="table-box">
-              <h2>Parsed Resume Data</h2>
-              <table className="candidate-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Domain</th>
-                    <th>Job Title</th>
-                    <th>POC Email</th>
-                    <th>Experience (Years)</th>
-                    <th>Current Company</th>
-                    <th>Current Role</th>
-                    <th>Expected Salary</th>
-                    <th>Notice Period</th>
-                    <th>Resume</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {parsedResumeData.map((candidate, index) => (
-                    <tr key={index}>
-                      <td>{candidate.full_name || '-'}</td>
-                      <td>{candidate.email || '-'}</td>
-                      <td>{candidate.phone_number || '-'}</td>
-                      <td>{formData.domain || '-'}</td>
-                      <td>{formData.job_title || '-'}</td>
-                      <td>{formData.poc_email || '-'}</td>
-                      <td>{candidate.experience_years || '-'}</td>
-                      <td>{candidate.current_company || '-'}</td>
-                      <td>{candidate.current_role || '-'}</td>
-                      <td>{candidate.expected_salary || '-'}</td>
-                      <td>{candidate.notice_period || '-'}</td>
-                      <td>{candidate.resume_file || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="table-actions">
-                <button
-                  className="submit-candidates-btn"
-                  onClick={handleSubmitCandidates}
-                  disabled={isSubmittingCandidates}
-                >
-                  {isSubmittingCandidates ? 'Submitting Candidates...' : 'Submit All Candidates'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* Parsed Resume Data Table - Always visible */}
         <div className="preview-section card">
+          <div className="table-header-with-button">
+            <h2 className="table-title">Parsed Resume Data</h2>
+          </div>
           <div className="table-box">
-            <h2>Existing Candidates</h2>
+            {/* Removed the inline success message div here */}
             <table className="candidate-table">
               <thead>
                 <tr>
-                  <th onClick={() => handleSort('name')}>Name {getSortIndicator('name')}</th>
-                  <th onClick={() => handleSort('email')}>Email {getSortIndicator('email')}</th>
-                  <th onClick={() => handleSort('phone')}>Phone {getSortIndicator('phone')}</th>
-                  <th onClick={() => handleSort('domain')}>Domain {getSortIndicator('domain')}</th>
-                  <th onClick={() => handleSort('jobRole')}>Job Role {getSortIndicator('jobRole')}</th>
-                  <th onClick={() => handleSort('poc')}>POC Email {getSortIndicator('poc')}</th>
-                  <th onClick={() => handleSort('workExperience')}>Experience {getSortIndicator('workExperience')}</th>
-                  <th>Current Company</th>
-                  <th>Current Role</th>
-                  <th>Expected Salary</th>
-                  <th>Notice Period</th>
-                  <th>Resume</th>
+                  <th>Filename</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Experience (Years)</th>
+                  <th>Domain</th> {/* Added Domain header */}
+                  <th>Job Role</th> {/* Added Job Role header */}
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredCandidates.length > 0 ? (
-                  filteredCandidates.map((candidate) => (
-                    <tr key={candidate.id}>
+                {parsedResumeData.length > 0 ? (
+                  parsedResumeData.map((candidate) => (
+                    <tr key={candidate.tempId}>
+                      <td>{candidate.filename || '-'}</td>
                       <td>
-                        {editingCandidateId === candidate.id ? (
+                        {editingCandidateTempId === candidate.tempId ? (
                           <input
                             type="text"
                             value={editedCandidateData?.name || ''}
@@ -748,11 +566,11 @@ const AddCandidates = () => {
                             className="add-candidates-input-inline"
                           />
                         ) : (
-                          candidate.name || '-'
+                          candidate.extracted_data.name || '-'
                         )}
                       </td>
                       <td>
-                        {editingCandidateId === candidate.id ? (
+                        {editingCandidateTempId === candidate.tempId ? (
                           <input
                             type="email"
                             value={editedCandidateData?.email || ''}
@@ -760,11 +578,11 @@ const AddCandidates = () => {
                             className="add-candidates-input-inline"
                           />
                         ) : (
-                          candidate.email || '-'
+                          candidate.extracted_data.email || '-'
                         )}
                       </td>
                       <td>
-                        {editingCandidateId === candidate.id ? (
+                        {editingCandidateTempId === candidate.tempId ? (
                           <input
                             type="tel"
                             value={editedCandidateData?.phone || ''}
@@ -772,71 +590,27 @@ const AddCandidates = () => {
                             className="add-candidates-input-inline"
                           />
                         ) : (
-                          candidate.phone || '-'
+                          candidate.extracted_data.phone || '-'
                         )}
                       </td>
                       <td>
-                        {editingCandidateId === candidate.id ? (
-                          <select
-                            value={editedCandidateData?.domain || ''}
-                            onChange={(e) => handleEditCellChange(e, 'domain')}
-                            className="add-candidates-select-inline"
-                          >
-                            <option value="">Select Domain</option>
-                            {candidateDomains.map((domain) => (
-                              <option key={domain} value={domain}>
-                                {domain}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          candidate.domain || '-'
-                        )}
-                      </td>
-                      <td>
-                        {editingCandidateId === candidate.id ? (
-                          <select
-                            value={editedCandidateData?.jobRole || ''}
-                            onChange={(e) => handleEditCellChange(e, 'jobRole')}
-                            className="add-candidates-select-inline"
-                          >
-                            <option value="">Select Job Title</option>
-                            {openJobs.map((job) => (
-                              <option key={job.id} value={job.title}>
-                                {job.title} ({job.companyName})
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          candidate.jobRole || '-'
-                        )}
-                      </td>
-                      <td>
-                        {editingCandidateId === candidate.id ? (
+                        {editingCandidateTempId === candidate.tempId ? (
                           <input
-                            type="text"
-                            value={editedCandidateData?.poc || ''}
-                            onChange={(e) => handleEditCellChange(e, 'poc')}
+                            type="number"
+                            value={editedCandidateData?.work_experience || ''}
+                            onChange={(e) => handleEditCellChange(e, 'work_experience')}
                             className="add-candidates-input-inline"
                           />
                         ) : (
-                          candidate.poc || '-'
+                          candidate.extracted_data.work_experience || '-'
                         )}
                       </td>
-                      <td>
-                        {editingCandidateId === candidate.id ? (
-                          <input
-                            type="text"
-                            value={editedCandidateData?.workExperience || ''}
-                            onChange={(e) => handleEditCellChange(e, 'workExperience')}
-                            className="add-candidates-input-inline"
-                          />
-                        ) : (
-                          candidate.workExperience || '-'
-                        )}
-                      </td>
+                      {/* Display Domain from formData, not editable */}
+                      <td>{getDomainName(parseInt(formData.domain, 10)) || '-'}</td>
+                      {/* Display Job Role from formData, not editable */}
+                      <td>{getJobTitle(parseInt(formData.job_title, 10)) || '-'}</td>
                       <td className="actions-cell">
-                        {editingCandidateId === candidate.id ? (
+                        {editingCandidateTempId === candidate.tempId ? (
                           <div className="action-buttons-group">
                             <button onClick={handleSaveClick} className="save-btn" title="Save">
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -861,7 +635,7 @@ const AddCandidates = () => {
                               <FaEdit />
                             </button>
                             <button
-                              onClick={() => handleDeleteClick(candidate.id)}
+                              onClick={() => handleDeleteClick(candidate.tempId)}
                               className="delete-btn"
                               title="Delete"
                             >
@@ -883,7 +657,7 @@ const AddCandidates = () => {
                           <path d="M12 13V17" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M10 15H14" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <p>No candidates found. Add candidates to see details.</p>
+                        <p>No parsed candidates found. Upload resumes to see details.</p>
                       </div>
                     </td>
                   </tr>
@@ -891,6 +665,17 @@ const AddCandidates = () => {
               </tbody>
             </table>
           </div>
+          {parsedResumeData.length > 0 && (
+            <div className="table-actions">
+              <button
+                className="submit-candidates-btn"
+                onClick={handleSubmitCandidates}
+                disabled={isSubmittingCandidates}
+              >
+                {isSubmittingCandidates ? 'Submitting Candidates...' : 'Submit All Candidates'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -905,6 +690,24 @@ const AddCandidates = () => {
               </button>
               <button className="cancel-delete-btn" onClick={cancelDelete}>
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NEW: Success Modal */}
+      {showSuccessModal && (
+        <div className={`modal-overlay show`}>
+          <div className={`success-modal show`}>
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#3D8E3D"/>
+            </svg>
+            <h3>Success!</h3>
+            <p>{successMessage}</p>
+            <div className="modal-actions">
+              <button className="modal-submit-btn" onClick={closeSuccessModal}>
+                Close
               </button>
             </div>
           </div>

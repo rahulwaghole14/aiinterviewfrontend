@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import "./Candidates.css";
 import { candidateStatusList, baseURL } from '../data';
-import { updateCandidateStatus, setCandidates } from '../redux/slices/candidatesSlice';
+import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Keep updateCandidateStatus
+import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import fetchCandidates thunk
+import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice'; // Import job and domain thunks
 
 const candidateTabsStatusList = [
   "All",
@@ -17,7 +19,7 @@ const candidateTabsStatusList = [
 ];
 
 // Candidate Card Component
-const CandidateCard = ({ candidate, onViewReport }) => {
+const CandidateCard = ({ candidate, onViewReport, getDomainName, getJobTitle }) => { // Pass getDomainName and getJobTitle
   const getStatusBadgeClass = (status) => {
     if (["Requires Action", "Interview Pending"].includes(status)) {
       return "badge-warning";
@@ -34,26 +36,24 @@ const CandidateCard = ({ candidate, onViewReport }) => {
     if (candidate.status === "Interview Scheduled" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
       return `Scheduled: ${candidate.interviewDetails.date} at ${candidate.interviewDetails.time}`;
     } else if (candidate.status === "Evaluated" && candidate.evaluation?.feedback) {
-      // Display evaluation feedback as part of the status
       return `Evaluated: ${candidate.evaluation.score}/10 - ${candidate.evaluation.result}`;
     } else if (candidate.status === "Requires Action" && candidate.aptitude?.score) {
       return `Aptitude: ${candidate.aptitude.score}/100`;
     }
-    return candidate.status || 'N/A'; // Default to 'N/A' if status is missing
+    return candidate.status || 'N/A';
   };
 
   return (
     <div className="candidate-card">
-      <div className="card-left-content"> {/* Added div for left content */}
+      <div className="card-left-content">
         <div className="candidate-info">
           <h3 className="candidate-name">{candidate.name || '-'}</h3>
-          <p className="candidate-role">{candidate.jobRole || '-'}</p>
-          <p className="candidate-domain">{candidate.domain || '-'}</p>
-          {/* Ensure lastUpdated is displayed correctly */}
+          <p className="candidate-role">{getJobTitle(candidate.jobRole) || '-'}</p> {/* Use helper */}
+          <p className="candidate-domain">{getDomainName(candidate.domain) || '-'}</p> {/* Use helper */}
           <p className="candidate-updated">Last Updated: {candidate.lastUpdated ? new Date(candidate.lastUpdated).toLocaleDateString("en-GB") : '-'}</p>
         </div>
       </div>
-      <div className="card-right-actions"> {/* Added div for right actions */}
+      <div className="card-right-actions">
         <div className="candidate-status">
           <span className={`status-badge ${getStatusBadgeClass(candidate.status)}`}>
             {renderStatusDisplay(candidate)}
@@ -71,20 +71,23 @@ const CandidatePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const allCandidates = useSelector((state) => state.candidates.allCandidates);
+  const candidatesStatus = useSelector((state) => state.candidates.candidatesStatus);
+  const candidatesError = useSelector((state) => state.candidates.candidatesError);
+  const allJobs = useSelector((state) => state.jobs.allJobs || []);
+  const domains = useSelector((state) => state.jobs.domains || []);
+  const jobsStatus = useSelector((state) => state.jobs.jobsStatus);
+  const domainsStatus = useSelector((state) => state.jobs.domainsStatus);
   const searchTerm = useSelector((state) => state.search.searchTerm);
-  const allJobs = useSelector((state) => state.jobs.allJobs || []); // Get all jobs from Redux
 
-  // States for filters (temporary, before applying)
   const [filters, setFilters] = useState({
     domain: "",
     jobRole: "",
     poc: "",
-    minWorkExperience: "", // New filter field
-    status: "", // New filter field for dropdown, distinct from tab
+    minWorkExperience: "",
+    status: "",
   });
   const [activeTab, setActiveTab] = useState("All");
 
-  // States for applied filters (used for actual filtering)
   const [appliedFilters, setAppliedFilters] = useState({
     domain: "",
     jobRole: "",
@@ -97,77 +100,45 @@ const CandidatePage = () => {
   const [itemsPerPage] = useState(4);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Function to fetch candidates from the API
-  const fetchCandidates = async () => {
-    try {
-      const authToken = localStorage.getItem('authToken'); // Get token from local storage
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      if (authToken) {
-        headers['Authorization'] = `Token ${authToken}`; // Use "Token" prefix for Django Token authentication
-      } else {
-        // If no token, log out or redirect to login
-        console.error("No authentication token found. Please log in.");
-        navigate('/login'); // Redirect to login page
-        return;
-      }
-
-      const response = await fetch(`${baseURL}/api/candidates/`, { headers });
-      if (!response.ok) {
-        // Log the error response for debugging
-        const errorText = await response.text();
-        console.error(`HTTP error! status: ${response.status}, details: ${errorText}`);
-        throw new Error(`Failed to fetch candidates: ${response.statusText}`);
-      }
-      const data = await response.json();
-
-      let fetchedApiCandidates = data;
-
-      // Map API response to Redux state structure
-      const formattedCandidates = fetchedApiCandidates.map(candidate => ({
-        id: candidate.id,
-        name: candidate.full_name || '-',
-        email: candidate.email || '-',
-        phone: candidate.phone || '-',
-        domain: candidate.domain || '-',
-        jobRole: candidate.job_title || '-', // Map job_title to jobRole
-        poc: candidate.poc_email || '-', // Map poc_email to poc
-        workExperience: candidate.work_experience || 0, // Ensure it's a number
-        status: candidate.status || 'NEW', // Default status if not provided
-        lastUpdated: candidate.last_updated, // Keep as is, will be formatted in CandidateCard
-        applicationDate: candidate.created_at, // Add applicationDate
-        resumes: candidate.resume_url ? [{ name: candidate.resume_url.split('/').pop(), url: candidate.resume_url }] : [], // Handle single resume_url
-        interviewDetails: candidate.interview_details || null, // Ensure this is null if no data
-        evaluation: candidate.evaluation_details || null, // Ensure this is null if no data
-        aptitude: candidate.aptitude_details || null,
-        brChats: candidate.br_chats || [],
-      }));
-      dispatch(setCandidates(formattedCandidates)); // Update Redux store
-    } catch (error) {
-      console.error("Error fetching candidates:", error);
-      // Optionally set an error message state here to display to the user
+  // Fetch candidates, jobs, and domains on component mount if not already loaded
+  useEffect(() => {
+    if (jobsStatus === 'idle') {
+      dispatch(fetchJobs());
     }
+    if (domainsStatus === 'idle') {
+      dispatch(fetchDomains());
+    }
+    // Only fetch candidates if jobs and domains are succeeded or loading,
+    // and candidates themselves are not already loaded/loading.
+    // This ensures that job and domain data is available for candidate filtering/mapping.
+    if (candidatesStatus === 'idle' && jobsStatus !== 'loading' && domainsStatus !== 'loading') {
+      dispatch(fetchCandidates());
+    }
+  }, [dispatch, candidatesStatus, jobsStatus, domainsStatus]);
+
+
+  // Helper function to get domain name by ID
+  const getDomainName = (domainId) => {
+    const domain = domains.find(d => d.id === domainId);
+    return domain ? domain.name : `Domain ${domainId}`;
   };
 
-  // Fetch candidates on component mount and when jobs data changes (user data is no longer a dependency for filtering)
-  useEffect(() => {
-    // We still want to fetch candidates if jobs are loaded, as job titles are used in candidate data
-    if (allJobs.length > 0) {
-      fetchCandidates();
-    }
-  }, [dispatch, navigate, allJobs]); // Removed loggedInUser dependencies
+  // Helper function to get job title by ID
+  const getJobTitle = (jobId) => {
+    const job = allJobs.find(j => j.id === jobId);
+    return job ? job.job_title : `Job ${jobId}`;
+  };
 
   // Dynamically generate unique filter options from allCandidates
   const uniqueDomains = useMemo(() => {
-    const domains = new Set(allCandidates.map(c => c.domain).filter(Boolean));
-    return Array.from(domains).sort();
-  }, [allCandidates]);
+    const domainsSet = new Set(allCandidates.map(c => c.domain).filter(Boolean));
+    return Array.from(domainsSet).map(id => ({ id, name: getDomainName(id) })).sort((a,b) => a.name.localeCompare(b.name));
+  }, [allCandidates, domains]);
 
   const uniqueJobRoles = useMemo(() => {
-    const jobRoles = new Set(allCandidates.map(c => c.jobRole).filter(Boolean));
-    return Array.from(jobRoles).sort();
-  }, [allCandidates]);
+    const jobRolesSet = new Set(allCandidates.map(c => c.jobRole).filter(Boolean));
+    return Array.from(jobRolesSet).map(id => ({ id, title: getJobTitle(id) })).sort((a,b) => a.title.localeCompare(b.title));
+  }, [allCandidates, allJobs]);
 
   const uniquePocs = useMemo(() => {
     const pocs = new Set(allCandidates.map(c => c.poc).filter(Boolean));
@@ -187,14 +158,13 @@ const CandidatePage = () => {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    // When a tab is clicked, also update the status filter in the dropdown
     setFilters(prev => ({ ...prev, status: tab === "All" ? "" : tab }));
   };
 
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
-    setAppliedTab(activeTab); // Keep appliedTab for the visual active tab
-    setCurrentPage(1); // Reset pagination on filter application
+    setAppliedTab(activeTab);
+    setCurrentPage(1);
   };
 
   const handleClearFilters = () => {
@@ -214,39 +184,35 @@ const CandidatePage = () => {
       status: "",
     });
     setAppliedTab("All");
-    setCurrentPage(1); // Reset pagination on clearing filters
+    setCurrentPage(1);
   };
 
   const handleViewDetails = (id) => {
     navigate(`/candidates/${id}`);
   };
 
-  // Filter candidates based on applied tab and applied search term
   const filteredCandidates = allCandidates.filter((candidate) => {
     const lowerCaseSearchTerm = searchTerm ? searchTerm.toLowerCase() : '';
     const lowerCaseCandidateName = candidate.name ? candidate.name.toLowerCase() : '';
     const lowerCaseCandidateEmail = candidate.email ? candidate.email.toLowerCase() : '';
-    const lowerCaseCandidateDomain = candidate.domain ? candidate.domain.toLowerCase() : '';
-    const lowerCaseCandidateJobRole = candidate.jobRole ? candidate.jobRole.toLowerCase() : '';
+    const lowerCaseCandidateDomainName = getDomainName(candidate.domain) ? getDomainName(candidate.domain).toLowerCase() : ''; // Use helper
+    const lowerCaseCandidateJobTitle = getJobTitle(candidate.jobRole) ? getJobTitle(candidate.jobRole).toLowerCase() : ''; // Use helper
     const lowerCaseCandidatePoc = candidate.poc ? candidate.poc.toLowerCase() : '';
     const lowerCaseCandidateStatus = candidate.status ? candidate.status.toLowerCase() : '';
 
-    // Search term filter (global search bar)
     const matchesSearchTerm =
       !searchTerm ||
       lowerCaseCandidateName.includes(lowerCaseSearchTerm) ||
       lowerCaseCandidateEmail.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidateDomain.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidateJobRole.includes(lowerCaseSearchTerm) ||
+      lowerCaseCandidateDomainName.includes(lowerCaseSearchTerm) ||
+      lowerCaseCandidateJobTitle.includes(lowerCaseSearchTerm) ||
       lowerCaseCandidatePoc.includes(lowerCaseSearchTerm) ||
       lowerCaseCandidateStatus.includes(lowerCaseSearchTerm);
 
-    // Tab filter
     const matchesTab = appliedTab === "All" || lowerCaseCandidateStatus === appliedTab.toLowerCase();
 
-    // Form filters
-    const matchesDomain = appliedFilters.domain === "" || lowerCaseCandidateDomain === appliedFilters.domain.toLowerCase();
-    const matchesJobRole = appliedFilters.jobRole === "" || lowerCaseCandidateJobRole === appliedFilters.jobRole.toLowerCase();
+    const matchesDomain = appliedFilters.domain === "" || candidate.domain === parseInt(appliedFilters.domain, 10); // Compare IDs
+    const matchesJobRole = appliedFilters.jobRole === "" || candidate.jobRole === parseInt(appliedFilters.jobRole, 10); // Compare IDs
     const matchesPoc = appliedFilters.poc === "" || lowerCaseCandidatePoc === appliedFilters.poc.toLowerCase();
     const matchesStatusDropdown = appliedFilters.status === "" || lowerCaseCandidateStatus === appliedFilters.status.toLowerCase();
 
@@ -256,7 +222,6 @@ const CandidatePage = () => {
     return matchesSearchTerm && matchesTab && matchesDomain && matchesJobRole && matchesPoc && matchesWorkExperience && matchesStatusDropdown;
   });
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCandidates = filteredCandidates.slice(indexOfFirstItem, indexOfLastItem);
@@ -266,14 +231,13 @@ const CandidatePage = () => {
 
   return (
     <div className="candidate-page-wrapper">
-      <div className="candidates-main-content fixed-grid"> {/* Main content grid */}
-        {/* Filter Sidebar */}
+      <div className="candidates-main-content fixed-grid">
         <div className="filter-sidebar-section card">
           <div className="filter-header">
             <h3>Filters</h3>
             <button className="clear-filters" onClick={handleClearFilters}>Clear Filters</button>
           </div>
-          <div className="form-box"> {/* Using form-box for consistent styling */}
+          <div className="form-box">
             <div className="filter-group">
               <label htmlFor="domainFilter">Domain</label>
               <select
@@ -282,11 +246,12 @@ const CandidatePage = () => {
                 value={filters.domain}
                 onChange={handleFilterChange}
                 className="add-candidates-select"
+                disabled={domainsStatus === 'loading'}
               >
                 <option value="">All Domains</option>
                 {uniqueDomains.map((domain) => (
-                  <option key={domain} value={domain}>
-                    {domain}
+                  <option key={domain.id} value={domain.id}>
+                    {domain.name}
                   </option>
                 ))}
               </select>
@@ -299,11 +264,12 @@ const CandidatePage = () => {
                 value={filters.jobRole}
                 onChange={handleFilterChange}
                 className="add-candidates-select"
+                disabled={jobsStatus === 'loading'}
               >
                 <option value="">All Job Roles</option>
                 {uniqueJobRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                  <option key={role.id} value={role.id}>
+                    {role.title}
                   </option>
                 ))}
               </select>
@@ -356,16 +322,14 @@ const CandidatePage = () => {
               </select>
             </div>
           </div>
-          <div className="form-actions"> {/* Using form-actions for consistent button styling */}
+          <div className="form-actions">
             <button className="submit-btn" onClick={handleApplyFilters}>
               Apply Filters
             </button>
           </div>
         </div>
 
-        {/* Candidate Details Section */}
         <div className="candidate-details-section card">
-          {/* Status Tabs - Moved inside candidate-details-section */}
           <div className="candidate-status-tabs-container">
             {candidateTabsStatusList.map((tab) => (
               <div
@@ -378,13 +342,22 @@ const CandidatePage = () => {
             ))}
           </div>
           <h2 className="section-title">Candidate List</h2>
-          <div className="candidate-list"> {/* This is the grid for cards */}
-            {currentCandidates.length > 0 ? (
+          <div className="candidate-list">
+            {candidatesStatus === 'loading' || jobsStatus === 'loading' || domainsStatus === 'loading' ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading candidates...</p>
+              </div>
+            ) : candidatesError ? (
+              <p className="error-message">Error loading candidates: {candidatesError}</p>
+            ) : currentCandidates.length > 0 ? (
               currentCandidates.map((candidate) => (
                 <CandidateCard
                   key={candidate.id}
                   candidate={candidate}
                   onViewReport={handleViewDetails}
+                  getDomainName={getDomainName} // Pass helper
+                  getJobTitle={getJobTitle} // Pass helper
                 />
               ))
             ) : (
@@ -392,7 +365,6 @@ const CandidatePage = () => {
             )}
           </div>
 
-          {/* Pagination Controls */}
           {filteredCandidates.length > itemsPerPage && (
             <div className="pagination-container">
               <button
@@ -410,7 +382,7 @@ const CandidatePage = () => {
                 >
                   {i + 1}
                 </button>
-              ))}\
+              ))}
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}

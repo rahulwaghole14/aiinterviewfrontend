@@ -30,3 +30,5 @@ export const jobStatusList = [
 
 // searchableItems will now be dynamically generated in Header.jsx based on fetched data
 export const searchableItems = [];
+
+// Removed initialHiringAgencies as data will be fetched from API

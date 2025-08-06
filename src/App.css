@@ -788,6 +788,7 @@ body, html {
 
 .profile-form .form-group label {
   display: block;
+  justify-items: center;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--color-text);

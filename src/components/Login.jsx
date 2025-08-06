@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/slices/userSlice';
-import { setJobs } from '../redux/slices/jobsSlice';
+import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
+import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import the new async thunk for candidates
 import { baseURL } from '../data';
 import './Login.css';
 
@@ -40,8 +41,21 @@ const Login = ({ onLogin }) => {
         const loginData = await loginResponse.json();
         // Store the authentication token
         localStorage.setItem('authToken', loginData.token);
+        // Store user data in local storage
+        localStorage.setItem('userData', JSON.stringify(loginData.user));
+
+        // Log the user data received from the API before dispatching
+        console.log("Login.jsx - User data from API:", loginData.user);
+
         // Dispatch user data to Redux store
         dispatch(setUser(loginData.user));
+
+        // Step 2: Dispatch async thunks to load jobs, domains, and candidates into Redux store
+        // These will handle their own loading states internally
+        dispatch(fetchJobs());
+        dispatch(fetchDomains());
+        dispatch(fetchCandidates()); // Dispatch fetchCandidates here
+
         if (onLogin) onLogin();
         navigate('/dashboard'); // Redirect to dashboard on successful login
       } else {

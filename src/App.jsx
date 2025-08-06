@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation, Route, Routes, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from './redux/actions/searchActions';
+import { setUser, clearUser } from './redux/slices/userSlice'; // Import setUser and clearUser
 
 import SideBar from './components/SideBar';
 import Header from './components/Header';
@@ -72,6 +73,32 @@ function App() {
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [headerTitle, setHeaderTitle] = useState(getInitialHeaderTitle());
+
+  // Effect to initialize Redux user state from localStorage on app load
+  useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      try {
+        const user = JSON.parse(storedUserData);
+        dispatch(setUser(user));
+        // Ensure isLoggedIn state is consistent with localStorage
+        if (!isLoggedIn) {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage:", error);
+        // Clear invalid data and log out if parsing fails
+        localStorage.removeItem('userData');
+        localStorage.removeItem('authToken');
+        dispatch(clearUser());
+        setIsLoggedIn(false);
+        navigate('/login');
+      }
+    } else {
+      // If no user data, ensure Redux state is cleared
+      dispatch(clearUser());
+    }
+  }, [dispatch, isLoggedIn, navigate]); // Added isLoggedIn and navigate to dependencies
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -172,15 +199,18 @@ function App() {
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
-    window.location.reload();
+    // User data is already set in localStorage and dispatched to Redux by Login.jsx
+    navigate('/dashboard'); // Navigate to dashboard
+    window.location.reload(); // Force a full page reload after navigation
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
-    navigate('/login');
-    window.location.reload();
+    dispatch(clearUser()); // Clear user from Redux state on logout
+    navigate('/login'); // Navigate to login page
+    window.location.reload(); // Force a full page reload after navigation
   };
 
   const handleProfileMenuItemClick = (item) => {

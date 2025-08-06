@@ -1,54 +1,12 @@
 // src/components/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import './Dashboard.css'; // Assuming you have or will create Dashboard.css
+import { useSelector, useDispatch } from 'react-redux'; // Import useSelector and useDispatch
+import './Dashboard.css';
+import { fetchDashboardData } from '../redux/slices/dashboardSlice'; // Import the async thunk
+import { baseURL } from '../data';
 
-// Dummy Data for Dashboard (replace with actual data from Redux/API)
-const dashboardData = {
-  totalHiringAgencies: 15,
-  totalCandidates: 1250,
-  totalInterviews: 320,
-  totalJobs: 75, // Added Total Jobs
-  
-  candidatesHiredPerYear: [
-    { year: 2020, count: 80 },
-    { year: 2021, count: 120 },
-    { year: 2022, count: 150 },
-    { year: 2023, count: 180 },
-    { year: 2024, count: 220 },
-  ],
-  agenciesIncreasedPerYear: [
-    { year: 2020, count: 2 },
-    { year: 2021, count: 3 },
-    { year: 2022, count: 5 },
-    { year: 2023, count: 4 },
-    { year: 2024, count: 6 },
-  ],
-  jobsIncreasedPerYear: [
-    { year: 2020, count: 15 },
-    { year: 2021, count: 25 },
-    { year: 2022, count: 30 },
-    { year: 2023, count: 28 },
-    { year: 2024, count: 35 },
-  ],
-
-  recentActivities: [
-    { id: 'act1', type: 'candidate_added', name: 'Alice Johnson', date: '2024-07-23', detail: 'New candidate added for Senior Developer' },
-    { id: 'act2', type: 'agency_added', name: 'Talent Scout LLC', date: '2024-07-22', detail: 'New hiring agency partnered' },
-    { id: 'act3', type: 'interview_scheduled', name: 'Bob Williams', date: '2024-07-21', detail: 'Interview scheduled for Marketing Manager' },
-    { id: 'act4', type: 'candidate_hired', name: 'Charlie Davis', date: '2024-07-20', detail: 'Hired for UI/UX Designer position' },
-    { id: 'act5', type: 'job_posted', name: 'Senior Data Scientist', date: '2024-07-19', detail: 'New job opening posted' },
-    { id: 'act6', type: 'interview_completed', name: 'Diana Miller', date: '2024-07-18', detail: 'Final interview completed' },
-    { id: 'act7', type: 'agency_removed', name: 'Old Staffing Co.', date: '2024-07-17', detail: 'Hiring agency partnership ended' },
-    { id: 'act8', type: 'candidate_added', name: 'Eve White', date: '2024-07-16', detail: 'New candidate added for Project Lead' },
-    { id: 'act9', type: 'job_closed', name: 'Junior QA Engineer', date: '2024-07-15', detail: 'Job opening closed' },
-    { id: 'act10', type: 'interview_scheduled', name: 'Frank Black', date: '2024-07-14', detail: 'Round 1 interview scheduled for Backend Dev' },
-    { id: 'act11', type: 'candidate_hired', name: 'Grace Green', date: '2024-07-13', detail: 'Hired for Cloud Engineer role' },
-    { id: 'act12', type: 'agency_added', name: 'Elite Recruiters', date: '2024-07-12', detail: 'New agency added' },
-  ],
-};
-
-// Reusable BarChart Component
-const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix }) => {
+// Reusable BarChart Component (custom implementation)
+const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
   if (!data || data.length === 0) {
     return <div className="chart-container no-data">No data available for {title}.</div>;
   }
@@ -64,7 +22,7 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix }) => {
         <div className="chart-bars">
           {data.map((item, index) => (
             <div
-              key={item.year}
+              key={item[dataKey]}
               className="chart-bar"
               style={{ height: `${(item.count / maxCount) * 100}%` }}
               onMouseEnter={() => setHoveredBar({ ...item, index })}
@@ -81,147 +39,218 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix }) => {
       </div>
       <div className="chart-x-axis">
         {data.map(item => (
-          <span key={item.year} className="x-axis-label">{item.year}</span>
+          <span key={item[dataKey]} className="x-axis-label">{item[dataKey]}</span>
         ))}
       </div>
-      <div className="x-axis-title">{xLabel}</div>
+      <div className="x-x-axis-title">{xLabel}</div>
     </div>
   );
 };
 
 
 const Dashboard = () => {
-  useEffect(() => {
-    // This effect runs when the component mounts
-    // You can fetch data here if needed
-  }, []);
+  const dispatch = useDispatch();
+  const dashboardData = useSelector((state) => state.dashboard.dashboardData);
+  const loading = useSelector((state) => state.dashboard.status === 'loading');
+  const error = useSelector((state) => state.dashboard.error);
 
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Display 5 items per page for recent activities
+  const itemsPerPage = 5;
 
-  // Calculate items for the current page
+  useEffect(() => {
+    // Dispatch fetchDashboardData only if it hasn't been fetched or is not currently loading
+    if (dashboardData === null && !loading && !error) {
+      dispatch(fetchDashboardData());
+    }
+  }, [dispatch, dashboardData, loading, error]); // Dependencies to re-run effect
+
+  if (error) {
+    return <div className="error-container">Error: {error}</div>;
+  }
+
+  if (!dashboardData && loading) {
+     return (
+      <div className="dashboard-container is-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return <div className="error-container">No dashboard data available.</div>;
+  }
+
+  const allRecentActivities = [
+    ...(dashboardData?.resume_stats?.recent_uploads || []).map(item => ({
+      id: item.id,
+      name: item.file.split('/').pop(),
+      detail: `Resume uploaded: ${item.file}`,
+      date: new Date(item.uploaded_at).toLocaleDateString(),
+      type: 'resume_upload',
+      timestamp: new Date(item.uploaded_at).getTime(),
+    })),
+    ...(dashboardData?.candidate_stats?.recent_candidates || []).map(item => ({
+      id: item.id,
+      name: item.full_name || 'N/A',
+      detail: `Candidate added in ${item.domain} domain with status ${item.status}`,
+      date: new Date(item.created_at).toLocaleDateString(),
+      type: 'new_candidate',
+      timestamp: new Date(item.created_at).getTime(),
+    })),
+    ...(dashboardData?.job_stats?.recent_jobs || []).map(item => ({
+      id: item.id,
+      name: item.job_title,
+      detail: `New job posted at ${item.company_name} (${item.position_level})`,
+      date: new Date(item.created_at).toLocaleDateString(),
+      type: 'job_posted',
+      timestamp: new Date(item.created_at).getTime(),
+    })),
+    ...(dashboardData?.activity_data?.recent_activities || []).map(item => ({
+       id: item.id,
+       name: item.name,
+       detail: item.detail,
+       date: new Date(item.date).toLocaleDateString(),
+       type: item.type,
+       timestamp: new Date(item.date).getTime(),
+    })),
+  ].sort((a, b) => b.timestamp - a.timestamp);
+
   const indexOfLastActivity = currentPage * itemsPerPage;
   const indexOfFirstActivity = indexOfLastActivity - itemsPerPage;
-  const currentActivities = dashboardData.recentActivities.slice(indexOfFirstActivity, indexOfLastActivity);
+  const currentActivities = allRecentActivities.slice(indexOfFirstActivity, indexOfLastActivity);
+  const totalPages = Math.ceil(allRecentActivities.length / itemsPerPage);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(dashboardData.recentActivities.length / itemsPerPage);
-
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="dashboard-container">
-      {/* Top Cards Section */}
-      <div className="dashboard-cards-container">
-        <div className="dashboard-card card">
-          <h3>Total Hiring Agencies</h3>
-          <p>{dashboardData.totalHiringAgencies}</p>
-        </div>
-        <div className="dashboard-card card">
-          <h3>Total Candidates</h3>
-          <p>{dashboardData.totalCandidates}</p>
-        </div>
-        <div className="dashboard-card card">
-          <h3>Total Interviews</h3>
-          <p>{dashboardData.totalInterviews}</p>
-        </div>
-        <div className="dashboard-card card"> {/* New card for Total Jobs */}
-          <h3>Total Jobs</h3>
-          <p>{dashboardData.totalJobs}</p>
-        </div>
-      </div>
-
-      {/* Graphs Section */}
-      <div className="dashboard-graphs-container">
-        <BarChart
-          data={dashboardData.candidatesHiredPerYear}
-          title="Candidates Hired Per Year"
-          xLabel="Year"
-          yLabel="Candidates"
-          tooltipLabelPrefix="Hired"
-        />
-        <BarChart
-          data={dashboardData.agenciesIncreasedPerYear}
-          title="Hiring Agencies Growth Per Year"
-          xLabel="Year"
-          yLabel="Agencies Added"
-          tooltipLabelPrefix="Agencies"
-        />
-        <BarChart
-          data={dashboardData.jobsIncreasedPerYear}
-          title="Jobs Posted Per Year"
-          xLabel="Year"
-          yLabel="Jobs"
-          tooltipLabelPrefix="Jobs"
-        />
-      </div>
-
-      {/* Recent Activity Table */}
-      <div className="dashboard-recent-activity card">
-        <h3 className="table-title">New Candidates, Hiring Agencies, and Latest Updates</h3>
-        <div className="table-responsive">
-          <table className="activity-table">
-            <thead>
-              <tr>
-                <th>Name/Subject</th>
-                <th>Detail</th>
-                <th>Date</th>
-                <th>Category</th> {/* Changed from Type to Category */}
-              </tr>
-            </thead>
-            <tbody>
-              {currentActivities.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="no-results">No recent activities.</td>
-                </tr>
-              ) : (
-                currentActivities.map((activity) => (
-                  <tr key={activity.id}>
-                    <td>{activity.name}</td>
-                    <td>{activity.detail}</td>
-                    <td>{activity.date}</td>
-                    <td>
-                      <span className={`activity-type-badge ${activity.type}`}>
-                        {activity.type.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="pagination-btn"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => paginate(i + 1)}
-                className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="pagination-btn"
-            >
-              Next
-            </button>
+    <div className={`dashboard-container ${loading ? 'is-loading' : ''}`}>
+      <main className="dashboard-main-content">
+        <section className="dashboard-section card-section">
+          <div className="dashboard-cards-container">
+            <div className="dashboard-card">
+              <h3>Total Resumes Uploaded</h3>
+              <p>{dashboardData.resume_stats.total_uploads}</p>
+            </div>
+            <div className="dashboard-card">
+              <h3>Total Candidates</h3>
+              <p>{dashboardData.candidate_stats.total_candidates}</p>
+            </div>
+            <div className="dashboard-card">
+              <h3>Total Jobs</h3>
+              <p>{dashboardData.job_stats.total_jobs}</p>
+            </div>
+            <div className="dashboard-card">
+              <h3>Total Interviews</h3>
+              <p>{dashboardData.interview_stats.total_interviews}</p>
+            </div>
           </div>
-        )}
-      </div>
+        </section>
+
+        <section className="dashboard-section dashboard-graphs-container">
+          <BarChart
+            data={dashboardData.candidate_stats.domain_distribution}
+            title="Candidate Domain Distribution"
+            xLabel="Domain"
+            yLabel="Candidates"
+            tooltipLabelPrefix="Candidates"
+            dataKey="domain"
+          />
+          {dashboardData.resume_stats.daily_trend.length > 0 && (
+            <BarChart
+              data={dashboardData.resume_stats.daily_trend}
+              title="Resume Uploads Daily Trend"
+              xLabel="Date"
+              yLabel="Uploads"
+              tooltipLabelPrefix="Uploads"
+              dataKey="date"
+            />
+          )}
+          {dashboardData.job_stats.level_distribution.length > 0 && (
+            <BarChart
+              data={dashboardData.job_stats.level_distribution}
+              title="Job Level Distribution"
+              xLabel="Level"
+              yLabel="Jobs"
+              tooltipLabelPrefix="Jobs"
+              dataKey="position_level"
+            />
+          )}
+          {dashboardData.interview_stats.daily_trend.length > 0 && (
+            <BarChart
+              data={dashboardData.interview_stats.daily_trend}
+              title="Interview Daily Trend"
+              xLabel="Date"
+              yLabel="Interviews"
+              tooltipLabelPrefix="Interviews"
+              dataKey="date"
+            />
+          )}
+        </section>
+
+        <section className="dashboard-recent-activity">
+          <h3 className="table-title">Recent Activities</h3>
+          <div className="table-responsive">
+            <table className="activity-table">
+              <thead>
+                <tr>
+                  <th>Name/Subject</th>
+                  <th>Detail</th>
+                  <th>Date</th>
+                  <th>Category</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentActivities.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="no-results">No recent activities to display.</td>
+                  </tr>
+                ) : (
+                  currentActivities.map((activity) => (
+                    <tr key={activity.id}>
+                      <td>{activity.name}</td>
+                      <td>{activity.detail}</td>
+                      <td>{activity.date}</td>
+                      <td>
+                        <span className={`activity-type-badge ${activity.type}`}>
+                          {activity.type.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="pagination-btn"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="pagination-btn"
+              >
+                  Next
+              </button>
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 };

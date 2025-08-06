@@ -2,28 +2,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiChevronLeft, FiX } from 'react-icons/fi';
-import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Only updateCandidateStatus is needed here
-import { candidateStatusList, baseURL } from '../data';
+import { updateCandidateStatus } from '../redux/slices/candidatesSlice';
+import { baseURL } from '../data';
 import DatePicker from "react-datepicker";
 import TimePicker from 'react-time-picker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-time-picker/dist/TimePicker.css';
 import "./CandidateDetails.css";
-import { useSelector } from 'react-redux'; // Import useSelector to get jobs data
+import { useSelector } from 'react-redux'; // Import useSelector to get jobs and domains data
 
 // Interview Modal
 const InterviewDetailModal = ({ interviewDetails, onClose }) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // Trigger animation when component mounts
     setShowModal(true);
   }, []);
 
   const handleClose = () => {
     setShowModal(false);
-    // Delay onClose to allow animation to complete
-    setTimeout(onClose, 300); // Match CSS transition duration
+    setTimeout(onClose, 300);
   };
 
   return (
@@ -60,14 +58,12 @@ const EvaluationDetailModal = ({ evaluation, onClose }) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // Trigger animation when component mounts
     setShowModal(true);
   }, []);
 
   const handleClose = () => {
     setShowModal(false);
-    // Delay onClose to allow animation to complete
-    setTimeout(onClose, 300); // Match CSS transition duration
+    setTimeout(onClose, 300);
   };
 
   return (
@@ -101,14 +97,12 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
   const allJobs = useSelector((state) => state.jobs.allJobs); // Get all jobs from Redux
 
   useEffect(() => {
-    // Trigger animation when component mounts
     setShowModal(true);
   }, []);
 
   const handleClose = () => {
     setShowModal(false);
-    // Delay onClose to allow animation to complete
-    setTimeout(onClose, 300); // Match CSS transition duration
+    setTimeout(onClose, 300);
   };
 
   const processSteps = [
@@ -119,7 +113,6 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     "Evaluated"
   ];
 
-  // Derive currentStepIndex directly from candidate.status
   const currentStepIndex = processSteps.indexOf(candidate.status);
   const currentProcessStatus = processSteps[currentStepIndex];
 
@@ -130,7 +123,6 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
   const [evaluationScore, setEvaluationScore] = useState(candidate?.evaluation?.score || '');
   const [evaluationResult, setEvaluationResult] = useState(candidate?.evaluation?.result || '');
 
-  // Validation Error States
   const [dateError, setDateError] = useState('');
   const [timeError, setTimeError] = useState('');
   const [durationError, setDurationError] = useState('');
@@ -148,7 +140,7 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
   };
 
   const isFormValid = () => {
-    resetErrors(); // Clear errors on validation attempt
+    resetErrors();
     let isValid = true;
 
     switch (currentProcessStatus) {
@@ -189,28 +181,27 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     return isValid;
   };
 
-  // This function now takes the target status to save as an argument
   const handleSaveCurrentStepData = async (statusToUpdate, updatedFormData = {}) => {
     let payloadData = updatedFormData;
 
-    // Logic to prepare payload based on the current step and form fields
     if (currentProcessStatus === "Interview Pending" && statusToUpdate === "Interview Scheduled") {
       if (!isFormValid()) return;
 
-      const job = allJobs.find(job => job.title === candidate.jobRole);
+      // Find the job using the jobRole (which is job ID from API)
+      const job = allJobs.find(job => job.id === candidate.jobRole);
       if (!job) {
-        console.error("Job not found for candidate's job role:", candidate.jobRole);
+        console.error("Job not found for candidate's job role ID:", candidate.jobRole);
         return;
       }
 
-      const startDate = interviewDate.toISOString().split("T")[0]; // YYYY-MM-DD
+      const startDate = interviewDate.toISOString().split("T")[0];
       const [hours, minutes] = interviewTime.split(':');
-      const scheduledAt = new Date(`${startDate}T${hours}:${minutes}:00Z`); // Assuming UTC for simplicity
+      const scheduledAt = new Date(`${startDate}T${hours}:${minutes}:00Z`);
 
       const interviewPayload = {
         candidate: candidate.id,
         job: job.id,
-        interview_round: 1, // Assuming first round for now
+        interview_round: 1,
         started_at: scheduledAt.toISOString(),
         status: "SCHEDULED"
       };
@@ -219,7 +210,7 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
         const authToken = localStorage.getItem('authToken');
         const headers = {
           'Content-Type': 'application/json',
-          ...(authToken && { 'Authorization': `Token ${authToken}` }) // Conditionally add auth header
+          ...(authToken && { 'Authorization': `Token ${authToken}` })
         };
 
         const response = await fetch(`${baseURL}/api/interviews/`, {
@@ -237,18 +228,16 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
         const interviewResponse = await response.json();
         console.log("Interview scheduled successfully:", interviewResponse);
 
-        // Update local data that will be passed to onSave for candidate PATCH
-        // Use data from the API response if available, otherwise placeholders
         payloadData.interviewDetails = {
           date: startDate,
           time: interviewTime,
-          duration: interviewResponse.duration || "30 minutes", // Use API response or default
-          interviewer: interviewResponse.interviewer || "Auto-assigned", // Placeholder
-          type: interviewResponse.interview_type || "Technical", // Placeholder
-          platform: interviewResponse.platform || "Google Meet", // Placeholder
-          link: interviewResponse.meeting_link || "https://meet.google.com/xyz-abc", // Placeholder
-          agenda: interviewResponse.agenda || "Technical assessment", // Placeholder
-          notes: interviewResponse.notes || "Initial screening interview", // Placeholder
+          duration: interviewResponse.duration || "30 minutes",
+          interviewer: interviewResponse.interviewer || "Auto-assigned",
+          type: interviewResponse.interview_type || "Technical",
+          platform: interviewResponse.platform || "Google Meet",
+          link: interviewResponse.meeting_link || "https://meet.google.com/xyz-abc",
+          agenda: interviewResponse.agenda || "Technical assessment",
+          notes: interviewResponse.notes || "Initial screening interview",
         };
       } catch (apiError) {
         console.error("API call failed during interview scheduling:", apiError);
@@ -265,11 +254,7 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
       };
     }
 
-    // Call onSave which will PATCH the candidate status and re-fetch details
     await onSave(statusToUpdate, payloadData);
-    
-    // Close the modal only after the save operation (and re-fetch in parent) is complete
-    // This prevents the modal from re-rendering with stale data
     onClose();
   };
 
@@ -277,13 +262,11 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     const nextStepIndex = currentStepIndex + 1;
     if (nextStepIndex < processSteps.length) {
       const nextStatus = processSteps[nextStepIndex];
-      // Check if current step requires form validation before proceeding
       if (currentProcessStatus === "Interview Pending" || currentProcessStatus === "Interview Completed") {
         if (isFormValid()) {
           handleSaveCurrentStepData(nextStatus);
         }
       } else {
-        // For steps like "Requires Action" where no form is present, just trigger the save for the next status
         handleSaveCurrentStepData(nextStatus);
       }
     }
@@ -293,19 +276,16 @@ const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
     const prevStepIndex = currentStepIndex - 1;
     if (prevStepIndex >= 0) {
       const prevStatus = processSteps[prevStepIndex];
-      // For going back, we typically just update the status without sending form data
-      // and then close the modal.
-      onSave(prevStatus, {}); // This will trigger re-fetch in parent
-      onClose(); // Close the modal immediately after triggering the save
+      onSave(prevStatus, {});
+      onClose();
     }
   };
 
   const handleSaveFinalStatus = (finalStatus) => {
     onSave(finalStatus, {});
-    handleClose(); // Close modal after final status selection
+    handleClose();
   };
 
-  // Show Next button if not on the last step and not "Evaluated" (as "Evaluated" branches to Hired/Rejected)
   const showNextButton = currentStepIndex < processSteps.length - 1 && currentProcessStatus !== "Evaluated";
 
   return (
@@ -432,6 +412,23 @@ const CandidateDetails = ({ onTitleChange }) => {
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [showEvaluationModal, setShowEvaluationModal] = useState(false);
 
+  // Get jobs and domains from Redux for mapping IDs to names
+  const allJobs = useSelector((state) => state.jobs.allJobs || []);
+  const domains = useSelector((state) => state.jobs.domains || []);
+
+  // Helper function to get domain name by ID
+  const getDomainName = (domainId) => {
+    const domain = domains.find(d => d.id === domainId);
+    return domain ? domain.name : `Domain ${domainId}`;
+  };
+
+  // Helper function to get job title by ID
+  const getJobTitle = (jobId) => {
+    const job = allJobs.find(j => j.id === jobId);
+    return job ? job.job_title : `Job ${jobId}`;
+  };
+
+
   // Function to fetch a single candidate's details from the API
   const fetchCandidateDetails = async (candidateId) => {
     setLoading(true);
@@ -462,16 +459,15 @@ const CandidateDetails = ({ onTitleChange }) => {
         id: apiCandidate.id,
         name: apiCandidate.full_name || '-',
         email: apiCandidate.email || '-',
-        phone: apiCandidate.phone || '-',
-        domain: apiCandidate.domain || '-',
-        jobRole: apiCandidate.job_title || '-',
+        phone: apiCandidate.phone_number || '-', // Changed from phone
+        domain: apiCandidate.domain || '-', // This is the domain ID
+        jobRole: apiCandidate.job_title || '-', // This is the job ID
         poc: apiCandidate.poc_email || '-',
-        workExperience: apiCandidate.work_experience || '-',
+        workExperience: apiCandidate.experience_years || '-',
         status: apiCandidate.status || 'NEW',
         lastUpdated: apiCandidate.last_updated ? new Date(apiCandidate.last_updated).toLocaleDateString("en-GB") : '-',
         applicationDate: apiCandidate.created_at ? new Date(apiCandidate.created_at).toLocaleDateString("en-GB") : '-',
-        resumes: apiCandidate.resume_url ? [{ name: apiCandidate.resume_url.split('/').pop(), url: apiCandidate.resume_url }] : [],
-        // Map interview_details and evaluation_details directly from API response
+        resumes: apiCandidate.resume_file ? [{ name: apiCandidate.resume_file.split('/').pop(), url: apiCandidate.resume_file }] : [],
         interviewDetails: apiCandidate.interview_details ? {
           date: apiCandidate.interview_details.started_at ? new Date(apiCandidate.interview_details.started_at).toLocaleDateString("en-GB") : '-',
           time: apiCandidate.interview_details.started_at ? new Date(apiCandidate.interview_details.started_at).toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' }) : '-',
@@ -505,13 +501,15 @@ const CandidateDetails = ({ onTitleChange }) => {
   };
 
   useEffect(() => {
-    if (id) {
+    // Ensure jobs and domains are loaded before fetching candidate details
+    // This is crucial for getDomainName and getJobTitle to work correctly
+    if (id && allJobs.length > 0 && domains.length > 0) {
       fetchCandidateDetails(id);
     }
     if (onTitleChange) {
       onTitleChange('Candidate Details');
     }
-  }, [id, onTitleChange, navigate]);
+  }, [id, onTitleChange, navigate, allJobs, domains]); // Add allJobs and domains to dependencies
 
   const handleSaveStatus = async (newStatus, updatedData) => {
     try {
@@ -531,9 +529,7 @@ const CandidateDetails = ({ onTitleChange }) => {
         status: newStatus,
       };
 
-      // Conditionally add interview_details or evaluation_details if present in updatedData
       if (updatedData.interviewDetails) {
-        // Map back to API expected format if necessary, or ensure it's already in that format
         payload.interview_details = {
           started_at: new Date(`${updatedData.interviewDetails.date}T${updatedData.interviewDetails.time}:00Z`).toISOString(),
           duration: updatedData.interviewDetails.duration,
@@ -543,7 +539,7 @@ const CandidateDetails = ({ onTitleChange }) => {
           meeting_link: updatedData.interviewDetails.link,
           agenda: updatedData.interviewDetails.agenda,
           notes: updatedData.interviewDetails.notes,
-          status: "SCHEDULED", // Assuming status is handled during interview scheduling
+          status: "SCHEDULED",
         };
       }
       if (updatedData.evaluation) {
@@ -551,7 +547,7 @@ const CandidateDetails = ({ onTitleChange }) => {
           score: updatedData.evaluation.score,
           result: updatedData.evaluation.result,
           feedback: updatedData.evaluation.feedback,
-          strengths: updatedData.evaluation.strengths || '', // Add these fields
+          strengths: updatedData.evaluation.strengths || '',
           areas_for_improvement: updatedData.evaluation.areasForImprovement || '',
           recommendation: updatedData.evaluation.recommendation || '',
           interview_duration: updatedData.evaluation.interviewDuration,
@@ -570,7 +566,7 @@ const CandidateDetails = ({ onTitleChange }) => {
         throw new Error(`Failed to update candidate status: ${response.statusText}`);
       }
 
-      fetchCandidateDetails(id); // Re-fetch candidate details to update UI
+      fetchCandidateDetails(id);
 
     } catch (err) {
       console.error("Error updating candidate status:", err);
@@ -579,9 +575,9 @@ const CandidateDetails = ({ onTitleChange }) => {
 
   if (loading) {
     return (
-      <div className="candidate-not-found-container">
-        <h2>Loading Candidate Details...</h2>
-        <p>Please wait.</p>
+      <div className="candidate-details-layout loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading Candidate Details...</p>
       </div>
     );
   }
@@ -622,29 +618,27 @@ const CandidateDetails = ({ onTitleChange }) => {
     }
   };
 
-  // Function to truncate text based on screen width
   const truncateResumeName = (name) => {
-    // Check if the screen width is less than a certain breakpoint (e.g., 768px for mobile)
-    if (window.innerWidth <= 767) { // Corresponds to the @media (max-width: 767px) in CSS
+    if (window.innerWidth <= 767) {
       if (!name) return '';
-      const maxLength = 10; // Truncate to 10 characters on mobile
+      const maxLength = 10;
       return name.length <= maxLength ? name : name.substring(0, maxLength) + '...';
     }
-    return name; // Show full name on larger screens
+    return name;
   };
 
   return (
     <div className="candidate-details-layout">
       <div className="candidate-details-left-panel">
-        <div className="candidate-details-content card"> {/* Main candidate info card */}
-          <div className="back-button-container"> {/* Back button inside the card */}
+        <div className="candidate-details-content card">
+          <div className="back-button-container">
             <button onClick={() => navigate('/candidates')} className="back-button">
               <FiChevronLeft size={24} /> Back to Candidates
             </button>
           </div>
 
           <h1 className="candidate-name-display">{candidate.name || '-'}</h1>
-          <p className="candidate-role-display">{candidate.jobRole || '-'}</p>
+          <p className="candidate-role-display">{getJobTitle(candidate.jobRole) || '-'}</p> {/* Use helper */}
           <span className={`status-badge ${getStatusBadgeClass(candidate.status)}`}>
             {candidate.status || 'NEW'}
           </span>
@@ -652,7 +646,7 @@ const CandidateDetails = ({ onTitleChange }) => {
           <div className="details-grid">
             <p><strong>Email:</strong> {candidate.email || '-'}</p>
             <p><strong>Phone:</strong> {candidate.phone || '-'}</p>
-            <p><strong>Domain:</strong> {candidate.domain || '-'}</p>
+            <p><strong>Domain:</strong> {getDomainName(candidate.domain) || '-'}</p> {/* Use helper */}
             <p><strong>Work Experience:</strong> {candidate.workExperience || '-'} years</p>
             <p><strong>Application Date:</strong> {candidate.applicationDate || '-'}</p>
             <p><strong>Last Updated:</strong> {candidate.lastUpdated || '-'}</p>
@@ -685,14 +679,11 @@ const CandidateDetails = ({ onTitleChange }) => {
       </div>
 
       <div className="candidate-details-right-panel">
-        {/* POC Details Section */}
         <div className="poc-details-section card">
           <h3>POC Details</h3>
           <p><strong>POC Email:</strong> {candidate.poc || '-'}</p>
-          {/* Add other POC related details if available in your API response */}
         </div>
 
-        {/* Interview Details Summary Card */}
         <div className="interview-summary-card card" onClick={() => setShowInterviewModal(true)}>
           <h3>Interview Details</h3>
           {candidate.interviewDetails ? (
@@ -707,7 +698,6 @@ const CandidateDetails = ({ onTitleChange }) => {
           )}
         </div>
 
-        {/* Evaluation Details Summary Card */}
         <div className="evaluation-summary-card card" onClick={() => setShowEvaluationModal(true)}>
           <h3>Evaluation Details</h3>
           {candidate.evaluation ? (
@@ -722,16 +712,6 @@ const CandidateDetails = ({ onTitleChange }) => {
             <p>Evaluation needs to be completed.</p>
           )}
         </div>
-
-        {/* Placeholder for BR Chats or Aptitude if needed in the future */}
-        {/* <div className="br-chats-section card">
-          <h3>BR Chats</h3>
-          <p>No chat history available.</p>
-        </div>
-        <div className="aptitude-details-section card">
-          <h3>Aptitude Score</h3>
-          <p>Score: -</p>
-        </div> */}
       </div>
 
 

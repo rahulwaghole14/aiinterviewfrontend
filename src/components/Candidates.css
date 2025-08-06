@@ -101,6 +101,8 @@
   grid-template-columns: 1fr; /* Full width cards */
   gap: 1rem; /* Reduced space between cards */
   margin-top: 1rem; /* Reduced margin-top */
+  min-height: 200px; /* Added for loading spinner */
+  position: relative; /* Added for loading spinner positioning */
 }
 
 .candidate-card {
@@ -819,4 +821,36 @@
     padding: 0.3rem 0.5rem;
     font-size: 0.7rem;
   }
+}
+
+/* Loading Spinner Styles (copied from Jobs.css) */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 150px; /* Ensure enough space for spinner */
+  padding: 2rem 0;
+  box-sizing: border-box;
+}
+
+.loading-spinner {
+  border: 4px solid var(--color-border-light);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+.loading-container p {
+  margin-top: 1rem;
+  color: var(--color-primary-dark);
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

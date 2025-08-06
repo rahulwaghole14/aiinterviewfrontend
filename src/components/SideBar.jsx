@@ -1,5 +1,6 @@
 // SideBar.jsx
 import React from 'react';
+import { useSelector } from 'react-redux'; // Import useSelector to get user state
 import {
   MdDashboard,
   MdPersonAdd,
@@ -10,26 +11,37 @@ import {
 } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/RSL_Logo.png'; // Assuming you have a logo image
-// Remove isMobile from props
+
 const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
   const location = useLocation();
   const activeItem = location.pathname.split('/')[1] || 'dashboard';
+  const user = useSelector((state) => state.user.user); // Get the user object from Redux state
 
   const menu = [
     { name: 'Dashboard', path: 'dashboard', icon: <MdDashboard size={20} /> },
     { name: 'Add Candidates', path: 'add-candidates', icon: <MdPersonAdd size={20} /> },
-    // Removed 'Interviews' tab
     { name: 'Candidates', path: 'candidates', icon: <MdGroups size={20} /> },
     { name: 'Jobs', path: 'jobs', icon: <MdWork size={20} /> },
-    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} /> }, // New item
+    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} /> },
     { name: 'Settings', path: 'settings', icon: <MdSettings size={20} /> },
   ];
 
-  // Remove handleMenuItemClick as it was only for mobile sidebar auto-closing
-  const handleMenuItemClick = () => {
-    // This function can remain if you want to perform other actions on click,
-    // but the `if (isMobile)` condition is now removed.
-  };
+  // Filter the menu based on the user's role
+  const filteredMenu = menu.filter((item) => {
+    // Normalize the user role to a consistent format (lowercase, underscores instead of spaces/hyphens)
+    // This handles variations like "HIRING_AGENCY", "hiring agency", "hiring-agency", "Recruiter", etc.
+    const normalizedUserRole = user?.role?.toLowerCase().replace(/[\s-]/g, '_');
+
+    // Check if the normalized user role is one of the restricted roles
+    const isRestrictedUser = normalizedUserRole === 'recruiter' || normalizedUserRole === 'hiring_agency';
+
+    // Check if the current menu item is 'Candidates' or 'Hiring Agencies'
+    const isRestrictedItem = item.path === 'hiring-agencies';
+
+    // If the user is a restricted type (recruiter/agency) AND the item is a restricted item, filter it out.
+    // Otherwise, keep the item.
+    return !(isRestrictedUser && isRestrictedItem);
+  });
 
   return (
     <div className="sidebar">
@@ -43,7 +55,7 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
       </Link>
 
       <ul className="sidebar-menu">
-        {menu.map((item, index) => (
+        {filteredMenu.map((item, index) => (
           <li key={index}>
             <Link
               to={`/${item.path}`}
