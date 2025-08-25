@@ -1,11 +1,11 @@
 // src/redux/slices/jobsSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { baseURL } from '../../data'; // Assuming baseURL is defined here
+import { baseURL } from '../../data';
 
-// Async Thunk for fetching jobs
+// Async Thunk for fetching jobs with retry logic
 export const fetchJobs = createAsyncThunk(
   'jobs/fetchJobs',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
@@ -26,12 +26,12 @@ export const fetchJobs = createAsyncThunk(
       }
 
       const data = await response.json();
-      // Map API data to match existing structure or extend it
       const formattedJobs = data.map(job => ({
         id: job.id,
         job_title: job.job_title,
         company_name: job.company_name,
-        domain: job.domain, // This will be the domain ID
+        domain: job.domain,
+        domain_name: job.domain_name || '', // Add domain_name if available
         spoc_email: job.spoc_email,
         hiring_manager_email: job.hiring_manager_email,
         current_team_size_info: job.current_team_size_info,
@@ -43,9 +43,11 @@ export const fetchJobs = createAsyncThunk(
         jd_link: job.jd_link,
         created_at: job.created_at,
       }));
+      
       return formattedJobs;
     } catch (error) {
       console.error("Error fetching jobs:", error);
+      // You could add retry logic here if needed
       return rejectWithValue(error.message);
     }
   }
@@ -88,14 +90,16 @@ const jobsSlice = createSlice({
   initialState: {
     allJobs: [],
     domains: [],
-    jobsStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    domainsStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    jobsStatus: 'idle',
+    domainsStatus: 'idle',
     jobsError: null,
     domainsError: null,
+    lastFetchTime: null,
   },
   reducers: {
     setJobs: (state, action) => {
       state.allJobs = action.payload;
+      state.lastFetchTime = new Date().toISOString();
     },
     addJob: (state, action) => {
       if (!Array.isArray(state.allJobs)) {
@@ -114,32 +118,39 @@ const jobsSlice = createSlice({
       const idToDelete = action.payload;
       state.allJobs = state.allJobs.filter(job => job.id !== idToDelete);
     },
-    setDomains: (state, action) => { // New reducer to set domains
+    setDomains: (state, action) => {
       state.domains = action.payload;
     },
-    addDomain: (state, action) => { // New reducer to add a single domain
+    addDomain: (state, action) => {
       state.domains.push(action.payload);
     },
-    updateDomain: (state, action) => { // New reducer to update a domain
+    updateDomain: (state, action) => {
       const { id, updatedData } = action.payload;
       const domainIndex = state.domains.findIndex(domain => domain.id === id);
       if (domainIndex !== -1) {
         state.domains[domainIndex] = { ...state.domains[domainIndex], ...updatedData };
       }
     },
-    deleteDomain: (state, action) => { // New reducer to delete a domain
+    deleteDomain: (state, action) => {
       const idToDelete = action.payload;
       state.domains = state.domains.filter(domain => domain.id !== idToDelete);
+    },
+    resetJobsStatus: (state) => {
+      state.jobsStatus = 'idle';
+      state.jobsError = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchJobs.pending, (state) => {
         state.jobsStatus = 'loading';
+        state.jobsError = null;
       })
       .addCase(fetchJobs.fulfilled, (state, action) => {
         state.jobsStatus = 'succeeded';
         state.allJobs = action.payload;
+        state.lastFetchTime = new Date().toISOString();
+        state.jobsError = null;
       })
       .addCase(fetchJobs.rejected, (state, action) => {
         state.jobsStatus = 'failed';
@@ -147,10 +158,12 @@ const jobsSlice = createSlice({
       })
       .addCase(fetchDomains.pending, (state) => {
         state.domainsStatus = 'loading';
+        state.domainsError = null;
       })
       .addCase(fetchDomains.fulfilled, (state, action) => {
         state.domainsStatus = 'succeeded';
         state.domains = action.payload;
+        state.domainsError = null;
       })
       .addCase(fetchDomains.rejected, (state, action) => {
         state.domainsStatus = 'failed';
@@ -159,5 +172,20 @@ const jobsSlice = createSlice({
   },
 });
 
-export const { setJobs, addJob, updateJob, deleteJob, setDomains, addDomain, updateDomain, deleteDomain } = jobsSlice.actions;
+export const { 
+  setJobs, 
+  addJob, 
+  updateJob, 
+  deleteJob, 
+  setDomains, 
+  addDomain, 
+  updateDomain, 
+  deleteDomain,
+  resetJobsStatus 
+} = jobsSlice.actions;
+
+export const selectAllJobs = (state) => state.jobs.allJobs;
+export const selectJobsStatus = (state) => state.jobs.jobsStatus;
+export const selectLastFetchTime = (state) => state.jobs.lastFetchTime;
+
 export default jobsSlice.reducer;

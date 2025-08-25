@@ -1,6 +1,6 @@
 // App.jsx
 import { useState, useEffect, useRef } from 'react';
-import { useLocation, Route, Routes, useNavigate } from 'react-router-dom';
+import { useLocation, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from './redux/actions/searchActions';
 import { setUser, clearUser } from './redux/slices/userSlice'; // Import setUser and clearUser
@@ -17,6 +17,7 @@ import Login from './components/Login';
 import Register from './components/Registration';
 import Profile from './components/Profile';
 import HiringAgencies from './components/HiringAgency';
+import AiInterviewScheduler from './components/AiInterviewScheduler'; // Import the new AiInterviewScheduler component
 import "./App.css";
 
 const initialTheme = localStorage.getItem('theme') || 'light';
@@ -49,6 +50,9 @@ const getInitialHeaderTitle = () => {
     case 'hiring-agencies':
       title = 'Hiring Agencies';
       break;
+    case 'ai-interview-scheduler':
+      title = 'AI Interview Manager';
+      break;
     case 'login':
       title = 'Login';
       break;
@@ -67,6 +71,9 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
+  // Add the user selector
+  const user = useSelector((state) => state.user.user);
 
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('authToken'));
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -128,10 +135,13 @@ function App() {
     const currentPath = location.pathname;
 
     if (isLoggedInState) {
+      // Only redirect to dashboard if user is on login/register pages or root
       if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
         navigate('/dashboard', { replace: true });
       }
+      // For all other authenticated routes (including /ai-interview-scheduler), stay on current page
     } else {
+      // If not logged in, redirect to login unless already on login/register or public candidate pages
       if (currentPath !== '/login' && currentPath !== '/register' && !currentPath.startsWith('/candidates/')) {
         navigate('/login', { replace: true });
       }
@@ -253,6 +263,10 @@ function App() {
               <Route path="/settings" element={<Settings onTitleChange={updateHeaderTitle} />} />
               <Route path="/profile" element={<Profile onTitleChange={updateHeaderTitle} />} />
               <Route path="/hiring-agencies" element={<HiringAgencies />} />
+              <Route 
+                path="/ai-interview-scheduler" 
+                element={<AiInterviewScheduler onTitleChange={updateHeaderTitle} />} 
+              />
             </Routes>
           </div>
         </div>

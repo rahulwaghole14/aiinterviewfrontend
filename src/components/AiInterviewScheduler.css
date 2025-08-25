@@ -1,0 +1,314 @@
+/* AiInterviewScheduler.css - Modern Layout */
+
+/* Main Container */
+.ai-interview-scheduler {
+  display: flex;
+  height: 100%;
+  background: transparent;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  gap: 1.5rem;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent main container from scrolling */
+}
+
+/* Hide scrollbars but keep functionality */
+.ai-int-form,
+.ai-int-table-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.ai-int-form::-webkit-scrollbar,
+.ai-int-table-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
+}
+
+/* Card Styles */
+.ai-int-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding:1.5rem
+}
+
+/* Form Section - 25% width */
+.ai-int-form-container {
+  flex: 0 0 25%;
+  min-width: 300px;
+  height: 100%; /* Full height minus padding */
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-int-form-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-int-form-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f9fafb;
+}
+
+.ai-int-form-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.ai-int-form {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.ai-int-form-group {
+  margin-bottom: 1rem;
+}
+
+.ai-int-form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.ai-int-form-group input[type="number"],
+.ai-int-form-group input[type="text"],
+.ai-int-form-group select,
+.ai-int-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #2d3748;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ai-int-form-group input:focus,
+.ai-int-form-group select:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.16);
+}
+
+/* Table Section - 75% width */
+.ai-int-table-container {
+  flex: 1;
+  height: calc(100vh - 3rem); /* Full height minus padding */
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Fixes flexbox overflow issues */
+}
+
+.ai-int-table-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-int-table-header {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f9fafb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.ai-int-table-header .ai-int-btn {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.875rem;
+  width: auto;
+  min-width: unset;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin: 0;
+  height: auto;
+  line-height: 1.25;
+}
+
+.ai-int-table-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-int-table-wrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-int-table-container {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+.ai-int-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ai-int-table thead th {
+  position: sticky;
+  top: 0;
+  background: #f9fafb;
+  z-index: 10;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-int-table th,
+.ai-int-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-int-table th {
+  background-color: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #718096;
+}
+
+.ai-int-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Status Badge */
+.ai-int-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ai-int-status.available {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.ai-int-status.booked {
+  background-color: #ebfaf5;
+  color: #2c7a7b;
+}
+
+/* Action Buttons */
+.ai-int-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ai-int-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-int-btn-edit {
+  color: #3182ce;
+  background-color: #ebf8ff;
+  border-color: #bee3f8;
+}
+
+.ai-int-btn-edit:hover {
+  background-color: #bee3f8;
+}
+
+.ai-int-btn-delete {
+  color: #e53e3e;
+  background-color: #fff5f5;
+  border-color: #fed7d7;
+}
+
+.ai-int-btn-delete:hover {
+  background-color: #fed7d7;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .ai-interview-scheduler {
+    flex-direction: column;
+  }
+  
+  .ai-int-form-container,
+  .ai-int-table-container {
+    width: 100%;
+    position: static;
+    height: auto;
+  }
+  
+  .ai-int-form-container {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+}
+
+/* Form Actions */
+.ai-int-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.ai-int-btn-primary {
+  background-color: #4299e1;
+  color: white;
+  padding: 0.625rem 1.25rem;
+  flex: 1;
+}
+
+.ai-int-btn-primary:hover {
+  background-color: #3182ce;
+}
+
+.ai-int-btn-secondary {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 0.625rem 1.25rem;
+  flex: 1;
+}
+
+.ai-int-btn-secondary:hover {
+  background-color: #cbd5e0;
+}

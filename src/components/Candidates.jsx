@@ -119,14 +119,26 @@ const CandidatePage = () => {
 
   // Helper function to get domain name by ID
   const getDomainName = (domainId) => {
-    const domain = domains.find(d => d.id === domainId);
-    return domain ? domain.name : `Domain ${domainId}`;
+    // If domainId is already a name (string), return it directly
+    if (typeof domainId === 'string' && !/^[0-9]+$/.test(domainId)) {
+      return domainId;
+    }
+    
+    // If domainId is an ID, try to find the domain name
+    const domain = domains.find(d => String(d.id) === String(domainId));
+    return domain ? domain.name : (domainId || 'N/A');
   };
 
   // Helper function to get job title by ID
   const getJobTitle = (jobId) => {
-    const job = allJobs.find(j => j.id === jobId);
-    return job ? job.job_title : `Job ${jobId}`;
+    // If jobId is already a title (string), return it directly
+    if (typeof jobId === 'string' && !/^[0-9]+$/.test(jobId)) {
+      return jobId;
+    }
+    
+    // If jobId is an ID, try to find the job title
+    const job = allJobs.find(j => String(j.id) === String(jobId));
+    return job ? job.job_title : (jobId || 'N/A');
   };
 
   // Dynamically generate unique filter options from allCandidates

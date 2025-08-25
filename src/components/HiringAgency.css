@@ -7,6 +7,7 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  padding: 1.5rem;
   -ms-overflow-style: none;
   scrollbar-width: none;
   /* Ensure background matches global theme */
@@ -39,14 +40,17 @@
 
 /* NEW: Styling for individual tab buttons */
 .hiring-agency-tab {
-  background-color: var(--color-bg-secondary); /* Default background for inactive tabs */
+  background-color: var(
+    --color-bg-secondary
+  ); /* Default background for inactive tabs */
   color: var(--color-text-secondary); /* Default text color for inactive tabs */
   padding: 0.7rem 1.2rem;
   border: 1px solid var(--color-border-light); /* Subtle border for tabs */
   border-radius: var(--radius); /* Rounded corners for tabs */
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
   white-space: nowrap; /* Prevent text from wrapping inside tabs */
 }
 
@@ -62,21 +66,674 @@
   font-weight: 600; /* Make active tab text bolder */
 }
 
-
-.hiring-agencies-list-section {
-  background-color: var(--color-card);
-  box-shadow: var(--shadow-soft);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  transition: var(--transition);
+/* Table Styles */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 0; /* Remove border radius */
+  border-top: 1px solid var(--color-border); /* Keep only top border */
+  border-bottom: 1px solid var(--color-border); /* Keep only bottom border */
+  border-left: none;
+  border-right: none;
+  padding: 1.5rem; /* Remove horizontal padding */
+  background: white;
+  box-sizing: border-box;
 }
 
-.form-title, .table-title {
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
+table {
+  width: 100%;
+  border-collapse: collapse; /* Use collapse for better border control */
+  border-spacing: 0;
+  font-size: 0.875rem;
+  table-layout: auto;
+  margin: 0;
+  border: none;
+}
+
+th,
+td {
+  padding: 0.75rem 1rem;
   text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: none; /* Remove all cell borders */
+}
+
+th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--color-border); /* Add bottom border to header */
+}
+
+/* Add bottom border to all rows except last */
+tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Add space between columns */
+td + td,
+th + th {
+  padding-left: 1.5rem;
+}
+
+/* Action buttons container */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: var(--color-hover);
+  color: var(--color-text);
+}
+
+.action-button.save {
+  background-color: var(--color-success);
+  color: white;
+  border-color: var(--color-success-dark);
+}
+
+.action-button.save:hover {
+  background-color: var(--color-success-dark);
+}
+
+.action-button.cancel {
+  border-color: var(--color-border);
+}
+
+/* Action Menu */
+.action-menu {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  min-height: 56px; /* Match table row height */
+}
+
+/* Ensure icons are visible */
+.action-button svg,
+.action-menu-button svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Edit mode row */
+tr.editing td {
+  background-color: rgba(127, 202, 146, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .action-buttons {
+    min-height: 48px;
+  }
+}
+
+/* Table Header */
+th {
+  background-color: var(--color-bg-secondary);
+  font-weight: 600; /* Changed from 500 to 600 for bolder text */
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hiring-agencies-table th {
+  font-weight: 600; /* Ensure consistent boldness */
+}
+
+table th {
+  font-weight: 600 !important; /* Force bold if overridden elsewhere */
+}
+
+td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+td:last-child {
+  text-align: left;
+  padding: 0.75rem 1rem !important;
+  width: auto;
+  position: static;
+}
+
+/* Action menu button */
+.action-menu {
+  display: inline-block;
+  position: relative;
+  width: auto;
+  margin: 0 auto;
+}
+
+.menu-button {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-button:hover {
+  background-color: var(--color-hover);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Menu dropdown */
+.menu-dropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-width: 160px;
+  margin-top: 4px;
+  transform: translateX(-50%);
+  left: 50%;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: var(--color-hover);
+}
+
+.menu-item svg {
+  margin-right: 0.5rem;
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+}
+
+.menu-item.text-red-600 {
+  color: #dc2626;
+}
+
+.menu-item.text-red-600:hover {
+  background-color: #fee2e2;
+}
+
+/* Table Container */
+.table-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 190px); /* Adjust based on your header height */
+  overflow: hidden;
+
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  padding-right: 2rem; /* Add right padding */
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: white;
+}
+
+.hiring-agencies-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+  margin-right: 1rem; /* Add right margin */
+}
+
+.hiring-agencies-table th:not(:last-child),
+.hiring-agencies-table td:not(:last-child) {
+  width: auto;
+}
+
+.hiring-agencies-table th:last-child {
+  width: 160px; /* Fixed width for header */
+  padding: 0.75rem 1rem !important;
+  text-align: center;
+}
+
+.hiring-agencies-table td:last-child {
+  width: 160px; /* Fixed width matching header */
+  padding: 0.75rem 1rem !important;
+  text-align: center;
+  position: relative;
+}
+
+.action-menu {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+.menu-button {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: var(--color-text-secondary);
+}
+
+.menu-button:hover {
+  background-color: var(--color-hover);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1.5rem;
+  background-color: white;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.records-per-page {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.records-per-page select {
+  padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25em 1.25em;
+  padding-right: 2rem;
+  height: 2.25rem;
+  min-width: 5rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.records-per-page select:focus {
+  outline: none;
+  border-color: #d1d5db;
+  box-shadow: none;
+}
+
+.pagination-info {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 auto;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.pagination-button {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-primary);
+  background-color: white;
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.pagination-button.active {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+  border-color: var(--color-primary) !important;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--color-gray);
+  border-color: var(--color-gray);
+}
+
+/* Action Menu */
+.action-menu {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+}
+
+.menu-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #4b5563;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.menu-button:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  min-width: 160px;
+  z-index: 50;
+  display: none;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.menu-dropdown.show {
+  display: block;
+}
+
+.menu-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #374151;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background-color: #f9fafb;
+}
+
+.menu-item svg {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+}
+
+/* Table Header */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+}
+
+.table-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.table-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Modern Table Styles */
+.hiring-agencies-list-section {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.hiring-agencies-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.hiring-agencies-table thead th {
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-weight: 500;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.hiring-agencies-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.hiring-agencies-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.hiring-agencies-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* 3-Dot Menu */
+.action-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.menu-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.menu-button:hover {
+  background-color: #f3f4f6;
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  z-index: 10;
+  display: none;
+  overflow: hidden;
+}
+
+.menu-dropdown.show {
+  display: block;
+}
+
+.menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background-color: #f9fafb;
+}
+
+.menu-item svg {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+}
+
+/* Table Header */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+}
+
+.table-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.table-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  gap: 8px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.pagination button.active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .hiring-agencies-form {
@@ -127,7 +784,9 @@
 }
 
 .submit-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
+  background-color: var(
+    --color-primary
+  ); /* Changed to primary color as requested */
   color: white;
   padding: 0.8rem 1.5rem;
   border: none;
@@ -140,7 +799,9 @@
 }
 
 .submit-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
+  background-color: var(
+    --color-primary-dark
+  ); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
 
@@ -161,125 +822,6 @@
   display: none;
 }
 
-.hiring-agencies-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  min-width: 800px;
-}
-
-.hiring-agencies-table th,
-.hiring-agencies-table td {
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--color-border-light);
-  text-align: left;
-  color: var(--color-text); /* Consistent table data color */
-}
-
-.hiring-agencies-table th {
-  background-color: var(--color-bg-secondary);
-  font-weight: 600; /* Consistent font weight for table headings */
-  color: var(--color-text-primary); /* Consistent table heading color */
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.hiring-agencies-table th:hover {
-  background-color: var(--color-hover);
-}
-
-.hiring-agencies-table td input[type="text"],
-.hiring-agencies-table td input[type="email"],
-.hiring-agencies-table td input[type="tel"],
-.hiring-agencies-table td select {
-  width: calc(100% - 16px);
-  padding: 0.5rem;
-  border: 1px solid var(--color-muted);
-  border-radius: var(--radius-small);
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
-  font-size: 0.9rem;
-}
-
-.status-badge {
-  padding: 0.3em 0.6em;
-  border-radius: var(--radius-small);
-  font-size: 0.85em;
-  font-weight: 600;
-  color: white;
-  text-transform: capitalize;
-}
-
-.status-badge.active {
-  background-color: var(--color-success); /* Retained success color */
-}
-
-.status-badge.inactive {
-  background-color: var(--color-danger); /* Retained danger color */
-}
-
-.status-badge.on-hold {
-  background-color: var(--color-warning); /* Retained warning color */
-}
-
-.actions-column {
-  white-space: nowrap;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.edit-btn, .save-btn, .cancel-btn, .delete-btn {
-  padding: 0.5rem 0.8rem;
-  border: none;
-  border-radius: var(--radius-small);
-  cursor: pointer;
-  font-size: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  color: white;
-}
-
-.edit-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-}
-
-.edit-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-  transform: translateY(-1px);
-}
-
-.save-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-}
-
-.save-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-  transform: translateY(-1px);
-}
-
-.cancel-btn {
-  background-color: var(--color-muted);
-}
-
-.cancel-btn:hover {
-  background-color: var(--color-gray-dark);
-  transform: translateY(-1px);
-}
-
-.delete-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-}
-
-.delete-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-  transform: translateY(-1px);
-}
-
 .no-results {
   text-align: center;
   color: var(--color-muted);
@@ -287,7 +829,9 @@
 }
 
 .add-agency-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
+  background-color: var(
+    --color-primary
+  ); /* Changed to primary color as requested */
   color: white;
   padding: 0.7rem 1.2rem;
   border: none;
@@ -301,10 +845,11 @@
 }
 
 .add-agency-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
+  background-color: var(
+    --color-primary-dark
+  ); /* Changed to primary-dark on hover */
   transform: translateY(-2px);
 }
-
 
 /* Modal Styles */
 .add-agency-modal-overlay {
@@ -313,7 +858,9 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--color-overlay); /* Use theme variable for overlay color */
+  background-color: var(
+    --color-overlay
+  ); /* Use theme variable for overlay color */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -370,125 +917,147 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: var(--color-overlay); /* Use theme variable for overlay color */
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
-  opacity: 0; /* Initial state for animation */
-  transition: opacity 1s ease-in-out; /* Fade-in transition - Made slower */
-  pointer-events: none; /* Allows clicks to pass through when hidden */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 .delete-confirm-overlay.show {
   opacity: 1;
-  pointer-events: auto; /* Re-enable clicks when shown */
+  pointer-events: auto;
 }
 
 .delete-confirm-modal {
-  background-color: var(--color-card);
-  padding: 2rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
-  text-align: center;
+  background: var(--color-card);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
   max-width: 400px;
-  width: 90%;
-  box-sizing: border-box;
-  transform: scale(0.9); /* Initial state for animation */
-  transition: transform 1s ease-in-out, opacity 1s ease-in-out; /* Scale-in and fade-in transition - Made slower */
-  opacity: 0; /* Initial state for animation */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-20px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
 }
 
 .delete-confirm-overlay.show .delete-confirm-modal {
-  transform: scale(1);
+  transform: translateY(0);
   opacity: 1;
 }
 
-.delete-confirm-modal p {
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+.delete-confirm-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
   color: var(--color-text);
+}
+
+.delete-confirm-message {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
 }
 
 .delete-confirm-actions {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
-.delete-confirm-actions .delete-btn,
-.delete-confirm-actions .cancel-btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: var(--radius);
-  font-size: 1rem;
+.delete-confirm-cancel {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-card);
+  color: var(--color-text);
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.delete-confirm-actions .delete-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
+.delete-confirm-cancel:hover {
+  background: var(--color-hover);
+}
+
+.delete-confirm-delete {
+  padding: 0.5rem 1rem;
   border: none;
-}
-
-.delete-confirm-actions .delete-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-  transform: translateY(-2px);
-}
-
-.delete-confirm-actions .cancel-btn {
-  background-color: var(--color-muted);
+  border-radius: 4px;
+  background: var(--color-danger);
   color: white;
-  border: none;
-}
-
-.delete-confirm-actions .cancel-btn:hover {
-  background-color: var(--color-gray-dark);
-  transform: translateY(-2px);
-}
-
-/* Pagination Styles */
-.pagination {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-top: 1.5rem;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  justify-content: center;
+  min-width: 100px;
 }
 
-.pagination-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
-  padding: 0.6rem 1rem;
-  border: none; /* Removed border */
-  border-radius: var(--radius-small);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+.delete-confirm-delete:hover {
+  background: var(--color-danger-dark);
 }
 
-.pagination-btn:hover:not(:disabled) {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-  border-color: var(--color-primary-dark); /* Ensure border color matches */
-}
-
-.pagination-btn.active {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on active */
-  color: white;
-  border-color: var(--color-primary-dark); /* Ensure border color matches */
-}
-
-.pagination-btn:disabled {
-  opacity: 0.5;
+.delete-confirm-delete:disabled {
+  opacity: 0.7;
   cursor: not-allowed;
-  background-color: var(--color-bg-secondary); /* Keep background consistent for disabled */
-  color: var(--color-muted); /* Muted text for disabled */
-  border: 1px solid var(--color-muted); /* Add a subtle border for disabled */
 }
 
+/* Update action buttons */
+.action-button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-card);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 2px;
+}
+
+.action-button:hover {
+  background: var(--color-hover);
+}
+
+.action-button.delete {
+  color: var(--color-danger);
+  border-color: var(--color-danger-light);
+}
+
+.action-button.delete:hover {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.action-button.edit {
+  color: var(--color-primary);
+  border-color: var(--color-primary-light);
+}
+
+.action-button.edit:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -535,7 +1104,10 @@
     gap: 0.3rem;
   }
 
-  .edit-btn, .save-btn, .cancel-btn, .delete-btn {
+  .edit-btn,
+  .save-btn,
+  .cancel-btn,
+  .delete-btn {
     width: 100%;
     justify-content: center;
     font-size: 0.85rem;
@@ -568,4 +1140,55 @@
   .add-agency-modal-content {
     padding: 1.5rem;
   }
+}
+
+/* Search and Filter */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  padding: 8px 12px 8px 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 240px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Table Header */
+th {
+  padding: 0.5rem 1rem;
+  text-align: left;
+  background-color: var(--color-bg-secondary);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-border);
+}
+
+td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+th:last-child,
+td:last-child {
+  text-align: left;
+  padding: 0.75rem 1rem !important;
+  width: auto;
 }

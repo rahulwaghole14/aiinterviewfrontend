@@ -39,7 +39,8 @@ export const fetchCandidates = createAsyncThunk(
 
         if (userRole === 'COMPANY') {
           fetchedCandidates = fetchedCandidates.filter(candidate => {
-            const job = allJobs.find(j => j.id === candidate.job_title);
+            // Handle type consistency when comparing job IDs
+            const job = allJobs.find(j => String(j.id) === String(candidate.job_title));
             return job && job.company_name === userCompany;
           });
         } else if (userRole === 'HIRING_AGENCY' || userRole === 'RECRUITER') {

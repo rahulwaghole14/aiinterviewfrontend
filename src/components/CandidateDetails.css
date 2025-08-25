@@ -1,9 +1,7 @@
 /* CandidateDetails.css */
 
 /* Candidate Details Page Specific Styles */
-/* Removed .candidate-details-page-container as it's no longer the outer container */
-
-.candidate-not-found-container { /* New style for "Candidate not found" state */
+.candidate-not-found-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,887 +10,1005 @@
   width: 100%;
   color: var(--color-muted);
   font-size: 1.25rem;
-  background-color: var(--color-bg); /* Match background color */
-  /* padding: 3rem 1.5rem; Reverted padding */
+  background-color: var(--color-bg);
   box-sizing: border-box;
-  border-radius: 0; /* Removed border-radius */
-  box-shadow: none; /* Removed box-shadow */
-  overflow: hidden; /* Hide scrollbar if content overflows */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-  font-family: var(--font-family-base); /* Consistent font */
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  font-family: var(--font-family-base);
 }
 
 .candidate-not-found-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera*/
+  display: none;
 }
 
 .candidate-not-found-container .back-to-candidates-btn {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background-color: var(--color-primary); /* Changed to primary color as requested */
+  background-color: var(--color-primary);
   color: white;
   border-radius: var(--radius-small);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-family-base);
 }
 
 .candidate-not-found-container .back-to-candidates-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
+  background-color: var(--color-primary-dark);
 }
 
+/* Updated main container */
+.candidate-details-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  background-color: var(--color-bg);
+  font-family: var(--font-family-base);
+  gap: 1.5rem;
+  box-sizing: border-box;
+  position: relative;
+  padding: 1rem;
+}
 
+.candidate-details-layout::-webkit-scrollbar {
+  display: none;
+}
+
+/* Left Panel for Candidate Details */
+.candidate-details-left-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.candidate-details-content {
+  padding: 1.5rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 1.5rem;
+}
+
+.candidate-details-content .flex.justify-between.items-start {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.candidate-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.candidate-name-display {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.2;
+  flex: 1;
+  margin-bottom: 0.5rem;
+}
+
+.candidate-status-badge {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+  margin-left: 1rem;
+  white-space: nowrap;
+  position: relative;
+}
+
+.candidate-status-badge.requires-action { background-color: var(--color-danger); }
+.candidate-status-badge.interview-pending { background-color: var(--color-warning); }
+.candidate-status-badge.interview-scheduled { background-color: var(--color-success); }
+.candidate-status-badge.interview-completed { background-color: var(--color-info); }
+.candidate-status-badge.evaluated { background-color: var(--color-primary-dark); }
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  margin: 0;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.detail-value {
+  color: var(--color-muted);
+}
+
+.details-grid p {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.details-grid p strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Right Panel for Summary Cards and Status */
+.candidate-details-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  height: fit-content;
+  overflow: visible;
+}
+
+.card {
+  background-color: var(--color-card);
+  padding: 1.5rem;
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-small);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+}
+
+.update-status-card {
+  cursor: pointer;
+}
+
+.update-status-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-medium);
+}
+
+.update-status-card p {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Status Card */
+.status-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.status-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.new { background-color: #e5e7eb; color: #374151; }
+.status-badge.interview_scheduled { background-color: #dbeafe; color: #1e40af; }
+.status-badge.interview_completed { background-color: #dbeafe; color: #1e40af; }
+.status-badge.evaluated { background-color: #d1fae5; color: #065f46; }
+.status-badge.hired { background-color: #dcfce7; color: #166534; }
+
+/* Status Progress Bar */
+.status-progress-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+}
+
+.status-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.status-step:first-child .status-connector:first-child,
+.status-step:last-child .status-connector:last-child {
+  display: none;
+}
+
+.status-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.status-step.completed .status-circle {
+  background-color: #10b981;
+  color: white;
+}
+
+.status-step.current .status-circle {
+  background-color: #3b82f6;
+  color: white;
+  transform: scale(1.1);
+}
+
+.status-step.clickable {
+  cursor: pointer;
+}
+
+.status-step.clickable .status-circle {
+  cursor: pointer;
+}
+
+.status-step.clickable:hover .status-circle {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.status-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.status-step.completed .status-label,
+.status-step.current .status-label {
+  color: #111827;
+  font-weight: 500;
+}
+
+.status-connector {
+  flex: 1;
+  height: 2px;
+  background-color: #e5e7eb;
+  margin: 0 8px;
+  position: relative;
+  top: -16px;
+}
+
+.status-step.completed .status-connector {
+  background-color: #10b981;
+}
+
+/* Horizontal Date Picker styles */
+.horizontal-datepicker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.horizontal-datepicker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 5px;
+  margin-bottom: 15px;
+}
+
+.month-year-display {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+.horizontal-days-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.day-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  min-width: 70px;
+  height: 80px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.day-card:hover {
+  background-color: var(--color-hover);
+  border-color: var(--color-primary);
+}
+
+.day-card.selected {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.3);
+  color: white;
+}
+
+.day-card.selected .day-name,
+.day-card.selected .day-number {
+  color: white;
+}
+
+.day-card.today {
+  border-color: var(--color-primary-dark);
+}
+
+.day-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 5px;
+}
+
+.day-number {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.booked-indicator {
+  position: absolute;
+  bottom: 5px;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+}
+
+/* POC Details Section */
+.poc-details-section {
+  margin-top: 1rem;
+}
+
+.poc-details-section p {
+  margin: 0.5rem 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+/* Right Panel Sections */
+.status-section {
+  margin-bottom: 1.5rem;
+}
+
+.interview-section,
+.evaluation-section {
+  margin-top: 20px;
+}
+
+.evaluation-section {
+  margin-bottom: 1.5rem;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.current-status {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.status-progress-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  width: 100%;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.status-progress-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.status-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.status-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #e5e7eb;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.status-step.completed .status-circle {
+  background-color: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.status-step.current .status-circle {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.status-label {
+  font-size: 0.7rem;
+  color: var(--color-text);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.1;
+  word-wrap: break-word;
+  max-width: 60px;
+}
+
+.status-step.completed .status-label {
+  color: var(--color-success);
+}
+
+.status-step.current .status-label {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.status-step.clickable {
+  cursor: pointer;
+}
+
+.status-step.clickable:hover .status-label {
+  text-decoration: underline;
+}
+
+.status-step.clickable:hover .status-circle {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.status-connector {
+  flex-grow: 1;
+  height: 2px;
+  background-color: var(--color-border);
+  margin: 0 10px;
+}
+
+.status-step:last-child .status-connector {
+  display: none;
+}
+
+.status-step.completed .status-connector {
+  background-color: var(--color-success);
+}
+
+.interview-info, .evaluation-info {
+  margin-top: 1rem;
+}
+
+.interview-info p, .evaluation-info p {
+  margin: 0.5rem 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.no-data {
+  color: var(--color-muted);
+  font-style: italic;
+  margin: 0.5rem 0;
+}
+
+/* Evaluation Section Styles */
+.evaluation-item {
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--color-primary);
+}
+
+.evaluation-item p {
+  margin: 0.5rem 0;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* Score styling */
+.score {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.score.high-score {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e; /* green-500 */
+}
+
+.score.medium-score {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #eab308; /* yellow-500 */
+}
+
+.score.low-score {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444; /* red-500 */
+}
+
+/* Status badges */
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status.passed,
+.status.completed,
+.status.hired {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.status.failed,
+.status.rejected {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.status.pending,
+.status.in_progress {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+/* Animation for status changes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.evaluation-item {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .evaluation-item {
+    padding: 0.75rem;
+  }
+  
+  .score, .status {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Loading and Error states */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.loading-container p {
+  margin-top: 10px;
+  color: var(--color-text-secondary);
+}
+
+.error-container {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Back button styles */
 .back-button-container {
-  /* Positioned within candidate-details-content */
-  margin-bottom: 0.5rem; /* Reduced margin-bottom to lessen gap */
-  /* Removed padding-bottom and border-bottom as it's now inside the card */
+  margin-bottom: 1rem;
 }
 
 .back-button {
   display: flex;
   align-items: center;
-  color: var(--color-primary); /* text-blue-600 */
-  transition: color 0.2s ease; /* transition duration-200 */
-  background: none;
-  border: none;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text);
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0; /* Remove default button padding */
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
 .back-button:hover {
-  color: var(--color-primary-dark); /* hover:text-blue-800 */
-}
-
-.back-button svg {
-  margin-right: 0; /* Remove margin as text is removed */
-}
-
-/* New layout for CandidateDetails */
-.candidate-details-layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr; /* Left 2/3, Right 1/3 */
-  gap: 1.5rem; /* Space between columns */
-  background-color: var(--color-bg); /* Match the background color */
-  /* padding: 3rem 1.5rem; Reverted padding to ensure consistent spacing from page edges */
-  border-radius: 0; /* Removed border-radius */
-  box-shadow: none; /* Removed box-shadow */
-  width: 100%; /* Ensure it takes full width */
-  height: 100%; /* Ensure it takes full height */
-  box-sizing: border-box; /* Include padding in dimensions */
-  overflow-y: auto; /* Allow scrolling if content overflows */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-  font-family: var(--font-family-base); /* Consistent font */
-}
-
-.candidate-details-layout::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera*/
-}
-
-/* Loading container for CandidateDetails page */
-.candidate-details-layout.loading-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%; /* Take full height of its parent */
-  width: 100%; /* Take full width of its parent */
-  background-color: var(--color-bg);
-  color: var(--color-primary-dark);
-  font-size: 1.25rem;
-}
-
-
-.candidate-details-left-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.candidate-details-right-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.candidate-details-content {
-  /* This is the "card" where the back button is now located */
-  background-color: var(--color-card); /* bg-white */
-  padding: 2rem; /* p-8 */
-  border-radius: var(--radius); /* rounded-lg */
-  box-shadow: var(--shadow-soft); /* shadow-sm */
-  display: flex; /* Use flexbox for internal layout */
-  flex-direction: column; /* Stack items vertically */
-  gap: 0.75rem; /* Reduced gap between elements inside the card */
-}
-
-.candidate-details-content h2 {
-  display: none; /* Removed Candidate Details title */
-}
-
-.candidate-name-display {
-  font-size: 1.5rem; /* text-2xl */
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem; /* Reduced margin-bottom */
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* grid-cols-1 */
-  gap: 0.5rem; /* Reduced gap between details */
-  /* Removed margin-bottom as the gap will be handled by the update-status-section's margin-top */
-}
-
-.details-grid p {
-  font-size: 1rem;
-  color: var(--color-text);
-  overflow-wrap: break-word; /* Ensure long text wraps */
-}
-
-.details-grid strong {
-  font-weight: bold;
-  color: var(--color-text-primary);
-}
-
-/* Removed .blank-space as requested */
-
-.aptitude-details-section, /* New section for Aptitude */
-.interview-details-section,
-.evaluation-details-section,
-.poc-details-section, /* Added POC details section */
-.br-chats-section { /* Added BR Chats section */
-  padding: 1.5rem; /* p-6 */
-  border-radius: var(--radius-small); /* rounded-md */
-  margin-bottom: 0; /* Removed margin-bottom as gap handles spacing */
-  box-shadow: var(--shadow-inner); /* shadow-inner */
-}
-
-/* Summary Cards for Aptitude, Interview, Evaluation */
-.aptitude-summary-card,
-.interview-summary-card,
-.evaluation-summary-card {
-  padding: 1.5rem;
-  border-radius: var(--radius-small);
-  box-shadow: var(--shadow-inner);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative; /* For the "View More" link positioning */
-}
-
-.aptitude-summary-card {
-  background-color: var(--color-warning-light);
-}
-.aptitude-summary-card h3 {
-  color: var(--color-warning-dark);
-}
-
-.interview-summary-card {
-  background-color: var(--color-info-light);
-}
-.interview-summary-card h3 {
-  color: var(--color-info-dark);
-}
-
-.evaluation-summary-card {
-  background-color: var(--color-success-light);
-}
-.evaluation-summary-card h3 {
-  color: var(--color-success-dark);
-}
-
-.aptitude-summary-card:hover,
-.interview-summary-card:hover,
-.evaluation-summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-medium);
-}
-
-.aptitude-summary-card h3,
-.interview-summary-card h3,
-.evaluation-summary-card h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.aptitude-summary-card p,
-.interview-summary-card p,
-.evaluation-summary-card p {
-  font-size: 0.95rem;
-  color: var(--color-text);
-  margin-bottom: 0.25rem;
-  overflow-wrap: break-word; /* Ensure long text wraps */
-}
-
-.view-details-link {
-  position: absolute;
-  bottom: 1rem;
-  right: 1.5rem;
-  color: var(--color-primary);
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.aptitude-details-section {
-  background-color: var(--color-warning-light); /* Example color */
-}
-
-.aptitude-details-section h3 {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600;
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
-  margin-bottom: 1rem; /* mb-4 */
-}
-
-.interview-details-section {
-  background-color: var(--color-info-light); /* bg-blue-50 */
-}
-
-.interview-details-section h3,
-.poc-details-section h3,
-.br-chats-section h3 {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600;
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
-  margin-bottom: 1rem; /* mb-4 */
-}
-
-.poc-details-section {
-  background-color: var(--color-info-light); /* Changed to info-light */
-}
-
-.poc-details-section h3 {
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
-}
-
-.poc-details-section p,
-.br-chats-section p {
-  overflow-wrap: break-word; /* Ensure long text wraps */
-}
-
-.br-chats-section {
-  background-color: var(--color-warning-light); /* Example color */
-}
-
-.br-chats-section h3 {
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
-}
-
-
-.evaluation-details-section h3 {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600;
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
-  margin-bottom: 1rem; /* mb-4 */
-}
-
-.eval-result {
-  font-weight: 500; /* font-medium */
-}
-
-.eval-result.pass {
-  color: var(--color-success-dark); /* text-green-600 */
-}
-
-.eval-result.fail {
-  color: var(--color-danger-dark); /* text-red-600 */
-}
-
-.update-status-section {
-  background-color: var(--color-bg-light); /* bg-gray-100 */
-
-}
-
-/* Removed h3 for update status section */
-.update-status-section h3 {
-  display: none;
-}
-
-.update-status-section .add-candidates-select,
-.update-status-section .add-candidates-input,
-.update-status-section .add-candidates-textarea {
-  width: 100%; /* w-full */
-  padding: 0.5rem; /* p-2 */
-  border: 1px solid var(--color-border-light); /* border border-gray-300 */
-  border-radius: var(--radius-small); /* rounded-md */
-  margin-bottom: 1rem; /* mb-4 */
-}
-
-.update-status-section .add-candidates-select:focus,
-.update-status-section .add-candidates-input:focus,
-.update-status-section .add-candidates-textarea:focus {
-  outline: none;
-  border-color: var(--color-primary); /* focus:border-blue-500 */
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* focus:ring-blue-500 */
-}
-
-.conditional-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem; /* space-y-3 */
-  margin-bottom: 1rem; /* mb-4 */
-}
-
-.conditional-input-group label {
-  display: block; /* block */
-  color: var(--color-text-primary); /* text-gray-700 */
-  font-weight: 500; /* font-medium */
-}
-
-.save-status-btn {
-  width: 100%; /* w-full */
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-small);
-  transition: background-color 0.2s ease;
-}
-
-.save-status-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-}
-
-.status-badge {
-  padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
-  border-radius: 9999px;
-  border: none;
-  font-weight: 600;
-  white-space: nowrap; /* Prevent text wrapping */
-  word-break: normal; /* Allow normal word breaking */
-  display: inline-block;
-  line-height: 1.2;
-  text-align: center;
-  width: fit-content; /* Make badge take only necessary width */
-  margin-bottom: 0.5rem; /* Add some space below the badge */
-}
-
-/* Specific badge colors */
-.status-badge.badge-success {
-  color: var(--color-success);
-  border-color: var(--color-success);
-  background-color: rgba(var(--color-success-rgb), 0.1);
-}
-
-.status-badge.badge-warning {
-  color: var(--color-warning);
-  border-color: var(--color-warning);
-  background-color: rgba(var(--color-warning-rgb), 0.1);
-}
-
-.status-badge.badge-danger {
-  color: var(--color-danger);
-  border-color: var(--color-danger);
-  background-color: rgba(var(--color-danger-rgb), 0.1);
-}
-
-.status-badge.badge-info {
-  color: var(--color-info);
-  border-color: var(--color-info);
-  background-color: rgba(var(--color-info-rgb), 0.1);
-}
-
-/* Modal Styles */
-/* Keyframe for fade-in animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Keyframe for slide-up and fade-in animation for modal content */
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) translateX(-50%); /* Start slightly above and centered */
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) translateX(-50%); /* End at natural position and centered */
-  }
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--color-overlay); /* Use theme variable */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0; /* Initial state for animation */
-  transition: opacity 0.3s ease-in-out; /* Fade-in transition */
-}
-
-.modal-overlay.show {
-  opacity: 1;
-}
-
-.modal-content {
-  background-color: var(--color-card);
-  padding: 2rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-medium);
-  position: relative;
-  max-height: 80vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box; /* Ensure padding is included in width calculation */
-  transform: scale(0.9); /* Initial state for animation */
-  transition: transform 0.3s ease-in-out; /* Scale-in transition */
-}
-
-.modal-overlay.show .modal-content {
-  transform: scale(1);
-}
-
-.modal-close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-muted);
-  transition: color 0.2s ease;
-}
-
-.modal-close-button:hover {
-  color: var(--color-text-primary);
-}
-
-/* Specific style for update status modal content */
-.update-status-modal-content {
-  width: auto; /* Changed from fixed width to auto */
-  min-height: 600px; /* Explicitly set min-height */
-  max-width: 90vw; /* Ensure it's responsive on smaller screens */
-  max-height: 90vh; /* Ensure it's responsive on smaller screens */
-}
-
-/* Modified style for the interview modal (remove fixed size) */
-.interview-modal-large {
-  width: auto; /* Allow width to be determined by content */
-  height: auto; /* Allow height to be determined by content */
-  max-width: 90vw; /* Ensure it's responsive on smaller screens */
-  max-height: 90vh; /* Ensure it's responsive on smaller screens */
-}
-
-/* New style for the larger evaluation modal */
-.evaluation-modal-large {
-  width: auto; /* Changed from fixed width to auto */
-  height: auto; /* Changed from fixed height to auto */
-  max-width: 90vw; /* Ensure it's responsive on smaller screens */
-  max-height: 90vh; /* Ensure it's responsive on smaller screens */
-}
-
-/* Modal Overlay (specifically for evaluation modal) */
-.evaluation-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.5s ease-out forwards; /* Apply fade-in animation */
-}
-
-/* Modal Content (specifically for evaluation modal) */
-.evaluation-modal-content {
-  background-color: var(--color-card);
-  padding: 2rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-medium); /* Stronger shadow for modals */
-  width: 90vw; /* Responsive width */
-  max-width: 800px; /* Maximum width for larger screens */
-  max-height: 90vh; /* Max height to prevent overflow */
-  overflow-y: auto; /* Enable scrolling for modal content */
-  position: relative;
-  /* Center the modal content using transform for animation */
-  top: 0; /* Reset top for transform */
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Adjust for accurate centering */
-  animation: slideInFromTop 0.5s ease-out forwards; /* Apply slide-in and fade-in animation */
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-
-.update-status-form-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly; /* Evenly space items vertically */
-  align-items: flex-start; /* Align items to the start (left) */
-  text-align: left; /* Align text to the left */
-  flex-grow: 1; /* Allows form content to take available space */
-  gap: 1rem; /* Adjust gap as needed within the modal form */
-  margin-top: 0.5rem; /* Space below process flow - REDUCED */
-  padding-bottom: 80px; /* Add padding to prevent content from being hidden by fixed buttons */
-  overflow-y: auto; /* Allow scrolling for the form content if it overflows */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.update-status-form-content::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera*/
-}
-
-.update-status-form-content .conditional-input-group {
-  width: 100%; /* Ensure input groups take full width */
-}
-
-.update-status-form-content .conditional-input-group label,
-.update-status-form-content .conditional-input-group input,
-.update-status-form-content .conditional-input-group textarea {
-  width: 100%; /* Ensure form elements take full width */
-}
-
-.process-info-text {
-  margin: auto; /* Center the text */
-  max-width: 80%; /* Limit width for readability */
-}
-
-.process-flow-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  position: relative;
-  padding: 0 10px; /* Padding for the ends of the flow */
-}
-
-.process-flow-container::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--color-border); /* Line color */
-  z-index: 0;
-  transform: translateY(-50%);
-}
-
-.process-step {
   background-color: var(--color-bg-secondary);
-  color: var(--color-muted);
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap; /* Keep nowrap by default for larger screens */
-  position: relative;
-  z-index: 1;
-  border: 1px solid var(--color-border);
-  transition: all 0.3s ease;
-  text-align: center;
-  flex-shrink: 0; /* Prevent shrinking */
-  margin: 0 15px; /* Increased space between steps */
+  border-color: var(--color-primary);
 }
 
-.process-step.completed {
-  background-color: var(--color-success-light);
-  color: var(--color-success-dark);
-  border-color: var(--color-success);
+.details-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1.5rem 0;
 }
 
-.process-step.active {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
-  border-color: var(--color-primary); /* Changed to primary color as requested */
-  box-shadow: var(--shadow-soft);
-  transform: translateY(-2px);
-}
-
-.process-arrow {
-  flex-grow: 1;
-  height: 2px;
-  background-color: var(--color-border);
-  margin: 0 -15px; /* Overlap with step margin to create continuous line */
-  transition: background-color 0.3s ease;
-}
-
-.process-arrow.completed {
-  background-color: var(--color-success);
-}
-
-.modal-navigation-buttons {
-  display: flex;
-  justify-content: space-between; /* Distribute items with space between them */
-  align-items: center; /* Align items vertically in the middle */
-  gap: 15px; /* Gap between buttons */
-  padding: 1rem 2rem; /* Padding to match modal content padding */
-  position: absolute; /* Fixed position relative to modal-content */
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--color-card); /* Match modal background */
-  border-top: 1px solid var(--color-border-light); /* Optional: a separator line */
-  z-index: 10; /* Ensure buttons are above scrollable content */
-}
-
-.modal-navigation-buttons .cancel-btn,
-.modal-navigation-buttons .submit-btn,
-.modal-navigation-buttons .final-action-btn { /* Apply consistent styles to all buttons in this container */
-  height: 40px; /* Consistent height for all buttons */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem; /* Default padding for buttons */
-  border-radius: var(--radius-small); /* Consistent border-radius */
-  transition: background-color 0.2s ease; /* Consistent transition */
-  border: none; /* Remove default border */
-  cursor: pointer; /* Indicate clickable */
-  min-width: 100px; /* Minimum width for all buttons */
-  flex: 1; /* Make all buttons take equal available space */
-  line-height: 1; /* Explicitly set line-height to help vertical centering */
-}
-
-.modal-navigation-buttons .cancel-btn {
-  background-color: var(--color-muted); /* Changed to muted color as requested */
-  margin-top: 15px;
-  color: white;
-}
-
-.modal-navigation-buttons .cancel-btn:hover {
-  background-color: var(--color-gray-dark); /* Changed to gray-dark on hover */
-}
-
-.modal-navigation-buttons .submit-btn {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
-}
-
-.modal-navigation-buttons .submit-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-}
-
-.modal-navigation-buttons .final-action-btn.submit-btn { /* Specific style for Hired */
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
-}
-
-.modal-navigation-buttons .final-action-btn.submit-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-}
-
-.modal-navigation-buttons .final-action-btn.cancel-btn { /* Specific style for Rejected */
-  background-color: var(--color-primary); /* Changed to primary color as requested */
-  color: white;
-}
-
-.modal-navigation-buttons .final-action-btn.cancel-btn:hover {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
-}
-
-/* New style for error messages */
-.error-message {
-  color: var(--color-danger); /* Red color for errors */
-  font-size: 0.85rem;
-  margin-top: -0.5rem; /* Pull it closer to the input field */
-  margin-bottom: 0.5rem; /* Space below the error message */
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) { /* md breakpoint */
-  .details-grid {
-    grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
-  }
-}
-
-@media (min-width: 1024px) { /* lg breakpoint */
-  /* No specific grid changes for candidate-details-page-container here,
-     as it's handled by .candidate-details-layout */
-}
-
-@media (max-width: 1023px) { /* Tablet and smaller */
+/* Responsive Styles */
+@media (max-width: 1024px) {
   .candidate-details-layout {
-    grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
-  }
-}
-
-@media (max-width: 767px) { /* Mobile */
-  .candidate-details-layout {
-    padding: 15px; /* Adjust padding for mobile */
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
   }
 
-  .candidate-details-content h2 {
+  .candidate-details-left-panel,
+  .candidate-details-right-panel {
+    flex: none;
+    width: 100%;
+  }
+
+  .candidate-details-content {
+    padding: 1rem;
+  }
+
+  .candidate-name-display {
     font-size: 1.5rem;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-label-hour {
+    min-width: 120px;
+    font-size: 0.65rem;
+  }
+  
+  .time-slot-picker-container {
+    height: 35px;
+  }
+  
+  .time-slot-square {
+    min-width: 60px;
+    height: 35px;
+  }
+  
+  .add-slot-button {
+    width: 18px;
+    height: 18px;
+    font-size: 1rem;
+  }
+
+  .empty-time-slot-box,
+  .selected-time-slot-box {
+    min-width: 100px;
+    height: 30px;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .candidate-details-content {
+    padding: 10px 15px;
+    gap: 10px;
   }
 
   .candidate-name-display {
     font-size: 1.2rem;
   }
 
-  .candidate-details-content p,
-  .interview-details-section p,
-  .evaluation-details-section p,
-  .aptitude-details-section p, /* Added for new sections */
-  .poc-details-section p, /* Added for new sections */
-  .br-chats-section p, /* Added for new sections */
-  .aptitude-summary-card p,
-  .interview-summary-card p,
-  .evaluation-summary-card p {
+  .section-title {
     font-size: 0.9rem;
   }
 
-  .interview-details-section h3,
-  .evaluation-details-section h3,
-  .aptitude-details-section h3, /* Added for new sections */
-  .update-status-section h3,
-  .poc-details-section h3,
-  .br-chats-section h3,
-  .aptitude-summary-card h3,
-  .interview-summary-card h3,
-  .evaluation-summary-card h3 {
-    font-size: 1.1rem;
+  .time-label-hour {
+    min-width: 100px;
+    font-size: 0.6rem;
+  }
+  
+  .time-slot-picker-container {
+    height: 30px;
+  }
+  
+  .time-slot-square {
+    min-width: 50px;
+    height: 30px;
+  }
+  
+  .add-slot-button {
+    width: 16px;
+    height: 16px;
+    font-size: 0.9rem;
   }
 
-  .save-status-btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.85rem;
-  }
-
-  .view-details-link {
-    bottom: 0.5rem;
-    right: 1rem;
-    font-size: 0.75rem;
-  }
-
-  .modal-content {
-    padding: 1.5rem;
-  }
-
-  .process-step {
-    font-size: 0.75rem;
-    padding: 6px 8px;
-    margin: 0 2px;
-    white-space: normal; /* Allow text to wrap on small screens */
-    word-break: break-word; /* Force long words to break and wrap strictly */
-  }
-  .process-flow-container {
-    overflow-x: auto; /* Allow horizontal scroll on small screens */
-    justify-content: flex-start; /* Align to start for scrolling */
-    padding: 0;
-  }
-  .process-flow-container::before {
-    left: 10px; /* Adjust line start */
-    right: 10px; /* Adjust line end */
-  }
-
-  .modal-navigation-buttons {
-    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
-    justify-content: center; /* Center buttons when wrapped */
-  }
-
-  .modal-navigation-buttons .cancel-btn,
-  .modal-navigation-buttons .submit-btn.next-step-btn,
-  .modal-navigation-buttons .submit-btn.center-submit-btn {
-    width: 100%; /* Full width for buttons on small screens */
-    max-width: none; /* Remove max-width constraint */
-  }
-  .interview-modal-large {
-    width: auto; /* Ensure it's auto on small screens */
-    height: auto; /* Ensure it's auto on small screens */
-  }
-  .evaluation-modal-large {
-    width: 95vw; /* Make it nearly full width on very small screens */
-    height: 90vh; /* Adjust height for very small screens */
+  .empty-time-slot-box,
+  .selected-time-slot-box {
+    min-width: 80px;
+    height: 28px;
+    font-size: 0.8rem;
+    padding: 5px 8px;
   }
 }
 
-@media (max-width: 479px) { /* Very small mobile */
-  .candidate-details-layout {
-    padding: 10px; /* Adjust padding for very small mobile */
+.process-step {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.process-step:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Date Picker Styles */
+.horizontal-datepicker-container {
+  width: 100%;
+  padding: 10px 0;
+}
+
+.horizontal-datepicker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0 10px;
+}
+
+.horizontal-datepicker-header .month-year-display {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.horizontal-datepicker-header .nav-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: color 0.2s ease;
+  padding: 5px;
+}
+
+.horizontal-datepicker-header .nav-button:hover {
+  color: var(--color-text-primary);
+}
+
+.horizontal-days-container {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.day-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 60px;
+  height: 70px;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 5px;
+  box-sizing: border-box;
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-border-light);
+}
+
+.day-card:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.day-card.selected {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  border-color: var(--color-primary);
+}
+
+.day-card.booked {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border-color: var(--color-danger);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.day-card.booked .day-name,
+.day-card.booked .day-number {
+  color: var(--color-danger-dark);
+}
+
+.day-name {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-bottom: 5px;
+}
+
+.day-card.selected .day-name {
+  color: var(--color-primary-dark);
+}
+
+.day-number {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.day-card.selected .day-number {
+  color: var(--color-primary-dark);
+}
+
+/* Selected Slots Display Section */
+.selected-slots-display-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.selected-slots-display-section h4 {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .horizontal-datepicker-header {
+    padding: 0 5px;
   }
 
-  .candidate-details-content h2 {
-    font-size: 1.3rem;
+  .day-card {
+    min-width: 50px;
+    height: 60px;
   }
-
-  .candidate-name-display {
+  
+  .day-name {
+    font-size: 0.75rem;
+  }
+  
+  .day-number {
     font-size: 1.1rem;
   }
+}
 
-  .candidate-details-content p,
-  .interview-details-section p,
-  .evaluation-details-section p,
-  .aptitude-details-section p,
-  .poc-details-section p,
-  .br-chats-section p,
-  .aptitude-summary-card p,
-  .interview-summary-card p,
-  .evaluation-summary-card p {
-    font-size: 0.8rem;
+@media (max-width: 480px) {
+  .day-card {
+    min-width: 45px;
+    height: 55px;
   }
-
-  .interview-details-section h3,
-  .evaluation-details-section h3,
-  .aptitude-details-section h3,
-  .update-status-section h3,
-  .poc-details-section h3,
-  .br-chats-section h3,
-  .aptitude-summary-card h3,
-  .interview-summary-card h3,
-  .evaluation-summary-card h3 {
+  
+  .day-name {
+    font-size: 0.7rem;
+  }
+  
+  .day-number {
     font-size: 1rem;
   }
-
-  .save-status-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-  }
-
-  .view-details-link {
-    bottom: 0.25rem;
-    right: 0.75rem;
-    font-size: 0.7rem;
-  }
-
-  .modal-content {
-    padding: 1rem;
-  }
-
-  .process-step {
-    font-size: 0.7rem;
-    padding: 5px 7px;
-    white-space: normal; /* Ensure text wraps on very small screens */
-    word-break: break-word; /* Ensure long words break */
-  }
 }
 
-/* Loading Spinner Styles (copied from Jobs.css) */
-.loading-spinner {
-  border: 4px solid var(--color-border-light);
-  border-top: 4px solid var(--color-primary);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
+.status-actions {
+  display: none;
 }
 
-.loading-container p {
-  margin-top: 1rem;
-  color: var(--color-primary-dark);
-  font-weight: 500;
+.status-action-btn {
+  padding: 10px 20px;
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-small);
+  transition: background-color 0.2s;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.status-action-btn:hover {
+  background-color: var(--color-primary-dark);
 }

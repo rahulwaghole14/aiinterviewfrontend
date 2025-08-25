@@ -8,6 +8,7 @@ import {
   MdWork,
   MdSettings,
   MdBusiness, // Import new icon for Hiring Agencies
+  MdCalendarToday, // Import new icon for AI Interview Scheduler
 } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/RSL_Logo.png'; // Assuming you have a logo image
@@ -22,25 +23,26 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
     { name: 'Add Candidates', path: 'add-candidates', icon: <MdPersonAdd size={20} /> },
     { name: 'Candidates', path: 'candidates', icon: <MdGroups size={20} /> },
     { name: 'Jobs', path: 'jobs', icon: <MdWork size={20} /> },
-    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} /> },
+    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} />, restrictedRoles: ['recruiter', 'hiring_agency'] },
+    { name: 'AI Interview Scheduler', path: 'ai-interview-scheduler', icon: <MdCalendarToday size={20} />, allowedRoles: ['company', 'admin'] },
     { name: 'Settings', path: 'settings', icon: <MdSettings size={20} /> },
   ];
 
   // Filter the menu based on the user's role
   const filteredMenu = menu.filter((item) => {
-    // Normalize the user role to a consistent format (lowercase, underscores instead of spaces/hyphens)
-    // This handles variations like "HIRING_AGENCY", "hiring agency", "hiring-agency", "Recruiter", etc.
     const normalizedUserRole = user?.role?.toLowerCase().replace(/[\s-]/g, '_');
 
-    // Check if the normalized user role is one of the restricted roles
-    const isRestrictedUser = normalizedUserRole === 'recruiter' || normalizedUserRole === 'hiring_agency';
+    // If item has restrictedRoles, check if user's role is in that list
+    if (item.restrictedRoles?.includes(normalizedUserRole)) {
+      return false;
+    }
 
-    // Check if the current menu item is 'Candidates' or 'Hiring Agencies'
-    const isRestrictedItem = item.path === 'hiring-agencies';
+    // If item has allowedRoles, check if user's role is in that list
+    if (item.allowedRoles && !item.allowedRoles.includes(normalizedUserRole)) {
+      return false;
+    }
 
-    // If the user is a restricted type (recruiter/agency) AND the item is a restricted item, filter it out.
-    // Otherwise, keep the item.
-    return !(isRestrictedUser && isRestrictedItem);
+    return true;
   });
 
   return (

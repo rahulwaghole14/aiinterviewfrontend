@@ -9,19 +9,27 @@ import hiringAgenciesReducer from './slices/hiringAgenciesSlice';
 import recruitersReducer from './slices/recruitersSlice';
 import adminReducer from './slices/adminSlice';
 import dashboardReducer from './slices/dashboardSlice'; // Import the new dashboard slice
+import interviewsReducer from './slices/interviewsSlice';
+import interviewSlotsReducer from './slices/interviewSlotsSlice';
 
 const store = configureStore({
   reducer: {
     search: searchReducer,
     candidates: candidatesReducer,
     jobs: jobsReducer,
+    interviews: interviewsReducer,
     user: userReducer,
     dashboard: dashboardReducer, // Add the dashboard reducer
     companies: companiesReducer,
     hiringAgencies: hiringAgenciesReducer,
     recruiters: recruitersReducer,
     admin: adminReducer,
+    interviewSlots: interviewSlotsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export default store;

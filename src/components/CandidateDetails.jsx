@@ -1,595 +1,338 @@
 // CandidateDetails.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiChevronLeft, FiX } from 'react-icons/fi';
-import { updateCandidateStatus } from '../redux/slices/candidatesSlice';
-import { baseURL } from '../data';
-import DatePicker from "react-datepicker";
-import TimePicker from 'react-time-picker';
-import 'react-datepicker/dist/react-datepicker.css';
-import 'react-time-picker/dist/TimePicker.css';
+import { FiChevronLeft } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCandidates } from "../redux/slices/candidatesSlice";
+import {
+  fetchJobs,
+  selectAllJobs,
+  selectJobsStatus,
+} from "../redux/slices/jobsSlice";
+import { baseURL } from "../data";
 import "./CandidateDetails.css";
-import { useSelector } from 'react-redux'; // Import useSelector to get jobs and domains data
+import BeatLoader from "react-spinners/BeatLoader";
+import StatusUpdateModal from "./StatusUpdateModal";
 
-// Interview Modal
-const InterviewDetailModal = ({ interviewDetails, onClose }) => {
-  const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    setShowModal(true);
-  }, []);
-
-  const handleClose = () => {
-    setShowModal(false);
-    setTimeout(onClose, 300);
-  };
-
-  return (
-    <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
-      <div className={`modal-content interview-modal-large ${showModal ? 'show' : ''}`}>
-        <button className="modal-close-button" onClick={handleClose}>
-          <FiX size={24} />
-        </button>
-        <h3>Interview Details</h3>
-        {interviewDetails ? (
-          <>
-            <p><strong>Date:</strong> {interviewDetails.date || '-'}</p>
-            <p><strong>Time:</strong> {interviewDetails.time || '-'}</p>
-            {interviewDetails.duration && <p><strong>Duration:</strong> {interviewDetails.duration || '-'}</p>}
-            {interviewDetails.interviewer && <p><strong>Interviewer:</strong> {interviewDetails.interviewer || '-'}</p>}
-            {interviewDetails.type && <p><strong>Type:</strong> {interviewDetails.type || '-'}</p>}
-            {interviewDetails.platform && <p><strong>Platform:</strong> {interviewDetails.platform || '-'}</p>}
-            {interviewDetails.link && (
-              <p><strong>Meeting Link:</strong> {interviewDetails.link !== '-' ? <a href={interviewDetails.link} target="_blank" rel="noopener noreferrer">{interviewDetails.link}</a> : '-'}</p>
-            )}
-            {interviewDetails.agenda && <p><strong>Agenda:</strong> {interviewDetails.agenda || '-'}</p>}
-            {interviewDetails.notes && <p><strong>Notes:</strong> {interviewDetails.notes || '-'}</p>}
-          </>
-        ) : (
-          <p>No interview details available. Please update the candidate status to schedule an interview.</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Evaluation Modal
-const EvaluationDetailModal = ({ evaluation, onClose }) => {
-  const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    setShowModal(true);
-  }, []);
-
-  const handleClose = () => {
-    setShowModal(false);
-    setTimeout(onClose, 300);
-  };
-
-  return (
-    <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
-      <div className={`modal-content evaluation-modal-large ${showModal ? 'show' : ''}`}>
-        <button className="modal-close-button" onClick={handleClose}>
-          <FiX size={24} />
-        </button>
-        <h3>Evaluation Details</h3>
-        {evaluation ? (
-          <>
-            <p><strong>Score:</strong> {evaluation.score || '-'}/10</p>
-            <p><strong>Result:</strong> <span className={`eval-result ${evaluation.result?.toLowerCase() || ''}`}>{evaluation.result || '-'}</span></p>
-            {evaluation.interviewDuration && <p><strong>Interview Duration:</strong> {evaluation.interviewDuration || '-'}</p>}
-            <p><strong>Feedback:</strong> {evaluation.feedback || '-'}</p>
-            {evaluation.strengths && <p><strong>Strengths:</strong> {evaluation.strengths || '-'}</p>}
-            {evaluation.areasForImprovement && <p><strong>Areas for Improvement:</strong> {evaluation.areasForImprovement || '-'}</p>}
-            {evaluation.recommendation && <p><strong>Recommendation:</strong> {evaluation.recommendation || '-'}</p>}
-          </>
-        ) : (
-          <p>No evaluation details available. Please update the candidate status to complete evaluation.</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Update Status Modal
-const UpdateStatusModal = ({ candidate, onClose, onSave }) => {
-  const [showModal, setShowModal] = useState(false);
-  const allJobs = useSelector((state) => state.jobs.allJobs); // Get all jobs from Redux
-
-  useEffect(() => {
-    setShowModal(true);
-  }, []);
-
-  const handleClose = () => {
-    setShowModal(false);
-    setTimeout(onClose, 300);
-  };
-
-  const processSteps = [
-    "Requires Action",
-    "Interview Pending",
-    "Interview Scheduled",
-    "Interview Completed",
-    "Evaluated"
-  ];
-
-  const currentStepIndex = processSteps.indexOf(candidate.status);
-  const currentProcessStatus = processSteps[currentStepIndex];
-
-  const [interviewDate, setInterviewDate] = useState(candidate?.interviewDetails?.date ? new Date(candidate.interviewDetails.date) : null);
-  const [interviewTime, setInterviewTime] = useState(candidate?.interviewDetails?.time || '');
-  const [interviewDuration, setInterviewDuration] = useState(candidate?.evaluation?.interviewDuration || '');
-  const [evaluationRemark, setEvaluationRemark] = useState(candidate?.evaluation?.feedback || '');
-  const [evaluationScore, setEvaluationScore] = useState(candidate?.evaluation?.score || '');
-  const [evaluationResult, setEvaluationResult] = useState(candidate?.evaluation?.result || '');
-
-  const [dateError, setDateError] = useState('');
-  const [timeError, setTimeError] = useState('');
-  const [durationError, setDurationError] = useState('');
-  const [scoreError, setScoreError] = useState('');
-  const [resultError, setResultError] = useState('');
-  const [feedbackError, setFeedbackError] = useState('');
-
-  const resetErrors = () => {
-    setDateError('');
-    setTimeError('');
-    setDurationError('');
-    setScoreError('');
-    setResultError('');
-    setFeedbackError('');
-  };
-
-  const isFormValid = () => {
-    resetErrors();
-    let isValid = true;
-
-    switch (currentProcessStatus) {
-      case "Interview Pending":
-        if (!interviewDate) {
-          setDateError("Interview Date is required.");
-          isValid = false;
-        }
-        if (!interviewTime) {
-          setTimeError("Interview Time is required.");
-          isValid = false;
-        }
-        break;
-      case "Interview Completed":
-        if (!interviewDuration.trim()) {
-          setDurationError("Interview Duration is required.");
-          isValid = false;
-        }
-        if (!evaluationScore) {
-          setScoreError("Evaluation Score is required.");
-          isValid = false;
-        } else if (isNaN(parseFloat(evaluationScore)) || parseFloat(evaluationScore) < 0 || parseFloat(evaluationScore) > 10) {
-          setScoreError("Score must be between 0 and 10.");
-          isValid = false;
-        }
-        if (!evaluationResult.trim()) {
-          setResultError("Evaluation Result is required.");
-          isValid = false;
-        }
-        if (!evaluationRemark.trim()) {
-          setFeedbackError("Feedback is required.");
-          isValid = false;
-        }
-        break;
-      default:
-        break;
-    }
-    return isValid;
-  };
-
-  const handleSaveCurrentStepData = async (statusToUpdate, updatedFormData = {}) => {
-    let payloadData = updatedFormData;
-
-    if (currentProcessStatus === "Interview Pending" && statusToUpdate === "Interview Scheduled") {
-      if (!isFormValid()) return;
-
-      // Find the job using the jobRole (which is job ID from API)
-      const job = allJobs.find(job => job.id === candidate.jobRole);
-      if (!job) {
-        console.error("Job not found for candidate's job role ID:", candidate.jobRole);
-        return;
-      }
-
-      const startDate = interviewDate.toISOString().split("T")[0];
-      const [hours, minutes] = interviewTime.split(':');
-      const scheduledAt = new Date(`${startDate}T${hours}:${minutes}:00Z`);
-
-      const interviewPayload = {
-        candidate: candidate.id,
-        job: job.id,
-        interview_round: 1,
-        started_at: scheduledAt.toISOString(),
-        status: "SCHEDULED"
-      };
-
-      try {
-        const authToken = localStorage.getItem('authToken');
-        const headers = {
-          'Content-Type': 'application/json',
-          ...(authToken && { 'Authorization': `Token ${authToken}` })
-        };
-
-        const response = await fetch(`${baseURL}/api/interviews/`, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify(interviewPayload),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Failed to schedule interview:", errorData);
-          return;
-        }
-
-        const interviewResponse = await response.json();
-        console.log("Interview scheduled successfully:", interviewResponse);
-
-        payloadData.interviewDetails = {
-          date: startDate,
-          time: interviewTime,
-          duration: interviewResponse.duration || "30 minutes",
-          interviewer: interviewResponse.interviewer || "Auto-assigned",
-          type: interviewResponse.interview_type || "Technical",
-          platform: interviewResponse.platform || "Google Meet",
-          link: interviewResponse.meeting_link || "https://meet.google.com/xyz-abc",
-          agenda: interviewResponse.agenda || "Technical assessment",
-          notes: interviewResponse.notes || "Initial screening interview",
-        };
-      } catch (apiError) {
-        console.error("API call failed during interview scheduling:", apiError);
-        return;
-      }
-
-    } else if (currentProcessStatus === "Interview Completed" && statusToUpdate === "Evaluated") {
-      if (!isFormValid()) return;
-      payloadData.evaluation = {
-        score: parseFloat(evaluationScore),
-        result: evaluationResult,
-        feedback: evaluationRemark,
-        interviewDuration
-      };
-    }
-
-    await onSave(statusToUpdate, payloadData);
-    onClose();
-  };
-
-  const handleNextStep = () => {
-    const nextStepIndex = currentStepIndex + 1;
-    if (nextStepIndex < processSteps.length) {
-      const nextStatus = processSteps[nextStepIndex];
-      if (currentProcessStatus === "Interview Pending" || currentProcessStatus === "Interview Completed") {
-        if (isFormValid()) {
-          handleSaveCurrentStepData(nextStatus);
-        }
-      } else {
-        handleSaveCurrentStepData(nextStatus);
-      }
-    }
-  };
-
-  const handleGoBack = () => {
-    const prevStepIndex = currentStepIndex - 1;
-    if (prevStepIndex >= 0) {
-      const prevStatus = processSteps[prevStepIndex];
-      onSave(prevStatus, {});
-      onClose();
-    }
-  };
-
-  const handleSaveFinalStatus = (finalStatus) => {
-    onSave(finalStatus, {});
-    handleClose();
-  };
-
-  const showNextButton = currentStepIndex < processSteps.length - 1 && currentProcessStatus !== "Evaluated";
-
-  return (
-    <div className={`modal-overlay ${showModal ? 'show' : ''}`}>
-      <div className={`modal-content update-status-modal-content ${showModal ? 'show' : ''}`}>
-        <button className="modal-close-button" onClick={handleClose}>
-          <FiX size={24} />
-        </button>
-        <h3>Update Candidate Status</h3>
-
-        <div className="process-flow-container">
-          {processSteps.map((step, index) => (
-            <React.Fragment key={step}>
-              <div className={`process-step ${index <= currentStepIndex ? 'completed' : ''} ${index === currentStepIndex ? 'active' : ''}`}>
-                {step}
-              </div>
-              {index < processSteps.length - 1 && (
-                <div className={`process-arrow ${index < currentStepIndex ? 'completed' : ''}`}></div>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-
-        <div className="update-status-form-content">
-          {currentProcessStatus === "Requires Action" && (
-            <p className="process-info-text">Ready to move this candidate forward?</p>
-          )}
-
-          {currentProcessStatus === "Interview Pending" && (
-            <div className="conditional-input-group">
-              <label>Interview Date:</label>
-              <DatePicker
-                selected={interviewDate}
-                onChange={(date) => { setInterviewDate(date); setDateError(''); }}
-                dateFormat="yyyy-MM-dd"
-                className="add-candidates-input"
-              />
-              {dateError && <p className="error-message">{dateError}</p>}
-              <label>Interview Time:</label>
-              <TimePicker
-                onChange={(time) => { setInterviewTime(time); setTimeError(''); }}
-                value={interviewTime}
-                disableClock
-                className="add-candidates-input"
-              />
-              {timeError && <p className="error-message">{timeError}</p>}
-            </div>
-          )}
-
-          {currentProcessStatus === "Interview Completed" && (
-            <div className="conditional-input-group">
-              <label>Interview Duration:</label>
-              <input
-                type="text"
-                value={interviewDuration}
-                onChange={(e) => { setInterviewDuration(e.target.value); setDurationError(''); }}
-                className="add-candidates-input"
-                placeholder="e.g., 60 minutes, 1.5 hours"
-              />
-              {durationError && <p className="error-message">{durationError}</p>}
-              <label>Evaluation Score:</label>
-              <input
-                type="number"
-                value={evaluationScore}
-                onChange={(e) => { setEvaluationScore(e.target.value); setScoreError(''); }}
-                className="add-candidates-input"
-                placeholder="e.g., 8.5"
-                min="0"
-                max="10"
-                step="0.1"
-              />
-              {scoreError && <p className="error-message">{scoreError}</p>}
-              <label>Evaluation Result:</label>
-              <input
-                type="text"
-                value={evaluationResult}
-                onChange={(e) => { setEvaluationResult(e.target.value); setResultError(''); }}
-                className="add-candidates-input"
-                placeholder="e.g., Pass, Fail"
-              />
-              {resultError && <p className="error-message">{resultError}</p>}
-              <label>Feedback:</label>
-              <textarea
-                value={evaluationRemark}
-                onChange={(e) => { setEvaluationRemark(e.target.value); setFeedbackError(''); }}
-                className="add-candidates-textarea"
-                rows="3"
-              ></textarea>
-              {feedbackError && <p className="error-message">{feedbackError}</p>}
-            </div>
-          )}
-
-          <div className="modal-navigation-buttons">
-            <button onClick={handleGoBack} disabled={currentStepIndex === 0} className="cancel-btn">Go Back</button>
-
-            {currentProcessStatus === "Evaluated" ? (
-              <>
-                <button onClick={() => handleSaveFinalStatus("Hired")} className="submit-btn final-action-btn">Hired</button>
-                <button onClick={() => handleSaveFinalStatus("Rejected")} className="cancel-btn final-action-btn">Rejected</button>
-              </>
-            ) : (
-              <>
-                {showNextButton && (
-                  <button onClick={handleNextStep} className="submit-btn next-step-btn">Next</button>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Main Component
-const CandidateDetails = ({ onTitleChange }) => {
+const CandidateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const allCandidates = useSelector((state) => state.candidates.allCandidates);
+  const candidatesStatus = useSelector(
+    (state) => state.candidates.candidatesStatus
+  );
+  const allJobs = useSelector(selectAllJobs);
+  const jobsStatus = useSelector(selectJobsStatus);
+
   const [candidate, setCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [interviews, setInterviews] = useState([]);
+  const [interviewsLoading, setInterviewsLoading] = useState(false);
+  const [authToken, setAuthToken] = useState("");
   const [error, setError] = useState(null);
 
-  const [showUpdateStatusModal, setShowUpdateStatusModal] = useState(false);
-  const [showInterviewModal, setShowInterviewModal] = useState(false);
-  const [showEvaluationModal, setShowEvaluationModal] = useState(false);
+  // Get auth token from localStorage when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setAuthToken(token);
+    } else {
+      console.error("Authentication token not found. Please log in again.");
+      // Optionally redirect to login
+      // navigate('/login');
+    }
+  }, []);
 
-  // Get jobs and domains from Redux for mapping IDs to names
-  const allJobs = useSelector((state) => state.jobs.allJobs || []);
-  const domains = useSelector((state) => state.jobs.domains || []);
+  // Modal states
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [selectedAction, setSelectedAction] = useState(null);
 
   // Helper function to get domain name by ID
   const getDomainName = (domainId) => {
-    const domain = domains.find(d => d.id === domainId);
-    return domain ? domain.name : `Domain ${domainId}`;
+    if (typeof domainId === "string" && !/^[0-9]+$/.test(domainId)) {
+      return domainId;
+    }
+    return domainId || "N/A";
   };
 
   // Helper function to get job title by ID
   const getJobTitle = (jobId) => {
-    const job = allJobs.find(j => j.id === jobId);
-    return job ? job.job_title : `Job ${jobId}`;
+    if (typeof jobId === "string" && !/^[0-9]+$/.test(jobId)) {
+      return jobId;
+    }
+    const job = allJobs.find((j) => String(j.id) === String(jobId));
+    return job ? job.job_title : jobId || "N/A";
   };
 
+  // Fetch interviews and evaluations
+  const fetchInterviews = async () => {
+    if (!candidate?.id || !authToken) return;
 
-  // Function to fetch a single candidate's details from the API
-  const fetchCandidateDetails = async (candidateId) => {
-    setLoading(true);
-    setError(null);
+    setInterviewsLoading(true);
     try {
-      const authToken = localStorage.getItem('authToken');
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      if (authToken) {
-        headers['Authorization'] = `Token ${authToken}`;
-      } else {
-        console.error("No authentication token found. Please log in.");
-        navigate('/login');
-        return;
+      // Fetch interviews
+      const interviewsResponse = await fetch(`${baseURL}/api/interviews/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Token ${authToken}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!interviewsResponse.ok) {
+        if (interviewsResponse.status === 401) {
+          localStorage.removeItem("authToken");
+          navigate("/login");
+          return;
+        }
+        throw new Error(`HTTP error! status: ${interviewsResponse.status}`);
       }
 
-      const response = await fetch(`${baseURL}/api/candidates/${candidateId}/`, { headers });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`HTTP error! status: ${response.status}, details: ${errorText}`);
-        throw new Error(`Failed to fetch candidate details: ${response.statusText}`);
-      }
-      const apiCandidate = await response.json();
+      // Fetch evaluations
+      const evaluationsResponse = await fetch(
+        `${baseURL}/api/evaluation/crud/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
-      // Format the single candidate data
-      const formattedCandidate = {
-        id: apiCandidate.id,
-        name: apiCandidate.full_name || '-',
-        email: apiCandidate.email || '-',
-        phone: apiCandidate.phone_number || '-', // Changed from phone
-        domain: apiCandidate.domain || '-', // This is the domain ID
-        jobRole: apiCandidate.job_title || '-', // This is the job ID
-        poc: apiCandidate.poc_email || '-',
-        workExperience: apiCandidate.experience_years || '-',
-        status: apiCandidate.status || 'NEW',
-        lastUpdated: apiCandidate.last_updated ? new Date(apiCandidate.last_updated).toLocaleDateString("en-GB") : '-',
-        applicationDate: apiCandidate.created_at ? new Date(apiCandidate.created_at).toLocaleDateString("en-GB") : '-',
-        resumes: apiCandidate.resume_file ? [{ name: apiCandidate.resume_file.split('/').pop(), url: apiCandidate.resume_file }] : [],
-        interviewDetails: apiCandidate.interview_details ? {
-          date: apiCandidate.interview_details.started_at ? new Date(apiCandidate.interview_details.started_at).toLocaleDateString("en-GB") : '-',
-          time: apiCandidate.interview_details.started_at ? new Date(apiCandidate.interview_details.started_at).toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' }) : '-',
-          duration: apiCandidate.interview_details.duration || '-',
-          interviewer: apiCandidate.interview_details.interviewer || '-',
-          type: apiCandidate.interview_details.interview_type || '-',
-          platform: apiCandidate.interview_details.platform || '-',
-          link: apiCandidate.interview_details.meeting_link || '-',
-          agenda: apiCandidate.interview_details.agenda || '-',
-          notes: apiCandidate.interview_details.notes || '-',
-        } : null,
-        evaluation: apiCandidate.evaluation_details ? {
-          score: apiCandidate.evaluation_details.score || '-',
-          result: apiCandidate.evaluation_details.result || '-',
-          feedback: apiCandidate.evaluation_details.feedback || '-',
-          strengths: apiCandidate.evaluation_details.strengths || '-',
-          areasForImprovement: apiCandidate.evaluation_details.areas_for_improvement || '-',
-          recommendation: apiCandidate.evaluation_details.recommendation || '-',
-          interviewDuration: apiCandidate.evaluation_details.interview_duration || '-',
-        } : null,
-        aptitude: apiCandidate.aptitude_details || null,
-        brChats: apiCandidate.br_chats || [],
-      };
-      setCandidate(formattedCandidate);
-    } catch (err) {
-      console.error("Error fetching candidate details:", err);
-      setError("Failed to load candidate details. Please try again.");
+      if (!evaluationsResponse.ok) {
+        console.error("Failed to fetch evaluations");
+        // Don't throw error here as evaluations might be optional
+      }
+
+      const interviewsData = await interviewsResponse.json();
+      const evaluationsData = evaluationsResponse.ok
+        ? await evaluationsResponse.json()
+        : [];
+
+      // Process interviews and evaluations
+      const processedInterviews = (
+        Array.isArray(interviewsData)
+          ? interviewsData
+          : interviewsData.results || []
+      )
+        .filter(
+          (interview) =>
+            interview.candidate === candidate.id ||
+            (interview.candidate_object &&
+              interview.candidate_object.id === candidate.id)
+        )
+        .map((interview) => {
+          // Find matching evaluation if exists
+          const evaluation = Array.isArray(evaluationsData)
+            ? evaluationsData.find(
+                (evalItem) => evalItem.interview === interview.id
+              )
+            : null;
+
+          return {
+            ...interview,
+            evaluation: evaluation || null,
+          };
+        });
+
+      setInterviews(processedInterviews);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     } finally {
-      setLoading(false);
+      setInterviewsLoading(false);
     }
+  };
+
+  // Function to update interview status
+  const updateInterviewStatus = async (interviewId, status) => {
+    if (!authToken) {
+      console.error("Authentication token not found");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${baseURL}/api/interviews/${interviewId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${authToken}`,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Refresh the interviews data
+      fetchInterviews();
+    } catch (error) {
+      console.error("Error updating interview status:", error);
+    }
+  };
+
+  // Determine current status based on interviews
+  const getCurrentStatus = () => {
+    if (!interviews.length) return "NEW";
+
+    const latestInterview = interviews[interviews.length - 1];
+    const status = latestInterview.status?.toLowerCase();
+
+    // Check if there's any evaluation for any interview
+    const hasEvaluation = interviews.some((i) => i.evaluation);
+
+    if (hasEvaluation) return "EVALUATED";
+    if (status === "completed") return "INTERVIEW_COMPLETED";
+    if (status === "scheduled") return "INTERVIEW_SCHEDULED";
+
+    return "NEW";
+  };
+
+  // Available actions based on current status
+  const availableActions = [
+    {
+      id: "schedule_interview",
+      label: "Schedule Interview",
+      status: "INTERVIEW_SCHEDULED",
+    },
+    { id: "evaluate", label: "Complete Evaluation", status: "EVALUATED" },
+    { id: "hire_reject", label: "Make Decision", status: "HIRED" },
+  ];
+
+  // Get the next available action based on current status
+  const getNextAction = (currentStatus) => {
+    switch (currentStatus) {
+      case "NEW":
+        return { id: "schedule_interview", status: "INTERVIEW_SCHEDULED" };
+      case "INTERVIEW_SCHEDULED":
+        return { id: "complete_interview", status: "INTERVIEW_COMPLETED" };
+      case "INTERVIEW_COMPLETED":
+        return { id: "evaluate", status: "EVALUATED" };
+      case "EVALUATED":
+        return { id: "hire_reject", status: "HIRED" };
+      default:
+        return null;
+    }
+  };
+
+  // Handle status update
+  const handleStatusUpdate = async (action) => {
+    if (action === "schedule_interview") {
+      setSelectedAction("schedule_interview");
+      setShowStatusModal(true);
+    } else if (action === "evaluate") {
+      setSelectedAction("evaluate");
+      setShowStatusModal(true);
+    } else if (action === "hire_reject") {
+      setSelectedAction("hire_reject");
+      setShowStatusModal(true);
+    } else if (action === "complete_interview") {
+      // Find the latest scheduled interview
+      const latestInterview = interviews.find(
+        (interview) => interview.status?.toLowerCase() === "scheduled"
+      );
+
+      if (latestInterview) {
+        try {
+          await updateInterviewStatus(latestInterview.id, "completed");
+          // Refresh interviews data
+          await fetchInterviews();
+        } catch (error) {
+          console.error("Error completing interview:", error);
+        }
+      }
+    }
+  };
+
+  const handleModalClose = () => {
+    setShowStatusModal(false);
+    setSelectedAction(null);
+    // Refresh interviews after modal closes
+    fetchInterviews();
   };
 
   useEffect(() => {
-    // Ensure jobs and domains are loaded before fetching candidate details
-    // This is crucial for getDomainName and getJobTitle to work correctly
-    if (id && allJobs.length > 0 && domains.length > 0) {
-      fetchCandidateDetails(id);
+    if (candidatesStatus === "idle") {
+      dispatch(fetchCandidates());
     }
-    if (onTitleChange) {
-      onTitleChange('Candidate Details');
+    if (jobsStatus === "idle") {
+      dispatch(fetchJobs());
     }
-  }, [id, onTitleChange, navigate, allJobs, domains]); // Add allJobs and domains to dependencies
+  }, [candidatesStatus, jobsStatus, dispatch]);
 
-  const handleSaveStatus = async (newStatus, updatedData) => {
+  useEffect(() => {
+    if (candidatesStatus === "succeeded" && allCandidates) {
+      const foundCandidate = allCandidates.find((c) => String(c.id) === id);
+      setCandidate(foundCandidate);
+      setLoading(false);
+    } else if (candidatesStatus === "failed") {
+      setLoading(false);
+    }
+  }, [id, candidatesStatus, allCandidates]);
+
+  useEffect(() => {
+    if (candidate) {
+      fetchInterviews();
+    }
+  }, [candidate]);
+
+  // Handle evaluation submission
+  const handleEvaluationSubmit = async (evaluationData) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setError("Authentication token not found. Please log in again.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const authToken = localStorage.getItem('authToken');
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-      if (authToken) {
-        headers['Authorization'] = `Token ${authToken}`;
-      } else {
-        console.error("No authentication token found. Please log in.");
-        navigate('/login');
-        return;
-      }
-
-      const payload = {
-        status: newStatus,
-      };
-
-      if (updatedData.interviewDetails) {
-        payload.interview_details = {
-          started_at: new Date(`${updatedData.interviewDetails.date}T${updatedData.interviewDetails.time}:00Z`).toISOString(),
-          duration: updatedData.interviewDetails.duration,
-          interviewer: updatedData.interviewDetails.interviewer,
-          interview_type: updatedData.interviewDetails.type,
-          platform: updatedData.interviewDetails.platform,
-          meeting_link: updatedData.interviewDetails.link,
-          agenda: updatedData.interviewDetails.agenda,
-          notes: updatedData.interviewDetails.notes,
-          status: "SCHEDULED",
-        };
-      }
-      if (updatedData.evaluation) {
-        payload.evaluation_details = {
-          score: updatedData.evaluation.score,
-          result: updatedData.evaluation.result,
-          feedback: updatedData.evaluation.feedback,
-          strengths: updatedData.evaluation.strengths || '',
-          areas_for_improvement: updatedData.evaluation.areasForImprovement || '',
-          recommendation: updatedData.evaluation.recommendation || '',
-          interview_duration: updatedData.evaluation.interviewDuration,
-        };
-      }
-
-      const response = await fetch(`${baseURL}/api/candidates/${id}/`, {
-        method: 'PATCH',
-        headers: headers,
-        body: JSON.stringify(payload),
+      const response = await fetch(`${baseURL}/api/evaluations/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify({
+          ...evaluationData,
+          candidate: candidate.id,
+        }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`HTTP error! status: ${response.status}, details: ${errorText}`);
-        throw new Error(`Failed to update candidate status: ${response.statusText}`);
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      fetchCandidateDetails(id);
-
-    } catch (err) {
-      console.error("Error updating candidate status:", err);
+      // Refresh the data
+      await fetchInterviews();
+      setShowStatusModal(false);
+      setError(null);
+    } catch (error) {
+      console.error("Error submitting evaluation:", error);
+      setError(
+        error.message || "Failed to submit evaluation. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) {
     return (
       <div className="candidate-details-layout loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading Candidate Details...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="candidate-not-found-container">
-        <h2>Error</h2>
-        <p>{error}</p>
-        <button className="back-to-candidates-btn" onClick={() => navigate('/candidates')}>
-          Back to Candidates
-        </button>
+        <BeatLoader color="var(--color-primary-dark)" />
+        <p>Loading candidate details...</p>
       </div>
     );
   }
@@ -597,141 +340,263 @@ const CandidateDetails = ({ onTitleChange }) => {
   if (!candidate) {
     return (
       <div className="candidate-not-found-container">
-        <h2>Candidate Not Found</h2>
-        <p>The candidate you are looking for does not exist or has been removed.</p>
-        <button className="back-to-candidates-btn" onClick={() => navigate('/candidates')}>
-          Back to Candidates
+        <p>Candidate not found.</p>
+        <button
+          className="back-to-candidates-btn"
+          onClick={() => navigate("/candidates")}
+        >
+          Go to Candidates List
         </button>
       </div>
     );
   }
 
-  const getStatusBadgeClass = (status) => {
-    if (["Requires Action", "Interview Pending"].includes(status)) {
-      return "badge-warning";
-    } else if (["Rejected", "Offer Rejected", "Cancelled"].includes(status)) {
-      return "badge-danger";
-    } else if (["Interview Scheduled", "Evaluated", "Hired", "Interview Completed"].includes(status)) {
-      return "badge-success";
-    } else {
-      return "badge-info";
-    }
-  };
-
-  const truncateResumeName = (name) => {
-    if (window.innerWidth <= 767) {
-      if (!name) return '';
-      const maxLength = 10;
-      return name.length <= maxLength ? name : name.substring(0, maxLength) + '...';
-    }
-    return name;
-  };
+  const currentStatus = getCurrentStatus();
 
   return (
     <div className="candidate-details-layout">
       <div className="candidate-details-left-panel">
         <div className="candidate-details-content card">
           <div className="back-button-container">
-            <button onClick={() => navigate('/candidates')} className="back-button">
-              <FiChevronLeft size={24} /> Back to Candidates
+            <button className="back-button" onClick={() => navigate(-1)}>
+              <FiChevronLeft size={24} /> Back
             </button>
           </div>
-
-          <h1 className="candidate-name-display">{candidate.name || '-'}</h1>
-          <p className="candidate-role-display">{getJobTitle(candidate.jobRole) || '-'}</p> {/* Use helper */}
-          <span className={`status-badge ${getStatusBadgeClass(candidate.status)}`}>
-            {candidate.status || 'NEW'}
-          </span>
-
-          <div className="details-grid">
-            <p><strong>Email:</strong> {candidate.email || '-'}</p>
-            <p><strong>Phone:</strong> {candidate.phone || '-'}</p>
-            <p><strong>Domain:</strong> {getDomainName(candidate.domain) || '-'}</p> {/* Use helper */}
-            <p><strong>Work Experience:</strong> {candidate.workExperience || '-'} years</p>
-            <p><strong>Application Date:</strong> {candidate.applicationDate || '-'}</p>
-            <p><strong>Last Updated:</strong> {candidate.lastUpdated || '-'}</p>
-            <p>
-              <strong>Resumes:</strong>
-              {candidate.resumes && candidate.resumes.length > 0 ? (
-                <ul className="resume-list-detail">
-                  {candidate.resumes.map((resume, index) => (
-                    <li key={index}>
-                      <a href={resume.url} target="_blank" rel="noopener noreferrer" className="resume-link-detail">
-                        {truncateResumeName(resume.name)}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                '-'
-              )}
-            </p>
+          <div className="candidate-header-container">
+            <h1 className="candidate-name-display">
+              {candidate.name || "N/A"}
+            </h1>
           </div>
-
-          <div className="update-status-section">
-            {candidate.status !== "Hired" && candidate.status !== "Rejected" && (
-              <button onClick={() => setShowUpdateStatusModal(true)} className="submit-btn save-status-btn">
-                Update Status
-              </button>
-            )}
+          <div className="details-grid">
+            <div className="detail-row">
+              <span className="detail-label">Email:</span>
+              <span className="detail-value">{candidate.email}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Phone:</span>
+              <span className="detail-value">{candidate.phone}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Experience:</span>
+              <span className="detail-value">
+                {candidate.workExperience} years
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Domain:</span>
+              <span className="detail-value">
+                {getDomainName(candidate.domain)}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Job Title:</span>
+              <span className="detail-value">
+                {getJobTitle(candidate.jobRole)}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Applied On:</span>
+              <span className="detail-value">
+                {candidate.applicationDate
+                  ? new Date(candidate.applicationDate).toLocaleDateString()
+                  : "N/A"}
+              </span>
+            </div>
+          </div>
+          <hr className="details-divider" />
+          <h3>POC Details</h3>
+          <div className="poc-details-section">
+            <p>
+              <strong>POC Email:</strong> {candidate.poc || "N/A"}
+            </p>
           </div>
         </div>
       </div>
 
       <div className="candidate-details-right-panel">
-        <div className="poc-details-section card">
-          <h3>POC Details</h3>
-          <p><strong>POC Email:</strong> {candidate.poc || '-'}</p>
+        <div className="status-card">
+          <div className="status-header">
+            <h3>Status</h3>
+            <span className={`status-badge ${currentStatus.toLowerCase()}`}>
+              {currentStatus.replace(/_/g, " ")}
+            </span>
+          </div>
+
+          <div className="status-progress-bar">
+            {(() => {
+              const statusStages = [
+                "NEW",
+                "INTERVIEW_SCHEDULED",
+                "INTERVIEW_COMPLETED",
+                "EVALUATED",
+                "HIRED",
+              ];
+
+              const statusLabels = [
+                "New",
+                "Schedule Interview",
+                "Interview Completed",
+                "Evaluate",
+                "Hire/Reject",
+              ];
+
+              const currentIndex = statusStages.indexOf(currentStatus);
+              const nextAction = getNextAction(currentStatus);
+
+              return statusLabels.map((label, index) => {
+                const stage = statusStages[index];
+                const isCompleted = index < currentIndex;
+                const isCurrent = index === currentIndex;
+                const isNextAction =
+                  nextAction && statusStages[index] === nextAction.status;
+                const isClickable = isNextAction || isCompleted;
+
+                return (
+                  <div
+                    key={stage}
+                    className={`status-step ${isCompleted ? "completed" : ""} ${
+                      isCurrent ? "current" : ""
+                    } ${isClickable ? "clickable" : ""}`}
+                    onClick={() => {
+                      if (!isClickable) return;
+
+                      if (stage === "INTERVIEW_SCHEDULED") {
+                        handleStatusUpdate("schedule_interview");
+                      } else if (stage === "INTERVIEW_COMPLETED") {
+                        handleStatusUpdate("complete_interview");
+                      } else if (stage === "EVALUATED") {
+                        handleStatusUpdate("evaluate");
+                      } else if (stage === "HIRED") {
+                        handleStatusUpdate("hire_reject");
+                      } else if (isCompleted) {
+                        const next = getNextAction(stage);
+                        if (next) {
+                          handleStatusUpdate(next.id);
+                        }
+                      }
+                    }}
+                  >
+                    <div className="status-circle">{index + 1}</div>
+                    <div className="status-label">{label}</div>
+                    {index < statusStages.length - 1 && (
+                      <div className="status-connector"></div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
+          </div>
         </div>
 
-        <div className="interview-summary-card card" onClick={() => setShowInterviewModal(true)}>
+        <div className="interview-section card">
           <h3>Interview Details</h3>
-          {candidate.interviewDetails ? (
-            <>
-              <p>Date: {candidate.interviewDetails.date || '-'}</p>
-              <p>Time: {candidate.interviewDetails.time || '-'}</p>
-              {candidate.interviewDetails.duration && <p>Duration: {candidate.interviewDetails.duration || '-'}</p>}
-              <span className="view-details-link">View More</span>
-            </>
+          {interviewsLoading ? (
+            <BeatLoader color="var(--color-primary-dark)" size={8} />
+          ) : interviews.length > 0 ? (
+            <div className="interview-list">
+              {interviews.map((interview, index) => (
+                <div key={interview.id} className="interview-item">
+                  <p>
+                    <strong>Round:</strong> {interview.interview_round}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {interview.status}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {interview.started_at
+                      ? new Date(interview.started_at).toLocaleDateString()
+                      : "TBD"}
+                  </p>
+                  {interview.video_url && (
+                    <p>
+                      <strong>Meeting Link:</strong>{" "}
+                      <a
+                        href={interview.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Join Interview
+                      </a>
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           ) : (
-            <p>Interview needs to be scheduled.</p>
+            <p className="no-data">No interviews scheduled</p>
           )}
         </div>
 
-        <div className="evaluation-summary-card card" onClick={() => setShowEvaluationModal(true)}>
-          <h3>Evaluation Details</h3>
-          {candidate.evaluation ? (
-            <>
-              <p>Score: {candidate.evaluation.score || '-'}/10</p>
-              <p>Result: {candidate.evaluation.result || '-'}</p>
-              {candidate.evaluation.interviewDuration && <p>Interview Duration: {candidate.evaluation.interviewDuration || '-'}</p>}
-              <p>Feedback: {candidate.evaluation.feedback || '-'}</p>
-              <span className="view-details-link">View More</span>
-            </>
+        <div className="evaluation-section card">
+          <h3>Evaluation</h3>
+          {interviews.some((i) => i.evaluation) ? (
+            <div className="evaluation-info">
+              {interviews
+                .filter((i) => i.evaluation)
+                .map((interview) => (
+                  <div key={interview.id} className="evaluation-item">
+                    <p>
+                      <strong>Overall Score:</strong>{" "}
+                      <span
+                        className={`score ${
+                          interview.evaluation.overall_score >= 7
+                            ? "high-score"
+                            : interview.evaluation.overall_score >= 5
+                            ? "medium-score"
+                            : "low-score"
+                        }`}
+                      >
+                        {interview.evaluation.overall_score}/10
+                      </span>
+                    </p>
+                    <p>
+                      <strong>Traits:</strong>{" "}
+                      {Array.isArray(interview.evaluation.traits)
+                        ? interview.evaluation.traits.join(", ")
+                        : interview.evaluation.traits}
+                    </p>
+                    <p>
+                      <strong>Suggestions:</strong>{" "}
+                      {interview.evaluation.suggestions ||
+                        "No specific suggestions"}
+                    </p>
+                    <p>
+                      <strong>Status:</strong>{" "}
+                      <span
+                        className={`status ${
+                          interview.evaluation.status?.toLowerCase() || ""
+                        }`}
+                      >
+                        {interview.evaluation.status || "Pending Review"}
+                      </span>
+                    </p>
+                  </div>
+                ))}
+            </div>
           ) : (
-            <p>Evaluation needs to be completed.</p>
+            <p className="no-data">{`${
+              currentStatus === "INTERVIEW_COMPLETED"
+                ? "Evaluation in progress..."
+                : "No evaluation available"
+            }`}</p>
           )}
         </div>
       </div>
 
-
-      {showInterviewModal && (
-        <InterviewDetailModal
-          interviewDetails={candidate.interviewDetails}
-          onClose={() => setShowInterviewModal(false)}
-        />
-      )}
-      {showEvaluationModal && (
-        <EvaluationDetailModal
-          evaluation={candidate.evaluation}
-          onClose={() => setShowEvaluationModal(false)}
-        />
-      )}
-      {showUpdateStatusModal && (
-        <UpdateStatusModal
+      {/* Status Update Modal */}
+      {showStatusModal && (
+        <StatusUpdateModal
+          isOpen={showStatusModal}
+          onClose={() => {
+            setShowStatusModal(false);
+            setError(null);
+          }}
+          onUpdateStatus={handleStatusUpdate}
+          action={selectedAction}
           candidate={candidate}
-          onClose={() => setShowUpdateStatusModal(false)}
-          onSave={handleSaveStatus}
+          interviews={interviews}
+          onSubmitEvaluation={handleEvaluationSubmit}
         />
       )}
     </div>
