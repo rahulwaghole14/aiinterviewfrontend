@@ -1,39 +1,40 @@
 /* App.css */
 :root {
-  /* Light Theme Variables */
-  --color-bg: #e9f5e9;
-  --color-bg-secondary: #f0f8f0;
-  --color-sidebar: #d9f0d9;
+  /* Light Theme Variables - Talaro Professional Color Scheme */
+  --color-bg: #f8fafc;
+  --color-bg-secondary: #f1f5f9;
+  --color-sidebar: #1e293b;
   --color-card: #ffffff;
-  --color-card-highlight: #fefee0;
-  --color-primary: #7fca92;
-  --color-primary-dark: #5aa173;
-  --color-secondary: #ffdc80; /* Added for hover states */
-  --color-secondary-dark: #ffc240;
-  --color-accent: #a1e0c7;
-  --color-text: #2c3e50;
-  --color-text-primary: #2c3e50; /* Specific for main headings/strong text */
-  --color-text-secondary: #6c7a89; /* Specific for labels/muted text */
-  --color-muted: #6c7a89;
-  --color-success: #4caf50;
-  --color-success-light: #e6ffe6;
-  --color-success-dark: #388e3c;
-  --color-error: #f44336;
-  --color-danger: #f44336; /* Alias for error */
-  --color-danger-light: #ffe6e6;
-  --color-danger-dark: #d32f2f;
-  --color-warning: #ffc107;
-  --color-warning-light: #fff8e1;
-  --color-warning-dark: #ffa000;
-  --color-info: #2196f3;
-  --color-info-light: #e3f2fd;
-  --color-info-dark: #1976d2;
-  --color-border: #dcdcdc;
-  --color-border-light: #eeeeee;
-  --color-gray: #9e9e9e;
-  --color-gray-dark: #757575;
-  --color-hover: #f5f5f5; /* General hover background */
-  --color-overlay: rgba(0, 0, 0, 0.5); /* Added for consistent overlay color */
+  --color-card-highlight: #f8fafc;
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-secondary: #64748b;
+  --color-secondary-dark: #475569;
+  --color-accent: #0ea5e9;
+  --color-text: #1e293b;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-muted: #94a3b8;
+  --color-success: #10b981;
+  --color-success-light: #ecfdf5;
+  --color-success-dark: #059669;
+  --color-error: #ef4444;
+  --color-danger: #ef4444;
+  --color-danger-light: #fef2f2;
+  --color-danger-dark: #dc2626;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-warning-dark: #d97706;
+  --color-info: #3b82f6;
+  --color-info-light: #eff6ff;
+  --color-info-dark: #2563eb;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+  --color-gray: #94a3b8;
+  --color-gray-dark: #64748b;
+  --color-hover: #f8fafc;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-sidebar-text: #cbd5e1;
 
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
   --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -47,11 +48,11 @@
   --sidebar-collapsed-width: 80px;
 
   /* RGB values for shadows */
-  --color-primary-rgb: 127, 202, 146;
-  --color-success-rgb: 76, 175, 80; /* Added for rgba usage */
-  --color-danger-rgb: 244, 67, 54; /* Added for rgba usage */
-  --color-warning-rgb: 255, 193, 7; /* Added for rgba usage */
-  --color-info-rgb: 33, 150, 243; /* Added for rgba usage */
+  --color-primary-rgb: 59, 130, 246;
+  --color-success-rgb: 16, 185, 129;
+  --color-danger-rgb: 239, 68, 68;
+  --color-warning-rgb: 245, 158, 11;
+  --color-info-rgb: 59, 130, 246;
 
   /* Global Font Family */
   --font-family-base: 'Roboto', sans-serif;
@@ -71,41 +72,42 @@
   --color-button-active: var(--color-primary-dark);
 }
 
-/* Dark Theme Variables */
+/* Dark Theme Variables - Talaro Professional Dark Scheme */
 body[data-theme='dark'] {
-  --color-bg: #18191a;
-  --color-bg-secondary: #23272b;
-  --color-sidebar: #23272b;
-  --color-card: #222326;
-  --color-card-highlight: #2c2f34;
-  --color-primary: #4b5563; /* Gray dark for primary */
-  --color-primary-dark: #374151;
-  --color-secondary: #6b7280; /* Muted gray for secondary */
-  --color-secondary-dark: #4b5563;
-  --color-accent: #9ca3af; /* Lighter gray accent */
-  --color-text: #e5e7eb; /* Light gray text */
-  --color-text-primary: #f3f4f6;
-  --color-text-secondary: #9ca3af;
-  --color-muted: #6b7280;
-  --color-success: #22c55e;
-  --color-success-light: #1e3a24;
-  --color-success-dark: #16a34a;
+  --color-bg: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-sidebar: #0f172a;
+  --color-card: #1e293b;
+  --color-card-highlight: #334155;
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-secondary: #64748b;
+  --color-secondary-dark: #475569;
+  --color-accent: #0ea5e9;
+  --color-text: #e2e8f0;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-muted: #94a3b8;
+  --color-success: #10b981;
+  --color-success-light: #064e3b;
+  --color-success-dark: #059669;
   --color-error: #ef4444;
   --color-danger: #ef4444;
   --color-danger-light: #450a0a;
   --color-danger-dark: #dc2626;
-  --color-warning: #facc15;
-  --color-warning-light: #422006;
-  --color-warning-dark: #eab308;
+  --color-warning: #f59e0b;
+  --color-warning-light: #451a03;
+  --color-warning-dark: #d97706;
   --color-info: #3b82f6;
   --color-info-light: #1e3a8a;
   --color-info-dark: #2563eb;
-  --color-border: #374151;
-  --color-border-light: #4b5563;
-  --color-gray: #6b7280;
-  --color-gray-dark: #4b5563;
-  --color-hover: #2e3033;
-  --color-overlay: rgba(0, 0, 0, 0.7); /* Darker overlay for dark theme */
+  --color-border: #334155;
+  --color-border-light: #475569;
+  --color-gray: #64748b;
+  --color-gray-dark: #475569;
+  --color-hover: #334155;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --color-sidebar-text: #e2e8f0;
 
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -170,13 +172,17 @@ body, html {
 /* Adjust sidebar items for collapsed state (Applies to desktop collapsed and ALL mobile) */
 .sidebar .logo-link {
   justify-content: center;
-  background-color: #ffffff;
+  background-color: var(--color-card);
   border-radius: var(--radius);
+  padding: 0.5rem;
+  box-shadow: var(--shadow-soft);
 }
 
 .sidebar .brand-name {
   display: none;
-  color: #000000; /* Black color for Talaro text */
+  color: var(--color-text-primary);
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .sidebar .sidebar-item {
@@ -202,7 +208,8 @@ body, html {
   min-width: 32px;
   min-height: 32px;
   font-size: 24px;
-  color: var(--color-primary-dark);
+  color: var(--color-sidebar-text);
+  transition: var(--transition);
 }
 
 /* Fix for collapsed sidebar: always show icon, hide only text */
@@ -245,7 +252,7 @@ body, html {
 /* Header Styles */
 .header {
   grid-area: header;
-  background-color: var(--color-bg);
+  background-color: var(--color-card);
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
@@ -253,6 +260,7 @@ body, html {
   box-shadow: var(--shadow-soft);
   position: relative;
   z-index: 5;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .header-left {
@@ -306,12 +314,19 @@ body, html {
   padding: 1.5rem;
   transition: var(--transition);
   margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-1px);
 }
 
 /* Logo & Branding */
 .logo {
   width: 50px;
   height: 50px;
+  transition: var(--transition);
 }
 
 .logo-link {
@@ -321,12 +336,20 @@ body, html {
   text-decoration: none;
   color: var(--color-text);
   transition: var(--transition);
+  padding: 0.5rem;
+  border-radius: var(--radius);
+}
+
+.logo-link:hover {
+  background-color: var(--color-hover);
+  transform: scale(1.02);
 }
 
 .brand-name {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
   transition: var(--transition);
+  letter-spacing: -0.025em;
 }
 
 
@@ -343,20 +366,27 @@ body, html {
 .sidebar-item {
   border-radius: var(--radius);
   cursor: pointer;
-  color: var(--color-text);
+  color: var(--color-sidebar-text);
   text-decoration: none;
   overflow: hidden;
+  transition: var(--transition);
 }
 
 .sidebar-item:hover {
   background-color: var(--color-card);
-  color:var(--color-primary-dark);
+  color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.sidebar-item:hover .sidebar-icon {
+  color: var(--color-primary);
 }
 
 .sidebar-item.active {
   background-color: var(--color-primary);
   font-weight: 600;
   color: white;
+  box-shadow: var(--shadow-button);
 }
 
 .sidebar-item.active .sidebar-icon {
@@ -366,29 +396,41 @@ body, html {
 /* Header Components */
 .header-title {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
+  color: var(--color-text-primary);
+  letter-spacing: -0.025em;
 }
 
 .header-search {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: var(--color-card); /* Use color-card for search background */
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
-  padding: 0.4rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   width: 250px;
+  transition: var(--transition);
+}
+
+.header-search:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .header-search input {
   border: none;
   outline: none;
-  color:var(--color-text);
+  color: var(--color-text);
   margin-left: 0.5rem;
   width: 100%;
   font-size: 0.95rem;
   background: transparent;
+}
+
+.header-search input::placeholder {
+  color: var(--color-muted);
 }
 
 .header-search .search-dropdown {
@@ -758,9 +800,11 @@ body, html {
 }
 
 .profile-title {
-  color: var(--color-primary-dark);
+  color: var(--color-text-primary);
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .profile-details p {
@@ -771,9 +815,10 @@ body, html {
 }
 
 .profile-details p strong {
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   min-width: 100px; /* Align labels */
   display: inline-block;
+  font-weight: 600;
 }
 
 .profile-form {
@@ -808,7 +853,7 @@ body, html {
 .profile-form .form-group input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .profile-actions {
@@ -842,6 +887,258 @@ body, html {
   padding: 0;
   z-index: 2;
 }
-h2, h3{
- color:var(--color-primary-dark)
+h2, h3 {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Button Styles */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-small);
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.btn-success {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: var(--color-success-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-danger-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+/* Additional Modern UI Elements for Talaro Branding */
+
+/* Status badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.success {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.status-badge.warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.status-badge.error {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.status-badge.info {
+  background-color: var(--color-info-light);
+  color: var(--color-info-dark);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced table styling */
+.table-container {
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-light);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th {
+  background-color: var(--color-bg-secondary);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table-container td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text);
+}
+
+.table-container tr:hover {
+  background-color: var(--color-hover);
+}
+
+/* Form styling enhancements */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  font-size: 0.9rem;
+  background-color: var(--color-card);
+  color: var(--color-text);
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--color-border-light);
+}
+
+/* Talaro brand accent elements */
+.talaro-accent {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.talaro-gradient-bg {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  color: white;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+  }
+  
+  .header-search {
+    width: 200px;
+  }
+  
+  .content-area {
+    padding: 1rem;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+/* Dark theme specific adjustments */
+body[data-theme='dark'] .talaro-accent {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body[data-theme='dark'] .table-container th {
+  background-color: var(--color-bg);
+}
+
+body[data-theme='dark'] .form-control {
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
 }
