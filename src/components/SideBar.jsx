@@ -9,9 +9,11 @@ import {
   MdSettings,
   MdBusiness, // Import new icon for Hiring Agencies
   MdCalendarToday, // Import new icon for AI Interview Scheduler
+  MdAssessment, // Import new icon for Interview Results
+  MdDataUsage, // Import new icon for Data Listing
 } from 'react-icons/md';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../assets/RSL_Logo.png'; // Assuming you have a logo image
+import logo from '../assets/talaro-logo.png'; // Talaro logo
 
 const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
   const location = useLocation();
@@ -24,7 +26,9 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
     { name: 'Candidates', path: 'candidates', icon: <MdGroups size={20} /> },
     { name: 'Jobs', path: 'jobs', icon: <MdWork size={20} /> },
     { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} />, restrictedRoles: ['recruiter', 'hiring_agency'] },
-    { name: 'AI Interview Scheduler', path: 'ai-interview-scheduler', icon: <MdCalendarToday size={20} />, allowedRoles: ['company', 'admin'] },
+    { name: 'Talaro Interview Scheduler', path: 'ai-interview-scheduler', icon: <MdCalendarToday size={20} />, allowedRoles: ['company', 'admin'] },
+    // { name: 'Interview Results', path: 'interview-results', icon: <MdAssessment size={20} />, allowedRoles: ['company', 'admin'] },
+    // { name: 'Data Dashboard', path: 'data-listing', icon: <MdDataUsage size={20} />, allowedRoles: ['company', 'admin'] },
     { name: 'Settings', path: 'settings', icon: <MdSettings size={20} /> },
   ];
 
@@ -53,7 +57,7 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
           alt="Logo"
           className="logo"
         />
-        {isExpanded && <h2 className="brand-name">IntelliHire</h2>}
+        {isExpanded && <h2 className="brand-name">Talaro</h2>}
       </Link>
 
       <ul className="sidebar-menu">

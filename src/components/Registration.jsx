@@ -75,7 +75,7 @@ const Register = () => {
   return (
     <div className="registration-container">
       <div className="registration-card">
-        <h2 className="registration-title">Register for IntelliHire</h2>
+        <h2 className="registration-title">Register for Talaro</h2>
         <form onSubmit={handleRegister} className="registration-form">
           <div className="registration-form-grid"> {/* Container for two-column layout */}
             <div className="registration-form-group">

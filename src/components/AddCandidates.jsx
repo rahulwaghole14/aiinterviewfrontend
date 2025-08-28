@@ -549,6 +549,7 @@ const AddCandidates = () => {
                   <th>Experience (Years)</th>
                   <th>Domain</th> {/* Added Domain header */}
                   <th>Job Role</th> {/* Added Job Role header */}
+                  <th>Match %</th> {/* Added Matching Percentage header */}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -609,6 +610,29 @@ const AddCandidates = () => {
                       <td>{getDomainName(parseInt(formData.domain, 10)) || '-'}</td>
                       {/* Display Job Role from formData, not editable */}
                       <td>{getJobTitle(parseInt(formData.job_title, 10)) || '-'}</td>
+                      {/* Display Matching Percentage */}
+                      <td>
+                        {candidate.extracted_data.job_matching ? (
+                          <div className="match-percentage">
+                            <span 
+                              className={`match-score ${candidate.extracted_data.job_matching.overall_match >= 80 ? 'high' : candidate.extracted_data.job_matching.overall_match >= 60 ? 'medium' : 'low'}`}
+                              title={`Overall: ${candidate.extracted_data.job_matching.overall_match}%
+Skills: ${candidate.extracted_data.job_matching.skill_match}%
+Text Similarity: ${candidate.extracted_data.job_matching.text_similarity}%
+Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
+                            >
+                              {candidate.extracted_data.job_matching.overall_match}%
+                            </span>
+                            {candidate.extracted_data.job_matching.error && (
+                              <div className="match-error" title={candidate.extracted_data.job_matching.error}>
+                                ⚠️
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
                       <td className="actions-cell">
                         {editingCandidateTempId === candidate.tempId ? (
                           <div className="action-buttons-group">

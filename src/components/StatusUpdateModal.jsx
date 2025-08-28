@@ -11,6 +11,7 @@ const StatusUpdateModal = ({
   action,
   candidate,
   interviews,
+  onInterviewScheduled,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,10 +36,8 @@ const StatusUpdateModal = ({
 
   // Schedule Interview Form State
   const [scheduleForm, setScheduleForm] = useState({
-    interview_round: "",
     selectedDate: new Date(),
     selectedTimes: [],
-    video_url: "",
     feedback: "",
   });
 
@@ -57,10 +56,8 @@ const StatusUpdateModal = ({
 
   const resetForms = () => {
     setScheduleForm({
-      interview_round: "",
       selectedDate: new Date(),
       selectedTimes: [],
-      video_url: "",
       feedback: "",
     });
     setEvaluationForm({
@@ -88,11 +85,59 @@ const StatusUpdateModal = ({
       return;
     }
 
-    if (
-      !scheduleForm.interview_round ||
-      scheduleForm.selectedTimes.length === 0
-    ) {
-      setError("Please fill in all required fields");
+    if (scheduleForm.selectedTimes.length === 0) {
+      setError("Please select a time slot");
+      return;
+    }
+
+    // Convert selected times to proper datetime format
+    const selectedDate = scheduleForm.selectedDate.toISOString().split("T")[0];
+    let startedAt = null;
+    let endedAt = null;
+    
+    if (scheduleForm.selectedTimes.length > 0) {
+      // Get the first selected time slot
+      const firstTime = scheduleForm.selectedTimes[0];
+      const lastTime = scheduleForm.selectedTimes[scheduleForm.selectedTimes.length - 1];
+      
+      // Parse time ranges (e.g., "10:00-11:00" or "10:00")
+      let startTime, endTime;
+      
+      if (firstTime.includes("-")) {
+        startTime = firstTime.split("-")[0];
+      } else {
+        startTime = firstTime;
+      }
+      
+      if (lastTime.includes("-")) {
+        endTime = lastTime.split("-")[1];
+      } else {
+        // If no end time specified, assume 1 hour duration
+        const [hours, minutes] = startTime.split(":");
+        const endHours = (parseInt(hours) + 1).toString().padStart(2, "0");
+        endTime = `${endHours}:${minutes}`;
+      }
+      
+      // Add timezone offset to make it timezone-aware
+      const timezoneOffset = new Date().getTimezoneOffset();
+      const timezoneHours = Math.abs(Math.floor(timezoneOffset / 60));
+      const timezoneMinutes = Math.abs(timezoneOffset % 60);
+      const timezoneSign = timezoneOffset <= 0 ? '+' : '-';
+      const timezoneString = `${timezoneSign}${timezoneHours.toString().padStart(2, '0')}:${timezoneMinutes.toString().padStart(2, '0')}`;
+      
+      startedAt = `${selectedDate}T${startTime}:00${timezoneString}`;
+      endedAt = `${selectedDate}T${endTime}:00${timezoneString}`;
+    }
+
+    // Validate that we have valid start and end times
+    if (!startedAt || !endedAt) {
+      setError("Please select valid time slots for the interview");
+      return;
+    }
+
+    // Validate that we have valid start and end times
+    if (!startedAt || !endedAt) {
+      setError("Please select valid time slots for the interview");
       return;
     }
 
@@ -102,13 +147,16 @@ const StatusUpdateModal = ({
     try {
       const interviewData = {
         candidate: candidate.id,
-        interview_round: scheduleForm.interview_round,
-        scheduled_date: scheduleForm.selectedDate.toISOString().split("T")[0],
-        scheduled_times: scheduleForm.selectedTimes,
-        video_url: scheduleForm.video_url || null,
+        job: candidate.job?.id || candidate.job || null, // Get job ID if it's an object, otherwise use as is
+        started_at: startedAt,
+        ended_at: endedAt,
         feedback: scheduleForm.feedback || "",
       };
 
+      // Debug logging (can be removed in production)
+      console.log("Sending interview data:", interviewData);
+
+      // Step 1: Create the interview
       const response = await fetch(`${baseURL}/api/interviews/`, {
         method: "POST",
         headers: getAuthHeaders(),
@@ -117,12 +165,74 @@ const StatusUpdateModal = ({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to create interview");
+        console.error("Interview creation failed:", errorData);
+        console.error("Response status:", response.status);
+        console.error("Response headers:", response.headers);
+        
+        // Log the full error object
+        if (typeof errorData === 'object') {
+          console.error("Error details:", JSON.stringify(errorData, null, 2));
+        }
+        
+        throw new Error(errorData.detail || errorData.message || JSON.stringify(errorData) || "Failed to create interview");
       }
 
       const responseData = await response.json();
+      const interviewId = responseData.id;
+
+      // Step 2: Find and book the appropriate slot
+      if (scheduleForm.selectedTimes.length > 0) {
+        // Get available slots for the selected date
+        const formattedDate = scheduleForm.selectedDate.toISOString().split("T")[0];
+        const slotsResponse = await fetch(
+          `${baseURL}/api/interviews/slots/?date=${formattedDate}&status=available`,
+          {
+            headers: getAuthHeaders(),
+          }
+        );
+
+        if (slotsResponse.ok) {
+          const slotsData = await slotsResponse.json();
+          const availableSlots = slotsData.results || slotsData || [];
+
+          // Find a slot that matches our selected time
+          const matchingSlot = availableSlots.find(slot => {
+            const slotStartTime = slot.start_time.split("T")[1]?.substring(0, 5);
+            const slotEndTime = slot.end_time.split("T")[1]?.substring(0, 5);
+            const slotTimeRange = `${slotStartTime}-${slotEndTime}`;
+            
+            return scheduleForm.selectedTimes.includes(slotTimeRange);
+          });
+
+          if (matchingSlot) {
+            // Book the interview to this slot
+            const bookingData = {
+              interview_id: interviewId,
+              booking_notes: scheduleForm.feedback || ""
+            };
+
+            const bookingResponse = await fetch(
+              `${baseURL}/api/interviews/slots/${matchingSlot.id}/book_slot/`,
+              {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify(bookingData),
+              }
+            );
+
+            if (!bookingResponse.ok) {
+              console.warn("Failed to book slot, but interview was created");
+            }
+          }
+        }
+      }
+
       setSuccess("Interview scheduled successfully!");
       onClose();
+      // Call callback to refresh interview data
+      if (onInterviewScheduled) {
+        onInterviewScheduled();
+      }
     } catch (err) {
       console.error("Error scheduling interview:", err);
       setError(err.message || "Error scheduling interview");
@@ -262,22 +372,6 @@ const StatusUpdateModal = ({
       <h3>Schedule Interview</h3>
 
       <div className="form-group">
-        <label>Interview Round *</label>
-        <input
-          type="text"
-          value={scheduleForm.interview_round}
-          onChange={(e) =>
-            setScheduleForm({
-              ...scheduleForm,
-              interview_round: e.target.value,
-            })
-          }
-          placeholder="e.g., Technical Round 1, HR Round"
-          required
-        />
-      </div>
-
-      <div className="form-group">
         <label>Select Date *</label>
         <HorizontalDatePicker
           selectedDate={scheduleForm.selectedDate}
@@ -297,18 +391,6 @@ const StatusUpdateModal = ({
           selectedDate={scheduleForm.selectedDate}
           baseURL={baseURL}
           isModal={true}
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Meeting Link (Optional)</label>
-        <input
-          type="url"
-          value={scheduleForm.video_url}
-          onChange={(e) =>
-            setScheduleForm({ ...scheduleForm, video_url: e.target.value })
-          }
-          placeholder="https://meet.google.com/..."
         />
       </div>
 

@@ -225,7 +225,7 @@ const Header = ({
           </div>
           {isProfileMenuOpen && (
             <div className="profile-context-menu">
-              <div className="menu-item" onClick={() => handleProfileMenuOptionClick('/profile')}>View Profile</div>
+              <div className="menu-item" onClick={() => handleProfileMenuOptionClick('profile')}>View Profile</div>
               <div className="menu-item logout" onClick={() => handleProfileMenuOptionClick('logout')}>Logout</div>
             </div>
           )}

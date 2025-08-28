@@ -13,6 +13,12 @@ const ActionMenu = ({
   onView,
   onDownload,
   itemId,
+  viewIcon,
+  editIcon,
+  deleteIcon,
+  iconOnly = false,
+  buttonClassName,
+  buttonStyle,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,9 +52,11 @@ const ActionMenu = ({
   return (
     <div className="action-menu" ref={menuRef}>
       <button
-        className="menu-button"
+        className={buttonClassName || "menu-button"}
+        style={buttonStyle}
         onClick={(e) => {
           e.stopPropagation();
+          console.log("ActionMenu button clicked, current isOpen:", isOpen);
           setIsOpen(!isOpen);
         }}
         aria-label="Actions"
@@ -60,6 +68,7 @@ const ActionMenu = ({
         <div
           className="menu-dropdown show"
           onClick={(e) => e.stopPropagation()}
+          style={{ display: 'block', visibility: 'visible', opacity: 1 }}
         >
           {onView && (
             <div
@@ -69,8 +78,8 @@ const ActionMenu = ({
                 handleAction(onView, itemId);
               }}
             >
-              <FiEye size={16} />
-              <span>View</span>
+              {viewIcon || <FiEye size={16} />}
+              {!iconOnly && <span>View</span>}
             </div>
           )}
           {onEdit && (
@@ -81,8 +90,8 @@ const ActionMenu = ({
                 handleAction(onEdit, itemId);
               }}
             >
-              <FiEdit2 size={16} />
-              <span>Edit</span>
+              {editIcon || <FiEdit2 size={16} />}
+              {!iconOnly && <span>Edit</span>}
             </div>
           )}
           {onDownload && (
@@ -94,7 +103,7 @@ const ActionMenu = ({
               }}
             >
               <FiDownload size={16} />
-              <span>Download</span>
+              {!iconOnly && <span>Download</span>}
             </div>
           )}
           {onDelete && (
@@ -107,8 +116,8 @@ const ActionMenu = ({
                 handleAction(onDelete, itemId);
               }}
             >
-              <FiTrash2 size={16} />
-              <span>Delete</span>
+              {deleteIcon || <FiTrash2 size={16} />}
+              {!iconOnly && <span>Delete</span>}
             </div>
           )}
         </div>

@@ -39,6 +39,7 @@ export const fetchJobs = createAsyncThunk(
         position_level: job.position_level,
         current_process: job.current_process,
         tech_stack_details: job.tech_stack_details,
+        job_description: job.job_description || '', // Add job_description field
         jd_file: job.jd_file,
         jd_link: job.jd_link,
         created_at: job.created_at,

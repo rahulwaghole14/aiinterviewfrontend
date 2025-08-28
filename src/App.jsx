@@ -18,6 +18,10 @@ import Register from './components/Registration';
 import Profile from './components/Profile';
 import HiringAgencies from './components/HiringAgency';
 import AiInterviewScheduler from './components/AiInterviewScheduler'; // Import the new AiInterviewScheduler component
+import InterviewPortal from './components/InterviewPortal'; // Import the new InterviewPortal component
+import InterviewResults from './components/InterviewResults'; // Import the new InterviewResults component
+import InterviewResultsList from './components/InterviewResultsList'; // Import the new InterviewResultsList component
+import DataListing from './components/DataListing'; // Import the new DataListing component
 import "./App.css";
 
 const initialTheme = localStorage.getItem('theme') || 'light';
@@ -50,9 +54,15 @@ const getInitialHeaderTitle = () => {
     case 'hiring-agencies':
       title = 'Hiring Agencies';
       break;
-    case 'ai-interview-scheduler':
-      title = 'AI Interview Manager';
-      break;
+          case 'ai-interview-scheduler':
+        title = 'Talaro Interview Manager';
+        break;
+      case 'interview-results':
+        title = 'Interview Results';
+        break;
+      case 'data-listing':
+        title = 'Interview Data Dashboard';
+        break;
     case 'login':
       title = 'Login';
       break;
@@ -266,6 +276,22 @@ function App() {
               <Route 
                 path="/ai-interview-scheduler" 
                 element={<AiInterviewScheduler onTitleChange={updateHeaderTitle} />} 
+              />
+              <Route 
+                path="/interview/:sessionKey" 
+                element={<InterviewPortal />} 
+              />
+              <Route 
+                path="/interview-results" 
+                element={<InterviewResultsList />} 
+              />
+              <Route 
+                path="/interview-results/:sessionId" 
+                element={<InterviewResults />} 
+              />
+              <Route 
+                path="/data-listing" 
+                element={<DataListing />} 
               />
             </Routes>
           </div>

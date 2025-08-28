@@ -66,6 +66,7 @@ export const fetchCandidates = createAsyncThunk(
         evaluation: candidate.evaluation_details || null,
         aptitude: candidate.aptitude_details || null,
         brChats: candidate.br_chats || [],
+        job_matching: candidate.job_matching || null, // Add job matching data
       }));
       return formattedCandidates;
     } catch (error) {

@@ -12,14 +12,13 @@ export const fetchHiringAgencies = createAsyncThunk(
       
       console.log('Current user data:', userData);
       console.log('Auth token exists:', !!token);
+      console.log('Fetching hiring agencies from:', `${baseURL}/api/hiring_agency/`);
       
       if (!token) {
         console.error('No authentication token found');
         return rejectWithValue('Authentication required');
       }
 
-      console.log('Fetching hiring agencies from:', `${baseURL}/api/hiring_agency/`);
-      
       const response = await fetch(`${baseURL}/api/hiring_agency/`, {  
         method: 'GET',
         headers: {
@@ -27,6 +26,9 @@ export const fetchHiringAgencies = createAsyncThunk(
           'Authorization': `Token ${token}`,
         },
       });
+
+      console.log('Hiring agencies response status:', response.status);
+      console.log('Hiring agencies response ok:', response.ok);
 
       const responseData = await response.json().catch(() => ({}));
       
@@ -41,9 +43,11 @@ export const fetchHiringAgencies = createAsyncThunk(
       }
 
       console.log('Successfully fetched hiring agencies:', responseData);
-      return Array.isArray(responseData) 
+      const mappedData = Array.isArray(responseData) 
         ? responseData.map(agency => ({ ...agency, userType: 'Hiring Agency' })) 
         : [];
+      console.log('Mapped hiring agencies data:', mappedData);
+      return mappedData;
     } catch (error) {
       console.error('Exception in fetchHiringAgencies:', error);
       return rejectWithValue(error.message || 'Network error occurred');

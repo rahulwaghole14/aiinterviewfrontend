@@ -187,12 +187,16 @@ const HiringAgencies = () => {
     // Only proceed if we have user data
     if (!user) {
       console.log("HiringAgencies - No user logged in.");
+      console.log("HiringAgencies - User data from Redux:", user);
+      console.log("HiringAgencies - Auth token:", localStorage.getItem('authToken'));
       setIsLoading(false);
       return;
     }
 
     console.log("HiringAgencies - Logged-in user details:", user);
     console.log("HiringAgencies - User role:", userRole);
+    console.log("HiringAgencies - User company:", userCompany);
+    console.log("HiringAgencies - Auth token exists:", !!localStorage.getItem('authToken'));
 
     // Reset permission error first
     setPermissionError("");
@@ -205,6 +209,10 @@ const HiringAgencies = () => {
       .replace(/ /g, "_");
     const allowedRoles = ["admin", "company", "hiring_agency"];
 
+    console.log("HiringAgencies - Normalized role:", normalizedRole);
+    console.log("HiringAgencies - Allowed roles:", allowedRoles);
+    console.log("HiringAgencies - Role allowed:", allowedRoles.includes(normalizedRole));
+
     if (!allowedRoles.includes(normalizedRole)) {
       setPermissionError("You do not have permission to access this page.");
       setIsLoading(false);
@@ -214,19 +222,24 @@ const HiringAgencies = () => {
     // Fetch data based on user role
     const fetchData = async () => {
       try {
+        console.log("HiringAgencies - Starting data fetch...");
+        
         if (["admin", "company"].includes(normalizedRole)) {
+          console.log("HiringAgencies - Fetching hiring agencies...");
           if (hiringAgenciesStatus === "idle") {
             await dispatch(fetchHiringAgencies()).unwrap();
           }
         }
 
         if (["admin", "company", "hiring_agency"].includes(normalizedRole)) {
+          console.log("HiringAgencies - Fetching recruiters...");
           if (recruitersStatus === "idle") {
             await dispatch(fetchRecruiters());
           }
         }
 
         if (normalizedRole === "admin") {
+          console.log("HiringAgencies - Fetching companies and admins...");
           if (companiesStatus === "idle") {
             await dispatch(fetchCompanies());
           }
@@ -234,6 +247,8 @@ const HiringAgencies = () => {
             await dispatch(fetchAdmins());
           }
         }
+        
+        console.log("HiringAgencies - Data fetch completed");
       } catch (error) {
         console.error("Error fetching data:", error);
         setPermissionError("An error occurred while loading data.");
@@ -255,12 +270,18 @@ const HiringAgencies = () => {
 
   // Determine the data to display based on the active tab
   const getCurrentTableData = () => {
+    console.log("getCurrentTableData - Active tab:", activeTab);
+    console.log("getCurrentTableData - Recruiters data:", recruiters);
+    console.log("getCurrentTableData - Hiring agencies data:", hiringAgencies);
+    console.log("getCurrentTableData - Companies data:", companies);
+    console.log("getCurrentTableData - Admins data:", admins);
+    
     switch (activeTab) {
       case "Recruiter":
         // Log recruiter data here to inspect its structure
         console.log("Recruiter Data:", recruiters);
         // Map recruiter data to fit the table structure based on provided sample
-        return (recruiters || []).map((recruiter) => ({
+        const recruiterData = (recruiters || []).map((recruiter) => ({
           id: recruiter.id,
           name: recruiter.full_name, // Use full_name for 'Name'
           email: recruiter.email,
@@ -268,9 +289,11 @@ const HiringAgencies = () => {
           role: recruiter.userType, // Use userType for 'Role'
           // No 'phone' or 'lastUpdated' in the provided sample, so they are omitted
         }));
+        console.log("Mapped recruiter data:", recruiterData);
+        return recruiterData;
       case "Hiring Agency":
         // Map hiring agency data to fit the table structure
-        return (hiringAgencies || []).map((agency) => ({
+        const hiringAgencyData = (hiringAgencies || []).map((agency) => ({
           id: agency.id,
           name: `${agency.first_name} ${agency.last_name}`, // Combine first and last name for 'name'
           email: agency.email,
@@ -280,17 +303,22 @@ const HiringAgencies = () => {
           status: "Active", // Assuming all fetched hiring agencies are active for display purposes
           lastUpdated: agency.permission_granted, // Using permission_granted as last updated
         }));
+        console.log("Mapped hiring agency data:", hiringAgencyData);
+        return hiringAgencyData;
       case "Company":
         // Map company data to fit the table structure
-        return (companies || []).map((company) => ({
+        const companyData = (companies || []).map((company) => ({
           id: company.id,
           name: company.name,
           description: company.description, // Use description for a relevant column
           is_active: company.is_active, // Use is_active for status
           status: company.is_active ? "Active" : "Inactive", // Convert boolean to string status
         }));
+        console.log("Mapped company data:", companyData);
+        return companyData;
       case "Admin":
         // Ensure admins is an array before returning
+        console.log("Admin data:", admins);
         return admins || [];
       default:
         return [];
@@ -602,6 +630,11 @@ const HiringAgencies = () => {
   const handleCancelEdit = () => {
     setEditingUserId(null);
     setEditedUserData(null);
+  };
+
+  const handleViewClick = (user) => {
+    console.log("Viewing user:", user);
+    alert(`Viewing user: ${user.name} (${user.email})`);
   };
 
   const handleDeleteClick = (userId) => {
@@ -1044,25 +1077,56 @@ const HiringAgencies = () => {
               </>
             )}
             <td>
-              <ActionMenu
-                onView={() => handleViewClick(item)}
-                onEdit={() => handleEditClick(item)}
-                onDelete={handleDeleteClick}
-                itemId={item.id}
-                viewIcon={<FaEye />}
-                editIcon={<FaEdit />}
-                deleteIcon={<FaTrash />}
-                iconOnly={true}
-                buttonClassName="action-button"
-                buttonStyle={{
-                  width: "32px",
-                  height: "32px",
-                  padding: "0.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              />
+              <div className="action-buttons">
+                <button
+                  onClick={() => handleViewClick(item)}
+                  className="action-button"
+                  title="View"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    padding: "0.5rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 2px"
+                  }}
+                >
+                  <FaEye />
+                </button>
+                <button
+                  onClick={() => handleEditClick(item)}
+                  className="action-button"
+                  title="Edit"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    padding: "0.5rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 2px"
+                  }}
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(item.id)}
+                  className="action-button"
+                  title="Delete"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    padding: "0.5rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 2px"
+                  }}
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </td>
           </>
         )}
@@ -1289,9 +1353,134 @@ const HiringAgencies = () => {
         </div>
       )}
 
-      {/* Keep existing modals */}
+      {/* Add New User Modal */}
       {showAddModal && (
-        <div className="add-agency-modal-overlay">{/* Modal content */}</div>
+        <div className="add-agency-modal-overlay show">
+          <div className="add-agency-modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">Add New User</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowAddModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddUser} className="modal-form">
+              <div className="form-group">
+                <label htmlFor="username">Username *</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Enter username"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="full_name">Full Name *</label>
+                <input
+                  type="text"
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Enter full name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="company_name">Company Name</label>
+                <input
+                  type="text"
+                  id="company_name"
+                  name="company_name"
+                  value={formData.company_name}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="Enter company name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="role">Role *</label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                >
+                  <option value="">Select a role</option>
+                  {roleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password *</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                  placeholder="Enter password"
+                />
+              </div>
+
+              {apiMessage && (
+                <div className={`api-message ${apiMessage.includes('Error') ? 'error' : 'success'}`}>
+                  {apiMessage}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="modal-cancel"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="modal-submit"
+                  disabled={!formData.username || !formData.full_name || !formData.email || !formData.password || !formData.role}
+                >
+                  Add User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

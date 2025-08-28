@@ -564,7 +564,7 @@ const AiInterviewScheduler = ({
         </div>
 
         <div className="ai-int-form-group">
-          <label>AI Interview Type</label>
+                                  <label>Talaro Interview Type</label>
           <select
             value={slotForm.ai_interview_type}
             onChange={(e) =>
@@ -849,7 +849,7 @@ const AiInterviewScheduler = ({
 
   useEffect(() => {
     if (onTitleChange) {
-      onTitleChange("AI Interview Manager");
+              onTitleChange("Talaro Interview Manager");
     }
   }, [onTitleChange]);
 

@@ -73,6 +73,8 @@ const Jobs = () => {
     }
   }, [jobsStatus, domainsStatus, dispatch]);
 
+
+
   const [formData, setFormData] = useState({
     job_title: "",
     company_name: "", // Initialize as empty, will be updated by useEffect if 'COMPANY' user
@@ -84,8 +86,7 @@ const Jobs = () => {
     position_level: "",
     current_process: "",
     tech_stack_details: "",
-    jd_file: null,
-    jd_link: "",
+    job_description: "", // Long text field for job description
   });
 
   // Effect to prefill company name for 'COMPANY' users when userCompanyName becomes available
@@ -285,6 +286,8 @@ const Jobs = () => {
           job.job_title.toLowerCase().includes(lowerCaseSearchTerm)) ||
         (job.company_name &&
           job.company_name.toLowerCase().includes(lowerCaseSearchTerm)) ||
+        (job.domain_name &&
+          job.domain_name.toLowerCase().includes(lowerCaseSearchTerm)) ||
         (job.domain &&
           getDomainName(job.domain)
             .toLowerCase()
@@ -309,10 +312,8 @@ const Jobs = () => {
           job.current_process.toLowerCase().includes(lowerCaseSearchTerm)) ||
         (job.tech_stack_details &&
           job.tech_stack_details.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.jd_link &&
-          job.jd_link.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.jd_file &&
-          job.jd_file.toLowerCase().includes(lowerCaseSearchTerm)) ||
+        (job.job_description &&
+          job.job_description.toLowerCase().includes(lowerCaseSearchTerm)) ||
         (job.created_at &&
           job.created_at.toLowerCase().includes(lowerCaseSearchTerm))
       );
@@ -322,9 +323,9 @@ const Jobs = () => {
       if (!sortColumn) return 0;
 
       const aValue =
-        sortColumn === "domain" ? getDomainName(a[sortColumn]) : a[sortColumn];
+        sortColumn === "domain" ? (a.domain_name || getDomainName(a[sortColumn])) : a[sortColumn];
       const bValue =
-        sortColumn === "domain" ? getDomainName(b[sortColumn]) : b[sortColumn];
+        sortColumn === "domain" ? (b.domain_name || getDomainName(b[sortColumn])) : b[sortColumn];
 
       if (aValue === null || aValue === undefined)
         return sortDirection === "asc" ? 1 : -1;
@@ -426,8 +427,7 @@ const Jobs = () => {
       position_level,
       current_process,
       tech_stack_details,
-      jd_file,
-      jd_link,
+      job_description,
     } = formData;
 
     // Validate required fields based on API
@@ -450,10 +450,25 @@ const Jobs = () => {
     }
     setErrorMessage("");
 
+    // Determine if we're creating or updating
+    const isEditing = editingJobId !== null;
+    
     try {
       const authToken = localStorage.getItem("authToken");
-      const response = await fetch(`${baseURL}/api/jobs/`, {
-        method: "POST",
+      console.log("Auth token:", authToken ? "Present" : "Missing");
+      console.log("Is editing:", isEditing);
+      console.log("Editing job ID:", editingJobId);
+      
+      const url = isEditing 
+        ? `${baseURL}/api/jobs/${editingJobId}/`
+        : `${baseURL}/api/jobs/`;
+      const method = isEditing ? "PUT" : "POST";
+      
+      console.log("Request URL:", url);
+      console.log("Request method:", method);
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${authToken}`,
@@ -469,24 +484,40 @@ const Jobs = () => {
           position_level,
           current_process: current_process || "",
           tech_stack_details,
-          jd_file: jd_file || null,
-          jd_link: jd_link || null,
+          job_description: job_description || "",
         }),
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.detail || `HTTP error! status: ${response.status}`
-        );
+        const responseText = await response.text();
+        console.log("Error response text:", responseText);
+        
+        try {
+          const errorData = JSON.parse(responseText);
+          throw new Error(
+            errorData.detail || `HTTP error! status: ${response.status}`
+          );
+        } catch (parseError) {
+          throw new Error(`HTTP error! status: ${response.status}. Response: ${responseText.substring(0, 200)}`);
+        }
       }
 
-      const newJobData = await response.json();
-      console.log("Job successfully added:", newJobData);
+      const jobData = await response.json();
+      
+      if (isEditing) {
+        console.log("Job successfully updated:", jobData);
+        dispatch(updateJob({ id: jobData.id, updatedData: jobData })); // Dispatch to Redux store
+        setShowMessage(true);
+        setEditingJobId(null); // Exit edit mode
+      } else {
+        console.log("Job successfully added:", jobData);
+        dispatch(addJob(jobData)); // Dispatch to Redux store
+        setShowMessage(true);
+      }
 
-      dispatch(addJob(newJobData)); // Dispatch to Redux store
-
-      setShowMessage(true);
       // Clear form after successful submission
       setFormData({
         job_title: "",
@@ -499,15 +530,15 @@ const Jobs = () => {
         position_level: "",
         current_process: "",
         tech_stack_details: "",
-        jd_file: null,
-        jd_link: "",
+        job_description: "",
       });
+      
       setTimeout(() => {
         setShowMessage(false);
       }, 2000);
     } catch (error) {
-      console.error("Error adding job:", error);
-      setErrorMessage(error.message || "Failed to add job. Please try again.");
+      console.error(isEditing ? "Error updating job:" : "Error adding job:", error);
+      setErrorMessage(error.message || (isEditing ? "Failed to update job. Please try again." : "Failed to add job. Please try again."));
       setShowMessage(false); // Hide success message in case of error
     } finally {
       setIsCreatingJob(false); // Reset loading state
@@ -580,8 +611,7 @@ const Jobs = () => {
               position_level: editedJobData.position_level,
               current_process: editedJobData.current_process,
               tech_stack_details: editedJobData.tech_stack_details,
-              jd_file: editedJobData.jd_file,
-              jd_link: editedJobData.jd_link,
+              job_description: editedJobData.job_description || "",
             }),
           }
         );
@@ -614,6 +644,38 @@ const Jobs = () => {
   const handleCancelClick = () => {
     setEditingJobId(null);
     setEditedJobData(null);
+  };
+
+  const handleViewJob = (job) => {
+    // For now, just log the job details
+    console.log("Viewing job:", job);
+    // You can implement a modal or navigation to show job details
+    alert(`Viewing job: ${job.job_title} at ${job.company_name}`);
+  };
+
+  const handleEditJob = (job) => {
+    // Populate the form with job data for editing
+    console.log("Editing job:", job);
+    console.log("Job description value:", job.job_description);
+    console.log("Job description type:", typeof job.job_description);
+    setFormData({
+      job_title: job.job_title || "",
+      company_name: job.company_name || "",
+      domain: job.domain || "",
+      spoc_email: job.spoc_email || "",
+      hiring_manager_email: job.hiring_manager_email || "",
+      current_team_size_info: job.current_team_size_info || "",
+      number_to_hire: job.number_to_hire || "",
+      position_level: job.position_level || "",
+      current_process: job.current_process || "",
+      tech_stack_details: job.tech_stack_details || "",
+      job_description: job.job_description || "",
+    });
+    // Set editing state to track which job is being edited
+    setEditingJobId(job.id);
+    // Clear any existing messages
+    setShowMessage(false);
+    setErrorMessage("");
   };
 
   const handleDeleteClick = (id) => {
@@ -752,8 +814,10 @@ const Jobs = () => {
               type="button"
               className="domain-btn create-domain-btn"
               onClick={() => {
+                console.log("Add New Domain button clicked");
                 setDomainFormData({ name: "", description: "" }); // Reset form data when opening
                 setShowCreateDomainModal(true);
+                console.log("showCreateDomainModal set to true");
               }}
               disabled={isAnyDomainOperationInProgress}
             >
@@ -801,7 +865,9 @@ const Jobs = () => {
           {/* Left Column: Create New Job Form */}
           {userRole === "ADMIN" || userRole === "COMPANY" ? (
             <div className="jobs-form card">
-              <h2 className="form-title">Create New Job</h2>
+              <h2 className="form-title">
+                {editingJobId ? "Edit Job" : "Create New Job"}
+              </h2>
               <form id="jobForm" onSubmit={handleSubmit}>
                 <div className="form-box">
                   <label htmlFor="job_title">Job Title</label>
@@ -941,27 +1007,16 @@ const Jobs = () => {
                     disabled={isCreatingJob}
                   />
 
-                  <label htmlFor="jd_file">JD File (URL)</label>
-                  <input
-                    type="text"
-                    id="jd_file"
-                    name="jd_file"
-                    placeholder="e.g., https://example.com/jd.pdf (optional)"
-                    value={formData.jd_file || ""}
+                  <label htmlFor="job_description">Job Description</label>
+                  <textarea
+                    id="job_description"
+                    name="job_description"
+                    placeholder="Enter detailed job description, responsibilities, requirements, etc."
+                    value={formData.job_description}
                     onChange={handleChange}
                     className="jobs-input"
-                    disabled={isCreatingJob}
-                  />
-
-                  <label htmlFor="jd_link">JD Link</label>
-                  <input
-                    type="text"
-                    id="jd_link"
-                    name="jd_link"
-                    placeholder="e.g., https://linkedin.com/jobs/123 (optional)"
-                    value={formData.jd_link}
-                    onChange={handleChange}
-                    className="jobs-input"
+                    rows="6"
+                    style={{ resize: "vertical", minHeight: "120px" }}
                     disabled={isCreatingJob}
                   />
                 </div>
@@ -971,8 +1026,38 @@ const Jobs = () => {
                     type="submit"
                     disabled={isCreatingJob}
                   >
-                    {isCreatingJob ? "Creating Job..." : "Create Job"}
+                    {isCreatingJob 
+                      ? (editingJobId ? "Updating Job..." : "Creating Job...") 
+                      : (editingJobId ? "Update Job" : "Create Job")
+                    }
                   </button>
+                  {editingJobId && (
+                    <button
+                      type="button"
+                      className="cancel-btn"
+                      onClick={() => {
+                        setEditingJobId(null);
+                        setFormData({
+                          job_title: "",
+                          company_name: userRole === "COMPANY" ? userCompanyName : "",
+                          domain: "",
+                          spoc_email: "",
+                          hiring_manager_email: "",
+                          current_team_size_info: "",
+                          number_to_hire: "",
+                          position_level: "",
+                          current_process: "",
+                          tech_stack_details: "",
+                          job_description: "",
+                        });
+                        setShowMessage(false);
+                        setErrorMessage("");
+                      }}
+                      disabled={isCreatingJob}
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
@@ -992,11 +1077,11 @@ const Jobs = () => {
               <div className="table-responsive">
                 <table className="hiring-agencies-table">
                   <colgroup>
-                    <col style={{ width: "30%" }} /> {/* Job Title */}
+                    <col style={{ width: "28%" }} /> {/* Job Title */}
                     <col style={{ width: "25%" }} /> {/* Company */}
                     <col style={{ width: "20%" }} /> {/* Domain */}
-                    <col style={{ width: "15%" }} /> {/* Status */}
-                    <col style={{ width: "10%" }} /> {/* Actions */}
+                    <col style={{ width: "12%" }} /> {/* Status */}
+                    <col style={{ width: "15%" }} /> {/* Actions */}
                   </colgroup>
                   <thead>
                     <tr>
@@ -1028,9 +1113,9 @@ const Jobs = () => {
                           </td>
                           <td
                             className="truncate-cell"
-                            title={job.domain?.name || "-"}
+                            title={job.domain_name || getDomainName(job.domain) || "-"}
                           >
-                            {job.domain?.name || "-"}
+                            {job.domain_name || getDomainName(job.domain) || "-"}
                           </td>
                           <td className="status-cell">
                             <span

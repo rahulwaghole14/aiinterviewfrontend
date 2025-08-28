@@ -455,6 +455,58 @@
   margin-top: 20px;
 }
 
+.interview-item {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-small);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border);
+}
+
+.slot-details {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+}
+
+.slot-details h4 {
+  color: var(--color-primary);
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.slot-details p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.slot-details .status {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.slot-details .status.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.slot-details .status.confirmed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.slot-details .status.cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
 .evaluation-section {
   margin-bottom: 1.5rem;
   display: block !important;
@@ -1011,4 +1063,261 @@
 
 .status-action-btn:hover {
   background-color: var(--color-primary-dark);
+}
+
+/* AI Interview Evaluation Styles */
+.evaluation-item {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-medium);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border);
+}
+
+.evaluation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.evaluation-header h4 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.overall-rating {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-small);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.overall-rating.excellent {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.overall-rating.good {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.overall-rating.average {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.overall-rating.poor {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.overall-rating.pending {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+}
+
+.score-item strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.score {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+}
+
+.score.high-score {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.score.medium-score {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.score.low-score {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.performance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.metric-item strong {
+  color: var(--color-text);
+}
+
+.ai-summary,
+.ai-recommendations,
+.human-feedback {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+}
+
+.ai-summary strong,
+.ai-recommendations strong,
+.human-feedback strong {
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.ai-summary p,
+.ai-recommendations p,
+.human-feedback p {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.strengths,
+.weaknesses {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+}
+
+.strengths strong,
+.weaknesses strong {
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.strengths ul,
+.weaknesses ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.strengths li,
+.weaknesses li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.strengths li {
+  color: #065f46;
+}
+
+.weaknesses li {
+  color: #991b1b;
+}
+
+.hire-recommendation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: 1rem;
+}
+
+.hire-recommendation strong {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.recommendation {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.recommendation.recommended {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.recommendation.not-recommended {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.confidence-level {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+  font-size: 0.9rem;
+}
+
+.confidence-level strong {
+  color: var(--color-text);
+}
+
+/* Responsive adjustments for evaluation */
+@media (max-width: 768px) {
+  .evaluation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .score-breakdown {
+    grid-template-columns: 1fr;
+  }
+  
+  .performance-metrics {
+    grid-template-columns: 1fr;
+  }
 }

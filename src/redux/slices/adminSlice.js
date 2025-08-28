@@ -1,19 +1,55 @@
 // src/redux/slices/adminSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { baseURL } from '../../data';
 
-// Dummy data for admin users
-const dummyAdmins = [
-  { id: 'admin1', name: 'Admin User 1', contactPerson: 'Super Admin', email: 'admin1@example.com', phone: '123-000-1111', status: 'Active', userType: 'Admin', lastUpdated: '2023-11-01' },
-  { id: 'admin2', name: 'Admin User 2', contactPerson: 'System Admin', email: 'admin2@example.com', phone: '123-000-2222', status: 'Active', userType: 'Admin', lastUpdated: '2023-11-05' },
-];
-
-// Async thunk to "fetch" admin users (using dummy data)
+// Async thunk to fetch admin users from the database
 export const fetchAdmins = createAsyncThunk(
   'admin/fetchAdmins',
   async (_, { rejectWithValue }) => {
-    // Simulate an API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return dummyAdmins;
+    try {
+      const token = localStorage.getItem('authToken');
+      console.log('Fetching admins with token:', token ? 'Token exists' : 'No token');
+      console.log('API URL:', `${baseURL}/api/auth/admins/`);
+      
+      const response = await fetch(`${baseURL}/api/auth/admins/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
+      });
+
+      console.log('Admins response status:', response.status);
+      console.log('Admins response ok:', response.ok);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Admins API Error:', errorData);
+        return rejectWithValue(errorData);
+      }
+
+      const data = await response.json();
+      console.log('Admins API response:', data);
+      
+      // Transform the data to match the expected format
+      const transformedAdmins = (data.admins || []).map(admin => ({
+        id: admin.id,
+        name: admin.full_name,
+        email: admin.email,
+        role: admin.role,
+        company_name: admin.company_name,
+        username: admin.username,
+        status: 'Active', // Assuming all admins are active
+        userType: 'Admin',
+        lastUpdated: new Date().toISOString().split('T')[0] // Current date as placeholder
+      }));
+      
+      console.log('Transformed admins data:', transformedAdmins);
+      return transformedAdmins;
+    } catch (error) {
+      console.error('Exception in fetchAdmins:', error);
+      return rejectWithValue(error.message);
+    }
   }
 );
 

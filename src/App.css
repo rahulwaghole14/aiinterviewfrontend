@@ -170,13 +170,13 @@ body, html {
 /* Adjust sidebar items for collapsed state (Applies to desktop collapsed and ALL mobile) */
 .sidebar .logo-link {
   justify-content: center;
-  background-color: #23272b;
+  background-color: #ffffff;
   border-radius: var(--radius);
 }
 
 .sidebar .brand-name {
   display: none;
-  color:white; /* Hide brand name when collapsed */
+  color: #000000; /* Black color for Talaro text */
 }
 
 .sidebar .sidebar-item {

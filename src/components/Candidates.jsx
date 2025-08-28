@@ -7,25 +7,45 @@ import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Keep
 import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import fetchCandidates thunk
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice'; // Import job and domain thunks
 
+// Status mapping from backend values to frontend display values
+const statusMapping = {
+  "NEW": "New",
+  "REQUIRES_ACTION": "Requires Action",
+  "PENDING_SCHEDULING": "Pending Scheduling",
+  "BR_IN_PROCESS": "BR In Process",
+  "BR_EVALUATED": "BR Evaluated",
+  "INTERNAL_INTERVIEWS": "Internal Interviews",
+  "OFFERED": "Offered",
+  "HIRED": "Hired",
+  "REJECTED": "Rejected",
+  "OFFER_REJECTED": "Offer Rejected",
+  "CANCELLED": "Cancelled",
+};
+
 const candidateTabsStatusList = [
   "All",
+  "New",
   "Requires Action",
-  "Interview Pending",
-  "Interview Scheduled",
-  "Interview Completed",
-  "Evaluated",
+  "Pending Scheduling",
+  "BR In Process",
+  "BR Evaluated",
+  "Internal Interviews",
+  "Offered",
   "Hired",
   "Rejected",
+  "Offer Rejected",
+  "Cancelled",
 ];
 
 // Candidate Card Component
 const CandidateCard = ({ candidate, onViewReport, getDomainName, getJobTitle }) => { // Pass getDomainName and getJobTitle
   const getStatusBadgeClass = (status) => {
-    if (["Requires Action", "Interview Pending"].includes(status)) {
+    const displayStatus = statusMapping[status] || status;
+    if (["Requires Action", "Pending Scheduling", "BR In Process"].includes(displayStatus)) {
       return "badge-warning";
-    } else if (["Rejected", "Offer Rejected", "Cancelled"].includes(status)) {
+    } else if (["Rejected", "Offer Rejected", "Cancelled"].includes(displayStatus)) {
       return "badge-danger";
-    } else if (["Interview Scheduled", "Evaluated", "Hired", "Interview Completed"].includes(status)) {
+    } else if (["BR Evaluated", "Internal Interviews", "Offered", "Hired"].includes(displayStatus)) {
       return "badge-success";
     } else {
       return "badge-info";
@@ -33,24 +53,40 @@ const CandidateCard = ({ candidate, onViewReport, getDomainName, getJobTitle }) 
   };
 
   const renderStatusDisplay = (candidate) => {
-    if (candidate.status === "Interview Scheduled" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
+    const displayStatus = statusMapping[candidate.status] || candidate.status;
+    if (displayStatus === "Pending Scheduling" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
       return `Scheduled: ${candidate.interviewDetails.date} at ${candidate.interviewDetails.time}`;
-    } else if (candidate.status === "Evaluated" && candidate.evaluation?.feedback) {
+    } else if (displayStatus === "BR Evaluated" && candidate.evaluation?.feedback) {
       return `Evaluated: ${candidate.evaluation.score}/10 - ${candidate.evaluation.result}`;
-    } else if (candidate.status === "Requires Action" && candidate.aptitude?.score) {
+    } else if (displayStatus === "Requires Action" && candidate.aptitude?.score) {
       return `Aptitude: ${candidate.aptitude.score}/100`;
     }
-    return candidate.status || 'N/A';
+    return displayStatus || 'N/A';
   };
 
   return (
     <div className="candidate-card">
       <div className="card-left-content">
         <div className="candidate-info">
-          <h3 className="candidate-name">{candidate.name || '-'}</h3>
+          <h3 className="candidate-name">{candidate.full_name || candidate.name || '-'}</h3>
           <p className="candidate-role">{getJobTitle(candidate.jobRole) || '-'}</p> {/* Use helper */}
           <p className="candidate-domain">{getDomainName(candidate.domain) || '-'}</p> {/* Use helper */}
           <p className="candidate-updated">Last Updated: {candidate.lastUpdated ? new Date(candidate.lastUpdated).toLocaleDateString("en-GB") : '-'}</p>
+          {/* Display matching percentage if available */}
+          {candidate.job_matching && (
+            <p className="candidate-match">
+              Match: 
+              <span 
+                className={`match-score ${candidate.job_matching.overall_match >= 80 ? 'high' : candidate.job_matching.overall_match >= 60 ? 'medium' : 'low'}`}
+                title={`Overall: ${candidate.job_matching.overall_match}%
+Skills: ${candidate.job_matching.skill_match}%
+Text Similarity: ${candidate.job_matching.text_similarity}%
+Experience: ${candidate.job_matching.experience_match}%`}
+              >
+                {candidate.job_matching.overall_match}%
+              </span>
+            </p>
+          )}
         </div>
       </div>
       <div className="card-right-actions">
@@ -158,7 +194,7 @@ const CandidatePage = () => {
   }, [allCandidates]);
 
   const uniqueStatuses = useMemo(() => {
-    const statuses = new Set(allCandidates.map(c => c.status).filter(Boolean));
+    const statuses = new Set(allCandidates.map(c => statusMapping[c.status] || c.status).filter(Boolean));
     return Array.from(statuses).sort();
   }, [allCandidates]);
 
@@ -205,12 +241,13 @@ const CandidatePage = () => {
 
   const filteredCandidates = allCandidates.filter((candidate) => {
     const lowerCaseSearchTerm = searchTerm ? searchTerm.toLowerCase() : '';
-    const lowerCaseCandidateName = candidate.name ? candidate.name.toLowerCase() : '';
+    const lowerCaseCandidateName = (candidate.full_name || candidate.name) ? (candidate.full_name || candidate.name).toLowerCase() : '';
     const lowerCaseCandidateEmail = candidate.email ? candidate.email.toLowerCase() : '';
     const lowerCaseCandidateDomainName = getDomainName(candidate.domain) ? getDomainName(candidate.domain).toLowerCase() : ''; // Use helper
     const lowerCaseCandidateJobTitle = getJobTitle(candidate.jobRole) ? getJobTitle(candidate.jobRole).toLowerCase() : ''; // Use helper
     const lowerCaseCandidatePoc = candidate.poc ? candidate.poc.toLowerCase() : '';
-    const lowerCaseCandidateStatus = candidate.status ? candidate.status.toLowerCase() : '';
+    const candidateDisplayStatus = statusMapping[candidate.status] || candidate.status;
+    const lowerCaseCandidateStatus = candidateDisplayStatus ? candidateDisplayStatus.toLowerCase() : '';
 
     const matchesSearchTerm =
       !searchTerm ||

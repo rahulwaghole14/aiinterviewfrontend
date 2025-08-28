@@ -525,7 +525,7 @@ const CreateSlotModal = ({ onClose, onCreate }) => {
           />
         </div>
         <div className="form-group">
-          <label>AI Interview Type</label>
+                                  <label>Talaro Interview Type</label>
           <select 
             name="ai_interview_type" 
             value={slotData.ai_interview_type} 
@@ -1576,7 +1576,7 @@ const CandidateDetails = () => {
   className="save-status-btn mt-4"
   onClick={() => setShowAiScheduler(true)}
 >
-  Schedule AI Interview
+                  Schedule Talaro Interview
 </button>
         </div>
 
