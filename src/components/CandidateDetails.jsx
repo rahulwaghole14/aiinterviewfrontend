@@ -264,6 +264,8 @@ const CandidateDetails = () => {
     fetchInterviews();
   };
 
+
+
   useEffect(() => {
     if (candidatesStatus === "idle") {
       dispatch(fetchCandidates());
@@ -414,6 +416,174 @@ const CandidateDetails = () => {
             </p>
           </div>
         </div>
+
+        {/* Evaluation Section - Moved here */}
+        <div className="evaluation-section card">
+          <h3>Evaluation</h3>
+          {interviews.some((i) => i.ai_result) ? (
+            <div className="evaluation-info">
+              {interviews
+                .filter((i) => i.ai_result)
+                .map((interview) => (
+                  <div key={interview.id} className="evaluation-item">
+                    <div className="evaluation-header">
+                      <h4>Talaro Interview Results</h4>
+                      <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
+                        {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
+                      </span>
+                    </div>
+                    
+                    <div className="score-breakdown">
+                      <div className="score-item">
+                        <strong>Total Score:</strong>{" "}
+                        <span className={`score ${interview.ai_result.total_score >= 80 ? "high-score" : interview.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
+                          {interview.ai_result.total_score?.toFixed(1) || "N/A"}/100
+                        </span>
+                      </div>
+                      
+                      {interview.ai_result.technical_score !== undefined && (
+                        <div className="score-item">
+                          <strong>Technical Score:</strong>{" "}
+                          <span className={`score ${interview.ai_result.technical_score >= 80 ? "high-score" : interview.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.technical_score?.toFixed(1) || "N/A"}/100
+                          </span>
+                        </div>
+                      )}
+                      
+                      {interview.ai_result.behavioral_score !== undefined && (
+                        <div className="score-item">
+                          <strong>Behavioral Score:</strong>{" "}
+                          <span className={`score ${interview.ai_result.behavioral_score >= 80 ? "high-score" : interview.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
+                          </span>
+                        </div>
+                      )}
+                      
+                      {interview.ai_result.coding_score !== undefined && (
+                        <div className="score-item">
+                          <strong>Coding Score:</strong>{" "}
+                          <span className={`score ${interview.ai_result.coding_score >= 80 ? "high-score" : interview.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.coding_score?.toFixed(1) || "N/A"}/100
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="performance-metrics">
+                      <div className="metric-item">
+                        <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
+                      </div>
+                      <div className="metric-item">
+                        <strong>Questions Correct:</strong> {interview.ai_result.questions_correct || 0}
+                      </div>
+                      <div className="metric-item">
+                        <strong>Accuracy:</strong> {interview.ai_result.accuracy_percentage?.toFixed(1) || 0}%
+                      </div>
+                      <div className="metric-item">
+                        <strong>Average Response Time:</strong> {interview.ai_result.average_response_time?.toFixed(1) || 0}s
+                      </div>
+                      <div className="metric-item">
+                        <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
+                      </div>
+                    </div>
+                    
+                    {interview.ai_result.ai_summary && (
+                      <div className="ai-summary">
+                        <strong>AI Summary:</strong>
+                        <p>{interview.ai_result.ai_summary}</p>
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.ai_recommendations && (
+                      <div className="ai-recommendations">
+                        <strong>AI Recommendations:</strong>
+                        <p>{interview.ai_result.ai_recommendations}</p>
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.coding_details && interview.ai_result.coding_details.length > 0 && (
+                      <div className="coding-details">
+                        <strong>Coding Questions:</strong>
+                        {interview.ai_result.coding_details.map((coding, index) => (
+                          <div key={index} className="coding-question">
+                            <h4>Question {index + 1}</h4>
+                            <p><strong>Question:</strong> {coding.question_text}</p>
+                            <p><strong>Language:</strong> {coding.language}</p>
+                            <p><strong>Status:</strong> 
+                              <span className={`test-status ${coding.passed_all_tests ? 'passed' : 'failed'}`}>
+                                {coding.passed_all_tests ? '✅ PASSED' : '❌ FAILED'}
+                              </span>
+                            </p>
+                            <div className="code-block">
+                              <strong>Submitted Code:</strong>
+                              <pre><code>{coding.submitted_code}</code></pre>
+                            </div>
+                            {coding.output_log && (
+                              <div className="output-log">
+                                <strong>Test Results:</strong>
+                                <pre>{coding.output_log}</pre>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.strengths && interview.ai_result.strengths.length > 0 && (
+                      <div className="strengths">
+                        <strong>Strengths:</strong>
+                        <ul>
+                          {interview.ai_result.strengths.map((strength, index) => (
+                            <li key={index}>{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.weaknesses && interview.ai_result.weaknesses.length > 0 && (
+                      <div className="weaknesses">
+                        <strong>Areas for Improvement:</strong>
+                        <ul>
+                          {interview.ai_result.weaknesses.map((weakness, index) => (
+                            <li key={index}>{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    <div className="hire-recommendation">
+                      <strong>Hire Recommendation:</strong>{" "}
+                      <span className={`recommendation ${interview.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
+                        {interview.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
+                      </span>
+                    </div>
+                    
+                    {interview.ai_result.confidence_level && (
+                      <div className="confidence-level">
+                        <strong>AI Confidence Level:</strong> {interview.ai_result.confidence_level?.toFixed(1)}%
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.human_feedback && (
+                      <div className="human-feedback">
+                        <strong>Human Reviewer Feedback:</strong>
+                        <p>{interview.ai_result.human_feedback}</p>
+                        {interview.ai_result.human_rating && (
+                          <p><strong>Human Rating:</strong> {interview.ai_result.human_rating}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <p className="no-data">{`${
+              currentStatus === "INTERVIEW_COMPLETED"
+                ? "Evaluation in progress..."
+                : "No evaluation available"
+            }`}</p>
+          )}
+        </div>
       </div>
 
       <div className="candidate-details-right-panel">
@@ -511,17 +681,29 @@ const CandidateDetails = () => {
                       ? new Date(interview.started_at).toLocaleDateString()
                       : "TBD"}
                   </p>
-                  {interview.video_url && (
-                    <p>
-                      <strong>Meeting Link:</strong>{" "}
-                      <a
-                        href={interview.video_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Join Interview
-                      </a>
-                    </p>
+
+                  
+                  {/* Video Recording Section */}
+                  {interview.ai_result?.recording_video && (
+                    <div className="recording-section">
+                      <h4>Interview Recording</h4>
+                      <div className="video-player-container">
+                        <video
+                          controls
+                          className="video-player"
+                          preload="metadata"
+                        >
+                          <source src={`https://aiinterviewerbackend-2.onrender.com${interview.ai_result.recording_video}`} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                      {interview.ai_result.recording_created_at && (
+                        <p className="recording-metadata">
+                          <strong>Recorded:</strong>{" "}
+                          {new Date(interview.ai_result.recording_created_at).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
                   )}
                   
                   {/* Slot Details */}
@@ -542,12 +724,7 @@ const CandidateDetails = () => {
                       <p>
                         <strong>Talaro Interview Type:</strong> {interview.slot_details.ai_interview_type}
                       </p>
-                      <p>
-                        <strong>Schedule Status:</strong>{" "}
-                        <span className={`status ${interview.schedule_status?.toLowerCase() || ""}`}>
-                          {interview.schedule_status || "Not Scheduled"}
-                        </span>
-                      </p>
+
                       {interview.booking_notes && (
                         <p>
                           <strong>Booking Notes:</strong> {interview.booking_notes}
@@ -563,144 +740,7 @@ const CandidateDetails = () => {
           )}
         </div>
 
-        <div className="evaluation-section card">
-          <h3>Evaluation</h3>
-          {interviews.some((i) => i.ai_result) ? (
-            <div className="evaluation-info">
-              {interviews
-                .filter((i) => i.ai_result)
-                .map((interview) => (
-                  <div key={interview.id} className="evaluation-item">
-                    <div className="evaluation-header">
-                                              <h4>Talaro Interview Results</h4>
-                      <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
-                        {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
-                      </span>
-                    </div>
-                    
-                    <div className="score-breakdown">
-                      <div className="score-item">
-                        <strong>Total Score:</strong>{" "}
-                        <span className={`score ${interview.ai_result.total_score >= 80 ? "high-score" : interview.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interview.ai_result.total_score?.toFixed(1) || "N/A"}/100
-                        </span>
-                      </div>
-                      
-                      {interview.ai_result.technical_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Technical Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.technical_score >= 80 ? "high-score" : interview.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.technical_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                      
-                      {interview.ai_result.behavioral_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Behavioral Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.behavioral_score >= 80 ? "high-score" : interview.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                      
-                      {interview.ai_result.coding_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Coding Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.coding_score >= 80 ? "high-score" : interview.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.coding_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="performance-metrics">
-                      <div className="metric-item">
-                        <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Questions Correct:</strong> {interview.ai_result.questions_correct || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Accuracy:</strong> {interview.ai_result.accuracy_percentage?.toFixed(1) || 0}%
-                      </div>
-                      <div className="metric-item">
-                        <strong>Average Response Time:</strong> {interview.ai_result.average_response_time?.toFixed(1) || 0}s
-                      </div>
-                      <div className="metric-item">
-                        <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
-                      </div>
-                    </div>
-                    
-                    {interview.ai_result.ai_summary && (
-                      <div className="ai-summary">
-                        <strong>AI Summary:</strong>
-                        <p>{interview.ai_result.ai_summary}</p>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.ai_recommendations && (
-                      <div className="ai-recommendations">
-                        <strong>AI Recommendations:</strong>
-                        <p>{interview.ai_result.ai_recommendations}</p>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.strengths && interview.ai_result.strengths.length > 0 && (
-                      <div className="strengths">
-                        <strong>Strengths:</strong>
-                        <ul>
-                          {interview.ai_result.strengths.map((strength, index) => (
-                            <li key={index}>{strength}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.weaknesses && interview.ai_result.weaknesses.length > 0 && (
-                      <div className="weaknesses">
-                        <strong>Areas for Improvement:</strong>
-                        <ul>
-                          {interview.ai_result.weaknesses.map((weakness, index) => (
-                            <li key={index}>{weakness}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    <div className="hire-recommendation">
-                      <strong>Hire Recommendation:</strong>{" "}
-                      <span className={`recommendation ${interview.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
-                        {interview.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
-                      </span>
-                    </div>
-                    
-                    {interview.ai_result.confidence_level && (
-                      <div className="confidence-level">
-                        <strong>AI Confidence Level:</strong> {interview.ai_result.confidence_level?.toFixed(1)}%
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.human_feedback && (
-                      <div className="human-feedback">
-                        <strong>Human Reviewer Feedback:</strong>
-                        <p>{interview.ai_result.human_feedback}</p>
-                        {interview.ai_result.human_rating && (
-                          <p><strong>Human Rating:</strong> {interview.ai_result.human_rating}</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-            </div>
-          ) : (
-            <p className="no-data">{`${
-              currentStatus === "INTERVIEW_COMPLETED"
-                ? "Evaluation in progress..."
-                : "No evaluation available"
-            }`}</p>
-          )}
-        </div>
+
       </div>
 
       {/* Status Update Modal */}
@@ -719,6 +759,8 @@ const CandidateDetails = () => {
           onInterviewScheduled={fetchInterviews}
         />
       )}
+
+
     </div>
   );
 };

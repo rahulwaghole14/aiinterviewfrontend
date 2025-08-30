@@ -7,7 +7,7 @@ const TimeSlotPicker = ({
   selectedTimes = [],
   onSelectTimes = () => {},
   selectedDate,
-  baseURL = "http://localhost:8000",
+  baseURL = "https://aiinterviewerbackend-2.onrender.com",
   isBooking = false,
   setIsBooking = () => {},
   onAvailableSlotsChange = () => {},

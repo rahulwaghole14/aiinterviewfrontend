@@ -11,7 +11,7 @@ const DataListing = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const API_BASE_URL = 'http://localhost:8000/interview_app';
+  const API_BASE_URL = 'https://aiinterviewerbackend-2.onrender.com/interview_app';
 
   useEffect(() => {
     fetchData();

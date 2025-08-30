@@ -24,7 +24,7 @@ import "./AiInterviewScheduler.css";
 const AiInterviewScheduler = ({
   onClose,
   onTitleChange,
-  baseURL = "http://localhost:8000",
+  baseURL = "https://aiinterviewerbackend-2.onrender.com",
 }) => {
   const dispatch = useDispatch();
   const {

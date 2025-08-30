@@ -72,7 +72,7 @@ const InterviewComplete = ({ sessionData, onClose }) => {
       setLoading(true);
       
       // Generate and download interview report
-      const response = await fetch(`http://localhost:8000/interview_app/report/${sessionData.session_id}/`, {
+      const response = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/report/${sessionData.session_id}/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

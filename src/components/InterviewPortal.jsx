@@ -25,7 +25,7 @@ const InterviewPortal = () => {
     const checkInterviewSession = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8000/interview_app/?session_key=${sessionKey}`, {
+        const response = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/?session_key=${sessionKey}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -247,6 +247,8 @@ const InterviewPortal = () => {
 };
 
 export default InterviewPortal;
+
+
 
 
 

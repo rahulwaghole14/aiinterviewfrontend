@@ -42,7 +42,7 @@ const InterviewSession = ({ sessionData, mediaStream, onComplete, onError }) => 
       setLoading(true);
       
       // Fetch interview questions from backend
-      const response = await fetch(`http://localhost:8000/interview_app/get_questions/?session_id=${sessionData.session_id}`, {
+      const response = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/get_questions/?session_id=${sessionData.session_id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const InterviewSession = ({ sessionData, mediaStream, onComplete, onError }) => 
       formData.append('question_id', currentQuestion.id);
       formData.append('response_time', responseTime.toString());
       
-      const response = await fetch('http://localhost:8000/interview_app/transcribe_audio/', {
+      const response = await fetch('https://aiinterviewerbackend-2.onrender.com/interview_app/transcribe_audio/', {
         method: 'POST',
         body: formData,
       });
@@ -184,7 +184,7 @@ const InterviewSession = ({ sessionData, mediaStream, onComplete, onError }) => 
 
   const saveAnswer = async (text, responseTime) => {
     try {
-      const response = await fetch('http://localhost:8000/interview_app/save_answer/', {
+      const response = await fetch('https://aiinterviewerbackend-2.onrender.com/interview_app/save_answer/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ const InterviewSession = ({ sessionData, mediaStream, onComplete, onError }) => 
       setLoading(true);
       
       // End the interview session
-      const response = await fetch('http://localhost:8000/interview_app/end_interview_session/', {
+      const response = await fetch('https://aiinterviewerbackend-2.onrender.com/interview_app/end_interview_session/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

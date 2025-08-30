@@ -29,7 +29,7 @@ const InterviewResults = () => {
       }
 
       // Fetch interview results
-      const resultsResponse = await fetch(`http://localhost:8000/interview_app/api/results/${sessionId}/`, {
+      const resultsResponse = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/api/results/${sessionId}/`, {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ const InterviewResults = () => {
       setResults(resultsData);
 
       // Fetch detailed analytics
-      const analyticsResponse = await fetch(`http://localhost:8000/interview_app/api/analytics/${sessionId}/`, {
+      const analyticsResponse = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/api/analytics/${sessionId}/`, {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',

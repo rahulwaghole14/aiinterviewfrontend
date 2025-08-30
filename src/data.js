@@ -1,6 +1,6 @@
 // src/data.js
 
-export const baseURL = "http://localhost:8000"; // Added base URL
+export const baseURL = "https://aiinterviewerbackend-2.onrender.com"; // Added base URL
 
 export const candidateDomains = [
 ];

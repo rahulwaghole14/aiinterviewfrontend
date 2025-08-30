@@ -53,11 +53,11 @@ export const fetchCandidates = createAsyncThunk(
         id: candidate.id,
         name: candidate.full_name || '-',
         email: candidate.email || '-',
-        phone: candidate.phone_number || '-',
+        phone: candidate.phone || '-',
         domain: candidate.domain || '-', // This is the domain ID
         jobRole: candidate.job_title || '-', // This is the job ID
         poc: candidate.poc_email || '-',
-        workExperience: candidate.experience_years || 0,
+        workExperience: candidate.work_experience || 0,
         status: candidate.status || 'NEW',
         lastUpdated: candidate.last_updated,
         applicationDate: candidate.created_at,

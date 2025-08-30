@@ -27,7 +27,7 @@ const InterviewResultsList = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/interview_app/api/results/', {
+      const response = await fetch('https://aiinterviewerbackend-2.onrender.com/interview_app/api/results/', {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',
