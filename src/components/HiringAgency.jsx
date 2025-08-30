@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "./HiringAgency.css";
 import { baseURL } from "../data";
+import { API_ENDPOINTS } from "../config/api";
 import { fetchCompanies } from "../redux/slices/companiesSlice";
 import { fetchHiringAgencies } from "../redux/slices/hiringAgenciesSlice";
 import { fetchRecruiters } from "../redux/slices/recruitersSlice";
@@ -453,7 +454,7 @@ const HiringAgencies = () => {
     let endpoint = "";
     let payload = {};
 
-    endpoint = `${baseURL}/api/auth/register/`;
+    endpoint = API_ENDPOINTS.auth.register;
     payload = {
       username: formData.username,
       email: formData.email,

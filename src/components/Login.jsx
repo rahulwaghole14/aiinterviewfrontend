@@ -6,6 +6,7 @@ import { setUser } from '../redux/slices/userSlice';
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import the new async thunk for candidates
 import { baseURL } from '../data';
+import { API_ENDPOINTS } from '../config/api';
 import './Login.css';
 
 const Login = ({ onLogin }) => {
@@ -29,7 +30,7 @@ const Login = ({ onLogin }) => {
 
     try {
       // Step 1: Call the login API
-      const loginResponse = await fetch(`${baseURL}/api/auth/login/`, {
+      const loginResponse = await fetch(API_ENDPOINTS.auth.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
