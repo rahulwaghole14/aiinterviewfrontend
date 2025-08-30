@@ -6,7 +6,6 @@ import { setUser } from '../redux/slices/userSlice';
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import the new async thunk for candidates
 import { baseURL } from '../data';
-import { API_ENDPOINTS } from '../config/api';
 import './Login.css';
 
 const Login = ({ onLogin }) => {
@@ -30,9 +29,9 @@ const Login = ({ onLogin }) => {
 
     try {
       // Step 1: Call the login API
-      console.log('Login URL being used:', API_ENDPOINTS.auth.login);
+      console.log('Login URL being used: https://aiinterviewerbackend-2.onrender.com/auth/login/');
       console.log('baseURL value:', baseURL);
-      const loginResponse = await fetch(API_ENDPOINTS.auth.login, {
+      const loginResponse = await fetch('https://aiinterviewerbackend-2.onrender.com/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
