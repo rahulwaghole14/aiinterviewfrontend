@@ -1,6 +1,7 @@
 // src/data.js
+import { baseURL } from './config/constants.js';
 
-export const baseURL = "https://aiinterviewerbackend-2.onrender.com";
+export { baseURL };
 
 export const candidateDomains = [
 ];
