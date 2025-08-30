@@ -30,6 +30,8 @@ const Login = ({ onLogin }) => {
 
     try {
       // Step 1: Call the login API
+      console.log('Login URL being used:', API_ENDPOINTS.auth.login);
+      console.log('baseURL value:', baseURL);
       const loginResponse = await fetch(API_ENDPOINTS.auth.login, {
         method: 'POST',
         headers: {

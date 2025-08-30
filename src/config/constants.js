@@ -15,3 +15,7 @@ if (isDevelopment) {
     environment: isProduction ? 'production' : 'development',
   });
 }
+
+// Always log in production for debugging
+console.log('Constants loaded - API_BASE_URL:', API_BASE_URL);
+console.log('Constants loaded - baseURL:', baseURL);
