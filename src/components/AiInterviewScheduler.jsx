@@ -19,12 +19,12 @@ import {
 import { BeatLoader } from "react-spinners";
 import HorizontalDatePicker from "./HorizontalDatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
+import { baseURL } from "../config/constants";
 import "./AiInterviewScheduler.css";
 
 const AiInterviewScheduler = ({
   onClose,
   onTitleChange,
-  baseURL = "https://aiinterviewerbackend-2.onrender.com",
 }) => {
   const dispatch = useDispatch();
   const {

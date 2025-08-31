@@ -5,6 +5,7 @@ import { BeatLoader } from 'react-spinners';
 import InterviewIdVerification from './InterviewIdVerification';
 import InterviewSession from './InterviewSession';
 import InterviewComplete from './InterviewComplete';
+import { baseURL } from '../config/constants';
 import './InterviewPortal.css';
 
 const InterviewPortal = () => {
@@ -25,7 +26,7 @@ const InterviewPortal = () => {
     const checkInterviewSession = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/?session_key=${sessionKey}`, {
+        const response = await fetch(`${baseURL}/interview_app/?session_key=${sessionKey}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

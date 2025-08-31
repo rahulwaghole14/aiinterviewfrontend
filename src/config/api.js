@@ -1,93 +1,93 @@
 // API Configuration for different environments
-const API_BASE_URL = 'https://aiinterviewerbackend-2.onrender.com';
+import { baseURL } from './constants';
 
 export const API_ENDPOINTS = {
-  base: API_BASE_URL,
+  base: baseURL,
   
   // Authentication
   auth: {
-    login: `${API_BASE_URL}/auth/login/`,
-    register: `${API_BASE_URL}/auth/register/`,
-    logout: `${API_BASE_URL}/auth/logout/`,
-    refresh: `${API_BASE_URL}/auth/refresh/`,
-    profile: `${API_BASE_URL}/auth/profile/`,
+    login: `${baseURL}/api/auth/login/`,
+    register: `${baseURL}/api/auth/register/`,
+    logout: `${baseURL}/api/auth/logout/`,
+    refresh: `${baseURL}/api/auth/refresh/`,
+    profile: `${baseURL}/api/auth/profile/`,
   },
   
   // Candidates
   candidates: {
-    list: `${API_BASE_URL}/candidates/`,
-    create: `${API_BASE_URL}/candidates/`,
-    detail: (id) => `${API_BASE_URL}/candidates/${id}/`,
-    update: (id) => `${API_BASE_URL}/candidates/${id}/`,
-    delete: (id) => `${API_BASE_URL}/candidates/${id}/`,
+    list: `${baseURL}/api/candidates/`,
+    create: `${baseURL}/api/candidates/`,
+    detail: (id) => `${baseURL}/api/candidates/${id}/`,
+    update: (id) => `${baseURL}/api/candidates/${id}/`,
+    delete: (id) => `${baseURL}/api/candidates/${id}/`,
   },
   
   // Jobs
   jobs: {
-    list: `${API_BASE_URL}/jobs/`,
-    create: `${API_BASE_URL}/jobs/`,
-    detail: (id) => `${API_BASE_URL}/jobs/${id}/`,
-    update: (id) => `${API_BASE_URL}/jobs/${id}/`,
-    delete: (id) => `${API_BASE_URL}/jobs/${id}/`,
+    list: `${baseURL}/api/jobs/`,
+    create: `${baseURL}/api/jobs/`,
+    detail: (id) => `${baseURL}/api/jobs/${id}/`,
+    update: (id) => `${baseURL}/api/jobs/${id}/`,
+    delete: (id) => `${baseURL}/api/jobs/${id}/`,
   },
   
   // Interviews
   interviews: {
-    list: `${API_BASE_URL}/interviews/`,
-    create: `${API_BASE_URL}/interviews/`,
-    detail: (id) => `${API_BASE_URL}/interviews/${id}/`,
-    update: (id) => `${API_BASE_URL}/interviews/${id}/`,
-    delete: (id) => `${API_BASE_URL}/interviews/${id}/`,
-    schedule: `${API_BASE_URL}/interviews/schedule/`,
-    slots: `${API_BASE_URL}/interviews/slots/`,
+    list: `${baseURL}/api/interviews/`,
+    create: `${baseURL}/api/interviews/`,
+    detail: (id) => `${baseURL}/api/interviews/${id}/`,
+    update: (id) => `${baseURL}/api/interviews/${id}/`,
+    delete: (id) => `${baseURL}/api/interviews/${id}/`,
+    schedule: `${baseURL}/api/interviews/schedule/`,
+    slots: `${baseURL}/api/interviews/slots/`,
   },
   
   // AI Interview
   aiInterview: {
-    session: (sessionKey) => `${API_BASE_URL}/interview_app/?session_key=${sessionKey}`,
-    questions: `${API_BASE_URL}/interview_app/get_questions/`,
-    submitAnswer: `${API_BASE_URL}/interview_app/submit_answer/`,
-    completeInterview: `${API_BASE_URL}/interview_app/complete_interview/`,
-    results: (sessionId) => `${API_BASE_URL}/interview_app/results/${sessionId}/`,
+    session: (sessionKey) => `${baseURL}/interview_app/?session_key=${sessionKey}`,
+    questions: `${baseURL}/interview_app/get_questions/`,
+    submitAnswer: `${baseURL}/interview_app/submit_answer/`,
+    completeInterview: `${baseURL}/interview_app/complete_interview/`,
+    results: (sessionId) => `${baseURL}/interview_app/results/${sessionId}/`,
   },
   
   // Dashboard
   dashboard: {
-    stats: `${API_BASE_URL}/api/dashboard/stats/`,
-    analytics: `${API_BASE_URL}/api/dashboard/analytics/`,
+    stats: `${baseURL}/api/dashboard/stats/`,
+    analytics: `${baseURL}/api/dashboard/analytics/`,
   },
   
   // Hiring Agencies
   hiringAgencies: {
-    list: `${API_BASE_URL}/hiring_agencies/`,
-    create: `${API_BASE_URL}/hiring_agencies/`,
-    detail: (id) => `${API_BASE_URL}/hiring_agencies/${id}/`,
-    update: (id) => `${API_BASE_URL}/hiring_agencies/${id}/`,
-    delete: (id) => `${API_BASE_URL}/hiring_agencies/${id}/`,
+    list: `${baseURL}/api/hiring_agency/`,
+    create: `${baseURL}/api/hiring_agency/`,
+    detail: (id) => `${baseURL}/api/hiring_agency/${id}/`,
+    update: (id) => `${baseURL}/api/hiring_agency/${id}/`,
+    delete: (id) => `${baseURL}/api/hiring_agency/${id}/`,
   },
   
   // Companies
   companies: {
-    list: `${API_BASE_URL}/companies/`,
-    create: `${API_BASE_URL}/companies/`,
-    detail: (id) => `${API_BASE_URL}/companies/${id}/`,
-    update: (id) => `${API_BASE_URL}/companies/${id}/`,
-    delete: (id) => `${API_BASE_URL}/companies/${id}/`,
+    list: `${baseURL}/api/companies/`,
+    create: `${baseURL}/api/companies/`,
+    detail: (id) => `${baseURL}/api/companies/${id}/`,
+    update: (id) => `${baseURL}/api/companies/${id}/`,
+    delete: (id) => `${baseURL}/api/companies/${id}/`,
   },
   
   // Resumes
   resumes: {
-    list: `${API_BASE_URL}/resumes/`,
-    upload: `${API_BASE_URL}/resumes/upload/`,
-    detail: (id) => `${API_BASE_URL}/resumes/${id}/`,
-    delete: (id) => `${API_BASE_URL}/resumes/${id}/`,
+    list: `${baseURL}/api/resumes/`,
+    upload: `${baseURL}/api/resumes/upload/`,
+    detail: (id) => `${baseURL}/api/resumes/${id}/`,
+    delete: (id) => `${baseURL}/api/resumes/${id}/`,
   },
   
   // Notifications
   notifications: {
-    list: `${API_BASE_URL}/notifications/`,
-    markRead: (id) => `${API_BASE_URL}/notifications/${id}/mark_read/`,
-    markAllRead: `${API_BASE_URL}/notifications/mark_all_read/`,
+    list: `${baseURL}/api/notifications/`,
+    markRead: (id) => `${baseURL}/api/notifications/${id}/mark_read/`,
+    markAllRead: `${baseURL}/api/notifications/mark_all_read/`,
   },
 };
 

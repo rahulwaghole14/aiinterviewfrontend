@@ -10,9 +10,9 @@ export const fetchAdmins = createAsyncThunk(
     try {
       const token = localStorage.getItem('authToken');
       console.log('Fetching admins with token:', token ? 'Token exists' : 'No token');
-      console.log('API URL:', `${baseURL}/auth/admins/`);
+      console.log('API URL:', `${baseURL}/api/auth/admins/`);
       
-      const response = await fetch(`${baseURL}/auth/admins/`, {
+      const response = await fetch(`${baseURL}/api/auth/admins/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

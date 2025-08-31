@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { baseURL } from '../config/constants';
 import './DataListing.css';
 
 const DataListing = () => {
@@ -11,7 +12,7 @@ const DataListing = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const API_BASE_URL = 'https://aiinterviewerbackend-2.onrender.com/interview_app';
+  const API_BASE_URL = `${baseURL}/interview_app`;
 
   useEffect(() => {
     fetchData();

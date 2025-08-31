@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { BeatLoader } from 'react-spinners';
+import { baseURL } from '../config/constants';
 import './InterviewResultsList.css';
 
 const InterviewResultsList = () => {
@@ -27,7 +28,7 @@ const InterviewResultsList = () => {
         return;
       }
 
-      const response = await fetch('https://aiinterviewerbackend-2.onrender.com/interview_app/api/results/', {
+      const response = await fetch(`${baseURL}/interview_app/api/results/`, {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',

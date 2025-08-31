@@ -693,7 +693,7 @@ const CandidateDetails = () => {
                           className="video-player"
                           preload="metadata"
                         >
-                          <source src={`https://aiinterviewerbackend-2.onrender.com${interview.ai_result.recording_video}`} type="video/mp4" />
+                          <source src={`${baseURL}${interview.ai_result.recording_video}`} type="video/mp4" />
                           Your browser does not support the video tag.
                         </video>
                       </div>

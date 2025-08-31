@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/slices/userSlice';
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import { fetchCandidates } from '../redux/slices/candidatesSlice';
+import { baseURL } from '../config/constants';
 import './Login.css';
 
 const Login = ({ onLogin }) => {
@@ -28,11 +29,11 @@ const Login = ({ onLogin }) => {
 
     try {
       // Step 1: Call the login API
-      console.log('=== HARDCODED LOGIN URL BEING USED ===');
-      console.log('URL: https://aiinterviewerbackend-2.onrender.com/auth/login/');
+      console.log('=== LOGIN URL BEING USED ===');
+      console.log('URL:', `${baseURL}/api/auth/login/`);
       console.log('=== END URL LOG ===');
       
-      const loginResponse = await fetch('https://aiinterviewerbackend-2.onrender.com/auth/login/', {
+      const loginResponse = await fetch(`${baseURL}/api/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

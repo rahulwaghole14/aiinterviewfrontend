@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { BeatLoader } from 'react-spinners';
+import { baseURL } from '../config/constants';
 import './InterviewComplete.css';
 
 const InterviewComplete = ({ sessionData, onClose }) => {
@@ -72,7 +73,7 @@ const InterviewComplete = ({ sessionData, onClose }) => {
       setLoading(true);
       
       // Generate and download interview report
-      const response = await fetch(`https://aiinterviewerbackend-2.onrender.com/interview_app/report/${sessionData.session_id}/`, {
+      const response = await fetch(`${baseURL}/interview_app/report/${sessionData.session_id}/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

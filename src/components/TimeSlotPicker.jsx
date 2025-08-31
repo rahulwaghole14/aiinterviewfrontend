@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
+import { baseURL } from "../config/constants";
 import "./TimeSlotPicker.css";
 
 const TimeSlotPicker = ({
   selectedTimes = [],
   onSelectTimes = () => {},
   selectedDate,
-  baseURL = "https://aiinterviewerbackend-2.onrender.com",
   isBooking = false,
   setIsBooking = () => {},
   onAvailableSlotsChange = () => {},
