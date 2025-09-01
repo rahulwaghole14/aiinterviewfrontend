@@ -49,7 +49,15 @@ export const fetchCandidates = createAsyncThunk(
       }
 
       // Format the candidates data for consistency with frontend
-      const formattedCandidates = fetchedCandidates.map(candidate => ({
+      const formattedCandidates = fetchedCandidates.map(candidate => {
+        // Debug logging for created_at field
+        console.log(`Candidate ${candidate.id} (${candidate.full_name}):`, {
+          created_at: candidate.created_at,
+          last_updated: candidate.last_updated,
+          type_created_at: typeof candidate.created_at
+        });
+        
+        return {
         id: candidate.id,
         name: candidate.full_name || '-',
         email: candidate.email || '-',
@@ -60,14 +68,15 @@ export const fetchCandidates = createAsyncThunk(
         workExperience: candidate.work_experience || 0,
         status: candidate.status || 'NEW',
         lastUpdated: candidate.last_updated,
-        applicationDate: candidate.created_at,
+        applicationDate: candidate.created_at || candidate.last_updated || null,
         resumes: candidate.resume_file ? [{ name: candidate.resume_file.split('/').pop(), url: candidate.resume_file }] : [],
         interviewDetails: candidate.interview_details || null,
         evaluation: candidate.evaluation_details || null,
         aptitude: candidate.aptitude_details || null,
         brChats: candidate.br_chats || [],
         job_matching: candidate.job_matching || null, // Add job matching data
-      }));
+      };
+      });
       return formattedCandidates;
     } catch (error) {
       console.error("Error fetching candidates:", error);

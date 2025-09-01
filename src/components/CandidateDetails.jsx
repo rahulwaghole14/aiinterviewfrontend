@@ -403,7 +403,15 @@ const CandidateDetails = () => {
               <span className="detail-label">Applied On:</span>
               <span className="detail-value">
                 {candidate.applicationDate
-                  ? new Date(candidate.applicationDate).toLocaleDateString()
+                  ? (() => {
+                      try {
+                        const date = new Date(candidate.applicationDate);
+                        return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
+                      } catch (error) {
+                        console.error("Error parsing application date:", error);
+                        return "N/A";
+                      }
+                    })()
                   : "N/A"}
               </span>
             </div>
