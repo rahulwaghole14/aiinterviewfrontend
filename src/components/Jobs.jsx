@@ -1090,8 +1090,14 @@ const Jobs = () => {
               },
               {
                 field: "domain",
-                header: "Domain",
+                header: "Domain", 
                 width: "20%",
+                type: "select",
+                options: domains.map(domain => ({
+                  value: domain.id,
+                  label: domain.name
+                })),
+                placeholder: "Select Domain",
                 render: (value, rowData) => (
                   <div title={rowData.domain_name || getDomainName(value) || "-"}>
                     {rowData.domain_name || getDomainName(value) || "-"}
@@ -1102,6 +1108,11 @@ const Jobs = () => {
                 field: "is_active",
                 header: "Status",
                 width: "12%",
+                type: "select",
+                options: [
+                  { value: true, label: "Active" },
+                  { value: false, label: "Inactive" },
+                ],
                 render: (value) => (
                   <span
                     className="status-cell"

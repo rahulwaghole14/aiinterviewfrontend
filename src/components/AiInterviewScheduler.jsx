@@ -52,6 +52,7 @@ const AiInterviewScheduler = ({
   const [editingSlot, setEditingSlot] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTimes, setSelectedTimes] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Initialize form with safe defaults and user data
   const [slotForm, setSlotForm] = useState(() => ({
@@ -293,6 +294,10 @@ const AiInterviewScheduler = ({
           }
 
           await fetchSlots();
+          // Force TimeSlotPicker to refresh by changing the key
+          setRefreshKey(prev => prev + 1);
+          // Also clear and reset selected times to trigger refresh
+          setSelectedTimes([]);
           resetSlotForm();
         }
       } catch (error) {
@@ -548,6 +553,7 @@ const AiInterviewScheduler = ({
           <label>Time Slots</label>
           {selectedDate && (
             <TimeSlotPicker
+              key={`${selectedDate.toISOString().split('T')[0]}-${refreshKey}`}
               selectedTimes={selectedTimes}
               onSelectTimes={handleTimeSelect}
               selectedDate={selectedDate}
@@ -872,7 +878,7 @@ const AiInterviewScheduler = ({
       <div className="ai-int-form-container">
         {formError && <div className="ai-int-error-message">{formError}</div>}
         <form onSubmit={handleSlotSubmit} className="ai-int-form">
-            <h3 className="ai-int-form-title">Interview Scheduler</h3>
+          <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
               <label>Date</label>
               <HorizontalDatePicker
@@ -1036,11 +1042,26 @@ const AiInterviewScheduler = ({
             field: "ai_interview_type",
             header: "Type",
             width: "20%",
+            type: "select",
+            options: [
+              { value: "technical", label: "Technical Interview" },
+              { value: "behavioral", label: "Behavioral Interview" },
+              { value: "coding", label: "Coding Interview" },
+              { value: "system_design", label: "System Design Interview" },
+              { value: "general", label: "General Interview" },
+            ],
           },
           {
             field: "status",
             header: "Status",
             width: "20%",
+            type: "select",
+            options: [
+              { value: "available", label: "Available" },
+              { value: "booked", label: "Booked" },
+              { value: "cancelled", label: "Cancelled" },
+              { value: "completed", label: "Completed" },
+            ],
             render: (value) => (
               <span className="status-cell" data-status={value?.toLowerCase()}>
                 {value}

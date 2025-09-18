@@ -221,12 +221,16 @@ const HiringAgencies = () => {
             field: "is_active",
             header: "Status",
             width: "15%",
+            type: "select",
+            options: [
+              { value: true, label: "Active" },
+              { value: false, label: "Inactive" },
+            ],
             render: (value) => (
               <span className="status-cell" data-status={value ? "active" : "inactive"}>
                 {value ? "Active" : "Inactive"}
               </span>
             ),
-            type: "checkbox",
             editable: true,
           },
         ];
@@ -266,6 +270,11 @@ const HiringAgencies = () => {
             field: "status",
             header: "Status",
             width: "10%",
+            type: "select",
+            options: [
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+            ],
             render: (value) => (
               <span className="status-cell" data-status={value?.toLowerCase() || "active"}>
                 {value || "Active"}
