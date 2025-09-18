@@ -16,10 +16,14 @@ import React, {
     FaSave,
     FaTimes,
     FaKey,
+    FaSort,
+    FaSortUp,
+    FaSortDown,
   } from "react-icons/fa";
-  import LoadingSpinner from "./LoadingSpinner";
-  import "./DataTable.css";
-  import PropTypes from "prop-types";
+import LoadingSpinner from "./LoadingSpinner";
+import TimePicker12 from "./TimePicker12";
+import "./DataTable.css";
+import PropTypes from "prop-types";
   
   /**
    * DataTable Component
@@ -144,12 +148,20 @@ import React, {
       }
       console.log("--- End DataTable Debug ---");
     }, [title, columns, data, loading]);
+    
+    // Sort configuration state
+    const [sortConfig, setSortConfig] = useState({
+      field: null,
+      direction: null, // 'asc', 'desc', or null
+    });
+    
     // Process data for the table
     const processedData = useMemo(() => {
       console.log("Processing data:", {
         dataLength: data?.length || 0,
         firstItem: data?.[0],
         isArray: Array.isArray(data),
+        sortConfig,
       });
   
       if (!data || !Array.isArray(data)) {
@@ -158,14 +170,44 @@ import React, {
       }
   
       // Ensure all data items are plain objects
-      return data.map((item, index) => {
+      let processedItems = data.map((item, index) => {
         if (!item || typeof item !== "object") {
           console.warn(`DataTable: Invalid data item at index ${index}:`, item);
           return {};
         }
         return item;
       });
-    }, [data]);
+  
+      // Apply sorting if configured
+      if (sortConfig.field && sortConfig.direction) {
+        processedItems = [...processedItems].sort((a, b) => {
+          const aValue = getNestedValue(a, sortConfig.field);
+          const bValue = getNestedValue(b, sortConfig.field);
+          
+          // Handle null/undefined values
+          if (aValue === null || aValue === undefined) return 1;
+          if (bValue === null || bValue === undefined) return -1;
+          
+          // Convert to strings for comparison if needed
+          const aStr = String(aValue).toLowerCase();
+          const bStr = String(bValue).toLowerCase();
+          
+          // Numeric comparison if both are numbers
+          const aNum = Number(aValue);
+          const bNum = Number(bValue);
+          if (!isNaN(aNum) && !isNaN(bNum)) {
+            return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
+          }
+          
+          // String comparison
+          if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
+          if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+  
+      return processedItems;
+    }, [data, sortConfig]);
   
     // Process columns and data for the table
     const processedColumns = useMemo(() => {
@@ -255,6 +297,41 @@ import React, {
       setDisplayedData(processedData.slice(startIndex, endIndex));
     }, [processedData, currentPage, pageSize]);
   
+    // Sort handler function
+    const handleSort = useCallback((field) => {
+      if (!field || field === 'actions') return; // Don't sort actions column
+      
+      setSortConfig(prevConfig => {
+        if (prevConfig.field === field) {
+          // Same field - cycle through asc -> desc -> none
+          if (prevConfig.direction === 'asc') {
+            return { field, direction: 'desc' };
+          } else if (prevConfig.direction === 'desc') {
+            return { field: null, direction: null };
+          } else {
+            return { field, direction: 'asc' };
+          }
+        } else {
+          // Different field - start with asc
+          return { field, direction: 'asc' };
+        }
+      });
+    }, []);
+
+    // Get sort icon for column
+    const getSortIcon = useCallback((field) => {
+      if (!field || field === 'actions') return <FaSort className="sort-icon" />;
+      
+      if (sortConfig.field === field) {
+        if (sortConfig.direction === 'asc') {
+          return <FaSortUp className="sort-icon active" />;
+        } else if (sortConfig.direction === 'desc') {
+          return <FaSortDown className="sort-icon active" />;
+        }
+      }
+      return <FaSort className="sort-icon" />;
+    }, [sortConfig]);
+
     // Enhanced menu and context menu handling
     useEffect(() => {
       const handleClickOutside = (event) => {
@@ -393,10 +470,8 @@ import React, {
           setEditingData(initialData);
           setContextMenu((prev) => ({ ...prev, visible: false }));
   
-          // Call onEdit if provided
-          if (onEdit) {
-            onEdit(initialData);
-          } else if (onAction) {
+          // Only call onAction for edit start, not onEdit (onEdit is for saving)
+          if (onAction) {
             onAction("edit", initialData, rowIndex);
           }
         } catch (error) {
@@ -954,13 +1029,66 @@ import React, {
                   ) : column.type === "date" ? (
                     <input
                       type="date"
+                      value={
+                        column.formatForEdit
+                          ? column.formatForEdit(getNestedValue(editingData, column.field), editingData)
+                          : getNestedValue(editingData, column.field) || ""
+                      }
+                      onChange={(e) => {
+                        const value = column.parseFromEdit
+                          ? column.parseFromEdit(e.target.value, editingData)
+                          : e.target.value;
+                        handleInputChange(column.field, value);
+                      }}
+                      className="edit-input"
+                      style={{ width: "100%" }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : column.type === "time" ? (
+                    <input
+                      type="time"
+                      value={
+                        column.formatForEdit
+                          ? column.formatForEdit(getNestedValue(editingData, column.field), editingData)
+                          : getNestedValue(editingData, column.field) || ""
+                      }
+                      onChange={(e) => {
+                        const value = column.parseFromEdit
+                          ? column.parseFromEdit(e.target.value, editingData)
+                          : e.target.value;
+                        handleInputChange(column.field, value);
+                      }}
+                      className="edit-input"
+                      style={{ width: "100%" }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : column.type === "time12" ? (
+                    <TimePicker12
+                      value={
+                        column.formatForEdit
+                          ? column.formatForEdit(getNestedValue(editingData, column.field), editingData)
+                          : getNestedValue(editingData, column.field) || ""
+                      }
+                      onChange={(timeValue) => {
+                        const value = column.parseFromEdit
+                          ? column.parseFromEdit(timeValue, editingData)
+                          : timeValue;
+                        handleInputChange(column.field, value);
+                      }}
+                      placeholder="Select time"
+                    />
+                  ) : column.type === "number" ? (
+                    <input
+                      type="number"
                       value={getNestedValue(editingData, column.field) || ""}
                       onChange={(e) =>
-                        handleInputChange(column.field, e.target.value)
+                        handleInputChange(column.field, parseInt(e.target.value) || 0)
                       }
                       className="edit-input"
                       style={{ width: "100%" }}
                       onClick={(e) => e.stopPropagation()}
+                      min={column.min || 1}
+                      max={column.max || 100}
                     />
                   ) : column.type === "time-range" ? (
                     <input
@@ -1172,14 +1300,22 @@ import React, {
                   {tableColumns.map((column, index) => (
                     <th
                       key={column.key || column.field || index}
-                      className={column.className || ""}
+                      className={`${column.className || ""} ${column.field && column.field !== 'actions' ? 'sortable' : ''}`}
                       style={{
                         ...(column.width && { width: column.width }),
                         ...(column.align && { textAlign: column.align }),
                         ...(column.style || {}),
                       }}
+                      onClick={() => handleSort(column.field)}
                     >
-                      {column.header || column.title}
+                      <div className="header-content">
+                        <span className="header-text">{column.header || column.title}</span>
+                        {column.field && column.field !== 'actions' && (
+                          <span className="sort-icon-container">
+                            {getSortIcon(column.field)}
+                          </span>
+                        )}
+                      </div>
                     </th>
                   ))}
                 </tr>

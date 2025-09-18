@@ -208,13 +208,19 @@ const HiringAgencies = () => {
           {
             field: "name",
             header: "Name",
-            width: "25%",
+            width: "20%",
+            editable: true,
+          },
+          {
+            field: "email",
+            header: "Email",
+            width: "20%",
             editable: true,
           },
           {
             field: "description",
             header: "Description",
-            width: "45%",
+            width: "35%",
             editable: true,
           },
           {
@@ -237,55 +243,56 @@ const HiringAgencies = () => {
       case "Hiring Agency":
         return [
           {
-            field: "name",
-            header: "Name",
-            width: "15%",
+            field: "first_name",
+            header: "First Name",
+            width: "12%",
+            editable: true,
+          },
+          {
+            field: "last_name",
+            header: "Last Name",
+            width: "12%",
             editable: true,
           },
           {
             field: "email",
             header: "Email",
-            width: "15%",
+            width: "18%",
             editable: true,
           },
           {
-            field: "phone",
+            field: "phone_number",
             header: "Phone",
-            width: "10%",
+            width: "12%",
             editable: true,
           },
           {
             field: "company_name",
-            header: "Company Name",
+            header: "Company",
             width: "15%",
             editable: true,
           },
           {
             field: "role",
             header: "Role",
-            width: "10%",
+            width: "12%",
             editable: false,
           },
           {
-            field: "status",
-            header: "Status",
-            width: "10%",
-            type: "select",
-            options: [
-              { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" },
-            ],
-            render: (value) => (
-              <span className="status-cell" data-status={value?.toLowerCase() || "active"}>
-                {value || "Active"}
-              </span>
-            ),
+            field: "linkedin_url",
+            header: "LinkedIn",
+            width: "12%",
+            editable: true,
           },
           {
             field: "permission_granted",
-            header: "Permission Granted",
-            width: "15%",
+            header: "Permission Date",
+            width: "12%",
             editable: false,
+            render: (value) => {
+              if (!value) return 'N/A';
+              return new Date(value).toLocaleDateString();
+            },
           },
         ];
       case "Recruiter":
@@ -293,9 +300,9 @@ const HiringAgencies = () => {
       default:
         return [
           {
-            field: "name",
-            header: "Name",
-            width: "25%",
+            field: "full_name",
+            header: "Full Name",
+            width: "20%",
             editable: true,
           },
           {
@@ -306,15 +313,49 @@ const HiringAgencies = () => {
           },
           {
             field: "company_name",
-            header: "Company Name",
+            header: "Company",
             width: "20%",
             editable: true,
           },
           {
             field: "role",
             header: "Role",
-            width: "20%",
+            width: "15%",
+            type: "select",
+            editable: true,
+            options: [
+              { value: "ADMIN", label: "Admin" },
+              { value: "COMPANY", label: "Company" },
+              { value: "HIRING_AGENCY", label: "Hiring Agency" },
+              { value: "RECRUITER", label: "Recruiter" },
+              { value: "OTHERS", label: "Others" },
+            ],
+          },
+          {
+            field: "is_active",
+            header: "Active",
+            width: "10%",
+            type: "select",
+            editable: true,
+            options: [
+              { value: true, label: "Active" },
+              { value: false, label: "Inactive" },
+            ],
+            render: (value) => (
+              <span className="status-cell" data-status={value ? "active" : "inactive"}>
+                {value ? "Active" : "Inactive"}
+              </span>
+            ),
+          },
+          {
+            field: "date_joined",
+            header: "Joined",
+            width: "10%",
             editable: false,
+            render: (value) => {
+              if (!value) return 'N/A';
+              return new Date(value).toLocaleDateString();
+            },
           },
         ];
     }
@@ -430,19 +471,9 @@ const HiringAgencies = () => {
         console.log("Mapped recruiter data:", recruiterData);
         return recruiterData;
       case "Hiring Agency":
-        // Map hiring agency data to fit the table structure
-        const hiringAgencyData = (hiringAgencies || []).map((agency) => ({
-          id: agency.id,
-          name: `${agency.first_name} ${agency.last_name}`, // Combine first and last name for 'name'
-          email: agency.email,
-          phone: agency.phone_number,
-          company_name: agency.company_name,
-          role: agency.role, // This will be "Hiring Agency"
-          status: "Active", // Assuming all fetched hiring agencies are active for display purposes
-          lastUpdated: agency.permission_granted, // Using permission_granted as last updated
-        }));
-        console.log("Mapped hiring agency data:", hiringAgencyData);
-        return hiringAgencyData;
+        // Return hiring agency data directly without mapping since column fields match API fields
+        console.log("Hiring agency data from API:", hiringAgencies);
+        return hiringAgencies || [];
       case "Company":
         // Map company data to fit the table structure
         const companyData = (companies || []).map((company) => ({
@@ -891,6 +922,199 @@ const HiringAgencies = () => {
     setIsDeleting(false);
   };
 
+  // New function for DataTable edit integration
+  const handleUpdateUser = async (editedData) => {
+    if (!editedData || !editedData.id) {
+      throw new Error("Invalid data provided for update");
+    }
+
+    // Find the original user data
+    const originalUser = currentRecords.find(
+      (user) => user.id === editedData.id
+    );
+
+    // Check if there are any changes
+    const hasChanges = Object.keys(editedData).some((key) => {
+      // Special handling for status vs is_active
+      if (key === "status") {
+        const newStatus = editedData[key]?.toLowerCase() === "active";
+        return originalUser.is_active !== newStatus;
+      }
+      return originalUser[key] !== editedData[key];
+    });
+
+    if (!hasChanges) {
+      setApiMessage("No changes detected.");
+      setTimeout(() => setApiMessage(""), 3000);
+      return;
+    }
+
+    setApiMessage("Updating user...");
+    try {
+      let endpoint = "";
+      let payload = {};
+      const token = localStorage.getItem("authToken");
+
+      // Determine endpoint and payload based on active tab
+      switch (activeTab) {
+        case "Recruiter":
+          endpoint = `${baseURL}/api/companies/recruiters/${editedData.id}/`;
+          payload = {
+            new_full_name: editedData.name,
+            new_email: editedData.email,
+            is_active: editedData.status?.toLowerCase() === "active",
+          };
+          break;
+        case "Hiring Agency":
+          endpoint = `${baseURL}/api/hiring_agency/${editedData.id}/`;
+          payload = {
+            name: editedData.name,
+            email: editedData.email,
+            is_active: editedData.status?.toLowerCase() === "active",
+          };
+          break;
+        case "Company":
+          endpoint = `${baseURL}/api/companies/${editedData.id}/`;
+          payload = {
+            name: editedData.name,
+            description: editedData.description,
+            is_active: editedData.status?.toLowerCase() === "active",
+          };
+          break;
+        case "Admin":
+          endpoint = `${baseURL}/api/admins/${editedData.id}/`;
+          payload = {
+            name: editedData.name,
+            email: editedData.email,
+            is_active: editedData.status?.toLowerCase() === "active",
+          };
+          break;
+        default:
+          throw new Error("Invalid user type");
+      }
+
+      console.log("Attempting to update from endpoint:", endpoint);
+      const response = await fetch(endpoint, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("Update response status:", response.status);
+      const responseData = await response.json().catch(() => ({}));
+      console.log("Update response data:", responseData);
+
+      if (!response.ok) {
+        throw new Error(responseData.detail || "Failed to update user");
+      }
+
+      console.log("Update successful, refreshing data...");
+      // Refresh the data after successful update
+      if (activeTab === "Recruiter") dispatch(fetchRecruiters());
+      else if (activeTab === "Hiring Agency") dispatch(fetchHiringAgencies());
+      else if (activeTab === "Company") dispatch(fetchCompanies());
+      else if (activeTab === "Admin") dispatch(fetchAdmins());
+
+      setApiMessage("User updated successfully!");
+
+      // Clear the message after 5 seconds
+      setTimeout(() => setApiMessage(""), 5000);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setApiMessage(`Error: ${error.message}`);
+      throw error; // Re-throw so DataTable can handle the error
+    }
+  };
+
+  // New function for DataTable delete integration
+  const handleDeleteUser = async (userId) => {
+    console.log("=== handleDeleteUser STARTED ===");
+    console.log("handleDeleteUser called with userId:", userId);
+
+    if (!userId) {
+      console.error("No user ID available for deletion");
+      throw new Error("No user ID provided");
+    }
+
+    console.log("Starting delete process for user ID:", userId);
+    setApiMessage("Deleting user...");
+
+    try {
+      let endpoint = "";
+      const token = localStorage.getItem("authToken");
+      console.log("Active tab:", activeTab);
+      console.log("Using token:", token ? "Token exists" : "No token found");
+
+      // Determine endpoint based on active tab
+      switch (activeTab) {
+        case "Recruiter":
+          endpoint = `${baseURL}/api/companies/recruiters/${userId}/`;
+          break;
+        case "Hiring Agency":
+          endpoint = `${baseURL}/api/hiring_agency/${userId}/`;
+          break;
+        case "Company":
+          endpoint = `${baseURL}/api/companies/${userId}/`;
+          break;
+        default:
+          console.error("Invalid tab for delete operation:", activeTab);
+          throw new Error("Invalid tab for delete operation.");
+      }
+
+      console.log("Sending DELETE request to:", endpoint);
+      const response = await fetch(endpoint, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Delete response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          "Delete failed with status:",
+          response.status,
+          "Response:",
+          errorText
+        );
+        throw new Error(
+          `Failed to delete user: ${response.status} - ${errorText}`
+        );
+      }
+
+      console.log("Delete successful, refreshing data...");
+      // Refresh the data after successful deletion
+      const fetchPromises = [];
+
+      if (activeTab === "Recruiter") {
+        fetchPromises.push(dispatch(fetchRecruiters()));
+      } else if (activeTab === "Hiring Agency") {
+        fetchPromises.push(dispatch(fetchHiringAgencies()));
+      } else if (activeTab === "Company") {
+        fetchPromises.push(dispatch(fetchCompanies()));
+      }
+
+      // Wait for all fetches to complete
+      await Promise.all(fetchPromises);
+
+      setApiMessage("User deleted successfully!");
+      console.log("Data refresh complete");
+    } catch (error) {
+      console.error("Error in handleDeleteUser:", error);
+      setApiMessage(`Error: ${error.message}`);
+      throw error; // Re-throw so DataTable can handle the error
+    } finally {
+      // Clear the message after 5 seconds
+      setTimeout(() => setApiMessage(""), 5000);
+    }
+  };
+
   const handleSort = (column) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -1323,8 +1547,8 @@ const HiringAgencies = () => {
             setEditingUserId(rowData.id);
             setEditedUserData({ ...rowData });
           } else if (action === "delete") {
-            setDeleteUserId(rowData.id);
-            setShowDeleteConfirm(true);
+            // Handle delete directly with API call
+            handleDeleteUser(rowData.id);
           }
         }}
         showRefresh={true}
@@ -1368,45 +1592,6 @@ const HiringAgencies = () => {
 
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="delete-confirm-overlay show">
-          <div className="delete-confirm-modal">
-            <h3 className="delete-confirm-title">Confirm Deletion</h3>
-            <p className="delete-confirm-message">
-              Are you sure you want to delete this {activeTab.toLowerCase()}?
-              This action cannot be undone.
-            </p>
-            <div className="delete-confirm-actions">
-              <button
-                className="delete-confirm-cancel"
-                onClick={cancelDelete}
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                className="delete-confirm-delete"
-                onClick={confirmDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Deleting...
-                  </>
-                ) : (
-                  "Delete"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Dynamic Add New Modal */}
       {showAddModal && (

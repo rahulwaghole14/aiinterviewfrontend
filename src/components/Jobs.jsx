@@ -734,6 +734,94 @@ const Jobs = () => {
     setJobIdToDelete(null);
   };
 
+  // New function for DataTable delete integration
+  const handleDeleteJob = async (jobId) => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      setErrorMessage("Authentication token not found. Please log in again.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${baseURL}/api/jobs/${jobId}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      console.log("Job successfully deleted:", jobId);
+      dispatch(deleteJob(jobId)); // Dispatch to Redux store
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      setErrorMessage(
+        error.message || "Failed to delete job. Please try again."
+      );
+      throw error; // Re-throw so DataTable can handle the error
+    }
+  };
+
+  // New function for DataTable edit integration
+  const handleUpdateJob = async (editedData) => {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      setErrorMessage("Authentication token not found. Please log in again.");
+      throw new Error("Authentication token not found");
+    }
+
+    try {
+      const response = await fetch(
+        `${baseURL}/api/jobs/${editedData.id}/`,
+        {
+          method: "PUT", // Use PUT for full update
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${authToken}`,
+          },
+          body: JSON.stringify({
+            job_title: editedData.job_title,
+            company_name: editedData.company_name,
+            domain: parseInt(editedData.domain, 10), // Ensure domain is an integer
+            spoc_email: editedData.spoc_email,
+            hiring_manager_email: editedData.hiring_manager_email,
+            current_team_size_info: editedData.current_team_size_info,
+            number_to_hire: parseInt(editedData.number_to_hire, 10), // Ensure number
+            position_level: editedData.position_level,
+            current_process: editedData.current_process,
+            tech_stack_details: editedData.tech_stack_details,
+            job_description: editedData.job_description || "",
+            is_active: editedData.is_active === "Active" || editedData.is_active === true,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const updatedJob = await response.json();
+      console.log("Job successfully updated:", updatedJob);
+
+      dispatch(updateJob({ id: updatedJob.id, updatedData: updatedJob })); // Dispatch to Redux store
+    } catch (error) {
+      console.error("Error updating job:", error);
+      setErrorMessage(
+        error.message || "Failed to update job. Please try again."
+      );
+      throw error; // Re-throw so DataTable can handle the error
+    }
+  };
+
   // Handle sorting logic
   const handleSort = (column) => {
     if (sortColumn === column) {
@@ -1071,7 +1159,8 @@ const Jobs = () => {
               {
                 field: "job_title",
                 header: "Job Title",
-                width: "28%",
+                width: "12%",
+                editable: true,
                 render: (value) => (
                   <div title={value}>
                     {value}
@@ -1081,7 +1170,8 @@ const Jobs = () => {
               {
                 field: "company_name",
                 header: "Company",
-                width: "25%",
+                width: "10%",
+                editable: true,
                 render: (value) => (
                   <div title={value}>
                     {value}
@@ -1091,8 +1181,9 @@ const Jobs = () => {
               {
                 field: "domain",
                 header: "Domain", 
-                width: "20%",
+                width: "8%",
                 type: "select",
+                editable: true,
                 options: domains.map(domain => ({
                   value: domain.id,
                   label: domain.name
@@ -1105,22 +1196,95 @@ const Jobs = () => {
                 ),
               },
               {
-                field: "is_active",
-                header: "Status",
+                field: "spoc_email",
+                header: "SPOC Email",
                 width: "12%",
+                editable: true,
+              },
+              {
+                field: "hiring_manager_email",
+                header: "Hiring Manager Email",
+                width: "12%",
+                editable: true,
+              },
+              {
+                field: "current_team_size_info",
+                header: "Current Team Size Info",
+                width: "8%",
+                editable: true,
+                render: (value) => value || 'N/A',
+              },
+              {
+                field: "number_to_hire",
+                header: "Number to Hire",
+                width: "6%",
+                editable: true,
+                type: "number",
+              },
+              {
+                field: "position_level",
+                header: "Position Level",
+                width: "8%",
                 type: "select",
+                editable: true,
                 options: [
-                  { value: true, label: "Active" },
-                  { value: false, label: "Inactive" },
+                  { value: "IC", label: "IC" },
+                  { value: "Manager", label: "Manager" },
                 ],
-                render: (value) => (
-                  <span
-                    className="status-cell"
-                    data-status={value ? "active" : "inactive"}
-                  >
-                    {value ? "Active" : "Inactive"}
-                  </span>
-                ),
+              },
+              {
+                field: "current_process",
+                header: "Current Process",
+                width: "10%",
+                editable: true,
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  const truncated = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                  return (
+                    <div title={value}>
+                      {truncated}
+                    </div>
+                  );
+                },
+              },
+              {
+                field: "tech_stack_details",
+                header: "Tech Stack Details",
+                width: "10%",
+                editable: true,
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  const truncated = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                  return (
+                    <div title={value}>
+                      {truncated}
+                    </div>
+                  );
+                },
+              },
+              {
+                field: "job_description",
+                header: "Job Description",
+                width: "12%",
+                editable: true,
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  const truncated = value.length > 60 ? value.substring(0, 60) + '...' : value;
+                  return (
+                    <div title={value}>
+                      {truncated}
+                    </div>
+                  );
+                },
+              },
+              {
+                field: "created_at",
+                header: "Created",
+                width: "8%",
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  return new Date(value).toLocaleDateString();
+                },
               },
             ]}
             data={currentRecords || []}
@@ -1128,11 +1292,16 @@ const Jobs = () => {
             actions={["edit", "delete"]}
             onAction={(action, rowData, rowIndex) => {
               if (action === "edit") {
-                handleEditJob(rowData);
+                // For edit, we let DataTable handle inline editing
+                return;
               } else if (action === "delete") {
-                setJobIdToDelete(rowData.id);
-                setShowDeleteConfirm(true);
+                // Handle delete directly with API call
+                handleDeleteJob(rowData.id);
               }
+            }}
+            onEdit={async (editedData) => {
+              // Handle save from DataTable inline editing
+              await handleUpdateJob(editedData);
             }}
             showRefresh={true}
             onRefresh={() => dispatch(fetchJobs())}
@@ -1143,34 +1312,6 @@ const Jobs = () => {
 
         </div>
 
-        {/* Delete Confirmation Popup */}
-        {showDeleteConfirm && (
-          <div
-            className={`delete-confirm-overlay ${
-              showDeleteConfirm ? "show" : ""
-            }`}
-          >
-            <div className="delete-confirm-modal">
-              <p>Are you sure you want to delete this job?</p>
-              <div className="delete-confirm-actions">
-                <button
-                  className="delete-btn"
-                  onClick={confirmDelete}
-                  disabled={deletingJobId !== null}
-                >
-                  {deletingJobId !== null ? "Deleting..." : "Delete"}
-                </button>
-                <button
-                  className="cancel-btn"
-                  onClick={cancelDelete}
-                  disabled={deletingJobId !== null}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Create Domain Modal - Moved outside main container */}

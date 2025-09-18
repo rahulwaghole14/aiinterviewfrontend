@@ -179,10 +179,14 @@ const AiInterviewScheduler = ({
         console.log("Response data:", data);
 
         // Handle both array and object with results property
-        const slots = data.results || data;
-        console.log("Extracted slots:", slots);
+        const slotsData = data.results || data;
+        console.log("Extracted slots:", slotsData);
 
-        return Array.isArray(slots) ? slots : [];
+        // Update Redux state with the fetched slots
+        const validSlots = Array.isArray(slotsData) ? slotsData : [];
+        dispatch(setSlots(validSlots));
+        
+        return validSlots;
       } catch (error) {
         console.error("Error in fetchSlots:", error);
         setFormError(error.message);
@@ -431,6 +435,190 @@ const AiInterviewScheduler = ({
       }
     },
     [baseURL, fetchSlots, setIsSubmitting]
+  );
+
+  // New function for DataTable delete integration
+  const handleDeleteSlotAPI = useCallback(
+    async (slotId) => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) throw new Error("Authentication token not found");
+
+        const response = await fetch(
+          `${baseURL}/api/interviews/slots/${slotId}/`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Token ${authToken}` },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to delete slot");
+
+        await fetchSlots();
+      } catch (error) {
+        console.error("Error deleting slot:", error);
+        throw error; // Re-throw so DataTable can handle the error
+      }
+    },
+    [baseURL, fetchSlots]
+  );
+
+  // New function for DataTable edit integration
+  const handleUpdateSlotAPI = useCallback(
+    async (editedData) => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) throw new Error("Authentication token not found");
+
+        // Process the simplified data structure
+        let processedData = { ...editedData };
+        
+        console.log('Edited data with new structure:', editedData);
+        
+        // Helper function to convert 12-hour to 24-hour format
+        function convertTo24Hour(time12) {
+          try {
+            const timeParts = time12.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (!timeParts) {
+              return time12; // Return as-is if not 12-hour format
+            }
+            
+            let hours = parseInt(timeParts[1]);
+            const minutes = parseInt(timeParts[2]);
+            const ampm = timeParts[3].toUpperCase();
+            
+            // Convert to 24-hour format
+            if (ampm === 'AM' && hours === 12) {
+              hours = 0;
+            } else if (ampm === 'PM' && hours !== 12) {
+              hours += 12;
+            }
+            
+            // Format as HH:MM:SS for backend
+            const hours24 = hours.toString().padStart(2, '0');
+            const minutes24 = minutes.toString().padStart(2, '0');
+            return `${hours24}:${minutes24}:00`;
+          } catch (error) {
+            console.error('Error converting time:', error);
+            return time12; // Return original if conversion fails
+          }
+        }
+        
+        // Convert 12-hour format times to 24-hour format if needed
+        if (processedData.start_time && processedData.start_time.includes('M')) {
+          // This is 12-hour format, convert it
+          processedData.start_time = convertTo24Hour(processedData.start_time);
+          console.log('Converted start_time:', processedData.start_time);
+        }
+        
+        if (processedData.end_time && processedData.end_time.includes('M')) {
+          // This is 12-hour format, convert it
+          processedData.end_time = convertTo24Hour(processedData.end_time);
+          console.log('Converted end_time:', processedData.end_time);
+        }
+        
+        // Validate times (now with 24-hour format)
+        if (processedData.start_time && processedData.end_time) {
+          try {
+            // Parse time strings (format: "HH:MM:SS" or "HH:MM")
+            const startParts = processedData.start_time.split(':');
+            const endParts = processedData.end_time.split(':');
+            
+            const startHours = parseInt(startParts[0]);
+            const startMinutes = parseInt(startParts[1]);
+            const endHours = parseInt(endParts[0]);
+            const endMinutes = parseInt(endParts[1]);
+            
+            // Create time objects for comparison
+            const startTimeMinutes = startHours * 60 + startMinutes;
+            const endTimeMinutes = endHours * 60 + endMinutes;
+            
+            if (startTimeMinutes >= endTimeMinutes) {
+              throw new Error("End time must be after start time");
+            }
+
+            // Check business hours (8:00 AM - 10:00 PM)
+            const businessStart = 8 * 60; // 8:00 AM in minutes
+            const businessEnd = 22 * 60;  // 10:00 PM in minutes
+            
+            if (startTimeMinutes < businessStart || endTimeMinutes > businessEnd) {
+              const startTime12 = new Date(2000, 0, 1, startHours, startMinutes).toLocaleTimeString([], {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              });
+              const endTime12 = new Date(2000, 0, 1, endHours, endMinutes).toLocaleTimeString([], {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              });
+              
+              throw new Error(
+                `Interview time (${startTime12} - ${endTime12}) must be between 8:00 AM and 10:00 PM.`
+              );
+            }
+          } catch (parseError) {
+            console.error('Error parsing time for validation:', parseError);
+            throw new Error('Invalid time format. Please use format like "9:30 AM" or "2:15 PM"');
+          }
+        }
+
+        const slotData = {
+          interview_date: processedData.interview_date,
+          start_time: processedData.start_time,
+          end_time: processedData.end_time,
+          ai_interview_type: processedData.ai_interview_type,
+          status: processedData.status,
+          max_candidates: processedData.max_candidates,
+          // Keep other fields from original data
+          ai_configuration: processedData.ai_configuration,
+          job: processedData.job,
+          company: processedData.company,
+          slot_type: processedData.slot_type,
+          notes: processedData.notes,
+          is_recurring: processedData.is_recurring,
+          recurring_pattern: processedData.recurring_pattern,
+        };
+        
+        console.log('Slot data being sent to API:', slotData);
+
+        const response = await fetch(
+          `${baseURL}/api/interviews/slots/${editedData.id}/`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${authToken}`,
+            },
+            body: JSON.stringify(slotData),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error Response:', errorData);
+          console.error('Response status:', response.status);
+          console.error('Response statusText:', response.statusText);
+          
+          throw new Error(
+            errorData.detail || errorData.message || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`
+          );
+        }
+
+        // Force refresh the data and UI
+        await fetchSlots();
+        setRefreshKey(prev => prev + 1); // Refresh TimeSlotPicker and DataTable
+        
+        // Add a small delay to ensure state updates are processed
+        setTimeout(() => {
+          console.log("Data refresh completed");
+        }, 100);
+      } catch (error) {
+        console.error("Error updating slot:", error);
+        throw error; // Re-throw so DataTable can handle the error
+      }
+    },
+    [baseURL, fetchSlots, setRefreshKey]
   );
 
   const handleEditSlot = useCallback(
@@ -742,46 +930,278 @@ const AiInterviewScheduler = ({
 
           {/* Interview Slots Table */}
           <DataTable
+            key={`slots-table-${refreshKey}`}
             title="Interview Slots"
             columns={[
               {
-                field: "start_time",
+                field: "interview_date",
                 header: "Date",
-                width: "20%",
-                render: (value) => new Date(value).toLocaleDateString(),
+                width: "8%",
+                type: "date",
+                editable: true,
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  return new Date(value).toLocaleDateString();
+                },
               },
               {
                 field: "start_time",
-                header: "Time",
-                width: "25%",
-                render: (value, rowData) => (
-                  <>
-                    {new Date(value).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                    -{" "}
-                    {new Date(rowData.end_time).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </>
-                ),
+                header: "Start Time",
+                width: "9%",
+                type: "time12",
+                editable: true,
+                render: (value) => {
+                  // Handle null or invalid time values
+                  if (!value || typeof value !== 'string') {
+                    return 'N/A';
+                  }
+                  
+                  // Convert 24-hour time to 12-hour format for display
+                  const [hours, minutes] = value.split(':');
+                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                    hour: "numeric",
+                            minute: "2-digit",
+                    hour12: true
+                  });
+                  return hour12;
+                },
+                formatForEdit: (value) => {
+                  // Handle null or invalid time values
+                  if (!value || typeof value !== 'string') {
+                    return '';
+                  }
+                  
+                  // Convert 24-hour time (17:45:00) to 12-hour format for editing (5:45 PM)
+                  const [hours, minutes] = value.split(':');
+                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                    hour: "numeric",
+                            minute: "2-digit",
+                    hour12: true
+                  });
+                  return hour12;
+                },
+                parseFromEdit: (editValue, originalRowData) => {
+                  // Convert 12-hour format (5:45 PM) back to 24-hour format (17:45:00) for API
+                  if (!editValue) return '';
+                  
+                  try {
+                    // Parse 12-hour time format
+                    const timeParts = editValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                    if (!timeParts) {
+                      throw new Error('Invalid time format');
+                    }
+                    
+                    let hours = parseInt(timeParts[1]);
+                    const minutes = parseInt(timeParts[2]);
+                    const ampm = timeParts[3].toUpperCase();
+                    
+                    // Convert to 24-hour format
+                    if (ampm === 'AM' && hours === 12) {
+                      hours = 0;
+                    } else if (ampm === 'PM' && hours !== 12) {
+                      hours += 12;
+                    }
+                    
+                    // Format as HH:MM:SS for backend
+                    const hours24 = hours.toString().padStart(2, '0');
+                    const minutes24 = minutes.toString().padStart(2, '0');
+                    return `${hours24}:${minutes24}:00`;
+                  } catch (error) {
+                    console.error('Error parsing time:', error);
+                    return editValue; // Return original value if parsing fails
+                  }
+                }
+              },
+              {
+                field: "end_time", 
+                header: "End Time",
+                width: "9%",
+                type: "time12",
+                editable: true,
+                render: (value) => {
+                  // Handle null or invalid time values
+                  if (!value || typeof value !== 'string') {
+                    return 'N/A';
+                  }
+                  
+                  // Convert 24-hour time to 12-hour format for display
+                  const [hours, minutes] = value.split(':');
+                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                  });
+                  return hour12;
+                },
+                formatForEdit: (value) => {
+                  // Handle null or invalid time values
+                  if (!value || typeof value !== 'string') {
+                    return '';
+                  }
+                  
+                  // Convert 24-hour time (18:45:00) to 12-hour format for editing (6:45 PM)
+                  const [hours, minutes] = value.split(':');
+                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                  });
+                  return hour12;
+                },
+                parseFromEdit: (editValue, originalRowData) => {
+                  // Convert 12-hour format (6:45 PM) back to 24-hour format (18:45:00) for API
+                  if (!editValue) return '';
+                  
+                  try {
+                    // Parse 12-hour time format
+                    const timeParts = editValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                    if (!timeParts) {
+                      throw new Error('Invalid time format');
+                    }
+                    
+                    let hours = parseInt(timeParts[1]);
+                    const minutes = parseInt(timeParts[2]);
+                    const ampm = timeParts[3].toUpperCase();
+                    
+                    // Convert to 24-hour format
+                    if (ampm === 'AM' && hours === 12) {
+                      hours = 0;
+                    } else if (ampm === 'PM' && hours !== 12) {
+                      hours += 12;
+                    }
+                    
+                    // Format as HH:MM:SS for backend
+                    const hours24 = hours.toString().padStart(2, '0');
+                    const minutes24 = minutes.toString().padStart(2, '0');
+                    return `${hours24}:${minutes24}:00`;
+                  } catch (error) {
+                    console.error('Error parsing time:', error);
+                    return editValue; // Return original value if parsing fails
+                  }
+                }
+              },
+              {
+                field: "duration_minutes",
+                header: "Duration",
+                width: "7%",
+                editable: true,
+                type: "number",
+                render: (value) => value ? `${value}m` : 'N/A',
               },
               {
                 field: "ai_interview_type",
                 header: "Type",
-                width: "20%",
+                width: "9%",
+                type: "select",
+                editable: true,
+                options: [
+                  { value: "technical", label: "Technical" },
+                  { value: "behavioral", label: "Behavioral" },
+                  { value: "coding", label: "Coding" },
+                  { value: "system_design", label: "System Design" },
+                  { value: "general", label: "General" },
+                ],
               },
               {
                 field: "status",
                 header: "Status",
-                width: "20%",
+                width: "8%",
+                type: "select",
+                editable: true,
+                options: [
+                  { value: "available", label: "Available" },
+                  { value: "booked", label: "Booked" },
+                  { value: "cancelled", label: "Cancelled" },
+                  { value: "completed", label: "Completed" },
+                ],
                 render: (value) => (
                   <span className="status-cell" data-status={value?.toLowerCase()}>
                     {value}
-                  </span>
+                          </span>
                 ),
+              },
+              {
+                field: "slot_type",
+                header: "Slot Type",
+                width: "8%",
+                type: "select",
+                editable: true,
+                options: [
+                  { value: "fixed", label: "Fixed" },
+                  { value: "flexible", label: "Flexible" },
+                  { value: "recurring", label: "Recurring" },
+                ],
+              },
+              {
+                field: "max_candidates",
+                header: "Max Candidates",
+                width: "8%",
+                editable: true,
+                type: "number",
+              },
+              {
+                field: "current_bookings",
+                header: "Bookings",
+                width: "7%",
+                editable: false,
+                render: (value) => value || 0,
+              },
+              {
+                field: "available_spots",
+                header: "Spots",
+                width: "6%",
+                editable: false,
+                render: (value) => value || 0,
+              },
+              {
+                field: "is_recurring",
+                header: "Recurring",
+                width: "7%",
+                type: "select",
+                editable: true,
+                options: [
+                  { value: true, label: "Yes" },
+                  { value: false, label: "No" },
+                ],
+                render: (value) => value ? "Yes" : "No",
+              },
+              {
+                field: "notes",
+                header: "Notes",
+                width: "10%",
+                editable: true,
+              },
+              {
+                field: "company_name",
+                header: "Company",
+                width: "8%",
+                editable: false,
+              },
+              {
+                field: "job_title",
+                header: "Job",
+                width: "8%",
+                editable: false,
+              },
+              {
+                field: "created_at",
+                header: "Created",
+                width: "8%",
+                editable: false,
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  return new Date(value).toLocaleDateString();
+                },
+              },
+              {
+                field: "updated_at",
+                header: "Updated",
+                width: "8%",
+                editable: false,
+                render: (value) => {
+                  if (!value) return 'N/A';
+                  return new Date(value).toLocaleDateString();
+                },
               },
             ]}
             data={slots || []}
@@ -789,24 +1209,33 @@ const AiInterviewScheduler = ({
             actions={["edit", "delete"]}
             onAction={(action, rowData, rowIndex) => {
               if (action === "edit") {
-                handleEditSlot(rowData);
+                // For edit, we let DataTable handle inline editing
+                return;
               } else if (action === "delete") {
                 handleDeleteSlot(rowData.id);
               }
             }}
-            showRefresh={false}
+            onEdit={async (editedData) => {
+              // Handle save from DataTable inline editing
+              await handleUpdateSlotAPI(editedData);
+            }}
+            showRefresh={true}
+            onRefresh={async () => {
+              await fetchSlots();
+              setRefreshKey(prev => prev + 1);
+            }}
             showActions={true}
             defaultPageSize={10}
             pageSizeOptions={[5, 10, 20, 50]}
           />
           {slots.length === 0 && !slotsLoading && (
-            <div className="ai-int-no-slots">
-              <p>
-                No interview slots found. Create your first slot using the
-                form.
-              </p>
-            </div>
-          )}
+                <div className="ai-int-no-slots">
+                  <p>
+                    No interview slots found. Create your first slot using the
+                    form.
+                  </p>
+                </div>
+              )}
         </div>
       </div>
     ),
@@ -876,8 +1305,8 @@ const AiInterviewScheduler = ({
     <div className="ai-interview-scheduler">
       {/* Left Side - Form */}
       <div className="ai-int-form-container">
-        {formError && <div className="ai-int-error-message">{formError}</div>}
-        <form onSubmit={handleSlotSubmit} className="ai-int-form">
+          {formError && <div className="ai-int-error-message">{formError}</div>}
+          <form onSubmit={handleSlotSubmit} className="ai-int-form">
           <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
               <label>Date</label>
@@ -1015,34 +1444,158 @@ const AiInterviewScheduler = ({
         title="Interview Slots"
         columns={[
           {
-            field: "start_time",
+            field: "interview_date",
             header: "Date",
-            width: "20%",
-            render: (value) => new Date(value).toLocaleDateString(),
+            width: "15%",
+            type: "date",
+            editable: true,
+            render: (value) => {
+              if (!value) return 'N/A';
+              return new Date(value).toLocaleDateString();
+            },
           },
           {
             field: "start_time",
-            header: "Time",
-            width: "25%",
-            render: (value, rowData) => (
-              <>
-                {new Date(value).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}{" "}
-                -{" "}
-                {new Date(rowData.end_time).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </>
-            ),
+            header: "Start Time",
+            width: "12%",
+            type: "time12",
+            editable: true,
+            render: (value) => {
+              // Handle null or invalid time values
+              if (!value || typeof value !== 'string') {
+                return 'N/A';
+              }
+              
+              // Convert 24-hour time to 12-hour format for display
+              const [hours, minutes] = value.split(':');
+              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                hour: "numeric",
+                            minute: "2-digit",
+                hour12: true
+              });
+              return hour12;
+            },
+            formatForEdit: (value) => {
+              // Handle null or invalid time values
+              if (!value || typeof value !== 'string') {
+                return '';
+              }
+              
+              // Convert 24-hour time (17:45:00) to 12-hour format for editing (5:45 PM)
+              const [hours, minutes] = value.split(':');
+              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                hour: "numeric",
+                            minute: "2-digit",
+                hour12: true
+              });
+              return hour12;
+            },
+            parseFromEdit: (editValue, originalRowData) => {
+              // Convert 12-hour format (5:45 PM) back to 24-hour format (17:45:00) for API
+              if (!editValue) return '';
+              
+              try {
+                // Parse 12-hour time format
+                const timeParts = editValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                if (!timeParts) {
+                  throw new Error('Invalid time format');
+                }
+                
+                let hours = parseInt(timeParts[1]);
+                const minutes = parseInt(timeParts[2]);
+                const ampm = timeParts[3].toUpperCase();
+                
+                // Convert to 24-hour format
+                if (ampm === 'AM' && hours === 12) {
+                  hours = 0;
+                } else if (ampm === 'PM' && hours !== 12) {
+                  hours += 12;
+                }
+                
+                // Format as HH:MM:SS for backend
+                const hours24 = hours.toString().padStart(2, '0');
+                const minutes24 = minutes.toString().padStart(2, '0');
+                return `${hours24}:${minutes24}:00`;
+              } catch (error) {
+                console.error('Error parsing time:', error);
+                return editValue; // Return original value if parsing fails
+              }
+            }
+          },
+          {
+            field: "end_time", 
+            header: "End Time",
+            width: "12%",
+            type: "time12",
+            editable: true,
+            render: (value) => {
+              // Handle null or invalid time values
+              if (!value || typeof value !== 'string') {
+                return 'N/A';
+              }
+              
+              // Convert 24-hour time to 12-hour format for display
+              const [hours, minutes] = value.split(':');
+              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+              });
+              return hour12;
+            },
+            formatForEdit: (value) => {
+              // Handle null or invalid time values
+              if (!value || typeof value !== 'string') {
+                return '';
+              }
+              
+              // Convert 24-hour time (18:45:00) to 12-hour format for editing (6:45 PM)
+              const [hours, minutes] = value.split(':');
+              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+              });
+              return hour12;
+            },
+            parseFromEdit: (editValue, originalRowData) => {
+              // Convert 12-hour format (6:45 PM) back to 24-hour format (18:45:00) for API
+              if (!editValue) return '';
+              
+              try {
+                // Parse 12-hour time format
+                const timeParts = editValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                if (!timeParts) {
+                  throw new Error('Invalid time format');
+                }
+                
+                let hours = parseInt(timeParts[1]);
+                const minutes = parseInt(timeParts[2]);
+                const ampm = timeParts[3].toUpperCase();
+                
+                // Convert to 24-hour format
+                if (ampm === 'AM' && hours === 12) {
+                  hours = 0;
+                } else if (ampm === 'PM' && hours !== 12) {
+                  hours += 12;
+                }
+                
+                // Format as HH:MM:SS for backend
+                const hours24 = hours.toString().padStart(2, '0');
+                const minutes24 = minutes.toString().padStart(2, '0');
+                return `${hours24}:${minutes24}:00`;
+              } catch (error) {
+                console.error('Error parsing time:', error);
+                return editValue; // Return original value if parsing fails
+              }
+            }
           },
           {
             field: "ai_interview_type",
             header: "Type",
-            width: "20%",
+            width: "18%",
             type: "select",
+            editable: true,
             options: [
               { value: "technical", label: "Technical Interview" },
               { value: "behavioral", label: "Behavioral Interview" },
@@ -1054,8 +1607,9 @@ const AiInterviewScheduler = ({
           {
             field: "status",
             header: "Status",
-            width: "20%",
+            width: "15%",
             type: "select",
+            editable: true,
             options: [
               { value: "available", label: "Available" },
               { value: "booked", label: "Booked" },
@@ -1065,8 +1619,16 @@ const AiInterviewScheduler = ({
             render: (value) => (
               <span className="status-cell" data-status={value?.toLowerCase()}>
                 {value}
-              </span>
+                          </span>
             ),
+          },
+          {
+            field: "max_candidates",
+            header: "Max",
+            width: "8%",
+            type: "number",
+            editable: true,
+            render: (value) => value || 1,
           },
         ]}
         data={slots || []}
@@ -1074,10 +1636,16 @@ const AiInterviewScheduler = ({
         actions={["edit", "delete"]}
         onAction={(action, rowData, rowIndex) => {
           if (action === "edit") {
-            handleEditSlot(rowData);
+            // For edit, we let DataTable handle inline editing
+            return;
           } else if (action === "delete") {
-            handleDeleteSlot(rowData.id);
+            // Handle delete directly with API call
+            handleDeleteSlotAPI(rowData.id);
           }
+        }}
+        onEdit={async (editedData) => {
+          // Handle save from DataTable inline editing
+          await handleUpdateSlotAPI(editedData);
         }}
         showRefresh={true}
         onRefresh={() => dispatch(fetchInterviewSlots())}

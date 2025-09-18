@@ -124,14 +124,18 @@ const TimeSlotPicker = ({
           console.log(
             "Processing slot:",
             slot.id,
+            "interview_date:",
+            slot.interview_date,
             "start_time:",
             slot.start_time,
+            "end_time:",
+            slot.end_time,
             "status:",
             slot.status
           );
-          if (slot.start_time && slot.end_time) {
-            // Extract date from start_time to match selected date
-            const slotDate = slot.start_time.split("T")[0];
+          if (slot.interview_date && slot.start_time && slot.end_time) {
+            // Use interview_date directly since it's now a separate field
+            const slotDate = slot.interview_date;
             console.log(
               "Slot date:",
               slotDate,
@@ -142,20 +146,9 @@ const TimeSlotPicker = ({
             );
 
             if (slotDate === formattedDate) {
-              let startTime = "";
-              let endTime = "";
-
-              if (slot.start_time.includes("T")) {
-                startTime = slot.start_time.split("T")[1]?.substring(0, 5);
-              } else {
-                startTime = slot.start_time.substring(0, 5);
-              }
-
-              if (slot.end_time.includes("T")) {
-                endTime = slot.end_time.split("T")[1]?.substring(0, 5);
-              } else {
-                endTime = slot.end_time.substring(0, 5);
-              }
+              // Since start_time and end_time are now TimeField (e.g., "09:00:00"), extract HH:MM
+              const startTime = slot.start_time.substring(0, 5); // "09:00:00" -> "09:00"
+              const endTime = slot.end_time.substring(0, 5); // "10:30:00" -> "10:30"
 
               if (startTime && endTime) {
                 const timeRange = `${startTime}-${endTime}`;
@@ -209,14 +202,18 @@ const TimeSlotPicker = ({
           console.log(
             "Processing booked slot:",
             slot.id,
+            "interview_date:",
+            slot.interview_date,
             "start_time:",
             slot.start_time,
+            "end_time:",
+            slot.end_time,
             "status:",
             slot.status
           );
-          if (slot.start_time && slot.end_time) {
-            // Extract date from start_time to match selected date
-            const slotDate = slot.start_time.split("T")[0];
+          if (slot.interview_date && slot.start_time && slot.end_time) {
+            // Use interview_date directly since it's now a separate field
+            const slotDate = slot.interview_date;
             console.log(
               "Booked slot date:",
               slotDate,
@@ -227,20 +224,9 @@ const TimeSlotPicker = ({
             );
 
             if (slotDate === formattedDate) {
-              let startTime = "";
-              let endTime = "";
-
-              if (slot.start_time.includes("T")) {
-                startTime = slot.start_time.split("T")[1]?.substring(0, 5);
-              } else {
-                startTime = slot.start_time.substring(0, 5);
-              }
-
-              if (slot.end_time.includes("T")) {
-                endTime = slot.end_time.split("T")[1]?.substring(0, 5);
-              } else {
-                endTime = slot.end_time.substring(0, 5);
-              }
+              // Since start_time and end_time are now TimeField (e.g., "09:00:00"), extract HH:MM
+              const startTime = slot.start_time.substring(0, 5); // "09:00:00" -> "09:00"
+              const endTime = slot.end_time.substring(0, 5); // "10:30:00" -> "10:30"
 
               if (startTime && endTime) {
                 const timeRange = `${startTime}-${endTime}`;
