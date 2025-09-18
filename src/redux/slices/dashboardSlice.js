@@ -1,6 +1,7 @@
 // src/redux/slices/dashboardSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { baseURL } from '../../data'; // Adjust path if necessary
+import { handleAuthError } from '../../utils/authUtils';
 
 // Async Thunk for fetching dashboard data
 export const fetchDashboardData = createAsyncThunk(
@@ -21,6 +22,13 @@ export const fetchDashboardData = createAsyncThunk(
       });
 
       if (!response.ok) {
+        // Handle authentication errors specifically
+        if (response.status === 401) {
+          console.log('Dashboard API - Authentication failed (401), triggering auth error');
+          handleAuthError();
+          throw new Error('Authentication failed. Please log in again.');
+        }
+        
         const errorData = await response.json();
         throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }

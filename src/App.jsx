@@ -84,38 +84,66 @@ function App() {
   
   // Add the user selector
   const user = useSelector((state) => state.user.user);
+  const searchTerm = useSelector((state) => state.search.searchTerm);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('authToken'));
+  const [isLoggedIn, setIsLoggedIn] = useState(null); // Start with null to show loading state
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [headerTitle, setHeaderTitle] = useState(getInitialHeaderTitle());
 
-  // Effect to initialize Redux user state from localStorage on app load
+  // Effect to initialize authentication state on app load
   useEffect(() => {
-    const storedUserData = localStorage.getItem('userData');
-    if (storedUserData) {
-      try {
-        const user = JSON.parse(storedUserData);
-        dispatch(setUser(user));
-        // Ensure isLoggedIn state is consistent with localStorage
-        if (!isLoggedIn) {
+    const initializeAuth = () => {
+      console.log('Initializing authentication...');
+      const authToken = localStorage.getItem('authToken');
+      const storedUserData = localStorage.getItem('userData');
+      
+      console.log('Auth token exists:', !!authToken);
+      console.log('User data exists:', !!storedUserData);
+      
+      if (authToken && storedUserData) {
+        try {
+          const user = JSON.parse(storedUserData);
+          dispatch(setUser(user));
           setIsLoggedIn(true);
+          console.log('User authenticated:', user.email);
+        } catch (error) {
+          console.error("Failed to parse user data from localStorage:", error);
+          // Clear invalid data and log out if parsing fails
+          localStorage.removeItem('userData');
+          localStorage.removeItem('authToken');
+          dispatch(clearUser());
+          setIsLoggedIn(false);
         }
-      } catch (error) {
-        console.error("Failed to parse user data from localStorage:", error);
-        // Clear invalid data and log out if parsing fails
-        localStorage.removeItem('userData');
-        localStorage.removeItem('authToken');
+      } else {
+        // No valid authentication data
+        console.log('No valid authentication found, showing login');
         dispatch(clearUser());
         setIsLoggedIn(false);
-        navigate('/login');
       }
-    } else {
-      // If no user data, ensure Redux state is cleared
+      
+      setIsInitialized(true);
+    };
+    
+    // Listen for authentication errors from API calls
+    const handleAuthError = () => {
+      console.log('Auth error event received, logging out user');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
       dispatch(clearUser());
-    }
-  }, [dispatch, isLoggedIn, navigate]); // Added isLoggedIn and navigate to dependencies
+      setIsLoggedIn(false);
+      navigate('/login', { replace: true });
+    };
+    
+    window.addEventListener('authError', handleAuthError);
+    initializeAuth();
+    
+    return () => {
+      window.removeEventListener('authError', handleAuthError);
+    };
+  }, [dispatch, navigate]); // Add navigate to dependencies
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -134,29 +162,30 @@ function App() {
     };
   }, []);
 
+  // Handle routing after authentication is initialized
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const isLoggedInState = !!token;
-
-    if (isLoggedIn !== isLoggedInState) {
-      setIsLoggedIn(isLoggedInState);
+    if (!isInitialized || isLoggedIn === null) {
+      return; // Don't handle routing until auth is initialized
     }
 
     const currentPath = location.pathname;
+    console.log('Handling routing - isLoggedIn:', isLoggedIn, 'currentPath:', currentPath);
 
-    if (isLoggedInState) {
+    if (isLoggedIn) {
       // Only redirect to dashboard if user is on login/register pages or root
       if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
+        console.log('Redirecting authenticated user to dashboard');
         navigate('/dashboard', { replace: true });
       }
-      // For all other authenticated routes (including /ai-interview-scheduler), stay on current page
+      // For all other authenticated routes, stay on current page
     } else {
       // If not logged in, redirect to login unless already on login/register or public candidate pages
       if (currentPath !== '/login' && currentPath !== '/register' && !currentPath.startsWith('/candidates/')) {
+        console.log('Redirecting unauthenticated user to login');
         navigate('/login', { replace: true });
       }
     }
-  }, [location.pathname, navigate, isLoggedIn]);
+  }, [location.pathname, navigate, isLoggedIn, isInitialized]);
 
   useEffect(() => {
     const pathParts = location.pathname.split('/');
@@ -217,20 +246,36 @@ function App() {
     }
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (userData) => {
+    console.log('Login successful, updating state:', userData);
+    
+    // Update Redux state with user data
+    if (userData) {
+      dispatch(setUser(userData));
+    }
+    
+    // Update local state
     setIsLoggedIn(true);
-    // User data is already set in localStorage and dispatched to Redux by Login.jsx
-    navigate('/dashboard'); // Navigate to dashboard
-    window.location.reload(); // Force a full page reload after navigation
+    
+    // Navigate to dashboard (the routing effect will handle this)
+    navigate('/dashboard', { replace: true });
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    console.log('Logging out user');
+    
+    // Clear local storage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
-    dispatch(clearUser()); // Clear user from Redux state on logout
-    navigate('/login'); // Navigate to login page
-    window.location.reload(); // Force a full page reload after navigation
+    
+    // Clear Redux state
+    dispatch(clearUser());
+    
+    // Update local state
+    setIsLoggedIn(false);
+    
+    // Navigate to login
+    navigate('/login', { replace: true });
   };
 
   const handleProfileMenuItemClick = (item) => {
@@ -240,6 +285,22 @@ function App() {
       navigate(`/${item}`);
     }
   };
+
+  // Show loading state while initializing authentication
+  if (!isInitialized) {
+    return (
+      <div className="loading-container" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        color: '#666'
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     isLoggedIn ? (
@@ -254,7 +315,7 @@ function App() {
         <div className="main-content">
           <Header
             headerTitle={headerTitle}
-            searchTerm={useSelector((state) => state.search.searchTerm)}
+            searchTerm={searchTerm}
             onSearchChange={(term) => dispatch(setSearchTerm(term))}
             onToggleSidebar={handleToggleSidebar}
             isMobile={isMobile}

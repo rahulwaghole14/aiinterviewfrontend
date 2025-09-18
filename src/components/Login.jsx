@@ -53,8 +53,8 @@ const Login = ({ onLogin }) => {
         dispatch(fetchDomains());
         dispatch(fetchCandidates());
 
-        if (onLogin) onLogin();
-        navigate('/dashboard');
+        if (onLogin) onLogin(loginData.user);
+        // Don't navigate here - let App.jsx handle navigation
       } else {
         const errorData = await loginResponse.json();
         setError(errorData.detail || 'Invalid email or password. Please try again.');

@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node start-with-backend.cjs",
+    "start:both": "node start-with-backend.cjs",
+    "start:full": "node start-with-backend.cjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",

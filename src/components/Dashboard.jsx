@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'; // Import useSelector an
 import './Dashboard.css';
 import { fetchDashboardData } from '../redux/slices/dashboardSlice'; // Import the async thunk
 import { baseURL } from '../data';
+import { isAuthenticated } from '../utils/authUtils';
 
 // Reusable BarChart Component (custom implementation)
 const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
@@ -58,9 +59,16 @@ const Dashboard = () => {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    // Dispatch fetchDashboardData only if it hasn't been fetched or is not currently loading
-    if (dashboardData === null && !loading && !error) {
+    // Only fetch dashboard data if user is properly authenticated
+    const authenticated = isAuthenticated();
+    
+    console.log('Dashboard useEffect - User authenticated:', authenticated);
+    
+    if (authenticated && dashboardData === null && !loading && !error) {
+      console.log('Dashboard - Fetching dashboard data');
       dispatch(fetchDashboardData());
+    } else if (!authenticated) {
+      console.log('Dashboard - No valid authentication, skipping dashboard data fetch');
     }
   }, [dispatch, dashboardData, loading, error]); // Dependencies to re-run effect
 

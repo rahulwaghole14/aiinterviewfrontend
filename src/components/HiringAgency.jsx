@@ -183,6 +183,22 @@ const HiringAgencies = () => {
     }
   }, [userRole, availableTabs, activeTab]);
 
+  // Function to get dynamic button text based on active tab
+  const getAddButtonText = () => {
+    switch (activeTab) {
+      case "Recruiter":
+        return "Add New Recruiter";
+      case "Hiring Agency":
+        return "Add New Agency";
+      case "Company":
+        return "Add New Company";
+      case "Admin":
+        return "Add New Admin";
+      default:
+        return "Add New User";
+    }
+  };
+
   // Fetch data on component mount and when activeTab changes (if data isn't already loaded)
   useEffect(() => {
     // Only proceed if we have user data
@@ -1154,14 +1170,14 @@ const HiringAgencies = () => {
               </button>
             ))}
           </div>
-          {/* "Add New User" button visible only for ADMIN or COMPANY */}
+          {/* Dynamic "Add New" button visible only for ADMIN or COMPANY */}
           {["ADMIN", "COMPANY"].includes(userRole) && (
             <button
               className="add-agency-btn"
               onClick={() => setShowAddModal(true)}
               disabled={isLoading}
             >
-              Add New User
+              {getAddButtonText()}
             </button>
           )}
         </div>
@@ -1354,12 +1370,12 @@ const HiringAgencies = () => {
         </div>
       )}
 
-      {/* Add New User Modal */}
+      {/* Dynamic Add New Modal */}
       {showAddModal && (
         <div className="add-agency-modal-overlay show">
           <div className="add-agency-modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">Add New User</h3>
+              <h3 className="modal-title">{getAddButtonText()}</h3>
               <button
                 className="modal-close"
                 onClick={() => setShowAddModal(false)}

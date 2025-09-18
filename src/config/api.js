@@ -120,7 +120,7 @@ export const isDevelopment = import.meta.env.DEV;
 // Log API configuration in development
 if (isDevelopment) {
   console.log('API Configuration:', {
-    baseUrl: API_BASE_URL,
+    baseUrl: baseURL,
     environment: isProduction ? 'production' : 'development',
   });
 }

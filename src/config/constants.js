@@ -1,5 +1,5 @@
 // API Configuration Constants
-export const API_BASE_URL = 'https://aiinterviewerbackend-2.onrender.com';
+export const API_BASE_URL = 'http://127.0.0.1:8000';
 
 // Legacy support - keep baseURL for existing components
 export const baseURL = API_BASE_URL;
