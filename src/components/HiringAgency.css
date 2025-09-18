@@ -66,20 +66,6 @@
   font-weight: 600; /* Make active tab text bolder */
 }
 
-/* Table Styles */
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: 0; /* Remove border radius */
-  border-top: 1px solid var(--color-border); /* Keep only top border */
-  border-bottom: 1px solid var(--color-border); /* Keep only bottom border */
-  border-left: none;
-  border-right: none;
-  padding: 1.5rem; /* Remove horizontal padding */
-  background: white;
-  box-sizing: border-box;
-}
-
 table {
   width: 100%;
   border-collapse: collapse; /* Use collapse for better border control */
@@ -181,7 +167,7 @@ th + th {
   justify-content: flex-start;
   align-items: center;
   height: 100%;
-  min-height: 56px; /* Match table row height */
+  min-height: 56px; 
 }
 
 /* Ensure icons are visible */
@@ -209,7 +195,6 @@ tr.editing td {
   }
 }
 
-/* Table Header */
 th {
   background-color: var(--color-bg-secondary);
   font-weight: 600; /* Changed from 500 to 600 for bolder text */
@@ -221,10 +206,6 @@ th {
   padding: 0.75rem 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
-}
-
-.hiring-agencies-table th {
-  font-weight: 600; /* Ensure consistent boldness */
 }
 
 table th {
@@ -318,55 +299,6 @@ td:last-child {
   background-color: #fee2e2;
 }
 
-/* Table Container */
-.table-container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 190px); /* Adjust based on your header height */
-  overflow: hidden;
-
-  background: white;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  padding-right: 2rem; /* Add right padding */
-  -webkit-overflow-scrolling: touch;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  background: white;
-}
-
-.hiring-agencies-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  table-layout: auto;
-  margin-right: 1rem; /* Add right margin */
-}
-
-.hiring-agencies-table th:not(:last-child),
-.hiring-agencies-table td:not(:last-child) {
-  width: auto;
-}
-
-.hiring-agencies-table th:last-child {
-  width: 160px; /* Fixed width for header */
-  padding: 0.75rem 1rem !important;
-  text-align: center;
-}
-
-.hiring-agencies-table td:last-child {
-  width: 160px; /* Fixed width matching header */
-  padding: 0.75rem 1rem !important;
-  text-align: center;
-  position: relative;
-}
-
 .action-menu {
   display: inline-flex;
   justify-content: center;
@@ -392,18 +324,6 @@ td:last-child {
   background-color: var(--color-hover);
   color: var(--color-primary);
   border-color: var(--color-primary);
-}
-
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1.5rem;
-  background-color: white;
-  border-top: 1px solid #e5e7eb;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .records-per-page {
@@ -437,47 +357,6 @@ td:last-child {
   outline: none;
   border-color: #d1d5db;
   box-shadow: none;
-}
-
-.pagination-info {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0 auto;
-}
-
-.pagination-controls {
-  display: flex;
-  gap: 0.25rem;
-  flex-wrap: wrap;
-}
-
-.pagination-button {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid var(--color-primary);
-  background-color: white;
-  color: var(--color-text);
-  cursor: pointer;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-}
-
-.pagination-button:hover:not(:disabled) {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.pagination-button.active {
-  background-color: var(--color-primary) !important;
-  color: white !important;
-  border-color: var(--color-primary) !important;
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: var(--color-gray);
-  border-color: var(--color-gray);
 }
 
 /* Action Menu */
@@ -553,63 +432,11 @@ td:last-child {
   color: #6b7280;
 }
 
-/* Table Header */
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-}
-
-.table-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.table-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* Modern Table Styles */
 .hiring-agencies-list-section {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-}
-
-.hiring-agencies-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 14px;
-}
-
-.hiring-agencies-table thead th {
-  background-color: #f9fafb;
-  color: #6b7280;
-  font-weight: 500;
-  text-align: left;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e5e7eb;
-  white-space: nowrap;
-}
-
-.hiring-agencies-table tbody tr {
-  transition: background-color 0.2s;
-}
-
-.hiring-agencies-table tbody tr:hover {
-  background-color: #f9fafb;
-}
-
-.hiring-agencies-table td {
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  vertical-align: middle;
 }
 
 /* Status Badges */
@@ -697,55 +524,6 @@ td:last-child {
   color: #6b7280;
 }
 
-/* Table Header */
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-}
-
-.table-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.table-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-  gap: 8px;
-}
-
-.pagination button {
-  padding: 6px 12px;
-  border: 1px solid #d1d5db;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.pagination button.active {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .hiring-agencies-form {
   display: flex;
   flex-direction: column;
@@ -820,16 +598,6 @@ td:last-child {
   margin-top: 0.5rem;
   font-size: 0.9rem;
   text-align: center;
-}
-
-.table-responsive {
-  overflow-x: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.table-responsive::-webkit-scrollbar {
-  display: none;
 }
 
 .no-results {
@@ -1241,16 +1009,6 @@ td:last-child {
     align-self: center;
   }
 
-  .hiring-agencies-table {
-    min-width: 600px;
-  }
-
-  .hiring-agencies-table th,
-  .hiring-agencies-table td {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.9rem;
-  }
-
   .action-buttons {
     flex-direction: column;
     gap: 0.3rem;
@@ -1266,22 +1024,9 @@ td:last-child {
     padding: 0.4rem 0.6rem;
   }
 
-  .pagination-btn {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.8rem;
-  }
 }
 
 @media (max-width: 480px) {
-  .hiring-agencies-table {
-    min-width: 450px;
-  }
-
-  .hiring-agencies-table th,
-  .hiring-agencies-table td {
-    padding: 0.5rem 0.6rem;
-    font-size: 0.8rem;
-  }
 
   .form-group input,
   .form-group select {
@@ -1316,7 +1061,6 @@ td:last-child {
   pointer-events: none;
 }
 
-/* Table Header */
 th {
   padding: 0.5rem 1rem;
   text-align: left;
@@ -1343,4 +1087,23 @@ td:last-child {
   text-align: left;
   padding: 0.75rem 1rem !important;
   width: auto;
+}
+
+/* Fixed height for DataTable in HiringAgency component */
+.hiring-agencies-container .hiring-agencies-card .data-table-container .table-responsive {
+  height: 545px;
+  overflow: auto;
+}
+
+/* Responsive height adjustments for HiringAgency DataTable */
+@media (max-width: 768px) {
+  .hiring-agencies-container .hiring-agencies-card .data-table-container .table-responsive {
+    height: 395px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hiring-agencies-container .hiring-agencies-card .data-table-container .table-responsive {
+    height: 295px;
+  }
 }

@@ -21,7 +21,6 @@ import AiInterviewScheduler from './components/AiInterviewScheduler'; // Import 
 import InterviewPortal from './components/InterviewPortal'; // Import the new InterviewPortal component
 import InterviewResults from './components/InterviewResults'; // Import the new InterviewResults component
 import InterviewResultsList from './components/InterviewResultsList'; // Import the new InterviewResultsList component
-import DataListing from './components/DataListing'; // Import the new DataListing component
 import "./App.css";
 
 const initialTheme = localStorage.getItem('theme') || 'light';
@@ -59,9 +58,6 @@ const getInitialHeaderTitle = () => {
         break;
       case 'interview-results':
         title = 'Interview Results';
-        break;
-      case 'data-listing':
-        title = 'Interview Data Dashboard';
         break;
     case 'login':
       title = 'Login';
@@ -349,10 +345,6 @@ function App() {
               <Route 
                 path="/interview-results/:sessionId" 
                 element={<InterviewResults />} 
-              />
-              <Route 
-                path="/data-listing" 
-                element={<DataListing />} 
               />
             </Routes>
           </div>

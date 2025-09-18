@@ -5,6 +5,8 @@ import './Dashboard.css';
 import { fetchDashboardData } from '../redux/slices/dashboardSlice'; // Import the async thunk
 import { baseURL } from '../data';
 import { isAuthenticated } from '../utils/authUtils';
+import DataTable from './common/DataTable';
+import LoadingSpinner from './common/LoadingSpinner';
 
 // Reusable BarChart Component (custom implementation)
 const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
@@ -197,66 +199,44 @@ const Dashboard = () => {
         </section>
 
         <section className="dashboard-recent-activity">
-          <h3 className="table-title">Recent Activities</h3>
-          <div className="table-responsive">
-            <table className="activity-table">
-              <thead>
-                <tr>
-                  <th>Name/Subject</th>
-                  <th>Detail</th>
-                  <th>Date</th>
-                  <th>Category</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentActivities.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="no-results">No recent activities to display.</td>
-                  </tr>
-                ) : (
-                  currentActivities.map((activity) => (
-                    <tr key={activity.id}>
-                      <td>{activity.name}</td>
-                      <td>{activity.detail}</td>
-                      <td>{activity.date}</td>
-                      <td>
-                        <span className={`activity-type-badge ${activity.type}`}>
-                          {activity.type.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          {totalPages > 1 && (
-            <div className="pagination">
-              <button
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="pagination-btn"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => paginate(i + 1)}
-                  className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="pagination-btn"
-              >
-                  Next
-              </button>
-            </div>
-          )}
+          <DataTable
+            title="Recent Activities"
+            columns={[
+              {
+                field: "name",
+                header: "Name/Subject",
+                width: "25%",
+              },
+              {
+                field: "detail",
+                header: "Detail",
+                width: "35%",
+              },
+              {
+                field: "date",
+                header: "Date",
+                width: "20%",
+              },
+              {
+                field: "type",
+                header: "Category",
+                width: "20%",
+                render: (value) => (
+                  <span className="status-cell" data-status={value?.toLowerCase()}>
+                    {value.replace(/_/g, ' ')}
+                  </span>
+                ),
+              },
+            ]}
+            data={allRecentActivities || []}
+            loading={loading}
+            actions={[]} // No actions for activities
+            showRefresh={true}
+            onRefresh={() => dispatch(fetchDashboardData())}
+            showActions={false}
+            defaultPageSize={5}
+            pageSizeOptions={[5, 10, 20]}
+          />
         </section>
       </main>
     </div>

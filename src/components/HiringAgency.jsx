@@ -8,8 +8,9 @@ import { fetchCompanies } from "../redux/slices/companiesSlice";
 import { fetchHiringAgencies } from "../redux/slices/hiringAgenciesSlice";
 import { fetchRecruiters } from "../redux/slices/recruitersSlice";
 import { fetchAdmins } from "../redux/slices/adminSlice"; // Import the dummy fetch for admins
-import ActionMenu from "../components/ActionMenu"; // Import the ActionMenu component
-import { FaSave, FaTimes, FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import DataTable from "./common/DataTable";
+import LoadingSpinner from "./common/LoadingSpinner";
+import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 
 const formInputStyle = {
   width: "100%",
@@ -196,6 +197,117 @@ const HiringAgencies = () => {
         return "Add New Admin";
       default:
         return "Add New User";
+    }
+  };
+
+  // Function to get table columns based on active tab
+  const getTableColumns = () => {
+    switch (activeTab) {
+      case "Company":
+        return [
+          {
+            field: "name",
+            header: "Name",
+            width: "25%",
+            editable: true,
+          },
+          {
+            field: "description",
+            header: "Description",
+            width: "45%",
+            editable: true,
+          },
+          {
+            field: "is_active",
+            header: "Status",
+            width: "15%",
+            render: (value) => (
+              <span className="status-cell" data-status={value ? "active" : "inactive"}>
+                {value ? "Active" : "Inactive"}
+              </span>
+            ),
+            type: "checkbox",
+            editable: true,
+          },
+        ];
+      case "Hiring Agency":
+        return [
+          {
+            field: "name",
+            header: "Name",
+            width: "15%",
+            editable: true,
+          },
+          {
+            field: "email",
+            header: "Email",
+            width: "15%",
+            editable: true,
+          },
+          {
+            field: "phone",
+            header: "Phone",
+            width: "10%",
+            editable: true,
+          },
+          {
+            field: "company_name",
+            header: "Company Name",
+            width: "15%",
+            editable: true,
+          },
+          {
+            field: "role",
+            header: "Role",
+            width: "10%",
+            editable: false,
+          },
+          {
+            field: "status",
+            header: "Status",
+            width: "10%",
+            render: (value) => (
+              <span className="status-cell" data-status={value?.toLowerCase() || "active"}>
+                {value || "Active"}
+              </span>
+            ),
+          },
+          {
+            field: "permission_granted",
+            header: "Permission Granted",
+            width: "15%",
+            editable: false,
+          },
+        ];
+      case "Recruiter":
+      case "Admin":
+      default:
+        return [
+          {
+            field: "name",
+            header: "Name",
+            width: "25%",
+            editable: true,
+          },
+          {
+            field: "email",
+            header: "Email",
+            width: "25%",
+            editable: true,
+          },
+          {
+            field: "company_name",
+            header: "Company Name",
+            width: "20%",
+            editable: true,
+          },
+          {
+            field: "role",
+            header: "Role",
+            width: "20%",
+            editable: false,
+          },
+        ];
     }
   };
 
@@ -1182,152 +1294,69 @@ const HiringAgencies = () => {
           )}
         </div>
 
-        {/* Table Container */}
-        <div className="table-container">
-          {/* Table Title */}
-          <div className="table-header">
-            <h2 className="table-title">
-              {activeTab === "Recruiter"
-                ? "Recruiters"
-                : activeTab === "Hiring Agency"
-                ? "Hiring Agencies"
-                : activeTab === "Company"
-                ? "Companies"
-                : "Admins"}
-            </h2>
-          </div>
+      {/* DataTable */}
+      <DataTable
+        title={
+          activeTab === "Recruiter"
+            ? "Recruiters"
+            : activeTab === "Hiring Agency"
+            ? "Hiring Agencies"
+            : activeTab === "Company"
+            ? "Companies"
+            : "Admins"
+        }
+        columns={getTableColumns()}
+        data={currentRecords || []}
+        loading={isLoading}
+        actions={["edit", "delete"]}
+        onAction={(action, rowData, rowIndex) => {
+          if (action === "edit") {
+            setEditingUserId(rowData.id);
+            setEditedUserData({ ...rowData });
+          } else if (action === "delete") {
+            setDeleteUserId(rowData.id);
+            setShowDeleteConfirm(true);
+          }
+        }}
+        showRefresh={true}
+        onRefresh={() => {
+          // Refresh data based on active tab
+          if (activeTab === "Recruiter") {
+            dispatch(fetchRecruiters());
+          } else if (activeTab === "Hiring Agency") {
+            dispatch(fetchHiringAgencies());
+          } else if (activeTab === "Company") {
+            dispatch(fetchCompanies());
+          } else if (activeTab === "Admin") {
+            dispatch(fetchAdmins());
+          }
+        }}
+        showActions={true}
+        defaultPageSize={recordsPerPage}
+        pageSizeOptions={[5, 10, 25, 50, 100]}
+        editingRow={editingUserId !== null ? currentRecords.findIndex(item => item.id === editingUserId) : null}
+        editingData={editedUserData}
+        setEditingRow={(rowIndex) => {
+          if (rowIndex === null) {
+            setEditingUserId(null);
+            setEditedUserData(null);
+          } else {
+            const item = currentRecords[rowIndex];
+            setEditingUserId(item?.id || null);
+            setEditedUserData(item ? { ...item } : null);
+          }
+        }}
+        setEditingData={setEditedUserData}
+        onEdit={async (data) => {
+          try {
+            await handleUpdateUser(data);
+          } catch (error) {
+            console.error("Error updating user:", error);
+            throw error;
+          }
+        }}
+      />
 
-          {/* Table */}
-          <div className="table-responsive">
-            <table className="hiring-agencies-table">
-              <colgroup>
-                {activeTab === "Company" ? (
-                  <>
-                    <col style={{ width: "25%" }} />
-                    <col style={{ width: "45%" }} />
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "15%", minWidth: "120px" }} />
-                  </>
-                ) : activeTab === "Hiring Agency" ? (
-                  <>
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "10%", minWidth: "120px" }} />
-                  </>
-                ) : (
-                  <>
-                    <col style={{ width: "25%" }} />
-                    <col style={{ width: "25%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "10%", minWidth: "120px" }} />
-                  </>
-                )}
-              </colgroup>
-              <thead>{getTableHeaders()}</thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan="100%" className="text-center py-8">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : currentRecords.length > 0 ? (
-                  renderTableRows()
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="100%"
-                      className="text-center py-8 text-gray-500"
-                    >
-                      No {activeTab.toLowerCase()} found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {filteredBySearch.length > 0 && (
-            <div className="pagination">
-              <div className="records-per-page">
-                Show
-                <select
-                  value={recordsPerPage}
-                  onChange={handleRecordsPerPageChange}
-                  className="ml-2 mr-2"
-                >
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                </select>
-                entries
-              </div>
-              <div className="pagination-info">
-                Showing {indexOfFirstRecord + 1} to{" "}
-                {Math.min(indexOfLastRecord, filteredBySearch.length)} of{" "}
-                {filteredBySearch.length} entries
-              </div>
-              <div className="pagination-controls">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(1, prev - 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="pagination-button"
-                >
-                  Previous
-                </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNumber;
-                  if (totalPages <= 5) {
-                    pageNumber = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNumber = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    pageNumber = currentPage - 2 + i;
-                  }
-
-                  if (pageNumber > 0 && pageNumber <= totalPages) {
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => setCurrentPage(pageNumber)}
-                        className={`pagination-button ${
-                          currentPage === pageNumber ? "active" : ""
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  }
-                  return null;
-                })}
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="pagination-button"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Delete Confirmation Modal */}

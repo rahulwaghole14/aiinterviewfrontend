@@ -66,7 +66,7 @@
 @media (min-width: 768px) {
   .jobs-main-content.fixed-grid {
     display: grid; /* Use grid for larger screens */
-    grid-template-columns: 1fr 3fr; 
+    grid-template-columns: 1fr 3fr; /* 25% form, 75% table */
     align-items: flex-start; /* Align grid items to the top */
     /* Removed flex-direction: row; as grid-template-columns handles layout */
   }
@@ -87,6 +87,7 @@
   flex-direction: column;
 }
 
+/* Right Column: Job Listings Table */
 .job-listings-section.card {
   /* Renamed from jobs-list-section for consistency with JSX */
   /* Removed flex properties as grid will manage sizing on larger screens */
@@ -111,23 +112,398 @@
   flex-direction: column;
 }
 
+.table-box {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.table-responsive {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+/* Table Styles */
+.hiring-agencies-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  min-width: 1000px; /* Ensure table has a minimum width */
+}
+
+/* Table Header */
+.hiring-agencies-table thead {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+/* Table Body */
+.hiring-agencies-table tbody {
+  display: table-row-group;
+}
+
+/* Table Rows */
+.hiring-agencies-table tr {
+  display: table-row;
+}
+
+/* Table Cells */
+.hiring-agencies-table th,
+.hiring-agencies-table td {
+  padding: 1rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Header Styles */
+.hiring-agencies-table thead th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+}
 
 /* Column Widths - Adjust these based on your needs */
+.hiring-agencies-table th:first-child,
+.hiring-agencies-table td:first-child {
+  padding-left: 1.5rem;
+  width: 30%;
+  min-width: 200px;
+}
+
+.hiring-agencies-table th:nth-child(2),
+.hiring-agencies-table td:nth-child(2) {
+  width: 25%;
+  min-width: 150px;
+}
+
+.hiring-agencies-table th:nth-child(3),
+.hiring-agencies-table td:nth-child(3) {
+  width: 20%;
+  min-width: 120px;
+}
+
+.hiring-agencies-table th:nth-child(4),
+.hiring-agencies-table td:nth-child(4) {
+  width: 15%;
+  min-width: 100px;
+}
+
+.hiring-agencies-table th:last-child,
+.hiring-agencies-table td:last-child {
+  width: 10%;
+  min-width: 120px;
+  text-align: right;
+  padding-right: 1.5rem;
+}
+
+/* Ensure table takes full width of container */
+.table-responsive {
+  width: 100%;
+  display: block;
+}
 
 /* Remove any conflicting styles */
+.hiring-agencies-table *,
+.hiring-agencies-table *::before,
+.hiring-agencies-table *::after {
+  box-sizing: border-box;
+}
+
+/* Ensure table cells don't collapse */
+.hiring-agencies-table td,
+.hiring-agencies-table th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Override for actions cell to ensure ActionMenu is visible */
+.hiring-agencies-table td.actions-cell {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.table-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: none !important; /* Remove bottom border */
+}
+
+.table-box {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: none;
+}
 
 .jobs-list-section::-webkit-scrollbar {
   display: none;
 }
 
+.hiring-agencies-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: none !important;
+}
+
+.hiring-agencies-table th,
+.hiring-agencies-table td {
+  border: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 1rem;
+  text-align: left;
+  vertical-align: middle;
+  position: relative;
+}
+
+.hiring-agencies-table thead th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.hiring-agencies-table th:first-child,
+.hiring-agencies-table td:first-child {
+  width: 40px;
+  padding: 0 0 0 1.5rem !important;
+  border-left: none !important;
+}
+
+.hiring-agencies-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.25rem;
+  background-color: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  position: relative;
+  cursor: pointer;
+  vertical-align: middle;
+  display: inline-block;
+  padding: 0;
+}
+
+.hiring-agencies-table input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6 !important;
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
+.hiring-agencies-table tbody tr td:first-child,
+.hiring-agencies-table thead tr th:first-child {
+  border-left: none !important;
+  padding-left: 1.5rem !important;
+}
+
+.hiring-agencies-table tbody tr td:last-child,
+.hiring-agencies-table thead tr th:last-child {
+  border-right: none !important;
+  padding-right: 1.5rem !important;
+}
+
+.jobs-table {
+  width: 100%;
+  /* Removed min-width to prevent horizontal scrolling */
+  border-collapse: collapse;
+}
+
+.jobs-table th,
+.jobs-table td {
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text);
+  vertical-align: middle;
+  /* Removed white-space: nowrap; to allow text wrapping */
+  border-left: none; /* Remove left border from table cells */
+}
+
+.jobs-table th {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.jobs-table th:hover {
+  background-color: var(--color-hover);
+}
+
+.jobs-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.jobs-table tbody tr:hover {
+  background-color: var(--color-hover);
+}
+
+/* Styles for editable table inputs/selects */
+.jobs-table td input[type="text"],
+.jobs-table td input[type="number"],
+.jobs-table td select,
+.jobs-table td textarea {
+  /* Added textarea for completeness if it's ever used in table editing */
+  width: 100%;
+  padding: 0.75rem 1rem; /* Match .jobs-input */
+  border: 1px solid var(--color-muted); /* Match .jobs-input */
+  border-radius: var(--radius-small); /* Match .jobs-input */
+  font-size: 0.95rem; /* Match .jobs-input */
+  color: var(--color-text); /* Match .jobs-input */
+  background-color: var(--color-bg-secondary); /* Match .jobs-input */
+  transition: all 0.2s ease; /* Match .jobs-input */
+  box-sizing: border-box; /* Ensure consistency */
+  /* New styles for horizontal expansion */
+  min-width: max-content; /* Allow input to expand to fit its content */
+  white-space: nowrap; /* Prevent text inside input from wrapping */
+  border-left: none; /* Remove left border from inputs */
+}
+
+.jobs-table td input[type="text"]:focus,
+.jobs-table td input[type="number"]:focus,
+.jobs-table td select:focus,
+.jobs-table td textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* Match .jobs-input */
+}
+
+.jobs-table td select {
+  /* Specific styles for select to match form select */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%236c7a89" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem;
+  border-left: none; /* Remove left border from select */
+}
+
+/* Ensure text in table cells wraps */
+.jobs-table td {
+  word-break: normal; /* Allow normal word breaking */
+  overflow-wrap: break-word; /* Modern property for word breaking, breaks long words if necessary */
+}
+
+/* Table Styles */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hiring-agencies-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.hiring-agencies-table th,
+.hiring-agencies-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+  border-left: none; /* Remove left border from table cells */
+}
+
+.hiring-agencies-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border-left: none; /* Remove left border from header cells */
+}
+
+/* Remove all left borders from table and its children */
+.hiring-agencies-table,
+.hiring-agencies-table * {
+  border-left: none !important;
+}
+
+/* Specifically target table cells and headers */
+.hiring-agencies-table th,
+.hiring-agencies-table td,
+.hiring-agencies-table thead th,
+.hiring-agencies-table tbody td,
+.hiring-agencies-table tfoot td {
+  border-left: none !important;
+}
+
+/* Remove any potential left border from the table itself */
+.hiring-agencies-table {
+  border-left: none !important;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
 /* Ensure no left border in the first column */
+.hiring-agencies-table tr > :first-child {
+  border-left: none !important;
+  padding-left: 1.5rem;
+}
 
 /* Remove any remaining left borders from nested elements */
+.hiring-agencies-table *,
+.hiring-agencies-table *::before,
+.hiring-agencies-table *::after {
+  border-left: none !important;
+}
 
 /* Reset any potential negative margins or positioning that might cause borders */
+.hiring-agencies-table {
+  margin-left: 0;
+  position: relative;
+}
+
+/* Ensure the table wrapper doesn't add any borders */
+.table-responsive,
+.table-box {
+  border-left: none !important;
+}
 
 /* Status Badge */
 .status-badge {
@@ -188,10 +564,30 @@
 }
 
 /* Hover effects */
+.hiring-agencies-table tbody tr {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.hiring-agencies-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.hiring-agencies-table tbody tr.selected {
+  background-color: #eff6ff;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .hiring-agencies-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
+  .hiring-agencies-table th,
+  .hiring-agencies-table td {
+    padding: 0.75rem;
+  }
 }
 
 /* Tooltip for status */
@@ -572,6 +968,20 @@ input[type="checkbox"]:checked {
   background-color: var(--color-warning);
 }
 
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-card);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
 .records-per-page {
   display: flex;
   align-items: center;
@@ -597,8 +1007,63 @@ input[type="checkbox"]:checked {
   box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.25);
 }
 
-@media (max-width: 768px) {
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
 
+.pagination-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background-color: var(--color-card);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:not(:disabled):hover {
+  background-color: var(--color-hover);
+  border-color: var(--color-border-dark);
+}
+
+.pagination-button.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.pagination-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-bg);
+  color: var(--color-text-disabled);
+}
+
+/* Responsive adjustments for pagination */
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 
 /* Delete Confirmation Popup */
@@ -708,6 +1173,10 @@ input[type="checkbox"]:checked {
     padding: 0;
   }
 
+  .table-header-with-button {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .add-job-btn {
     width: 100%;
   }
@@ -733,6 +1202,29 @@ input[type="checkbox"]:checked {
     padding: 1rem;
   }
 
+  .table-title,
+  .form-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .jobs-table {
+    min-width: auto; /* Allow table to be responsive on smaller screens */
+  }
+
+  .jobs-table th,
+  .jobs-table td {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .jobs-table td input[type="text"],
+  .jobs-table td input[type="number"],
+  .jobs-table td select {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
   .form-box label {
     font-size: 0.85rem;
   }
@@ -747,6 +1239,15 @@ input[type="checkbox"]:checked {
   .submit-btn {
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
+  }
+
+  .pagination-list {
+    gap: 0.3rem;
+  }
+  .pagination-btn {
+    /* Changed from pagination-item button */
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
   }
 
   .edit-btn,
@@ -776,6 +1277,16 @@ input[type="checkbox"]:checked {
     padding: 0.8rem;
   }
 
+  .table-title,
+  .form-title {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .jobs-table {
+    min-width: auto; /* Allow table to be fully responsive on very small screens */
+  }
+
   .jobs-input,
   .jobs-select,
   .jobs-textarea {
@@ -788,6 +1299,19 @@ input[type="checkbox"]:checked {
     font-size: 0.85rem;
   }
 
+  .jobs-table th,
+  .jobs-table td {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .jobs-table td input[type="text"],
+  .jobs-table td input[type="number"],
+  .jobs-table td select {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.8rem;
+  }
+
   .edit-btn,
   .delete-btn,
   .save-btn,
@@ -797,12 +1321,22 @@ input[type="checkbox"]:checked {
     gap: 0.1rem;
   }
 
+  .pagination-btn {
+    /* Changed from pagination-item button */
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
 }
 
 @media (max-width: 375px) {
   .jobs-list-section,
   .jobs-form-section {
     padding: 0.8rem;
+  }
+  .jobs-table th,
+  .jobs-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
   }
 
   .jobs-input-inline {
@@ -823,6 +1357,11 @@ input[type="checkbox"]:checked {
   .jobs-list-section,
   .jobs-form-section {
     padding: 0.6rem;
+  }
+  .jobs-table th,
+  .jobs-table td {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.7rem;
   }
 
   .jobs-input-inline {
@@ -1230,8 +1769,8 @@ input[type="checkbox"]:checked {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100%; 
-  min-height: 150px; 
+  width: 100%; /* Take full width of its parent (table-box) */
+  min-height: 150px; /* Ensure it has some height even if table is empty */
   padding: 2rem 0; /* Add some padding for spacing */
   box-sizing: border-box; /* Include padding in width/height */
 }
@@ -1282,6 +1821,16 @@ input[type="checkbox"]:checked {
   }
 }
 
+/* Table Rows */
+.table-row {
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: rgba(243, 244, 246, 0.5);
+}
+
+/* Table Cells */
 .truncate-cell {
   white-space: nowrap;
   overflow: hidden;
@@ -1358,30 +1907,80 @@ input[type="checkbox"]:checked {
   color: #6b7280;
 }
 
+/* Table Responsive Container */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
+  background: white;
+}
+
+/* Table Styles */
+.hiring-agencies-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: none;
+  table-layout: auto;
+}
+
+/* Table Header and Cells */
+.hiring-agencies-table th,
+.hiring-agencies-table td {
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem;
+  text-align: left;
+  vertical-align: middle;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Override for actions cell to ensure ActionMenu is visible */
+.hiring-agencies-table td.actions-cell {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Table Header */
+.hiring-agencies-table thead th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+}
 
 /* First Column */
+.hiring-agencies-table th:first-child,
+.hiring-agencies-table td:first-child {
+  padding-left: 1.5rem;
+}
 
 /* Remove any remaining borders */
+.hiring-agencies-table thead,
+.hiring-agencies-table tbody,
+.hiring-agencies-table tfoot,
+.hiring-agencies-table tr,
+.hiring-agencies-table th,
+.hiring-agencies-table td {
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+}
 
 /* Remove left border from the first cell */
-
-/* Fixed height for DataTable in Jobs component */
-.jobs-container .data-table-container .table-responsive {
-  height: 555px;
-  overflow: auto;
+.hiring-agencies-table td:first-child,
+.hiring-agencies-table th:first-child {
+  border-left: none !important;
 }
-
-/* Responsive height adjustments for Jobs DataTable */
-@media (max-width: 768px) {
-  .jobs-container .data-table-container .table-responsive {
-    height: 445px;
-  }
-}
-
-@media (max-width: 480px) {
-  .jobs-container .data-table-container .table-responsive {
-    height: 375px;
-  }
-}
-

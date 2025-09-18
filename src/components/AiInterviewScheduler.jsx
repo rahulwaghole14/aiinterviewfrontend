@@ -19,6 +19,8 @@ import {
 import { BeatLoader } from "react-spinners";
 import HorizontalDatePicker from "./HorizontalDatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
+import DataTable from "./common/DataTable";
+import LoadingSpinner from "./common/LoadingSpinner";
 import { baseURL } from "../config/constants";
 import "./AiInterviewScheduler.css";
 
@@ -732,88 +734,73 @@ const AiInterviewScheduler = ({
             {renderSlotForm()}
           </div>
 
-          {/* Right Side - Table */}
-          <div className="ai-int-slots-table-section">
-            <div className="ai-int-slots-table-header">
-              <h4>Interview Slots</h4>
+          {/* Interview Slots Table */}
+          <DataTable
+            title="Interview Slots"
+            columns={[
+              {
+                field: "start_time",
+                header: "Date",
+                width: "20%",
+                render: (value) => new Date(value).toLocaleDateString(),
+              },
+              {
+                field: "start_time",
+                header: "Time",
+                width: "25%",
+                render: (value, rowData) => (
+                  <>
+                    {new Date(value).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                    -{" "}
+                    {new Date(rowData.end_time).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </>
+                ),
+              },
+              {
+                field: "ai_interview_type",
+                header: "Type",
+                width: "20%",
+              },
+              {
+                field: "status",
+                header: "Status",
+                width: "20%",
+                render: (value) => (
+                  <span className="status-cell" data-status={value?.toLowerCase()}>
+                    {value}
+                  </span>
+                ),
+              },
+            ]}
+            data={slots || []}
+            loading={slotsLoading}
+            actions={["edit", "delete"]}
+            onAction={(action, rowData, rowIndex) => {
+              if (action === "edit") {
+                handleEditSlot(rowData);
+              } else if (action === "delete") {
+                handleDeleteSlot(rowData.id);
+              }
+            }}
+            showRefresh={false}
+            showActions={true}
+            defaultPageSize={10}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
+          {slots.length === 0 && !slotsLoading && (
+            <div className="ai-int-no-slots">
+              <p>
+                No interview slots found. Create your first slot using the
+                form.
+              </p>
             </div>
-            <div className="ai-int-slots-table-container">
-              {slotsLoading ? (
-                <div className="ai-int-loading-container">
-                  <BeatLoader color="#4f46e5" />
-                  <p>Loading slots...</p>
-                </div>
-              ) : slots.length > 0 ? (
-                <table className="ai-int-slots-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Time</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {slots.map((slot) => (
-                      <tr
-                        key={slot.id}
-                        className={
-                          editingSlot?.id === slot.id ? "editing-row" : ""
-                        }
-                      >
-                        <td>
-                          {new Date(slot.start_time).toLocaleDateString()}
-                        </td>
-                        <td>
-                          {new Date(slot.start_time).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          -
-                          {new Date(slot.end_time).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </td>
-                        <td>{slot.ai_interview_type}</td>
-                        <td>
-                          <span className={`ai-int-status ${slot.status}`}>
-                            {slot.status}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="ai-int-action-buttons">
-                            <button
-                              onClick={() => handleEditSlot(slot)}
-                              className="ai-int-edit-btn"
-                              title="Edit Slot"
-                            >
-                              <FiEdit />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteSlot(slot.id)}
-                              className="ai-int-delete-btn"
-                              title="Delete Slot"
-                            >
-                              <FiTrash2 />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="ai-int-no-slots">
-                  <p>
-                    No interview slots found. Create your first slot using the
-                    form.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     ),
@@ -881,14 +868,11 @@ const AiInterviewScheduler = ({
 
   return (
     <div className="ai-interview-scheduler">
-      {/* Left Side - Form Card (25%) */}
+      {/* Left Side - Form */}
       <div className="ai-int-form-container">
-        <div className="ai-int-card ai-int-form-card">
-          <div className="ai-int-form-header">
-            <h3>{editingSlot ? "Edit Interview Slot" : "Create New Slot"}</h3>
-          </div>
-          {formError && <div className="ai-int-error-message">{formError}</div>}
-          <form onSubmit={handleSlotSubmit} className="ai-int-form">
+        {formError && <div className="ai-int-error-message">{formError}</div>}
+        <form onSubmit={handleSlotSubmit} className="ai-int-form">
+            <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
               <label>Date</label>
               <HorizontalDatePicker
@@ -1018,108 +1002,68 @@ const AiInterviewScheduler = ({
               )}
             </div>
           </form>
-        </div>
       </div>
 
-      {/* Right Side - Table Card (75%) */}
-      <div className="ai-int-table-container">
-        <div className="ai-int-card ai-int-table-card">
-          <div className="ai-int-table-header">
-            <h2 className="ai-int-table-title">Interview Slots</h2>
-            <button
-              className="ai-int-btn ai-int-btn-secondary"
-              onClick={handleRefresh}
-              disabled={slotsLoading}
-            >
-              {slotsLoading ? "Refreshing..." : "Refresh"}
-            </button>
-          </div>
-
-          <div className="ai-int-table-wrapper">
-            <div className="ai-int-table-container">
-              {slotsLoading ? (
-                <div className="ai-int-loading-container">
-                  <BeatLoader color="#4299e1" />
-                  <p>Loading interview slots...</p>
-                </div>
-              ) : slotsError ? (
-                <div className="ai-int-error-message">
-                  Error loading slots: {slotsError}
-                </div>
-              ) : slots.length > 0 ? (
-                <table className="ai-int-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Time</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {slots.map((slot) => (
-                      <tr key={slot.id}>
-                        <td>
-                          {new Date(slot.start_time).toLocaleDateString()}
-                        </td>
-                        <td>
-                          {new Date(slot.start_time).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          -{" "}
-                          {new Date(slot.end_time).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </td>
-                        <td>{slot.ai_interview_type}</td>
-                        <td>
-                          <span
-                            className={`ai-int-status-badge ${
-                              slot.status === "available"
-                                ? "available"
-                                : "booked"
-                            }`}
-                          >
-                            {slot.status}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="ai-int-actions">
-                            <button
-                              className="ai-int-btn ai-int-btn-edit"
-                              onClick={() => handleEditSlot(slot)}
-                              title="Edit Slot"
-                            >
-                              <FiEdit size={16} />
-                            </button>
-                            <button
-                              className="ai-int-btn ai-int-btn-delete"
-                              onClick={() => handleDeleteSlot(slot.id)}
-                              title="Delete Slot"
-                            >
-                              <FiTrash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="ai-int-empty-state">
-                  <p>
-                    No interview slots found. Create your first slot to get
-                    started.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Interview Slots Table */}
+      <DataTable
+        title="Interview Slots"
+        columns={[
+          {
+            field: "start_time",
+            header: "Date",
+            width: "20%",
+            render: (value) => new Date(value).toLocaleDateString(),
+          },
+          {
+            field: "start_time",
+            header: "Time",
+            width: "25%",
+            render: (value, rowData) => (
+              <>
+                {new Date(value).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}{" "}
+                -{" "}
+                {new Date(rowData.end_time).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </>
+            ),
+          },
+          {
+            field: "ai_interview_type",
+            header: "Type",
+            width: "20%",
+          },
+          {
+            field: "status",
+            header: "Status",
+            width: "20%",
+            render: (value) => (
+              <span className="status-cell" data-status={value?.toLowerCase()}>
+                {value}
+              </span>
+            ),
+          },
+        ]}
+        data={slots || []}
+        loading={slotsLoading}
+        actions={["edit", "delete"]}
+        onAction={(action, rowData, rowIndex) => {
+          if (action === "edit") {
+            handleEditSlot(rowData);
+          } else if (action === "delete") {
+            handleDeleteSlot(rowData.id);
+          }
+        }}
+        showRefresh={true}
+        onRefresh={() => dispatch(fetchInterviewSlots())}
+        showActions={true}
+        defaultPageSize={10}
+        pageSizeOptions={[5, 10, 20, 50]}
+      />
     </div>
   );
 };

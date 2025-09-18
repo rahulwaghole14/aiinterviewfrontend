@@ -15,17 +15,8 @@
 
 /* Hide scrollbars but keep functionality */
 .ai-int-form,
-.ai-int-table-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
 
 .ai-int-form::-webkit-scrollbar,
-.ai-int-table-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-  width: 0;
-  height: 0;
-}
 
 /* Card Styles */
 .ai-int-card {
@@ -107,103 +98,6 @@
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.16);
 }
 
-/* Table Section - 75% width */
-.ai-int-table-container {
-  flex: 1;
-  height: calc(100vh - 3rem); /* Full height minus padding */
-  display: flex;
-  flex-direction: column;
-  min-width: 0; /* Fixes flexbox overflow issues */
-}
-
-.ai-int-table-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.ai-int-table-header {
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f9fafb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-  gap: 1rem;
-}
-
-.ai-int-table-header .ai-int-btn {
-  padding: 0.35rem 0.8rem;
-  font-size: 0.875rem;
-  width: auto;
-  min-width: unset;
-  flex: 0 0 auto;
-  white-space: nowrap;
-  margin: 0;
-  height: auto;
-  line-height: 1.25;
-}
-
-.ai-int-table-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1a202c;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ai-int-table-wrapper {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.ai-int-table-container {
-  flex: 1;
-  overflow: auto;
-  padding: 0;
-}
-
-.ai-int-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.ai-int-table thead th {
-  position: sticky;
-  top: 0;
-  background: #f9fafb;
-  z-index: 10;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.ai-int-table th,
-.ai-int-table td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.ai-int-table th {
-  background-color: #f8fafc;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #718096;
-}
-
-.ai-int-table tbody tr:hover {
-  background-color: #f8fafc;
-}
-
 /* Status Badge */
 .ai-int-status {
   display: inline-flex;
@@ -270,12 +164,7 @@
   }
   
   .ai-int-form-container,
-  .ai-int-table-container {
-    width: 100%;
-    position: static;
-    height: auto;
-  }
-  
+
   .ai-int-form-container {
     border-right: none;
     border-bottom: 1px solid #e2e8f0;

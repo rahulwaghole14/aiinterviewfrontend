@@ -735,8 +735,8 @@
 }
 
 
-/* Pagination Styles */
-.pagination {
+/* Add Candidate Pagination Styles */
+.add-candidate-pagination {
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
@@ -744,7 +744,7 @@
   border-top: 1px solid var(--color-border-light);
 }
 
-.pagination-list {
+.add-candidate-pagination-list {
   list-style: none;
   display: flex;
   gap: 0.5rem;
@@ -754,7 +754,7 @@
   justify-content: center;
 }
 
-.pagination-item button {
+.add-candidate-pagination-item button {
   background-color: var(--color-bg-secondary);
   color: var(--color-text);
   border: 1px solid var(--color-border-light);
@@ -766,22 +766,22 @@
   font-weight: 500;
 }
 
-.pagination-item button:hover:not(:disabled) {
+.add-candidate-pagination-item button:hover:not(:disabled) {
   background-color: var(--color-hover);
   border-color: var(--color-primary);
 }
 
-.pagination-item.active button {
+.add-candidate-pagination-item.active button {
   background-color: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
 }
 
-.pagination-item.active button:hover {
+.add-candidate-pagination-item.active button:hover {
   background-color: var(--color-primary-dark);
 }
 
-.pagination-item.disabled button {
+.add-candidate-pagination-item.disabled button {
   opacity: 0.5;
   cursor: not-allowed;
   background-color: var(--color-bg-secondary);

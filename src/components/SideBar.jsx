@@ -28,7 +28,6 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
     { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <MdBusiness size={20} />, restrictedRoles: ['recruiter', 'hiring_agency'] },
     { name: 'Talaro Interview Scheduler', path: 'ai-interview-scheduler', icon: <MdCalendarToday size={20} />, allowedRoles: ['company', 'admin'] },
     // { name: 'Interview Results', path: 'interview-results', icon: <MdAssessment size={20} />, allowedRoles: ['company', 'admin'] },
-    // { name: 'Data Dashboard', path: 'data-listing', icon: <MdDataUsage size={20} />, allowedRoles: ['company', 'admin'] },
     { name: 'Settings', path: 'settings', icon: <MdSettings size={20} /> },
   ];
 

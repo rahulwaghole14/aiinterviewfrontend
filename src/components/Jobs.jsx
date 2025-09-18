@@ -13,8 +13,9 @@ import {
   updateDomain,
   deleteDomain,
 } from "../redux/slices/jobsSlice"; // Import actions and async thunks
-import { FaEdit, FaTrash, FaEye, FaEllipsisV } from "react-icons/fa";
-import ActionMenu from "./ActionMenu";
+import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
+import DataTable from "./common/DataTable";
+import LoadingSpinner from "./common/LoadingSpinner";
 
 const Jobs = () => {
   const dispatch = useDispatch();
@@ -1063,222 +1064,102 @@ const Jobs = () => {
             </div>
           ) : null}
 
-          {/* Right Column: Job Listings Table */}
+          {/* Job Listings Table */}
+          <DataTable
+            title="Job Listings"
+            columns={[
+              {
+                field: "job_title",
+                header: "Job Title",
+                width: "28%",
+                render: (value) => (
+                  <div title={value}>
+                    {value}
+                  </div>
+                ),
+              },
+              {
+                field: "company_name",
+                header: "Company",
+                width: "25%",
+                render: (value) => (
+                  <div title={value}>
+                    {value}
+                  </div>
+                ),
+              },
+              {
+                field: "domain",
+                header: "Domain",
+                width: "20%",
+                render: (value, rowData) => (
+                  <div title={rowData.domain_name || getDomainName(value) || "-"}>
+                    {rowData.domain_name || getDomainName(value) || "-"}
+                  </div>
+                ),
+              },
+              {
+                field: "is_active",
+                header: "Status",
+                width: "12%",
+                render: (value) => (
+                  <span
+                    className="status-cell"
+                    data-status={value ? "active" : "inactive"}
+                  >
+                    {value ? "Active" : "Inactive"}
+                  </span>
+                ),
+              },
+            ]}
+            data={currentRecords || []}
+            loading={jobsStatus === "loading"}
+            actions={["edit", "delete"]}
+            onAction={(action, rowData, rowIndex) => {
+              if (action === "edit") {
+                handleEditJob(rowData);
+              } else if (action === "delete") {
+                setJobIdToDelete(rowData.id);
+                setShowDeleteConfirm(true);
+              }
+            }}
+            showRefresh={true}
+            onRefresh={() => dispatch(fetchJobs())}
+            showActions={true}
+            defaultPageSize={recordsPerPage}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
+
+        </div>
+
+        {/* Delete Confirmation Popup */}
+        {showDeleteConfirm && (
           <div
-            className="job-listings-section card"
-            style={
-              userRole === "RECRUITER" || userRole === "HIRING_AGENCY"
-                ? { flex: "1 1 100%", maxWidth: "100%" }
-                : {}
-            }
+            className={`delete-confirm-overlay ${
+              showDeleteConfirm ? "show" : ""
+            }`}
           >
-            <h2 className="table-title">Job Listings</h2>
-            <div className="table-box">
-              <div className="table-responsive">
-                <table className="hiring-agencies-table">
-                  <colgroup>
-                    <col style={{ width: "28%" }} /> {/* Job Title */}
-                    <col style={{ width: "25%" }} /> {/* Company */}
-                    <col style={{ width: "20%" }} /> {/* Domain */}
-                    <col style={{ width: "12%" }} /> {/* Status */}
-                    <col style={{ width: "15%" }} /> {/* Actions */}
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>Job Title</th>
-                      <th>Company</th>
-                      <th>Domain</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {jobsStatus === "loading" ? (
-                      <tr>
-                        <td colSpan="5" className="loading-cell">
-                          <div className="loading-spinner"></div>
-                        </td>
-                      </tr>
-                    ) : currentRecords.length > 0 ? (
-                      currentRecords.map((job) => (
-                        <tr key={job.id} className="table-row">
-                          <td className="truncate-cell" title={job.job_title}>
-                            {job.job_title}
-                          </td>
-                          <td
-                            className="truncate-cell"
-                            title={job.company_name}
-                          >
-                            {job.company_name}
-                          </td>
-                          <td
-                            className="truncate-cell"
-                            title={job.domain_name || getDomainName(job.domain) || "-"}
-                          >
-                            {job.domain_name || getDomainName(job.domain) || "-"}
-                          </td>
-                          <td className="status-cell">
-                            <span
-                              className={`status-badge ${
-                                job.is_active
-                                  ? "status-active"
-                                  : "status-inactive"
-                              }`}
-                            >
-                              {job.is_active ? "Active" : "Inactive"}
-                            </span>
-                          </td>
-                          <td className="actions-cell">
-                            <ActionMenu
-                              onView={() => handleViewJob(job)}
-                              onEdit={() => handleEditJob(job)}
-                              onDelete={() => {
-                                setJobIdToDelete(job.id);
-                                setShowDeleteConfirm(true);
-                              }}
-                              itemId={job.id}
-                              viewIcon={<FaEye />}
-                              editIcon={<FaEdit />}
-                              deleteIcon={<FaTrash />}
-                              iconOnly={true}
-                              buttonClassName="action-button"
-                              buttonStyle={{
-                                width: "32px",
-                                height: "32px",
-                                padding: "0.5rem",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            />
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="5" className="no-data">
-                          No jobs found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              {/* Pagination Controls */}
-              {filteredJobs.length > 0 && (
-                <div className="pagination">
-                  <div className="records-per-page">
-                    Show
-                    <select
-                      value={recordsPerPage}
-                      onChange={(e) => {
-                        setRecordsPerPage(Number(e.target.value));
-                        setCurrentPage(1);
-                      }}
-                      disabled={isAnyJobOperationInProgress}
-                      className="records-select"
-                    >
-                      <option value={5}>5</option>
-                      <option value={10}>10</option>
-                      <option value={25}>25</option>
-                      <option value={50}>50</option>
-                      <option value={100}>100</option>
-                    </select>
-                    entries
-                  </div>
-
-                  <div className="pagination-info">
-                    Showing {indexOfFirstRecord + 1} to{" "}
-                    {Math.min(indexOfLastRecord, filteredJobs.length)} of{" "}
-                    {filteredJobs.length} entries
-                  </div>
-
-                  <div className="pagination-controls">
-                    <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.max(1, prev - 1))
-                      }
-                      disabled={
-                        currentPage === 1 || isAnyJobOperationInProgress
-                      }
-                      className="pagination-button"
-                    >
-                      Previous
-                    </button>
-
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      // Show first page, last page, and pages around current page
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => paginate(pageNum)}
-                          className={`pagination-button ${
-                            currentPage === pageNum ? "active" : ""
-                          }`}
-                          disabled={isAnyJobOperationInProgress}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-
-                    <button
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                      }
-                      disabled={
-                        currentPage === totalPages ||
-                        isAnyJobOperationInProgress
-                      }
-                      className="pagination-button"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
-              {/* Delete Confirmation Popup */}
-              {showDeleteConfirm && (
-                <div
-                  className={`delete-confirm-overlay ${
-                    showDeleteConfirm ? "show" : ""
-                  }`}
+            <div className="delete-confirm-modal">
+              <p>Are you sure you want to delete this job?</p>
+              <div className="delete-confirm-actions">
+                <button
+                  className="delete-btn"
+                  onClick={confirmDelete}
+                  disabled={deletingJobId !== null}
                 >
-                  <div className="delete-confirm-modal">
-                    <p>Are you sure you want to delete this job?</p>
-                    <div className="delete-confirm-actions">
-                      <button
-                        className="delete-btn"
-                        onClick={confirmDelete}
-                        disabled={deletingJobId !== null}
-                      >
-                        {deletingJobId !== null ? "Deleting..." : "Delete"}
-                      </button>
-                      <button
-                        className="cancel-btn"
-                        onClick={cancelDelete}
-                        disabled={deletingJobId !== null}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  {deletingJobId !== null ? "Deleting..." : "Delete"}
+                </button>
+                <button
+                  className="cancel-btn"
+                  onClick={cancelDelete}
+                  disabled={deletingJobId !== null}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Create Domain Modal - Moved outside main container */}
