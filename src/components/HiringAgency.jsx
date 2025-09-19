@@ -11,6 +11,7 @@ import { fetchAdmins } from "../redux/slices/adminSlice"; // Import the dummy fe
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
+import { FormModal, ConfirmModal } from "./common/Modal";
 import { useNotification } from "../hooks/useNotification";
 
 const formInputStyle = {
@@ -1474,8 +1475,12 @@ const HiringAgencies = () => {
     ));
   };
 
+  // Check if any modal is open for blur effect
+  const isAnyModalOpen = showAddModal || showDeleteConfirm;
+
   return (
-    <div className="hiring-agencies-container">
+    <>
+      <div className={`hiring-agencies-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
       <div className="hiring-agencies-card">
         {/* Tabs */}
         <div className="hiring-agencies-tabs-container">
@@ -1571,131 +1576,100 @@ const HiringAgencies = () => {
       </div>
 
 
-      {/* Dynamic Add New Modal */}
-      {showAddModal && (
-        <div className="add-agency-modal-overlay show">
-          <div className="add-agency-modal-content">
-            <div className="modal-header">
-              <h3 className="modal-title">{getAddButtonText()}</h3>
-              <button
-                className="modal-close"
-                onClick={() => setShowAddModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            
-            <form onSubmit={handleAddUser} className="modal-form">
-              <div className="form-group">
-                <label htmlFor="username">Username *</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  className="form-input"
-                  placeholder="Enter username"
-                />
-              </div>
+      </div>
 
-              <div className="form-group">
-                <label htmlFor="full_name">Full Name *</label>
-                <input
-                  type="text"
-                  id="full_name"
-                  name="full_name"
-                  value={formData.full_name}
-                  onChange={handleInputChange}
-                  required
-                  className="form-input"
-                  placeholder="Enter full name"
-                />
-              </div>
+      {/* Modals outside the main container to avoid blur effect */}
+      <FormModal
+      isOpen={showAddModal}
+      onClose={() => setShowAddModal(false)}
+      onSubmit={handleAddUser}
+      title={getAddButtonText()}
+      submitText="Add User"
+      size="medium"
+    >
+      <div className="form-group">
+        <label htmlFor="username">Username *</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          value={formData.username}
+          onChange={handleInputChange}
+          required
+          placeholder="Enter username"
+        />
+      </div>
 
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="form-input"
-                  placeholder="Enter email address"
-                />
-              </div>
+      <div className="form-group">
+        <label htmlFor="full_name">Full Name *</label>
+        <input
+          type="text"
+          id="full_name"
+          name="full_name"
+          value={formData.full_name}
+          onChange={handleInputChange}
+          required
+          placeholder="Enter full name"
+        />
+      </div>
 
-              <div className="form-group">
-                <label htmlFor="company_name">Company Name</label>
-                <input
-                  type="text"
-                  id="company_name"
-                  name="company_name"
-                  value={formData.company_name}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="Enter company name"
-                />
-              </div>
+      <div className="form-group">
+        <label htmlFor="email">Email *</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          required
+          placeholder="Enter email address"
+        />
+      </div>
 
-              <div className="form-group">
-                <label htmlFor="role">Role *</label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  required
-                  className="form-input"
-                >
-                  <option value="">Select a role</option>
-                  {roleOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+      <div className="form-group">
+        <label htmlFor="company_name">Company Name</label>
+        <input
+          type="text"
+          id="company_name"
+          name="company_name"
+          value={formData.company_name}
+          onChange={handleInputChange}
+          placeholder="Enter company name"
+        />
+      </div>
 
-              <div className="form-group">
-                <label htmlFor="password">Password *</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  className="form-input"
-                  placeholder="Enter password"
-                />
-              </div>
+      <div className="form-group">
+        <label htmlFor="role">Role *</label>
+        <select
+          id="role"
+          name="role"
+          value={formData.role}
+          onChange={handleInputChange}
+          required
+        >
+          <option value="">Select a role</option>
+          {roleOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="modal-cancel"
-                  onClick={() => setShowAddModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="modal-submit"
-                  disabled={!formData.username || !formData.full_name || !formData.email || !formData.password || !formData.role}
-                >
-                  Add User
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="form-group">
+        <label htmlFor="password">Password *</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleInputChange}
+          required
+          placeholder="Enter password"
+        />
+      </div>
+      </FormModal>
+    </>
   );
 };
 

@@ -14,6 +14,13 @@
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-family-base); /* Consistent font */
+  transition: filter 0.3s ease;
+}
+
+/* Blur effect when modal is open */
+.hiring-agencies-container.blur-background {
+  filter: blur(4px);
+  pointer-events: none;
 }
 
 .hiring-agencies-container::-webkit-scrollbar {

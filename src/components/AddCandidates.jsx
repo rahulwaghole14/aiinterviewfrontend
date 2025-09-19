@@ -389,8 +389,11 @@ const AddCandidates = () => {
     return job ? job.id : '';
   };
 
+  // Check if any modal is open for blur effect
+  const isAnyModalOpen = showSuccessModal || showDeleteModalOverlay || showDeleteConfirm;
+
   return (
-    <div className="add-candidates-container">
+    <div className={`add-candidates-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
       <div className="add-candidates-top-section">
         <div className="add-candidates-header-cards">
           <div className="add-candidates-card">
