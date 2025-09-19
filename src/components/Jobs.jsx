@@ -267,84 +267,75 @@ const Jobs = () => {
     }));
   };
 
-  // Filtered jobs based on search term AND user role
-  const filteredJobs = jobsForUser
-    .filter((job) => {
-      // Use jobsForUser instead of allJobs
-      if (!searchTerm) {
-        return true;
+  // Sort jobs based on search term relevance (don't filter out jobs)
+  const sortedJobs = [...jobsForUser].sort((a, b) => {
+    // First priority: search term relevance (if search term exists)
+    if (searchTerm) {
+      console.log('Jobs sorting with search term:', searchTerm);
+      const searchLower = searchTerm.toLowerCase();
+      
+      // Calculate relevance scores for both jobs
+      const getRelevanceScore = (job) => {
+        let score = 0;
+        const searchableFields = [
+          job.job_title, job.company_name, job.domain_name,
+          getDomainName(job.domain), job.spoc_email, job.hiring_manager_email,
+          job.current_team_size_info, String(job.number_to_hire),
+          job.position_level, job.current_process, job.tech_stack_details,
+          job.job_description, job.created_at
+        ].filter(Boolean);
+        
+        searchableFields.forEach(field => {
+          const fieldStr = String(field).toLowerCase();
+          if (fieldStr.includes(searchLower)) {
+            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+            else score += 5; // Contains search term
+          }
+        });
+        
+        return score;
+      };
+      
+      const aScore = getRelevanceScore(a);
+      const bScore = getRelevanceScore(b);
+      
+      if (aScore !== bScore) {
+        return bScore - aScore; // Higher relevance first
       }
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      return (
-        (job.job_title &&
-          job.job_title.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.company_name &&
-          job.company_name.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.domain_name &&
-          job.domain_name.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.domain &&
-          getDomainName(job.domain)
-            .toLowerCase()
-            .includes(lowerCaseSearchTerm)) ||
-        (job.spoc_email &&
-          job.spoc_email.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.hiring_manager_email &&
-          job.hiring_manager_email
-            .toLowerCase()
-            .includes(lowerCaseSearchTerm)) ||
-        (job.current_team_size_info &&
-          job.current_team_size_info
-            .toLowerCase()
-            .includes(lowerCaseSearchTerm)) ||
-        (job.number_to_hire &&
-          String(job.number_to_hire)
-            .toLowerCase()
-            .includes(lowerCaseSearchTerm)) ||
-        (job.position_level &&
-          job.position_level.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.current_process &&
-          job.current_process.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.tech_stack_details &&
-          job.tech_stack_details.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.job_description &&
-          job.job_description.toLowerCase().includes(lowerCaseSearchTerm)) ||
-        (job.created_at &&
-          job.created_at.toLowerCase().includes(lowerCaseSearchTerm))
-      );
-    })
-    .sort((a, b) => {
-      // Apply sorting after filtering
-      if (!sortColumn) return 0;
+    }
+    
+    // Second priority: column sorting (if specified)
+    if (!sortColumn) return 0;
 
-      const aValue =
-        sortColumn === "domain" ? (a.domain_name || getDomainName(a[sortColumn])) : a[sortColumn];
-      const bValue =
-        sortColumn === "domain" ? (b.domain_name || getDomainName(b[sortColumn])) : b[sortColumn];
+    const aValue =
+      sortColumn === "domain" ? (a.domain_name || getDomainName(a[sortColumn])) : a[sortColumn];
+    const bValue =
+      sortColumn === "domain" ? (b.domain_name || getDomainName(b[sortColumn])) : b[sortColumn];
 
-      if (aValue === null || aValue === undefined)
-        return sortDirection === "asc" ? 1 : -1;
-      if (bValue === null || bValue === undefined)
-        return sortDirection === "asc" ? -1 : 1;
+    if (aValue === null || aValue === undefined)
+      return sortDirection === "asc" ? 1 : -1;
+    if (bValue === null || bValue === undefined)
+      return sortDirection === "asc" ? -1 : 1;
 
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortDirection === "asc"
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-      if (typeof aValue === "number" && typeof bValue === "number") {
-        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-      }
-      return 0;
-    });
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortDirection === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+    }
+    return 0;
+  });
 
   // Pagination calculations
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredJobs.slice(
+  const currentRecords = sortedJobs.slice(
     indexOfFirstRecord,
     indexOfLastRecord
   );
-  const totalPages = Math.ceil(filteredJobs.length / recordsPerPage);
+  const totalPages = Math.ceil(sortedJobs.length / recordsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
