@@ -6,7 +6,7 @@ import { fetchDashboardData } from '../redux/slices/dashboardSlice'; // Import t
 import { baseURL } from '../data';
 import { isAuthenticated } from '../utils/authUtils';
 import DataTable from './common/DataTable';
-import LoadingSpinner from './common/LoadingSpinner';
+// LoadingSpinner not needed - DataTable handles its own loading state
 
 // Reusable BarChart Component (custom implementation)
 const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
@@ -57,8 +57,7 @@ const Dashboard = () => {
   const loading = useSelector((state) => state.dashboard.status === 'loading');
   const error = useSelector((state) => state.dashboard.error);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  // DataTable handles pagination internally, no need for local state
 
   useEffect(() => {
     // Only fetch dashboard data if user is properly authenticated
@@ -126,12 +125,7 @@ const Dashboard = () => {
     })),
   ].sort((a, b) => b.timestamp - a.timestamp);
 
-  const indexOfLastActivity = currentPage * itemsPerPage;
-  const indexOfFirstActivity = indexOfLastActivity - itemsPerPage;
-  const currentActivities = allRecentActivities.slice(indexOfFirstActivity, indexOfLastActivity);
-  const totalPages = Math.ceil(allRecentActivities.length / itemsPerPage);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // Pagination is now handled by DataTable component
 
   return (
     <div className={`dashboard-container ${loading ? 'is-loading' : ''}`}>

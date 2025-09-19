@@ -253,3 +253,4 @@ For each component with modals:
 2. **Remove duplicate CSS** after migration
 3. **Add custom variants** if needed for specific use cases
 4. **Consider modal stacking** for complex workflows
+

@@ -49,28 +49,35 @@
 }
 
 .common-modal-close-btn {
-  background: none;
-  border: none;
+  background: var(--color-card);
+  border: 2px solid var(--color-border);
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--radius-small);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-text-secondary);
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-text-primary);
   transition: var(--transition);
+  box-shadow: var(--shadow-button);
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .common-modal-close-btn:hover {
-  background-color: var(--color-hover);
-  color: var(--color-text);
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-button-hover);
+  transform: translateY(-1px) scale(1.05);
 }
 
 .common-modal-close-btn svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2.5;
 }
 
 /* Modal Body */
@@ -216,19 +223,24 @@
 }
 
 .btn-cancel {
-  background-color: white !important;
-  color: var(--color-text) !important;
-  border: 1px solid var(--color-border) !important;
+  background-color: var(--color-bg-secondary) !important;
+  color: var(--color-text-primary) !important;
+  border: 2px solid var(--color-border) !important;
+  font-weight: 500 !important;
+  box-shadow: var(--shadow-button) !important;
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background-color: var(--color-hover) !important;
-  border-color: var(--color-muted) !important;
-  color: var(--color-text) !important;
+  background-color: var(--color-secondary) !important;
+  border-color: var(--color-secondary) !important;
+  color: white !important;
+  box-shadow: var(--shadow-button-hover) !important;
+  transform: translateY(-1px) !important;
 }
 
 .btn-cancel:active {
-  background-color: var(--color-border) !important;
+  background-color: var(--color-secondary-dark) !important;
+  transform: translateY(0) !important;
 }
 
 /* Action Groups */
@@ -292,7 +304,7 @@
 .modal-form .form-group input:disabled,
 .modal-form .form-group select:disabled,
 .modal-form .form-group textarea:disabled {
-  background-color: var(--color-disabled, #f9fafb);
+  background-color: var(--color-disabled, var(--color-bg-secondary));
   color: var(--color-text-secondary);
   cursor: not-allowed;
   opacity: 0.6;
@@ -309,7 +321,7 @@
 .confirm-message {
   font-size: 16px;
   line-height: 1.5;
-  color: #374151;
+  color: var(--color-text-primary);
   margin: 0;
 }
 

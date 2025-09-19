@@ -20,9 +20,9 @@
 
 /* Card Styles */
 .ai-int-card {
-  background: #fff;
+  background: var(--color-card);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -47,15 +47,15 @@
 
 .ai-int-form-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f9fafb;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
 }
 
 .ai-int-form-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text-primary);
 }
 
 .ai-int-form {
@@ -113,13 +113,13 @@
 }
 
 .ai-int-status.available {
-  background-color: #ebf8ff;
-  color: #2b6cb0;
+  background-color: var(--color-info-light);
+  color: var(--color-info-dark);
 }
 
 .ai-int-status.booked {
-  background-color: #ebfaf5;
-  color: #2c7a7b;
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 /* Action Buttons */
@@ -142,23 +142,23 @@
 }
 
 .ai-int-btn-edit {
-  color: #3182ce;
-  background-color: #ebf8ff;
-  border-color: #bee3f8;
+  color: var(--color-primary);
+  background-color: var(--color-info-light);
+  border-color: var(--color-border);
 }
 
 .ai-int-btn-edit:hover {
-  background-color: #bee3f8;
+  background-color: var(--color-hover);
 }
 
 .ai-int-btn-delete {
-  color: #e53e3e;
-  background-color: #fff5f5;
-  border-color: #fed7d7;
+  color: var(--color-danger);
+  background-color: var(--color-danger-light);
+  border-color: var(--color-border);
 }
 
 .ai-int-btn-delete:hover {
-  background-color: #fed7d7;
+  background-color: var(--color-hover);
 }
 
 /* Responsive Design */
@@ -171,7 +171,7 @@
 
   .ai-int-form-container {
     border-right: none;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
   }
 }
 
@@ -181,7 +181,7 @@
   gap: 0.75rem;
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
 }
 
 .ai-int-btn-primary,
