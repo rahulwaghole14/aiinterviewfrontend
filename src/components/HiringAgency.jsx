@@ -536,30 +536,51 @@ const HiringAgencies = () => {
 
   const currentTableData = getCurrentTableData();
 
-  // Filter and sort logic (remains similar, but now operates on fetched data)
-  const filteredBySearch = currentTableData.filter((item) => {
-    // Changed 'user' to 'item' for generality
-    // Apply search term filter
-    const matchesSearchTerm =
-      !searchTerm ||
-      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchTerm.toLowerCase()) || // Added for company description
-      item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.role?.toLowerCase().includes(searchTerm.toLowerCase()) || // Changed userType to role
-      item.company_name?.toLowerCase().includes(searchTerm.toLowerCase()); // Added for company name in hiring agency
-
+  // Apply only company filter, not search term filter (search should sort, not filter)
+  const filteredByCompany = currentTableData.filter((item) => {
     // Apply company name filter if logged-in user is a COMPANY
     const matchesCompany =
       userRole === "COMPANY"
         ? item.company_name?.toLowerCase() === userCompany?.toLowerCase()
         : true; // No company filter for ADMIN or other roles
 
-    return matchesSearchTerm && matchesCompany;
+    return matchesCompany;
   });
 
-  const sortedUsers = [...filteredBySearch].sort((a, b) => {
+  const sortedUsers = [...filteredByCompany].sort((a, b) => {
+    // First priority: search term relevance (if search term exists)
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      
+      // Calculate relevance scores for both items
+      const getRelevanceScore = (item) => {
+        let score = 0;
+        const searchableFields = [
+          item.name, item.full_name, item.first_name, item.last_name,
+          item.email, item.description, item.phone, item.phone_number,
+          item.status, item.role, item.company_name
+        ].filter(Boolean);
+        
+        searchableFields.forEach(field => {
+          const fieldStr = String(field).toLowerCase();
+          if (fieldStr.includes(searchLower)) {
+            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+            else score += 5; // Contains search term
+          }
+        });
+        
+        return score;
+      };
+      
+      const aScore = getRelevanceScore(a);
+      const bScore = getRelevanceScore(b);
+      
+      if (aScore !== bScore) {
+        return bScore - aScore; // Higher relevance first
+      }
+    }
+    
+    // Second priority: column sorting (if specified)
     if (!sortColumn) return 0;
 
     const aValue = a[sortColumn];
@@ -598,12 +619,12 @@ const HiringAgencies = () => {
   };
 
   useEffect(() => {
-    setTotalPages(Math.ceil(filteredBySearch.length / recordsPerPage));
+    setTotalPages(Math.ceil(sortedUsers.length / recordsPerPage));
     // Reset to first page if current page is out of bounds
-    if (currentPage > Math.ceil(filteredBySearch.length / recordsPerPage)) {
+    if (currentPage > Math.ceil(sortedUsers.length / recordsPerPage)) {
       setCurrentPage(1);
     }
-  }, [filteredBySearch, recordsPerPage, currentPage]);
+  }, [sortedUsers, recordsPerPage, currentPage]);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
