@@ -47,32 +47,38 @@ const Header = ({
   // Get data from Redux stores for search
   const candidates = useSelector((state) => state.candidates?.allCandidates || []);
   const jobs = useSelector((state) => state.jobs?.allJobs || []);
+  const domains = useSelector((state) => state.jobs?.domains || []);
   const hiringAgencies = useSelector((state) => state.hiringAgencies?.hiringAgencies || []);
   const companies = useSelector((state) => state.companies?.companies || []);
   const recruiters = useSelector((state) => state.recruiters?.recruiters || []);
   const interviewSlots = useSelector((state) => state.interviewSlots?.slots || []);
+  const interviews = useSelector((state) => state.interviews?.interviews || []);
 
   // Debug data availability
   useEffect(() => {
     console.log('Search data updated:', {
       candidates: candidates.length,
       jobs: jobs.length,
+      domains: domains.length,
       hiringAgencies: hiringAgencies.length,
       companies: companies.length,
       recruiters: recruiters.length,
       interviewSlots: interviewSlots.length,
+      interviews: interviews.length,
     });
-  }, [candidates, jobs, hiringAgencies, companies, recruiters, interviewSlots]);
+  }, [candidates, jobs, domains, hiringAgencies, companies, recruiters, interviewSlots, interviews]);
 
   // Update search service with latest data
   useEffect(() => {
     searchService.updateData('candidates', candidates);
     searchService.updateData('jobs', jobs);
+    searchService.updateData('domains', domains);
     searchService.updateData('hiringAgencies', hiringAgencies);
     searchService.updateData('companies', companies);
     searchService.updateData('recruiters', recruiters);
     searchService.updateData('interviewSlots', interviewSlots);
-  }, [candidates, jobs, hiringAgencies, companies, recruiters, interviewSlots]);
+    searchService.updateData('interviews', interviews);
+  }, [candidates, jobs, domains, hiringAgencies, companies, recruiters, interviewSlots, interviews]);
 
   // Sync localSearchTerm with Redux searchTerm when Redux searchTerm changes
   useEffect(() => {

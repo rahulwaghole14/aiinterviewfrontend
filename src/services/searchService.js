@@ -90,7 +90,7 @@ class SearchService {
 
     const {
       limit = 50,
-      includeTypes = ['candidates', 'jobs', 'hiringAgencies', 'companies', 'recruiters', 'interviewSlots'],
+      includeTypes = ['candidates', 'jobs', 'domains', 'hiringAgencies', 'companies', 'recruiters', 'interviewSlots', 'interviews'],
       sortByRelevance = true,
     } = options;
 
@@ -98,10 +98,12 @@ class SearchService {
     console.log('Available data:', {
       candidates: this.searchableData.candidates.length,
       jobs: this.searchableData.jobs.length,
+      domains: this.searchableData.domains.length,
       hiringAgencies: this.searchableData.hiringAgencies.length,
       companies: this.searchableData.companies.length,
       recruiters: this.searchableData.recruiters.length,
       interviewSlots: this.searchableData.interviewSlots.length,
+      interviews: this.searchableData.interviews.length,
     });
 
     const results = [];
@@ -209,6 +211,39 @@ class SearchService {
       });
     }
 
+    // Search recruiters
+    if (includeTypes.includes('recruiters')) {
+      this.searchableData.recruiters.forEach(recruiter => {
+        // Search ALL fields in recruiter object
+        const searchableText = Object.values(recruiter)
+          .filter(value => value !== null && value !== undefined && value !== '')
+          .map(value => String(value))
+          .join(' ')
+          .toLowerCase();
+
+        if (searchableText.includes(lowerQuery)) {
+          console.log('Found recruiter match:', recruiter.full_name, 'Type: Recruiters');
+          const recruiterName = recruiter.full_name || 
+                               (recruiter.first_name && recruiter.last_name ? 
+                                `${recruiter.first_name} ${recruiter.last_name}` : 
+                                recruiter.name || recruiter.username || 'Unknown Recruiter');
+          
+          results.push({
+            id: recruiter.id,
+            type: 'Recruiters',
+            title: recruiterName,
+            subtitle: `${recruiter.role || 'Recruiter'} • ${recruiter.company_name || 'No Company'}`,
+            description: recruiter.email || '',
+            path: '/hiring-agencies',
+            detailPath: '/hiring-agencies',
+            tab: 'Recruiter',
+            data: recruiter,
+            relevance: this.calculateRelevance(searchableText, lowerQuery),
+          });
+        }
+      });
+    }
+
     // Search companies
     if (includeTypes.includes('companies')) {
       this.searchableData.companies.forEach(company => {
@@ -225,7 +260,7 @@ class SearchService {
             type: 'Companies',
             title: company.name || 'Unknown Company',
             subtitle: company.domain || 'No Domain',
-            description: company.contact_email || '',
+            description: company.email || '',
             path: '/hiring-agencies',
             detailPath: '/hiring-agencies',
             tab: 'Company',
