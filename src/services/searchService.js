@@ -152,6 +152,7 @@ class SearchService {
         ].filter(Boolean).join(' ').toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
+          console.log('Found job match:', job.job_title, 'Type: Jobs');
           results.push({
             id: job.id,
             type: 'Jobs',
@@ -247,6 +248,7 @@ class SearchService {
         ].filter(Boolean).join(' ').toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
+          console.log('Found interview slot match:', slot.job_title, 'Type: Interview Scheduler');
           results.push({
             id: slot.id,
             type: 'Interview Scheduler',
@@ -267,6 +269,7 @@ class SearchService {
       results.sort((a, b) => b.relevance - a.relevance);
     }
 
+    console.log('Final search results:', results.map(r => ({ title: r.title, type: r.type })));
     return results.slice(0, limit);
   }
 
