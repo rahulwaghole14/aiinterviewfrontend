@@ -38,8 +38,8 @@ class SearchService {
   /**
    * Fetch fresh data for search if needed
    */
-  async fetchDataIfNeeded(type, authToken) {
-    if (!this.needsRefresh(type)) return;
+  async fetchDataIfNeeded(type, authToken, forceRefresh = false) {
+    if (!forceRefresh && !this.needsRefresh(type)) return;
 
     try {
       let endpoint = '';
@@ -109,25 +109,37 @@ class SearchService {
 
     // Search candidates
     if (includeTypes.includes('candidates')) {
-      this.searchableData.candidates.forEach(candidate => {
+      this.searchableData.candidates.forEach((candidate, index) => {
+        // Debug first candidate to see field structure
+        if (index === 0) {
+          console.log('Sample candidate data:', candidate);
+          console.log('Candidate fields:', Object.keys(candidate));
+        }
+        
+        const candidateName = candidate.full_name || candidate.name || 
+                             (candidate.first_name && candidate.last_name ? 
+                              `${candidate.first_name} ${candidate.last_name}` : 
+                              candidate.username || null);
+        
         const searchableText = [
-          candidate.full_name,
+          candidateName,
           candidate.email,
-          candidate.phone_number,
-          candidate.domain_name,
-          candidate.job_title,
+          candidate.phone_number || candidate.phone,
+          candidate.domain_name || candidate.domain,
+          candidate.job_title || candidate.jobTitle,
           candidate.skills,
-          candidate.experience_level,
-          candidate.current_status,
+          candidate.experience_level || candidate.experience,
+          candidate.current_status || candidate.status,
         ].filter(Boolean).join(' ').toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
+          console.log('Found candidate match:', candidateName, 'Type: Candidates');
           results.push({
             id: candidate.id,
             type: 'Candidates',
-            title: candidate.full_name || 'Unknown Candidate',
-            subtitle: `${candidate.job_title || 'No Job'} • ${candidate.domain_name || 'No Domain'}`,
-            description: `${candidate.email || ''} • ${candidate.current_status || 'No Status'}`,
+            title: candidateName || 'Unknown Candidate',
+            subtitle: `${candidate.job_title || candidate.jobTitle || 'No Job'} • ${candidate.domain_name || candidate.domain || 'No Domain'}`,
+            description: `${candidate.email || ''} • ${candidate.current_status || candidate.status || 'No Status'}`,
             path: '/candidates',
             detailPath: `/candidates/${candidate.id}`,
             data: candidate,

@@ -28,6 +28,20 @@ const Header = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  
+  // Get current tab from URL path
+  const getCurrentTab = () => {
+    const path = location.pathname.split('/')[1];
+    switch (path) {
+      case 'candidates': return 'Candidates';
+      case 'jobs': return 'Jobs';
+      case 'hiring-agencies': return 'Hiring Agencies';
+      case 'ai-interview-scheduler': return 'Interview Scheduler';
+      case 'settings': return 'Settings';
+      case 'interview-results': return 'Interviews';
+      default: return null;
+    }
+  };
   const reduxSearchTerm = useSelector((state) => state.search?.searchTerm || ''); // Get current Redux search term
   
   // Get data from Redux stores for search
@@ -98,27 +112,44 @@ const Header = ({
       setIsSearching(true);
       
       try {
-        // Fetch data if not available
+        // Always fetch fresh data for search
         const authToken = localStorage.getItem('authToken');
         if (authToken) {
-          console.log('Fetching data for search...');
-          // Check if we need to fetch any missing data
+          console.log('Fetching fresh data for search...');
+          // Force fetch all data types for comprehensive search
           const dataTypes = ['candidates', 'jobs', 'domains', 'hiringAgencies', 'companies', 'recruiters', 'interviewSlots', 'interviews'];
-          const fetchPromises = dataTypes.map(type => 
-            searchService.fetchDataIfNeeded(type, authToken)
-          );
           
-          // Wait for all fetch operations to complete (they're cached, so won't refetch if recent)
-          await Promise.all(fetchPromises);
-          console.log('Data fetching complete');
+          try {
+            const fetchPromises = dataTypes.map(async (type) => {
+              console.log(`Fetching ${type}...`);
+              return await searchService.fetchDataIfNeeded(type, authToken, true); // Force refresh
+            });
+            
+            // Wait for all fetch operations to complete
+            await Promise.all(fetchPromises);
+            console.log('All data fetching complete');
+          } catch (fetchError) {
+            console.error('Error fetching search data:', fetchError);
+          }
         }
         
         // Use search service for comprehensive search
-        const results = searchService.search(term, { limit: 10 });
-        console.log('Search results:', results);
-        console.log('First result path:', results[0]?.path);
-        console.log('First result detailPath:', results[0]?.detailPath);
-        setSearchResults(results);
+        const currentTab = getCurrentTab();
+        const allResults = searchService.search(term, { limit: 50 }); // Get more results for prioritization
+        
+        // Prioritize current tab results
+        const currentTabResults = allResults.filter(result => result.type === currentTab);
+        const otherTabResults = allResults.filter(result => result.type !== currentTab);
+        
+        // Combine with current tab results first, then others
+        const prioritizedResults = [...currentTabResults, ...otherTabResults].slice(0, 10);
+        
+        console.log('Current tab:', currentTab);
+        console.log('Current tab results:', currentTabResults.length);
+        console.log('Other tab results:', otherTabResults.length);
+        console.log('Final prioritized results:', prioritizedResults);
+        
+        setSearchResults(prioritizedResults);
       } catch (error) {
         console.error('Search error:', error);
         setSearchResults([]);
