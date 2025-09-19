@@ -1442,7 +1442,6 @@ const Jobs = () => {
                   ))}
                 </div>
               )}
-            </div>
       </Modal>
     </>
   );

@@ -749,8 +749,7 @@ const CandidateDetails = () => {
             <p className="no-data">No interviews scheduled</p>
           )}
         </div>
-
-
+      </div>
       </div>
 
       {/* Status Update Modal */}

@@ -688,6 +688,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
           )}
         </div>
       </div>
+      </div>
 
       {/* Modals outside the main container to avoid blur effect */}
       <ConfirmModal
