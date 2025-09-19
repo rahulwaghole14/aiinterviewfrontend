@@ -180,6 +180,16 @@ class SearchService {
         ].filter(Boolean).join(' ').toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
+          // Determine the correct tab based on user role
+          let tabName = 'Hiring Agency'; // default
+          if (agency.role) {
+            const role = agency.role.toLowerCase();
+            if (role === 'recruiter') tabName = 'Recruiter';
+            else if (role === 'company') tabName = 'Company';
+            else if (role === 'admin') tabName = 'Admin';
+            else if (role === 'hiring_agency') tabName = 'Hiring Agency';
+          }
+
           results.push({
             id: agency.id,
             type: 'Hiring Agencies',
@@ -188,6 +198,7 @@ class SearchService {
             description: agency.email || '',
             path: '/hiring-agencies',
             detailPath: '/hiring-agencies',
+            tab: tabName,
             data: agency,
             relevance: this.calculateRelevance(searchableText, lowerQuery),
           });
@@ -214,6 +225,7 @@ class SearchService {
             description: company.contact_email || '',
             path: '/hiring-agencies',
             detailPath: '/hiring-agencies',
+            tab: 'Company',
             data: company,
             relevance: this.calculateRelevance(searchableText, lowerQuery),
           });

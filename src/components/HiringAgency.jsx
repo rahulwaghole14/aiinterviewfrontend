@@ -186,6 +186,26 @@ const HiringAgencies = () => {
     }
   }, [userRole, availableTabs, activeTab]);
 
+  // Handle search navigation to specific tab
+  useEffect(() => {
+    const highlightData = localStorage.getItem('searchHighlight');
+    if (highlightData) {
+      try {
+        const parsed = JSON.parse(highlightData);
+        if (parsed.type === 'Hiring Agencies' || parsed.type === 'Companies') {
+          if (parsed.tab && availableTabs.includes(parsed.tab)) {
+            setActiveTab(parsed.tab);
+            console.log(`Switched to ${parsed.tab} tab from search result`);
+          }
+          // Clear the highlight data after using it
+          localStorage.removeItem('searchHighlight');
+        }
+      } catch (e) {
+        console.error('Error parsing search highlight:', e);
+      }
+    }
+  }, [availableTabs]);
+
   // Function to get dynamic button text based on active tab
   const getAddButtonText = () => {
     switch (activeTab) {

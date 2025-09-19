@@ -158,6 +158,7 @@ const Header = ({
       type: result.type,
       id: result.id,
       query: result.title,
+      tab: result.tab || null,
     }));
   };
 
