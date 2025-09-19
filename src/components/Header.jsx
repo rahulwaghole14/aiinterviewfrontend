@@ -97,6 +97,8 @@ const Header = ({
       // Use search service for comprehensive search
       const results = searchService.search(term, { limit: 10 });
       console.log('Search results:', results);
+      console.log('First result path:', results[0]?.path);
+      console.log('First result detailPath:', results[0]?.detailPath);
       setSearchResults(results);
     } else {
       setSearchResults([]);
@@ -135,14 +137,17 @@ const Header = ({
   };
 
   const handleSearchResultClick = (result) => {
+    console.log('Search result clicked:', result);
+    console.log('Navigating to:', result.detailPath && result.type === 'candidate' ? result.detailPath : result.path);
+    
     setLocalSearchTerm(result.title);        // Update local search box with result title
     dispatch(setSearchTerm(result.title));   // Update Redux search term
     
     // Navigate to the appropriate component
     if (result.detailPath && result.type === 'candidate') {
-      navigate(`/${result.detailPath}`);     // Navigate to specific candidate details
+      navigate(result.detailPath);     // Navigate to specific candidate details
     } else {
-      navigate(`/${result.path}`);           // Navigate to the component
+      navigate(result.path);           // Navigate to the component
     }
     
     setIsSearchModalOpen(false);             // Close modal (for mobile)
