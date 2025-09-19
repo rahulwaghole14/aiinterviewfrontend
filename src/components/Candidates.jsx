@@ -257,15 +257,7 @@ const CandidatePage = () => {
     const candidateDisplayStatus = statusMapping[candidate.status] || candidate.status;
     const lowerCaseCandidateStatus = candidateDisplayStatus ? candidateDisplayStatus.toLowerCase() : '';
 
-    const matchesSearchTerm =
-      !searchTerm ||
-      lowerCaseCandidateName.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidateEmail.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidateDomainName.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidateJobTitle.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidatePoc.includes(lowerCaseSearchTerm) ||
-      lowerCaseCandidateStatus.includes(lowerCaseSearchTerm);
-
+    // Apply only filters, not global search term (global search should sort, not filter)
     const matchesTab = appliedTab === "All" || lowerCaseCandidateStatus === appliedTab.toLowerCase();
 
     const matchesDomain = appliedFilters.domain === "" || candidate.domain === parseInt(appliedFilters.domain, 10); // Compare IDs
@@ -276,13 +268,49 @@ const CandidatePage = () => {
     const matchesWorkExperience = appliedFilters.minWorkExperience === "" ||
       (candidate.workExperience !== null && candidate.workExperience >= parseInt(appliedFilters.minWorkExperience, 10));
 
-    return matchesSearchTerm && matchesTab && matchesDomain && matchesJobRole && matchesPoc && matchesWorkExperience && matchesStatusDropdown;
+    return matchesTab && matchesDomain && matchesJobRole && matchesPoc && matchesWorkExperience && matchesStatusDropdown;
+  });
+
+  // Sort candidates by search relevance if search term exists
+  const sortedCandidates = [...filteredCandidates].sort((a, b) => {
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      
+      // Calculate relevance scores for both candidates
+      const getRelevanceScore = (candidate) => {
+        let score = 0;
+        const searchableFields = [
+          candidate.full_name, candidate.name, candidate.email,
+          getDomainName(candidate.domain), getJobTitle(candidate.jobRole),
+          candidate.poc, statusMapping[candidate.status] || candidate.status
+        ].filter(Boolean);
+        
+        searchableFields.forEach(field => {
+          const fieldStr = String(field).toLowerCase();
+          if (fieldStr.includes(searchLower)) {
+            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+            else score += 5; // Contains search term
+          }
+        });
+        
+        return score;
+      };
+      
+      const aScore = getRelevanceScore(a);
+      const bScore = getRelevanceScore(b);
+      
+      if (aScore !== bScore) {
+        return bScore - aScore; // Higher relevance first
+      }
+    }
+    
+    return 0; // No additional sorting if no search term
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCandidates = filteredCandidates.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
+  const currentCandidates = sortedCandidates.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(sortedCandidates.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -422,7 +450,7 @@ const CandidatePage = () => {
             )}
           </div>
 
-          {filteredCandidates.length > itemsPerPage && (
+          {sortedCandidates.length > itemsPerPage && (
             <div className="pagination-container">
               <button
                 onClick={() => paginate(currentPage - 1)}
