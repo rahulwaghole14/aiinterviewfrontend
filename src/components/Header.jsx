@@ -135,21 +135,22 @@ const Header = ({
         
         // Use search service for comprehensive search
         const currentTab = getCurrentTab();
-        const allResults = searchService.search(term, { limit: 50 }); // Get more results for prioritization
+        const allResults = searchService.search(term, { limit: 20 }); // Get more results to show both similar ones
         
-        // Prioritize current tab results
-        const currentTabResults = allResults.filter(result => result.type === currentTab);
-        const otherTabResults = allResults.filter(result => result.type !== currentTab);
-        
-        // Combine with current tab results first, then others
-        const prioritizedResults = [...currentTabResults, ...otherTabResults].slice(0, 10);
+        // Sort results: current tab first, then by relevance
+        const sortedResults = allResults.sort((a, b) => {
+          // Current tab results first
+          if (a.type === currentTab && b.type !== currentTab) return -1;
+          if (b.type === currentTab && a.type !== currentTab) return 1;
+          
+          // Then by relevance
+          return b.relevance - a.relevance;
+        });
         
         console.log('Current tab:', currentTab);
-        console.log('Current tab results:', currentTabResults.length);
-        console.log('Other tab results:', otherTabResults.length);
-        console.log('Final prioritized results:', prioritizedResults);
+        console.log('All search results (showing both similar):', sortedResults.map(r => ({ title: r.title, type: r.type })));
         
-        setSearchResults(prioritizedResults);
+        setSearchResults(sortedResults.slice(0, 10));
       } catch (error) {
         console.error('Search error:', error);
         setSearchResults([]);
@@ -287,7 +288,7 @@ const Header = ({
                   <div className="search-result-item search-loading">
                     <div className="search-result-content">
                       <div className="search-result-title">
-                        🔍 Searching...
+                        Searching...
                       </div>
                       <div className="search-result-subtitle">
                         Fetching data from all components
@@ -303,8 +304,8 @@ const Header = ({
                     >
                       <div className="search-result-content">
                         <div className="search-result-title">
-                          {result.title}
                           <span className="search-result-type">{result.type}</span>
+                          {result.title}
                         </div>
                         {result.subtitle && (
                           <div className="search-result-subtitle">{result.subtitle}</div>
@@ -341,7 +342,7 @@ const Header = ({
                     <div className="search-result-item search-loading">
                       <div className="search-result-content">
                         <div className="search-result-title">
-                          🔍 Searching...
+                          Searching...
                         </div>
                         <div className="search-result-subtitle">
                           Fetching data from all components
@@ -357,8 +358,8 @@ const Header = ({
                       >
                         <div className="search-result-content">
                           <div className="search-result-title">
-                            {result.title}
                             <span className="search-result-type">{result.type}</span>
+                            {result.title}
                           </div>
                           {result.subtitle && (
                             <div className="search-result-subtitle">{result.subtitle}</div>

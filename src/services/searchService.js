@@ -121,16 +121,12 @@ class SearchService {
                               `${candidate.first_name} ${candidate.last_name}` : 
                               candidate.username || null);
         
-        const searchableText = [
-          candidateName,
-          candidate.email,
-          candidate.phone_number || candidate.phone,
-          candidate.domain_name || candidate.domain,
-          candidate.job_title || candidate.jobTitle,
-          candidate.skills,
-          candidate.experience_level || candidate.experience,
-          candidate.current_status || candidate.status,
-        ].filter(Boolean).join(' ').toLowerCase();
+        // Search ALL fields in candidate object
+        const searchableText = Object.values(candidate)
+          .filter(value => value !== null && value !== undefined && value !== '')
+          .map(value => String(value))
+          .join(' ')
+          .toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
           console.log('Found candidate match:', candidateName, 'Type: Candidates');
@@ -152,16 +148,12 @@ class SearchService {
     // Search jobs
     if (includeTypes.includes('jobs')) {
       this.searchableData.jobs.forEach(job => {
-        const searchableText = [
-          job.job_title,
-          job.company_name,
-          job.domain_name,
-          job.spoc_email,
-          job.hiring_manager_email,
-          job.position_level,
-          job.tech_stack_details,
-          job.job_description,
-        ].filter(Boolean).join(' ').toLowerCase();
+        // Search ALL fields in job object
+        const searchableText = Object.values(job)
+          .filter(value => value !== null && value !== undefined && value !== '')
+          .map(value => String(value))
+          .join(' ')
+          .toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
           console.log('Found job match:', job.job_title, 'Type: Jobs');
@@ -183,14 +175,12 @@ class SearchService {
     // Search hiring agencies
     if (includeTypes.includes('hiringAgencies')) {
       this.searchableData.hiringAgencies.forEach(agency => {
-        const searchableText = [
-          agency.first_name,
-          agency.last_name,
-          agency.email,
-          agency.company_name,
-          agency.role,
-          agency.phone_number,
-        ].filter(Boolean).join(' ').toLowerCase();
+        // Search ALL fields in agency object
+        const searchableText = Object.values(agency)
+          .filter(value => value !== null && value !== undefined && value !== '')
+          .map(value => String(value))
+          .join(' ')
+          .toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
           // Determine the correct tab based on user role
@@ -222,12 +212,12 @@ class SearchService {
     // Search companies
     if (includeTypes.includes('companies')) {
       this.searchableData.companies.forEach(company => {
-        const searchableText = [
-          company.name,
-          company.domain,
-          company.description,
-          company.contact_email,
-        ].filter(Boolean).join(' ').toLowerCase();
+        // Search ALL fields in company object
+        const searchableText = Object.values(company)
+          .filter(value => value !== null && value !== undefined && value !== '')
+          .map(value => String(value))
+          .join(' ')
+          .toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
           results.push({
@@ -249,15 +239,12 @@ class SearchService {
     // Search interview slots
     if (includeTypes.includes('interviewSlots')) {
       this.searchableData.interviewSlots.forEach(slot => {
-        const searchableText = [
-          slot.company_name,
-          slot.job_title,
-          slot.ai_interview_type,
-          slot.status,
-          slot.slot_type,
-          slot.interview_date,
-          slot.notes,
-        ].filter(Boolean).join(' ').toLowerCase();
+        // Search ALL fields in interview slot object
+        const searchableText = Object.values(slot)
+          .filter(value => value !== null && value !== undefined && value !== '')
+          .map(value => String(value))
+          .join(' ')
+          .toLowerCase();
 
         if (searchableText.includes(lowerQuery)) {
           console.log('Found interview slot match:', slot.job_title, 'Type: Interview Scheduler');
