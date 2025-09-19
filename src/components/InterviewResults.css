@@ -111,7 +111,7 @@
   background: #f8f9fa;
   padding: 1.5rem;
   border-radius: 12px;
-  border-left: 4px solid #2563eb;
+  border-left: none;
 }
 
 .candidate-info h2,

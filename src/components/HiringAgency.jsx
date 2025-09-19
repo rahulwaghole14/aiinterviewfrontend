@@ -108,6 +108,18 @@ const HiringAgencies = () => {
   const recruiters = useSelector((state) => state.recruiters.recruiters);
   const admins = useSelector((state) => state.admin.admins); // Get admin dummy data
 
+  // Debug data to see what fields are available
+  useEffect(() => {
+    if (companies.length > 0) {
+      console.log('Sample company data:', companies[0]);
+      console.log('Company fields:', Object.keys(companies[0]));
+    }
+    if (recruiters.length > 0) {
+      console.log('Sample recruiter data:', recruiters[0]);
+      console.log('Recruiter fields:', Object.keys(recruiters[0]));
+    }
+  }, [companies, recruiters]);
+
   // Loading and error states (can be combined for a single loading indicator if preferred)
   const companiesStatus = useSelector((state) => state.companies.status);
   const hiringAgenciesStatus = useSelector(
@@ -242,7 +254,7 @@ const HiringAgencies = () => {
           {
             field: "description",
             header: "Description",
-            width: "35%",
+            width: "30%",
             editable: true,
           },
           {
@@ -299,22 +311,29 @@ const HiringAgencies = () => {
             header: "Role",
             width: "12%",
             editable: false,
+            render: (value) => value || '-',
           },
           {
             field: "linkedin_url",
             header: "LinkedIn",
-            width: "12%",
+            width: "15%",
             editable: true,
           },
           {
-            field: "permission_granted",
-            header: "Permission Date",
-            width: "12%",
-            editable: false,
-            render: (value) => {
-              if (!value) return 'N/A';
-              return new Date(value).toLocaleDateString();
-            },
+            field: "status",
+            header: "Status",
+            width: "10%",
+            type: "select",
+            editable: true,
+            options: [
+              { value: "Active", label: "Active" },
+              { value: "Inactive", label: "Inactive" },
+            ],
+            render: (value) => (
+              <span className="status-cell" data-status={value?.toLowerCase()}>
+                {value || 'N/A'}
+              </span>
+            ),
           },
         ];
       case "Recruiter":
@@ -324,8 +343,12 @@ const HiringAgencies = () => {
           {
             field: "full_name",
             header: "Full Name",
-            width: "20%",
+            width: "25%",
             editable: true,
+            render: (value, rowData) => {
+              // Handle different name field formats
+              return value || `${rowData.first_name || ''} ${rowData.last_name || ''}`.trim() || rowData.name || rowData.username || '-';
+            }
           },
           {
             field: "email",
@@ -337,21 +360,14 @@ const HiringAgencies = () => {
             field: "company_name",
             header: "Company",
             width: "20%",
-            editable: true,
+            editable: false, // Make non-editable
           },
           {
             field: "role",
             header: "Role",
             width: "15%",
-            type: "select",
-            editable: true,
-            options: [
-              { value: "ADMIN", label: "Admin" },
-              { value: "COMPANY", label: "Company" },
-              { value: "HIRING_AGENCY", label: "Hiring Agency" },
-              { value: "RECRUITER", label: "Recruiter" },
-              { value: "OTHERS", label: "Others" },
-            ],
+            editable: false, // Make non-editable
+            render: (value) => value || '-',
           },
           {
             field: "is_active",
@@ -368,16 +384,6 @@ const HiringAgencies = () => {
                 {value ? "Active" : "Inactive"}
               </span>
             ),
-          },
-          {
-            field: "date_joined",
-            header: "Joined",
-            width: "10%",
-            editable: false,
-            render: (value) => {
-              if (!value) return 'N/A';
-              return new Date(value).toLocaleDateString();
-            },
           },
         ];
     }
@@ -481,26 +487,38 @@ const HiringAgencies = () => {
       case "Recruiter":
         // Log recruiter data here to inspect its structure
         console.log("Recruiter Data:", recruiters);
-        // Map recruiter data to fit the table structure based on provided sample
-        const recruiterData = (recruiters || []).map((recruiter) => ({
+        // Map recruiter data to fit the table structure and resolve company names
+        const recruiterData = (recruiters || []).map((recruiter) => {
+          // Find company name by ID
+          const company = companies.find(comp => comp.id === recruiter.company);
+          const companyName = company ? company.name : `Company ID: ${recruiter.company}`;
+          
+          return {
           id: recruiter.id,
-          name: recruiter.full_name, // Use full_name for 'Name'
+            full_name: recruiter.full_name, // Use full_name for 'Full Name' column
           email: recruiter.email,
-          status: recruiter.is_active ? "Active" : "Inactive", // Convert boolean to string status
-          role: recruiter.userType, // Use userType for 'Role'
-          // No 'phone' or 'lastUpdated' in the provided sample, so they are omitted
-        }));
+            company_name: companyName, // Resolved company name from company ID
+            role: recruiter.role || recruiter.userType, // Use role or userType
+            is_active: recruiter.is_active,
+          };
+        });
         console.log("Mapped recruiter data:", recruiterData);
         return recruiterData;
       case "Hiring Agency":
-        // Return hiring agency data directly without mapping since column fields match API fields
+        // Map hiring agency data to include status field
         console.log("Hiring agency data from API:", hiringAgencies);
-        return hiringAgencies || [];
+        const hiringAgencyData = (hiringAgencies || []).map((agency) => ({
+          ...agency,
+          status: agency.is_active ? "Active" : "Inactive", // Convert boolean to string status
+        }));
+        console.log("Mapped hiring agency data:", hiringAgencyData);
+        return hiringAgencyData;
       case "Company":
         // Map company data to fit the table structure
         const companyData = (companies || []).map((company) => ({
           id: company.id,
           name: company.name,
+          email: company.email, // Add email field
           description: company.description, // Use description for a relevant column
           is_active: company.is_active, // Use is_active for status
           status: company.is_active ? "Active" : "Inactive", // Convert boolean to string status
@@ -1534,11 +1552,11 @@ const HiringAgencies = () => {
       <DataTable
         title={
           activeTab === "Recruiter"
-            ? "Recruiters"
-            : activeTab === "Hiring Agency"
-            ? "Hiring Agencies"
-            : activeTab === "Company"
-            ? "Companies"
+                ? "Recruiters"
+                : activeTab === "Hiring Agency"
+                ? "Hiring Agencies"
+                : activeTab === "Company"
+                ? "Companies"
             : "Admins"
         }
         columns={getTableColumns()}
@@ -1593,11 +1611,11 @@ const HiringAgencies = () => {
         }}
       />
 
-      </div>
+            </div>
 
 
-      </div>
-
+            </div>
+            
       {/* Modals outside the main container to avoid blur effect */}
       <FormModal
         isOpen={showAddModal}
@@ -1607,87 +1625,87 @@ const HiringAgencies = () => {
         submitText="Add User"
         size="medium"
     >
-      <div className="form-group">
-        <label htmlFor="username">Username *</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          value={formData.username}
-          onChange={handleInputChange}
-          required
-          placeholder="Enter username"
-        />
-      </div>
+              <div className="form-group">
+                <label htmlFor="username">Username *</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter username"
+                />
+              </div>
 
-      <div className="form-group">
-        <label htmlFor="full_name">Full Name *</label>
-        <input
-          type="text"
-          id="full_name"
-          name="full_name"
-          value={formData.full_name}
-          onChange={handleInputChange}
-          required
-          placeholder="Enter full name"
-        />
-      </div>
+              <div className="form-group">
+                <label htmlFor="full_name">Full Name *</label>
+                <input
+                  type="text"
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter full name"
+                />
+              </div>
 
-      <div className="form-group">
-        <label htmlFor="email">Email *</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          required
-          placeholder="Enter email address"
-        />
-      </div>
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter email address"
+                />
+              </div>
 
-      <div className="form-group">
-        <label htmlFor="company_name">Company Name</label>
-        <input
-          type="text"
-          id="company_name"
-          name="company_name"
-          value={formData.company_name}
-          onChange={handleInputChange}
-          placeholder="Enter company name"
-        />
-      </div>
+              <div className="form-group">
+                <label htmlFor="company_name">Company Name</label>
+                <input
+                  type="text"
+                  id="company_name"
+                  name="company_name"
+                  value={formData.company_name}
+                  onChange={handleInputChange}
+                  placeholder="Enter company name"
+                />
+              </div>
 
-      <div className="form-group">
-        <label htmlFor="role">Role *</label>
-        <select
-          id="role"
-          name="role"
-          value={formData.role}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="">Select a role</option>
-          {roleOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
+              <div className="form-group">
+                <label htmlFor="role">Role *</label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select a role</option>
+                  {roleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      <div className="form-group">
-        <label htmlFor="password">Password *</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleInputChange}
-          required
-          placeholder="Enter password"
-        />
-      </div>
+              <div className="form-group">
+                <label htmlFor="password">Password *</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter password"
+                />
+              </div>
       </FormModal>
     </>
   );
