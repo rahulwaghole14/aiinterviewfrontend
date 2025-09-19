@@ -9,6 +9,13 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none;
   overflow-x: hidden; /* ✅ Prevent full-page horizontal scroll */
+  transition: filter 0.3s ease;
+}
+
+/* Blur effect when modal is open */
+.jobs-container.blur-background {
+  filter: blur(4px);
+  pointer-events: none;
 }
 
 .jobs-top-section {

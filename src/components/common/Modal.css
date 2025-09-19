@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--color-overlay);
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,13 +123,13 @@
   padding: 32px;
 }
 
-/* Variant Styles */
+/* Variant Styles - Removed left borders */
 .modal-confirm .common-modal-content {
-  border-left: 4px solid #ef4444;
+  /* No left border for cleaner look */
 }
 
 .modal-form .common-modal-content {
-  border-left: 4px solid #3b82f6;
+  /* No left border for cleaner look */
 }
 
 /* Animation Variants */

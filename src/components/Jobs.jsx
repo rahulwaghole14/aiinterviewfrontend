@@ -874,9 +874,12 @@ const Jobs = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Check if any modal is open for blur effect
+  const isAnyModalOpen = showCreateDomainModal || showViewDomainsModal || showDeleteConfirm;
+
   return (
     <>
-      <div className="jobs-container">
+      <div className={`jobs-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
         {/* Domain Management Buttons */}
         {(userRole === "ADMIN" || userRole === "COMPANY") && (
           <div className="domain-management-section">
