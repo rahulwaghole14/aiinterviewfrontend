@@ -304,8 +304,8 @@ const Header = ({
                     >
                       <div className="search-result-content">
                         <div className="search-result-title">
-                          <span className="search-result-type">{result.type}</span>
                           {result.title}
+                          <span className="search-result-type">{result.type}</span>
                         </div>
                         {result.subtitle && (
                           <div className="search-result-subtitle">{result.subtitle}</div>
@@ -358,8 +358,8 @@ const Header = ({
                       >
                         <div className="search-result-content">
                           <div className="search-result-title">
-                            <span className="search-result-type">{result.type}</span>
                             {result.title}
+                            <span className="search-result-type">{result.type}</span>
                           </div>
                           {result.subtitle && (
                             <div className="search-result-subtitle">{result.subtitle}</div>
