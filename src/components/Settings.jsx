@@ -1,8 +1,10 @@
 // src/components/Settings.jsx
 import React, { useState, useEffect } from 'react';
+import { useNotification } from '../hooks/useNotification';
 import './Settings.css';
 
 const Settings = ({ onTitleChange }) => {
+  const notify = useNotification();
   // State for various settings
   // Initialize theme from localStorage or default to 'light'
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -11,7 +13,6 @@ const Settings = ({ onTitleChange }) => {
   const [dataExportFormat, setDataExportFormat] = useState('csv'); // 'csv', 'json', 'pdf'
   const [defaultJobStatus, setDefaultJobStatus] = useState('Open'); // 'Open', 'Closed', 'On Hold'
   const [autoArchiveJobs, setAutoArchiveJobs] = useState(false); // Toggle for auto-archiving
-  const [showSaveMessage, setShowSaveMessage] = useState(false); // State for save success message
 
   useEffect(() => {
     // Apply the theme from state to the document body
@@ -62,11 +63,8 @@ const Settings = ({ onTitleChange }) => {
       autoArchiveJobs,
     });
 
-    // Show success message
-    setShowSaveMessage(true);
-    setTimeout(() => {
-      setShowSaveMessage(false);
-    }, 3000); // Hide message after 3 seconds
+    // Show success notification
+    notify.success('Settings saved successfully!');
   };
 
   return (
@@ -140,9 +138,6 @@ const Settings = ({ onTitleChange }) => {
         <button className="save-changes-btn" onClick={handleSaveChanges}>
           Save Changes
         </button>
-        {showSaveMessage && (
-          <p className="save-success-message">Settings saved successfully!</p>
-        )}
       </div>
     </div>
   );

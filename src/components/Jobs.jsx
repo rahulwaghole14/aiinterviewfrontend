@@ -907,9 +907,6 @@ const Jobs = () => {
           </div>
         )}
 
-        {jobsError && (
-          <div className="error-msg">⚠️ Failed to load jobs: {jobsError}</div>
-        )}
 
         {/* Top Section: Header Cards - now rendered as button-like status cards */}
         <div className="candidate-status-cards-container">

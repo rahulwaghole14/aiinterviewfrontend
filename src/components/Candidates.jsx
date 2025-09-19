@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
+import { useNotification } from "../hooks/useNotification";
 import "./Candidates.css";
 import { candidateStatusList, baseURL } from '../data';
 import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Keep updateCandidateStatus
@@ -106,6 +107,7 @@ Experience: ${candidate.job_matching.experience_match}%`}
 const CandidatePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const notify = useNotification();
   const allCandidates = useSelector((state) => state.candidates.allCandidates);
   const candidatesStatus = useSelector((state) => state.candidates.candidatesStatus);
   const candidatesError = useSelector((state) => state.candidates.candidatesError);
@@ -152,6 +154,12 @@ const CandidatePage = () => {
     }
   }, [dispatch, candidatesStatus, jobsStatus, domainsStatus]);
 
+  // Show error notification when there's an error
+  useEffect(() => {
+    if (candidatesError) {
+      notify.error(`Error loading candidates: ${candidatesError}`);
+    }
+  }, [candidatesError, notify]);
 
   // Helper function to get domain name by ID
   const getDomainName = (domainId) => {
@@ -398,7 +406,7 @@ const CandidatePage = () => {
                 <p>Loading candidates...</p>
               </div>
             ) : candidatesError ? (
-              <p className="error-message">Error loading candidates: {candidatesError}</p>
+              <p>Unable to load candidates. Please refresh the page.</p>
             ) : currentCandidates.length > 0 ? (
               currentCandidates.map((candidate) => (
                 <CandidateCard
