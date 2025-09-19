@@ -96,6 +96,13 @@ const HiringAgencies = () => {
   const dispatch = useDispatch();
   const notify = useNotification();
   const searchTerm = useSelector((state) => state.search.searchTerm);
+  
+  // Debug search term
+  useEffect(() => {
+    if (searchTerm) {
+      console.log('HiringAgency received search term:', searchTerm);
+    }
+  }, [searchTerm]);
   const user = useSelector((state) => state.user.user); // Get the full user object
   const userRole = user?.role; // Access the user's role from the Redux store
   const userCompany = user?.company_name; // Get the logged-in user's company name
@@ -550,6 +557,7 @@ const HiringAgencies = () => {
   const sortedUsers = [...filteredByCompany].sort((a, b) => {
     // First priority: search term relevance (if search term exists)
     if (searchTerm) {
+      console.log('HiringAgency sorting with search term:', searchTerm);
       const searchLower = searchTerm.toLowerCase();
       
       // Calculate relevance scores for both items
@@ -568,6 +576,10 @@ const HiringAgencies = () => {
             else score += 5; // Contains search term
           }
         });
+        
+        if (score > 0) {
+          console.log(`Item ${item.name || item.full_name} has relevance score:`, score);
+        }
         
         return score;
       };
