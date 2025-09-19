@@ -107,7 +107,7 @@
 
 .modal-medium .common-modal-content {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   max-height: 500px;
 }
 
@@ -168,26 +168,25 @@
   animation: modalScaleIn 0.3s ease-out;
 }
 
-/* Button Styles - Match existing theme */
+/* Button Styles - Base styling without background */
 .common-modal-btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-small);
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid transparent;
+  box-shadow: var(--shadow-soft);
+  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  min-width: 120px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 80px;
   font-family: inherit;
-  box-shadow: var(--shadow-button);
 }
 
 .common-modal-btn:hover {
-  box-shadow: var(--shadow-button-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .common-modal-btn:disabled {
@@ -197,37 +196,39 @@
   box-shadow: none;
 }
 
+/* Button Variants - Override base styles */
 .btn-primary {
   background-color: var(--color-primary);
   color: white;
-  border-color: var(--color-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
 }
 
 .btn-danger {
   background-color: var(--color-danger);
   color: white;
-  border-color: var(--color-danger);
 }
 
 .btn-danger:hover:not(:disabled) {
   background-color: var(--color-danger-dark);
-  border-color: var(--color-danger-dark);
 }
 
 .btn-cancel {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
-  border-color: var(--color-border);
+  background-color: white !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background-color: var(--color-hover);
-  border-color: var(--color-muted);
+  background-color: var(--color-hover) !important;
+  border-color: var(--color-muted) !important;
+  color: var(--color-text) !important;
+}
+
+.btn-cancel:active {
+  background-color: var(--color-border) !important;
 }
 
 /* Action Groups */

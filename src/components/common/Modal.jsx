@@ -11,7 +11,7 @@ const Modal = ({
   variant = 'default', // default, confirm, form
   showCloseButton = true,
   showHeader = true,
-  showFooter = false,
+  showFooter = true,
   footer,
   className = '',
   overlayClassName = '',

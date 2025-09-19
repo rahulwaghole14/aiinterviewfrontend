@@ -1334,6 +1334,18 @@ const Jobs = () => {
         size="large"
         closeOnBackdrop={!isAnyDomainOperationInProgress}
         closeOnEscape={!isAnyDomainOperationInProgress}
+        showFooter={true}
+        footer={
+          <div className="modal-confirm-actions">
+            <button 
+              className="common-modal-btn btn-cancel" 
+              onClick={() => setShowViewDomainsModal(false)}
+              disabled={isAnyDomainOperationInProgress}
+            >
+              Close
+            </button>
+          </div>
+        }
       >
               {domainsStatus === "loading" ? (
                 <div className="loading-overlay">

@@ -117,6 +117,9 @@ const CandidateDetails = () => {
         ? await evaluationsResponse.json()
         : [];
 
+      console.log("Fetched interviews data:", interviewsData);
+      console.log("Fetched evaluations data:", evaluationsData);
+
       // Process interviews and evaluations
       const processedInterviews = (
         Array.isArray(interviewsData)
@@ -143,6 +146,7 @@ const CandidateDetails = () => {
           };
         });
 
+      console.log("Processed interviews with evaluations:", processedInterviews);
       setInterviews(processedInterviews);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -320,8 +324,10 @@ const CandidateDetails = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Refresh the data
-      await fetchInterviews();
+      // Refresh the data with a slight delay to ensure backend processing is complete
+      setTimeout(async () => {
+        await fetchInterviews();
+      }, 1000);
       setShowStatusModal(false);
       notify.success("Evaluation submitted successfully!");
     } catch (error) {
@@ -765,6 +771,7 @@ const CandidateDetails = () => {
           interviews={interviews}
           onSubmitEvaluation={handleEvaluationSubmit}
           onInterviewScheduled={fetchInterviews}
+          onEvaluationSubmitted={fetchInterviews}
         />
       )}
     </>

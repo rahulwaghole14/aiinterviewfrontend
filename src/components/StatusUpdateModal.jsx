@@ -14,6 +14,7 @@ const StatusUpdateModal = ({
   candidate,
   interviews,
   onInterviewScheduled,
+  onEvaluationSubmitted,
 }) => {
   const notify = useNotification();
   const [loading, setLoading] = useState(false);
@@ -281,9 +282,15 @@ const StatusUpdateModal = ({
       }
 
       notify.success("Evaluation submitted successfully!");
+      
+      // Call the callback to refresh evaluation data in parent component
+      if (onEvaluationSubmitted) {
+        onEvaluationSubmitted();
+      }
+      
       setTimeout(() => {
         onClose();
-      }, 2000);
+      }, 1500);
     } catch (error) {
       console.error("Error creating evaluation:", error);
       notify.error(
@@ -404,19 +411,6 @@ const StatusUpdateModal = ({
         />
       </div>
 
-      <div className="form-actions">
-        <button type="button" onClick={onClose} className="btn-cancel">
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleScheduleInterview}
-          className="btn-primary"
-          disabled={loading}
-        >
-          {loading ? "Scheduling..." : "Schedule Interview"}
-        </button>
-      </div>
     </div>
   );
 
@@ -471,19 +465,6 @@ const StatusUpdateModal = ({
         />
       </div>
 
-      <div className="form-actions">
-        <button type="button" onClick={onClose} className="btn-cancel">
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleEvaluate}
-          className="btn-primary"
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit Evaluation"}
-        </button>
-      </div>
     </div>
   );
 
@@ -531,23 +512,6 @@ const StatusUpdateModal = ({
         />
       </div>
 
-      <div className="form-actions">
-        <button type="button" onClick={onClose} className="btn-cancel">
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleHireReject}
-          className="btn-primary"
-          disabled={loading || !hireRejectForm.decision}
-        >
-          {loading
-            ? "Processing..."
-            : `Confirm ${
-                hireRejectForm.decision === "hired" ? "Hire" : "Reject"
-              }`}
-        </button>
-      </div>
     </div>
   );
 
@@ -579,6 +543,67 @@ const StatusUpdateModal = ({
 
   if (!isOpen) return null;
 
+  const getModalFooter = () => {
+    switch (action) {
+      case "schedule_interview":
+        return (
+          <div className="modal-form-actions">
+            <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleScheduleInterview}
+              className="common-modal-btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Scheduling..." : "Schedule Interview"}
+            </button>
+          </div>
+        );
+      case "evaluate":
+        return (
+          <div className="modal-form-actions">
+            <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleEvaluate}
+              className="common-modal-btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit Evaluation"}
+            </button>
+          </div>
+        );
+      case "hire_reject":
+        return (
+          <div className="modal-form-actions">
+            <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleHireReject}
+              className="common-modal-btn btn-primary"
+              disabled={loading || !hireRejectForm.decision}
+            >
+              {loading ? "Processing..." : "Submit Decision"}
+            </button>
+          </div>
+        );
+      default:
+        return (
+          <div className="modal-confirm-actions">
+            <button className="common-modal-btn btn-cancel" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        );
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -588,6 +613,8 @@ const StatusUpdateModal = ({
       showCloseButton={true}
       closeOnBackdrop={!loading}
       closeOnEscape={!loading}
+      showFooter={true}
+      footer={getModalFooter()}
     >
       {renderForm()}
     </Modal>
