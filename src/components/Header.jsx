@@ -138,13 +138,13 @@ const Header = ({
 
   const handleSearchResultClick = (result) => {
     console.log('Search result clicked:', result);
-    console.log('Navigating to:', result.detailPath && result.type === 'candidate' ? result.detailPath : result.path);
+    console.log('Navigating to:', result.detailPath && result.type === 'Candidates' ? result.detailPath : result.path);
     
     setLocalSearchTerm(result.title);        // Update local search box with result title
     dispatch(setSearchTerm(result.title));   // Update Redux search term
     
     // Navigate to the appropriate component
-    if (result.detailPath && result.type === 'candidate') {
+    if (result.detailPath && result.type === 'Candidates') {
       navigate(result.detailPath);     // Navigate to specific candidate details
     } else {
       navigate(result.path);           // Navigate to the component

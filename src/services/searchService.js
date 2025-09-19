@@ -124,7 +124,7 @@ class SearchService {
         if (searchableText.includes(lowerQuery)) {
           results.push({
             id: candidate.id,
-            type: 'candidate',
+            type: 'Candidates',
             title: candidate.full_name || 'Unknown Candidate',
             subtitle: `${candidate.job_title || 'No Job'} • ${candidate.domain_name || 'No Domain'}`,
             description: `${candidate.email || ''} • ${candidate.current_status || 'No Status'}`,
@@ -154,7 +154,7 @@ class SearchService {
         if (searchableText.includes(lowerQuery)) {
           results.push({
             id: job.id,
-            type: 'job',
+            type: 'Jobs',
             title: job.job_title || 'Unknown Job',
             subtitle: `${job.company_name || 'No Company'} • ${job.domain_name || 'No Domain'}`,
             description: `${job.position_level || ''} • ${job.spoc_email || ''}`,
@@ -182,7 +182,7 @@ class SearchService {
         if (searchableText.includes(lowerQuery)) {
           results.push({
             id: agency.id,
-            type: 'hiringAgency',
+            type: 'Hiring Agencies',
             title: `${agency.first_name || ''} ${agency.last_name || ''}`.trim() || 'Unknown User',
             subtitle: `${agency.role || 'No Role'} • ${agency.company_name || 'No Company'}`,
             description: agency.email || '',
@@ -208,7 +208,7 @@ class SearchService {
         if (searchableText.includes(lowerQuery)) {
           results.push({
             id: company.id,
-            type: 'company',
+            type: 'Companies',
             title: company.name || 'Unknown Company',
             subtitle: company.domain || 'No Domain',
             description: company.contact_email || '',
@@ -237,7 +237,7 @@ class SearchService {
         if (searchableText.includes(lowerQuery)) {
           results.push({
             id: slot.id,
-            type: 'interviewSlot',
+            type: 'Interview Scheduler',
             title: `${slot.job_title || 'Interview Slot'} - ${slot.interview_date || ''}`,
             subtitle: `${slot.company_name || 'No Company'} • ${slot.ai_interview_type || 'No Type'}`,
             description: `${slot.status || ''} • ${slot.start_time || ''}-${slot.end_time || ''}`,
