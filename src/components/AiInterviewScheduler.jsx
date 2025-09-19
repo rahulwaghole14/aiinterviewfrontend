@@ -1,5 +1,5 @@
 // AiInterviewScheduler.jsx - Company Slot Management System
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInterviewSlots,
@@ -31,6 +31,7 @@ const AiInterviewScheduler = ({
 }) => {
   const dispatch = useDispatch();
   const notify = useNotification();
+  const searchTerm = useSelector((state) => state.search?.searchTerm || '');
   const {
     slots,
     loading: slotsLoading,
@@ -55,6 +56,63 @@ const AiInterviewScheduler = ({
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTimes, setSelectedTimes] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Sort slots based on search term for better user experience
+  const sortedSlots = useMemo(() => {
+    if (!slots || slots.length === 0) return [];
+    
+    // If no search term, return all slots sorted by date (most recent first)
+    if (!searchTerm) {
+      return [...slots].sort((a, b) => {
+        if (a.interview_date && b.interview_date) {
+          return new Date(b.interview_date) - new Date(a.interview_date);
+        }
+        return 0;
+      });
+    }
+    
+    const searchLower = searchTerm.toLowerCase();
+    console.log('AI Interview Scheduler sorting with search term:', searchTerm);
+    
+    return [...slots].sort((a, b) => {
+      // Calculate relevance scores for both slots
+      const getRelevanceScore = (slot) => {
+        let score = 0;
+        const searchableFields = [
+          slot.job_title, slot.company_name, slot.ai_interview_type,
+          slot.status, slot.slot_type, slot.interview_date, slot.notes,
+          slot.start_time, slot.end_time
+        ].filter(Boolean);
+        
+        searchableFields.forEach(field => {
+          const fieldStr = String(field).toLowerCase();
+          if (fieldStr.includes(searchLower)) {
+            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+            else score += 5; // Contains search term
+          }
+        });
+        
+        if (score > 0) {
+          console.log(`Slot ${slot.job_title || 'Unknown'} has relevance score:`, score);
+        }
+        
+        return score;
+      };
+      
+      const aScore = getRelevanceScore(a);
+      const bScore = getRelevanceScore(b);
+      
+      // Sort by relevance score (higher scores first)
+      if (bScore !== aScore) return bScore - aScore;
+      
+      // If same relevance, sort by date (most recent first)
+      if (a.interview_date && b.interview_date) {
+        return new Date(b.interview_date) - new Date(a.interview_date);
+      }
+      
+      return 0;
+    });
+  }, [slots, searchTerm]);
 
   // Initialize form with safe defaults and user data
   const [slotForm, setSlotForm] = useState(() => ({
@@ -1208,7 +1266,7 @@ const AiInterviewScheduler = ({
                 },
               },
             ]}
-            data={slots || []}
+            data={sortedSlots}
             loading={slotsLoading}
             actions={["edit", "delete"]}
             onAction={(action, rowData, rowIndex) => {

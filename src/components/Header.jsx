@@ -186,7 +186,6 @@ const Header = ({
   const toggleSearchModal = () => {
     setIsSearchModalOpen(!isSearchModalOpen);
     // When opening the modal, set localSearchTerm to the current Redux searchTerm
-    // When closing, clear local state and Redux search term
     if (!isSearchModalOpen) { // If modal is about to open
       setLocalSearchTerm(reduxSearchTerm);
       // Focus the input when modal opens
@@ -194,9 +193,10 @@ const Header = ({
         searchModalInputRef.current?.focus();
       }, 0);
     } else { // If modal is about to close
+      // Only clear local state, keep Redux search term for component filtering
       setLocalSearchTerm('');
       setSearchResults([]);
-      dispatch(setSearchTerm('')); // Clear Redux search term here
+      // Don't clear Redux search term - let components handle their own search state
     }
   };
 
