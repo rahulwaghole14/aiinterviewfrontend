@@ -20,6 +20,7 @@ const Header = ({
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const profileMenuRef = useRef(null);
   const searchInputRef = useRef(null); // Ref for desktop search input
   const searchModalInputRef = useRef(null); // Ref for mobile search modal input
@@ -88,20 +89,45 @@ const Header = ({
   }, [isSearchModalOpen]); // Added isSearchModalOpen to dependency array
 
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     const term = e.target.value;
     setLocalSearchTerm(term);
     dispatch(setSearchTerm(term)); // Update Redux search term immediately
 
     if (term && term.length >= 2) {
-      // Use search service for comprehensive search
-      const results = searchService.search(term, { limit: 10 });
-      console.log('Search results:', results);
-      console.log('First result path:', results[0]?.path);
-      console.log('First result detailPath:', results[0]?.detailPath);
-      setSearchResults(results);
+      setIsSearching(true);
+      
+      try {
+        // Fetch data if not available
+        const authToken = localStorage.getItem('authToken');
+        if (authToken) {
+          console.log('Fetching data for search...');
+          // Check if we need to fetch any missing data
+          const dataTypes = ['candidates', 'jobs', 'domains', 'hiringAgencies', 'companies', 'recruiters', 'interviewSlots', 'interviews'];
+          const fetchPromises = dataTypes.map(type => 
+            searchService.fetchDataIfNeeded(type, authToken)
+          );
+          
+          // Wait for all fetch operations to complete (they're cached, so won't refetch if recent)
+          await Promise.all(fetchPromises);
+          console.log('Data fetching complete');
+        }
+        
+        // Use search service for comprehensive search
+        const results = searchService.search(term, { limit: 10 });
+        console.log('Search results:', results);
+        console.log('First result path:', results[0]?.path);
+        console.log('First result detailPath:', results[0]?.detailPath);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Search error:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
     } else {
       setSearchResults([]);
+      setIsSearching(false);
     }
   };
 
@@ -224,28 +250,41 @@ const Header = ({
                 title="Clear search"
               />
             )}
-            {localSearchTerm && searchResults.length > 0 && (
+            {localSearchTerm && (isSearching || searchResults.length > 0) && (
               <div className="search-dropdown">
-                {searchResults.map((result, index) => (
-                  <div 
-                    key={`${result.type}-${result.id}`} 
-                    className="search-result-item"
-                    onClick={() => handleSearchResultClick(result)}
-                  >
+                {isSearching ? (
+                  <div className="search-result-item search-loading">
                     <div className="search-result-content">
                       <div className="search-result-title">
-                        {result.title}
-                        <span className="search-result-type">{result.type}</span>
+                        🔍 Searching...
                       </div>
-                      {result.subtitle && (
-                        <div className="search-result-subtitle">{result.subtitle}</div>
-                      )}
-                      {result.description && (
-                        <div className="search-result-description">{result.description}</div>
-                      )}
+                      <div className="search-result-subtitle">
+                        Fetching data from all components
+                      </div>
                     </div>
                   </div>
-                ))}
+                ) : (
+                  searchResults.map((result, index) => (
+                    <div 
+                      key={`${result.type}-${result.id}`} 
+                      className="search-result-item"
+                      onClick={() => handleSearchResultClick(result)}
+                    >
+                      <div className="search-result-content">
+                        <div className="search-result-title">
+                          {result.title}
+                          <span className="search-result-type">{result.type}</span>
+                        </div>
+                        {result.subtitle && (
+                          <div className="search-result-subtitle">{result.subtitle}</div>
+                        )}
+                        {result.description && (
+                          <div className="search-result-description">{result.description}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -265,31 +304,44 @@ const Header = ({
                 />
                 <FiX size={24} onClick={toggleSearchModal} className="close-search-modal" />
               </div>
-              {localSearchTerm && searchResults.length > 0 && (
+              {localSearchTerm && (isSearching || searchResults.length > 0) && (
                 <div className="search-modal-results">
-                  {searchResults.map((result, index) => (
-                    <div 
-                      key={`${result.type}-${result.id}`} 
-                      className="search-result-item"
-                      onClick={() => handleSearchResultClick(result)}
-                    >
+                  {isSearching ? (
+                    <div className="search-result-item search-loading">
                       <div className="search-result-content">
                         <div className="search-result-title">
-                          {result.title}
-                          <span className="search-result-type">{result.type}</span>
+                          🔍 Searching...
                         </div>
-                        {result.subtitle && (
-                          <div className="search-result-subtitle">{result.subtitle}</div>
-                        )}
-                        {result.description && (
-                          <div className="search-result-description">{result.description}</div>
-                        )}
+                        <div className="search-result-subtitle">
+                          Fetching data from all components
+                        </div>
                       </div>
                     </div>
-                  ))}
+                  ) : (
+                    searchResults.map((result, index) => (
+                      <div 
+                        key={`${result.type}-${result.id}`} 
+                        className="search-result-item"
+                        onClick={() => handleSearchResultClick(result)}
+                      >
+                        <div className="search-result-content">
+                          <div className="search-result-title">
+                            {result.title}
+                            <span className="search-result-type">{result.type}</span>
+                          </div>
+                          {result.subtitle && (
+                            <div className="search-result-subtitle">{result.subtitle}</div>
+                          )}
+                          {result.description && (
+                            <div className="search-result-description">{result.description}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
-              {localSearchTerm && searchResults.length === 0 && (
+              {localSearchTerm && !isSearching && searchResults.length === 0 && (
                 <p className="no-results">No results found for "{localSearchTerm}"</p>
               )}
               {!localSearchTerm && (
