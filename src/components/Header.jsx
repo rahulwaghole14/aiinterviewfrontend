@@ -204,8 +204,9 @@ const Header = ({
     console.log('Search result clicked:', result);
     console.log('Navigating to:', result.detailPath && result.type === 'Candidates' ? result.detailPath : result.path);
     
-    setLocalSearchTerm(result.title);        // Update local search box with result title
-    dispatch(setSearchTerm(result.title));   // Update Redux search term
+    // Keep the original search term for component sorting, don't change it to result title
+    // setLocalSearchTerm(result.title);        // Don't change local search term
+    // dispatch(setSearchTerm(result.title));   // Don't change Redux search term
     
     // Navigate to the appropriate component
     if (result.detailPath && result.type === 'Candidates') {
@@ -221,7 +222,7 @@ const Header = ({
     localStorage.setItem('searchHighlight', JSON.stringify({
       type: result.type,
       id: result.id,
-      query: result.title,
+      query: localSearchTerm,  // Use the original search term, not result title
       tab: result.tab || null,
     }));
   };

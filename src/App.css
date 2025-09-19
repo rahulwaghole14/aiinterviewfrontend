@@ -1,17 +1,17 @@
 /* App.css */
 :root {
   /* Light Theme Variables - Talaro Professional Color Scheme */
-  --color-bg: #f8fafc;
-  --color-bg-secondary: #f1f5f9;
-  --color-sidebar: #1e293b;
+  --color-bg: #faf9ff;
+  --color-bg-secondary: #f5f3ff;
+  --color-sidebar: #0f172a;
   --color-card: #ffffff;
-  --color-card-highlight: #f8fafc;
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
+  --color-card-highlight: #faf9ff;
+  --color-primary: #8b5cf6;
+  --color-primary-dark: #7c3aed;
   --color-secondary: #64748b;
   --color-secondary-dark: #475569;
-  --color-accent: #0ea5e9;
-  --color-text: #1e293b;
+  --color-accent: #a855f7;
+  --color-text: #0f172a;
   --color-text-primary: #0f172a;
   --color-text-secondary: #64748b;
   --color-muted: #94a3b8;
@@ -25,14 +25,14 @@
   --color-warning: #f59e0b;
   --color-warning-light: #fffbeb;
   --color-warning-dark: #d97706;
-  --color-info: #3b82f6;
-  --color-info-light: #eff6ff;
-  --color-info-dark: #2563eb;
+  --color-info: #8b5cf6;
+  --color-info-light: #f5f3ff;
+  --color-info-dark: #7c3aed;
   --color-border: #e2e8f0;
   --color-border-light: #f1f5f9;
   --color-gray: #94a3b8;
   --color-gray-dark: #64748b;
-  --color-hover: #f8fafc;
+  --color-hover: #faf9ff;
   --color-overlay: rgba(0, 0, 0, 0.5);
   --color-sidebar-text: #cbd5e1;
 
@@ -48,11 +48,11 @@
   --sidebar-collapsed-width: 80px;
 
   /* RGB values for shadows */
-  --color-primary-rgb: 59, 130, 246;
+  --color-primary-rgb: 139, 92, 246;
   --color-success-rgb: 16, 185, 129;
   --color-danger-rgb: 239, 68, 68;
   --color-warning-rgb: 245, 158, 11;
-  --color-info-rgb: 59, 130, 246;
+  --color-info-rgb: 139, 92, 246;
 
   /* Global Font Family */
   --font-family-base: 'Roboto', sans-serif;
@@ -74,16 +74,16 @@
 
 /* Dark Theme Variables - Talaro Professional Dark Scheme */
 body[data-theme='dark'] {
-  --color-bg: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-sidebar: #0f172a;
-  --color-card: #1e293b;
-  --color-card-highlight: #334155;
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
+  --color-bg: #0f0f23;
+  --color-bg-secondary: #1e1b2e;
+  --color-sidebar: #0f0f23;
+  --color-card: #1e1b2e;
+  --color-card-highlight: #2d2a3e;
+  --color-primary: #a855f7;
+  --color-primary-dark: #9333ea;
   --color-secondary: #64748b;
   --color-secondary-dark: #475569;
-  --color-accent: #0ea5e9;
+  --color-accent: #c084fc;
   --color-text: #e2e8f0;
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;
@@ -98,14 +98,14 @@ body[data-theme='dark'] {
   --color-warning: #f59e0b;
   --color-warning-light: #451a03;
   --color-warning-dark: #d97706;
-  --color-info: #3b82f6;
-  --color-info-light: #1e3a8a;
-  --color-info-dark: #2563eb;
-  --color-border: #334155;
-  --color-border-light: #475569;
+  --color-info: #a855f7;
+  --color-info-light: #3730a3;
+  --color-info-dark: #9333ea;
+  --color-border: #3d3551;
+  --color-border-light: #4c4066;
   --color-gray: #64748b;
   --color-gray-dark: #475569;
-  --color-hover: #334155;
+  --color-hover: #2d2a3e;
   --color-overlay: rgba(0, 0, 0, 0.7);
   --color-sidebar-text: #e2e8f0;
 

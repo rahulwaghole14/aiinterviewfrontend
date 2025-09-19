@@ -1352,33 +1352,37 @@ import PropTypes from "prop-types";
   
           <div className="pagination-controls">
             <button
-              className="pagination-button"
+              className="pagination-button pagination-arrow"
               onClick={() => handlePageChange(1)}
               disabled={currentPage === 1 || loading}
+              title="First page"
             >
               «
             </button>
             <button
-              className="pagination-button"
+              className="pagination-button pagination-arrow"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || loading}
+              title="Previous page"
             >
               ‹
             </button>
-  
+
             {renderPageNumbers()}
-  
+
             <button
-              className="pagination-button"
+              className="pagination-button pagination-arrow"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages || loading}
+              title="Next page"
             >
               ›
             </button>
             <button
-              className="pagination-button"
+              className="pagination-button pagination-arrow"
               onClick={() => handlePageChange(totalPages)}
               disabled={currentPage === totalPages || loading}
+              title="Last page"
             >
               »
             </button>

@@ -32,6 +32,11 @@ const AiInterviewScheduler = ({
   const dispatch = useDispatch();
   const notify = useNotification();
   const searchTerm = useSelector((state) => state.search?.searchTerm || '');
+  
+  // Debug search term
+  useEffect(() => {
+    console.log('AiInterviewScheduler received search term:', searchTerm);
+  }, [searchTerm]);
   const {
     slots,
     loading: slotsLoading,
@@ -59,10 +64,13 @@ const AiInterviewScheduler = ({
 
   // Sort slots based on search term for better user experience
   const sortedSlots = useMemo(() => {
+    console.log('AiInterviewScheduler useMemo triggered - slots:', slots?.length, 'searchTerm:', searchTerm);
+    
     if (!slots || slots.length === 0) return [];
     
     // If no search term, return all slots sorted by date (most recent first)
     if (!searchTerm) {
+      console.log('No search term, returning all slots sorted by date');
       return [...slots].sort((a, b) => {
         if (a.interview_date && b.interview_date) {
           return new Date(b.interview_date) - new Date(a.interview_date);
@@ -75,22 +83,39 @@ const AiInterviewScheduler = ({
     console.log('AI Interview Scheduler sorting with search term:', searchTerm);
     
     return [...slots].sort((a, b) => {
-      // Calculate relevance scores for both slots
+      // Calculate relevance scores for both slots - search ALL fields
       const getRelevanceScore = (slot) => {
         let score = 0;
-        const searchableFields = [
-          slot.job_title, slot.company_name, slot.ai_interview_type,
-          slot.status, slot.slot_type, slot.interview_date, slot.notes,
-          slot.start_time, slot.end_time
-        ].filter(Boolean);
         
-        searchableFields.forEach(field => {
-          const fieldStr = String(field).toLowerCase();
-          if (fieldStr.includes(searchLower)) {
-            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
-            else score += 5; // Contains search term
-          }
-        });
+        // Search ALL fields in the slot object dynamically
+        const searchAllFields = (obj, prefix = '') => {
+          Object.entries(obj || {}).forEach(([key, value]) => {
+            if (value === null || value === undefined) return;
+            
+            let searchValue;
+            if (typeof value === 'object' && value !== null) {
+              // Handle nested objects recursively
+              searchAllFields(value, `${prefix}${key}.`);
+              return;
+            } else if (typeof value === 'boolean') {
+              searchValue = value ? 'true' : 'false';
+            } else if (typeof value === 'number') {
+              searchValue = String(value);
+            } else if (value instanceof Date) {
+              searchValue = value.toLocaleDateString() + ' ' + value.toLocaleTimeString();
+            } else {
+              searchValue = String(value);
+            }
+            
+            const fieldStr = searchValue.toLowerCase();
+            if (fieldStr.includes(searchLower)) {
+              if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+              else score += 5; // Contains search term
+            }
+          });
+        };
+        
+        searchAllFields(slot);
         
         if (score > 0) {
           console.log(`Slot ${slot.job_title || 'Unknown'} has relevance score:`, score);

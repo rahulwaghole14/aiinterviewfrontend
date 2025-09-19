@@ -48,19 +48,25 @@ class SearchService {
           endpoint = '/api/candidates/';
           break;
         case 'jobs':
-          endpoint = '/api/jobs/jobs/';
+          endpoint = '/api/jobs/';
           break;
         case 'hiringAgencies':
-          endpoint = '/api/users/hiring-agencies/';
+          endpoint = '/api/hiring_agency/';
           break;
         case 'companies':
-          endpoint = '/api/users/companies/';
+          endpoint = '/api/companies/';
           break;
         case 'recruiters':
-          endpoint = '/api/users/recruiters/';
+          endpoint = '/api/companies/recruiters/';
           break;
         case 'interviewSlots':
           endpoint = '/api/interviews/slots/';
+          break;
+        case 'domains':
+          endpoint = '/api/jobs/domains/';
+          break;
+        case 'interviews':
+          endpoint = '/api/interviews/';
           break;
         default:
           return;

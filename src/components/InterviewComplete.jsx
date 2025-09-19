@@ -108,7 +108,7 @@ const InterviewComplete = ({ sessionData, onClose }) => {
     return (
       <div className="interview-complete">
         <div className="completion-loading">
-          <BeatLoader color="#2563eb" size={15} />
+          <BeatLoader color="var(--color-primary)" size={15} />
           <h2>Completing Interview...</h2>
           <p>Please wait while we finalize your interview session.</p>
         </div>

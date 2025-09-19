@@ -289,7 +289,7 @@
 }
 
 .status-step.current .status-circle {
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
   color: white;
   transform: scale(1.1);
 }
@@ -1389,7 +1389,7 @@
 }
 
 .code-block pre {
-  background-color: #1e293b;
+  background-color: var(--color-card);
   color: #e2e8f0;
   padding: 1rem;
   border-radius: var(--radius-small);

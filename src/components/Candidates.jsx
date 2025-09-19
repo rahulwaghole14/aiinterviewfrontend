@@ -276,23 +276,72 @@ const CandidatePage = () => {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       
-      // Calculate relevance scores for both candidates
+      // Calculate relevance scores for both candidates - search ALL fields
       const getRelevanceScore = (candidate) => {
         let score = 0;
-        const searchableFields = [
-          candidate.full_name, candidate.name, candidate.email,
-          getDomainName(candidate.domain), getJobTitle(candidate.jobRole),
-          candidate.poc, statusMapping[candidate.status] || candidate.status
-        ].filter(Boolean);
         
-        searchableFields.forEach(field => {
-          const fieldStr = String(field).toLowerCase();
-          if (fieldStr.includes(searchLower)) {
-            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
-            else score += 5; // Contains search term
-          }
-        });
+        // Search ALL fields in the candidate object dynamically
+        const searchAllFields = (obj, prefix = '') => {
+          Object.entries(obj || {}).forEach(([key, value]) => {
+            if (value === null || value === undefined) return;
+            
+            let searchValue;
+            if (typeof value === 'object' && value !== null) {
+              // Handle nested objects recursively
+              searchAllFields(value, `${prefix}${key}.`);
+              return;
+            } else if (typeof value === 'boolean') {
+              searchValue = value ? 'true' : 'false';
+            } else if (typeof value === 'number') {
+              searchValue = String(value);
+            } else if (value instanceof Date) {
+              searchValue = value.toLocaleDateString();
+            } else {
+              searchValue = String(value);
+            }
+            
+            // Also include domain name lookup for domain field
+            if (key === 'domain' && typeof value === 'number') {
+              const domainName = getDomainName(value);
+              if (domainName) {
+                const domainStr = domainName.toLowerCase();
+                if (domainStr.includes(searchLower)) {
+                  if (domainStr.startsWith(searchLower)) score += 10;
+                  else score += 5;
+                }
+              }
+            }
+            
+            // Also include job title lookup for jobRole field
+            if (key === 'jobRole' && typeof value === 'number') {
+              const jobTitle = getJobTitle(value);
+              if (jobTitle) {
+                const jobStr = jobTitle.toLowerCase();
+                if (jobStr.includes(searchLower)) {
+                  if (jobStr.startsWith(searchLower)) score += 10;
+                  else score += 5;
+                }
+              }
+            }
+            
+            // Also include status mapping
+            if (key === 'status' && statusMapping[value]) {
+              const statusStr = statusMapping[value].toLowerCase();
+              if (statusStr.includes(searchLower)) {
+                if (statusStr.startsWith(searchLower)) score += 10;
+                else score += 5;
+              }
+            }
+            
+            const fieldStr = searchValue.toLowerCase();
+            if (fieldStr.includes(searchLower)) {
+              if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+              else score += 5; // Contains search term
+            }
+          });
+        };
         
+        searchAllFields(candidate);
         return score;
       };
       

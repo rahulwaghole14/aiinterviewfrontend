@@ -139,14 +139,14 @@
 }
 
 .candidate-info h3 {
-  color: #2c3e50;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
 .candidate-info p {
-  color: #6c757d;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   margin: 0;
 }

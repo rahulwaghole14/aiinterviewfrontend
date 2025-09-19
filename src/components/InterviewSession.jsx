@@ -262,7 +262,7 @@ const InterviewSession = ({ sessionData, mediaStream, onComplete, onError }) => 
     return (
       <div className="interview-session">
         <div className="session-loading">
-          <BeatLoader color="#2563eb" size={15} />
+          <BeatLoader color="var(--color-primary)" size={15} />
           <h2>Preparing Your Interview...</h2>
           <p>Please wait while we load your interview questions.</p>
         </div>

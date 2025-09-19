@@ -130,7 +130,7 @@
 
   .sort-icon.active {
     opacity: 1;
-    color: #007bff;
+    color: var(--color-primary);
   }
 
   /* 12-hour time input styling */
@@ -186,7 +186,7 @@
   
   .status-cell[data-status="completed"],
   .status-cell[data-status="hired"] {
-    background-color: #3b82f6 !important;
+    background-color: var(--color-primary) !important;
     color: white !important;
     border: none !important;
   }
@@ -327,7 +327,7 @@
   }
   
   .action-button.view {
-    color: #3b82f6;
+    color: var(--color-primary);
   }
   
   .action-button.edit {
@@ -348,7 +348,7 @@
   
   .action-button.view:hover {
     background-color: #eff6ff;
-    color: #2563eb;
+    color: var(--color-primary-dark);
   }
   
   .action-button.edit:hover {
@@ -520,7 +520,7 @@
   }
   
   .action-menu-button:focus {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
   
@@ -868,12 +868,12 @@
   }
   
   .action-button.save {
-    color: #28a745;
+    color: var(--color-primary);
   }
   
   .action-button.save:hover {
-    color: #218838;
-    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-primary-dark);
+    background-color: rgba(var(--color-primary-rgb), 0.1);
   }
   
   .action-button.cancel {
@@ -1070,8 +1070,8 @@
   
   .records-select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.25);
   }
   
   .pagination-info {
@@ -1087,39 +1087,88 @@
   }
   
   .pagination-button {
-    min-width: 32px;
-    height: 32px;
+    min-width: 36px;
+    height: 36px;
     padding: 0 8px;
     border: 1px solid #dee2e6;
     background: #fff;
-    color: var(--color-primary, #28a745);
-    border-radius: 4px;
+    color: var(--color-primary) !important;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    transition: all 0.2s;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin: 0 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   
-  .pagination-button:hover:not(:disabled) {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    color: var(--color-primary-dark, #218838);
+  /* Number buttons - distinct styling */
+  .pagination-button:not(.pagination-arrow) {
+    min-width: 40px;
+    font-weight: 600;
+    border-radius: 8px;
   }
   
-  .pagination-button:disabled {
+  /* Arrow buttons - distinct styling */
+  .pagination-button.pagination-arrow {
+    min-width: 36px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 6px;
+    background: #f8f9fa;
     color: #6c757d;
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    cursor: not-allowed;
-    opacity: 0.6;
   }
   
+  /* Hover states with inverted colors */
+  .pagination-button:hover:not(:disabled) {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Arrow buttons hover */
+  .pagination-button.pagination-arrow:hover:not(:disabled) {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Disabled state */
+  .pagination-button:disabled {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Active/current page button - inverted colors by default */
   .pagination-button.active {
-    background-color: var(--color-primary, #28a745);
-    color: white;
-    border-color: var(--color-primary, #28a745);
+    background-color: white !important;
+    color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    border-width: 2px;
+    box-shadow: 0 2px 6px rgba(var(--color-primary-rgb), 0.3);
+    font-weight: 700;
+    transform: none;
+  }
+  
+  /* Active button hover - normal colors */
+  .pagination-button.active:hover:not(:disabled) {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    border-color: var(--color-primary) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(var(--color-primary-rgb), 0.2);
   }
   
   /* Refresh Button Styles */
@@ -1128,7 +1177,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: var(--color-primary, #28a745);
+    background: var(--color-primary);
     color: white;
     border: none;
     border-radius: 10px;
@@ -1139,7 +1188,7 @@
   }
   
   .refresh-button:hover:not(:disabled) {
-    background: var(--color-primary-dark, #218838);
+    background: var(--color-primary-dark);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }

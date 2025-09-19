@@ -128,7 +128,7 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
           
           {loading ? (
             <div className="camera-loading">
-              <BeatLoader color="#2563eb" size={15} />
+              <BeatLoader color="var(--color-primary)" size={15} />
               <p>Setting up camera...</p>
             </div>
           ) : error ? (
@@ -230,7 +230,7 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
             <h3>You're all set!</h3>
             <p>Your interview will begin in a moment...</p>
             <div className="loading-indicator">
-              <BeatLoader color="#2563eb" size={10} />
+              <BeatLoader color="var(--color-primary)" size={10} />
             </div>
           </div>
         </div>

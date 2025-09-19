@@ -29,6 +29,11 @@ const Jobs = () => {
   const jobsError = useSelector((state) => state.jobs.jobsError);
   const domainsError = useSelector((state) => state.jobs.domainsError);
   const searchTerm = useSelector((state) => state.search.searchTerm);
+  
+  // Debug search term
+  useEffect(() => {
+    console.log('Jobs component received search term:', searchTerm);
+  }, [searchTerm]);
 
   // Get user details from Redux store (userSlice)
   const user = useSelector((state) => state.user.user); // Assuming user object is available here
@@ -274,25 +279,49 @@ const Jobs = () => {
       console.log('Jobs sorting with search term:', searchTerm);
       const searchLower = searchTerm.toLowerCase();
       
-      // Calculate relevance scores for both jobs
+      // Calculate relevance scores for both jobs - search ALL fields
       const getRelevanceScore = (job) => {
         let score = 0;
-        const searchableFields = [
-          job.job_title, job.company_name, job.domain_name,
-          getDomainName(job.domain), job.spoc_email, job.hiring_manager_email,
-          job.current_team_size_info, String(job.number_to_hire),
-          job.position_level, job.current_process, job.tech_stack_details,
-          job.job_description, job.created_at
-        ].filter(Boolean);
         
-        searchableFields.forEach(field => {
-          const fieldStr = String(field).toLowerCase();
-          if (fieldStr.includes(searchLower)) {
-            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
-            else score += 5; // Contains search term
-          }
-        });
+        // Search ALL fields in the job object dynamically
+        const searchAllFields = (obj, prefix = '') => {
+          Object.entries(obj || {}).forEach(([key, value]) => {
+            if (value === null || value === undefined) return;
+            
+            let searchValue;
+            if (typeof value === 'object' && value !== null) {
+              // Handle nested objects recursively
+              searchAllFields(value, `${prefix}${key}.`);
+              return;
+            } else if (typeof value === 'boolean') {
+              searchValue = value ? 'true' : 'false';
+            } else if (typeof value === 'number') {
+              searchValue = String(value);
+            } else {
+              searchValue = String(value);
+            }
+            
+            // Also include domain name lookup for domain field
+            if (key === 'domain' && typeof value === 'number') {
+              const domainName = getDomainName(value);
+              if (domainName) {
+                const domainStr = domainName.toLowerCase();
+                if (domainStr.includes(searchLower)) {
+                  if (domainStr.startsWith(searchLower)) score += 10;
+                  else score += 5;
+                }
+              }
+            }
+            
+            const fieldStr = searchValue.toLowerCase();
+            if (fieldStr.includes(searchLower)) {
+              if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+              else score += 5; // Contains search term
+            }
+          });
+        };
         
+        searchAllFields(job);
         return score;
       };
       

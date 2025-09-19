@@ -110,7 +110,7 @@
   padding: 1.2rem; /* Reduced padding */
   border: 1px solid var(--color-border); /* Use theme variable */
   border-radius: var(--radius); /* Use theme variable */
-  background: var(--color-bg) !important; /* Use main background to match parent */
+  background: var(--color-bg-secondary) !important; /* Use secondary background to match surrounding components */
   box-shadow: none !important; /* Remove shadow for seamless blending */
   color: var(--color-text); /* Use theme variable */
   height: auto; /* Allow height to adjust to content */
@@ -124,7 +124,7 @@
 }
 
 .candidate-card:hover {
-  background: var(--color-hover) !important; /* Subtle background change on hover */
+  background: var(--color-card) !important; /* Use card color for hover to maintain consistency with surrounding components */
 }
 
 /* Restore left border to candidate cards */

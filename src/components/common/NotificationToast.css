@@ -242,15 +242,15 @@
 }
 
 .toast-info {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-primary);
 }
 
 .toast-info .toast-icon {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .toast-info .toast-progress-fill {
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
 }
 
 .toast-info .toast-type-badge {

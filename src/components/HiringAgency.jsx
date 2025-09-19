@@ -560,22 +560,39 @@ const HiringAgencies = () => {
       console.log('HiringAgency sorting with search term:', searchTerm);
       const searchLower = searchTerm.toLowerCase();
       
-      // Calculate relevance scores for both items
+      // Calculate relevance scores for both items - search ALL fields
       const getRelevanceScore = (item) => {
         let score = 0;
-        const searchableFields = [
-          item.name, item.full_name, item.first_name, item.last_name,
-          item.email, item.description, item.phone, item.phone_number,
-          item.status, item.role, item.company_name
-        ].filter(Boolean);
         
-        searchableFields.forEach(field => {
-          const fieldStr = String(field).toLowerCase();
-          if (fieldStr.includes(searchLower)) {
-            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
-            else score += 5; // Contains search term
-          }
-        });
+        // Search ALL fields in the item object dynamically
+        const searchAllFields = (obj, prefix = '') => {
+          Object.entries(obj || {}).forEach(([key, value]) => {
+            if (value === null || value === undefined) return;
+            
+            let searchValue;
+            if (typeof value === 'object' && value !== null) {
+              // Handle nested objects recursively
+              searchAllFields(value, `${prefix}${key}.`);
+              return;
+            } else if (typeof value === 'boolean') {
+              searchValue = value ? 'true' : 'false';
+            } else if (typeof value === 'number') {
+              searchValue = String(value);
+            } else if (value instanceof Date) {
+              searchValue = value.toLocaleDateString();
+            } else {
+              searchValue = String(value);
+            }
+            
+            const fieldStr = searchValue.toLowerCase();
+            if (fieldStr.includes(searchLower)) {
+              if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+              else score += 5; // Contains search term
+            }
+          });
+        };
+        
+        searchAllFields(item);
         
         if (score > 0) {
           console.log(`Item ${item.name || item.full_name} has relevance score:`, score);

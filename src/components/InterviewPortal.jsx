@@ -133,7 +133,7 @@ const InterviewPortal = () => {
       <div className="interview-portal">
         <div className="interview-loading">
           <div className="loading-content">
-            <BeatLoader color="#2563eb" size={15} />
+            <BeatLoader color="var(--color-primary)" size={15} />
             <h2>Loading Interview...</h2>
             <p>Please wait while we prepare your interview session.</p>
           </div>

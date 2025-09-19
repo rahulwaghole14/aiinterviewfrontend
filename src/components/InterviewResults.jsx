@@ -316,7 +316,7 @@ const InterviewResults = () => {
     return (
       <div className="interview-results">
         <div className="loading-container">
-          <BeatLoader color="#2563eb" size={15} />
+          <BeatLoader color="var(--color-primary)" size={15} />
           <h2>Loading Interview Results...</h2>
         </div>
       </div>

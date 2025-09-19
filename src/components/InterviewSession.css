@@ -27,7 +27,7 @@
 }
 
 .progress-indicator {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   padding: 8px 16px;
   border-radius: 20px;
@@ -39,7 +39,7 @@
 
 .session-info h2 {
   margin: 0 0 10px;
-  color: #2563eb;
+  color: var(--color-primary);
   font-size: 28px;
   font-weight: 600;
 }
@@ -58,7 +58,7 @@
 
 .session-loading h2 {
   margin: 20px 0 10px;
-  color: #2563eb;
+  color: var(--color-primary);
   font-size: 24px;
   font-weight: 600;
 }
@@ -104,12 +104,12 @@
   border-radius: 16px;
   padding: 30px;
   margin-bottom: 30px;
-  border-left: 4px solid #2563eb;
+  border-left: 4px solid var(--color-primary);
 }
 
 .question-display h3 {
   margin: 0 0 15px;
-  color: #2563eb;
+  color: var(--color-primary);
   font-size: 18px;
   font-weight: 600;
 }
