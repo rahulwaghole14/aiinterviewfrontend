@@ -65,37 +65,41 @@
 }
 
 .ai-int-form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
   margin-bottom: 1rem;
 }
 
 .ai-int-form-group label {
-  display: block;
   margin-bottom: 0.5rem;
-  font-size: 0.875rem;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
 }
 
 .ai-int-form-group input[type="number"],
 .ai-int-form-group input[type="text"],
+.ai-int-form-group input[type="date"],
 .ai-int-form-group select,
 .ai-int-form-group textarea {
   width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-small);
+  font-size: 1rem;
   box-sizing: border-box;
-  padding: 0.625rem 0.875rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  color: #2d3748;
-  background-color: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .ai-int-form-group input:focus,
-.ai-int-form-group select:focus {
+.ai-int-form-group select:focus,
+.ai-int-form-group textarea:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.16);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
 }
 
 /* Status Badge */
@@ -180,24 +184,36 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.ai-int-btn-primary {
-  background-color: #4299e1;
+.ai-int-btn-primary,
+.ai-int-create-btn {
+  background-color: var(--color-primary);
   color: white;
   padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   flex: 1;
 }
 
-.ai-int-btn-primary:hover {
-  background-color: #3182ce;
+.ai-int-btn-primary:hover,
+.ai-int-create-btn:hover {
+  background-color: var(--color-primary-dark);
 }
 
 .ai-int-btn-secondary {
-  background-color: #e2e8f0;
-  color: #4a5568;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
   padding: 0.625rem 1.25rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   flex: 1;
 }
 
 .ai-int-btn-secondary:hover {
-  background-color: #cbd5e0;
+  background-color: var(--color-hover);
 }
