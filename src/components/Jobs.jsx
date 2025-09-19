@@ -16,6 +16,7 @@ import {
 import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
+import { FormModal, ConfirmModal } from "./common/Modal";
 import { useNotification } from "../hooks/useNotification";
 
 const Jobs = () => {
@@ -1288,71 +1289,42 @@ const Jobs = () => {
       </div>
 
       {/* Create Domain Modal - Moved outside main container */}
-      {showCreateDomainModal && (
-        <div id="create-domain-modal-overlay" className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Create New Domain</h3>
-              <button
-                className="modal-close-btn"
-                onClick={() => setShowCreateDomainModal(false)}
-                disabled={isCreatingDomain}
-              >
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleCreateDomain}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label htmlFor="domain-name">Domain Name</label>
-                  <input
-                    type="text"
-                    id="domain-name"
-                    name="name"
-                    value={domainFormData.name}
-                    onChange={handleDomainChange}
-                    placeholder="e.g., Data Science"
-                    required
-                    className="modal-input"
-                    disabled={isCreatingDomain}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="domain-description">Description</label>
-                  <textarea
-                    id="domain-description"
-                    name="description"
-                    value={domainFormData.description}
-                    onChange={handleDomainChange}
-                    placeholder="e.g., Data Science and Analytics domain"
-                    rows="3"
-                    required
-                    className="modal-input"
-                    disabled={isCreatingDomain}
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="domain-cancel-btn"
-                  onClick={() => setShowCreateDomainModal(false)}
-                  disabled={isCreatingDomain}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="domain-submit-btn"
-                  disabled={isCreatingDomain}
-                >
-                  {isCreatingDomain ? "Creating..." : "Create Domain"}
-                </button>
-              </div>
-            </form>
-          </div>
+      <FormModal
+        isOpen={showCreateDomainModal}
+        onClose={() => setShowCreateDomainModal(false)}
+        onSubmit={handleCreateDomain}
+        title="Create New Domain"
+        submitText="Create Domain"
+        isSubmitting={isCreatingDomain}
+        size="medium"
+      >
+        <div className="form-group">
+          <label htmlFor="domain-name">Domain Name</label>
+          <input
+            type="text"
+            id="domain-name"
+            name="name"
+            value={domainFormData.name}
+            onChange={handleDomainChange}
+            placeholder="e.g., Data Science"
+            required
+            disabled={isCreatingDomain}
+          />
         </div>
-      )}
+        <div className="form-group">
+          <label htmlFor="domain-description">Description</label>
+          <textarea
+            id="domain-description"
+            name="description"
+            value={domainFormData.description}
+            onChange={handleDomainChange}
+            placeholder="e.g., Data Science and Analytics domain"
+            rows="3"
+            required
+            disabled={isCreatingDomain}
+          />
+        </div>
+      </FormModal>
 
       {/* View Domains Modal - Moved outside main container */}
       {showViewDomainsModal && (
