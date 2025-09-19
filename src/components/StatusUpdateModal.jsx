@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { baseURL } from "../data";
 import HorizontalDatePicker from "./HorizontalDatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
+import { useNotification } from "../hooks/useNotification";
 import "./StatusUpdateModal.css";
 
 const StatusUpdateModal = ({
@@ -13,9 +14,8 @@ const StatusUpdateModal = ({
   interviews,
   onInterviewScheduled,
 }) => {
+  const notify = useNotification();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [authToken, setAuthToken] = useState("");
 
   // Get auth token from localStorage when component mounts
@@ -24,7 +24,7 @@ const StatusUpdateModal = ({
     if (token) {
       setAuthToken(token);
     } else {
-      setError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
     }
   }, []);
 
@@ -69,8 +69,6 @@ const StatusUpdateModal = ({
       decision: "",
       feedback: "",
     });
-    setError("");
-    setSuccess("");
   };
 
   useEffect(() => {
@@ -81,12 +79,12 @@ const StatusUpdateModal = ({
 
   const handleScheduleInterview = async () => {
     if (!authToken) {
-      setError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
     if (scheduleForm.selectedTimes.length === 0) {
-      setError("Please select a time slot");
+      notify.error("Please select a time slot");
       return;
     }
 
@@ -131,18 +129,17 @@ const StatusUpdateModal = ({
 
     // Validate that we have valid start and end times
     if (!startedAt || !endedAt) {
-      setError("Please select valid time slots for the interview");
+      notify.error("Please select valid time slots for the interview");
       return;
     }
 
     // Validate that we have valid start and end times
     if (!startedAt || !endedAt) {
-      setError("Please select valid time slots for the interview");
+      notify.error("Please select valid time slots for the interview");
       return;
     }
 
     setLoading(true);
-    setError("");
 
     try {
       const interviewData = {
@@ -227,7 +224,7 @@ const StatusUpdateModal = ({
         }
       }
 
-      setSuccess("Interview scheduled successfully!");
+      notify.success("Interview scheduled successfully!");
       onClose();
       // Call callback to refresh interview data
       if (onInterviewScheduled) {
@@ -235,7 +232,7 @@ const StatusUpdateModal = ({
       }
     } catch (err) {
       console.error("Error scheduling interview:", err);
-      setError(err.message || "Error scheduling interview");
+      notify.error(err.message || "Error scheduling interview");
     } finally {
       setLoading(false);
     }
@@ -244,18 +241,18 @@ const StatusUpdateModal = ({
   const handleEvaluate = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      setError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
     if (!evaluationForm.overall_score || !evaluationForm.traits) {
-      setError("Please fill in all required fields");
+      notify.error("Please fill in all required fields");
       return;
     }
 
     const latestInterview = interviews[interviews.length - 1];
     if (!latestInterview) {
-      setError("No interview found to evaluate");
+      notify.error("No interview found to evaluate");
       return;
     }
 
@@ -282,13 +279,13 @@ const StatusUpdateModal = ({
         throw new Error(errorData.detail || "Failed to create evaluation");
       }
 
-      setSuccess("Evaluation submitted successfully!");
+      notify.success("Evaluation submitted successfully!");
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch (error) {
       console.error("Error creating evaluation:", error);
-      setError(
+      notify.error(
         error.message || "Failed to submit evaluation. Please try again."
       );
     } finally {
@@ -298,12 +295,12 @@ const StatusUpdateModal = ({
 
   const handleHireReject = async () => {
     if (!authToken) {
-      setError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
     if (!hireRejectForm.decision) {
-      setError("Please select hire or reject");
+      notify.error("Please select hire or reject");
       return;
     }
 
@@ -330,13 +327,13 @@ const StatusUpdateModal = ({
         throw new Error("Failed to update candidate status");
       }
 
-      setSuccess(`Candidate ${hireRejectForm.decision} successfully!`);
+      notify.success(`Candidate ${hireRejectForm.decision} successfully!`);
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch (error) {
       console.error("Error updating candidate status:", error);
-      setError("Failed to update candidate status. Please try again.");
+      notify.error("Failed to update candidate status. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -362,7 +359,7 @@ const StatusUpdateModal = ({
       return data;
     } catch (err) {
       console.error("Error fetching available slots:", err);
-      setError("Failed to load available time slots");
+      notify.error("Failed to load available time slots");
       return [];
     }
   };
@@ -578,9 +575,6 @@ const StatusUpdateModal = ({
         </div>
 
         <div className="modal-content">
-          {error && <div className="alert alert-error">{error}</div>}
-          {success && <div className="alert alert-success">{success}</div>}
-
           {renderForm()}
         </div>
       </div>

@@ -11,6 +11,7 @@ import adminReducer from './slices/adminSlice';
 import dashboardReducer from './slices/dashboardSlice'; // Import the new dashboard slice
 import interviewsReducer from './slices/interviewsSlice';
 import interviewSlotsReducer from './slices/interviewSlotsSlice';
+import notificationReducer from './slices/notificationSlice';
 
 const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ const store = configureStore({
     recruiters: recruitersReducer,
     admin: adminReducer,
     interviewSlots: interviewSlotsReducer,
+    notification: notificationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

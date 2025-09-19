@@ -6,10 +6,12 @@ import { baseURL } from "../data";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
+import { useNotification } from '../hooks/useNotification';
 
 const AddCandidates = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const notify = useNotification();
   const searchTerm = useSelector((state) => state.search.searchTerm);
   const loggedInUser = useSelector((state) => state.user.user);
   const userRole = loggedInUser?.role;
@@ -39,8 +41,6 @@ const AddCandidates = () => {
     resumes: [],
   });
 
-  const [showMessage, setShowMessage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef(null);
 
   // State for parsed resume data from the 'extract' step
@@ -96,37 +96,37 @@ const AddCandidates = () => {
 
   const validateForm = () => {
     if (!formData.domain) {
-      setErrorMessage("Domain is required");
+      notify.error("Domain is required");
       return false;
     }
     // New validation: Check if selected domain ID exists in the domains list
     const selectedDomainExists = domains.some(d => d.id === parseInt(formData.domain, 10));
     if (!selectedDomainExists) {
-      setErrorMessage("Selected domain is invalid or no longer exists.");
+      notify.error("Selected domain is invalid or no longer exists.");
       return false;
     }
 
     if (!formData.job_title) {
-      setErrorMessage("Job title is required");
+      notify.error("Job title is required");
       return false;
     }
     // New validation: Check if selected job title ID exists in the filteredJobsByDomain list
     const selectedJobExists = filteredJobsByDomain.some(job => job.id === parseInt(formData.job_title, 10));
     if (!selectedJobExists) {
-      setErrorMessage("Selected job title is invalid or no longer exists for the chosen domain.");
+      notify.error("Selected job title is invalid or no longer exists for the chosen domain.");
       return false;
     }
 
     if (!formData.poc_email) {
-      setErrorMessage("POC email is required");
+      notify.error("POC email is required");
       return false;
     }
     if (!/^\S+@\S+\.\S+$/.test(formData.poc_email)) {
-      setErrorMessage("Please enter a valid POC email");
+      notify.error("Please enter a valid POC email");
       return false;
     }
     if (formData.resumes.length === 0) {
-      setErrorMessage("At least one resume is required");
+      notify.error("At least one resume is required");
       return false;
     }
     return true;
@@ -143,7 +143,7 @@ const AddCandidates = () => {
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      setErrorMessage("Please log in to upload resumes.");
+      notify.error("Please log in to upload resumes.");
       navigate('/login');
       return;
     }
@@ -185,13 +185,10 @@ const AddCandidates = () => {
       setParsedResumeData(parsedDataWithTempId);
       setExtractionSummary(response.data.summary || { total_files: 0, successful_extractions: 0, failed_extractions: 0 });
 
-      setShowMessage(true); // Show success message for extraction
-      setErrorMessage("");
-
-      setTimeout(() => setShowMessage(false), 3000);
+      notify.success("Resumes uploaded and parsed successfully! Review the extracted data below.");
     } catch (error) {
       console.error("Bulk upload and extract error:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Failed to upload and parse resumes. Please try again.");
+      notify.error(error.response?.data?.message || "Failed to upload and parse resumes. Please try again.");
       if (error.response?.status === 401) {
         navigate('/login');
       }
@@ -511,14 +508,6 @@ const AddCandidates = () => {
                 />
               </div>
 
-              {errorMessage && (
-                <div className="error-message">⚠️ {errorMessage}</div>
-              )}
-              {showMessage && (
-                <div className="success-message">
-                  ✅ Resumes uploaded and parsed successfully! Review the extracted data below.
-                </div>
-              )}
             </div>
             <div className="form-actions">
               <button

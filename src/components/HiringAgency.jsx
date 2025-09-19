@@ -11,6 +11,7 @@ import { fetchAdmins } from "../redux/slices/adminSlice"; // Import the dummy fe
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
+import { useNotification } from "../hooks/useNotification";
 
 const formInputStyle = {
   width: "100%",
@@ -92,6 +93,7 @@ const buttonContainerStyle = {
 
 const HiringAgencies = () => {
   const dispatch = useDispatch();
+  const notify = useNotification();
   const searchTerm = useSelector((state) => state.search.searchTerm);
   const user = useSelector((state) => state.user.user); // Get the full user object
   const userRole = user?.role; // Access the user's role from the Redux store
@@ -123,7 +125,6 @@ const HiringAgencies = () => {
     password: "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
-  const [apiMessage, setApiMessage] = useState("");
   const [editingUserId, setEditingUserId] = useState(null);
   const [editedUserData, setEditedUserData] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -605,7 +606,6 @@ const HiringAgencies = () => {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    setApiMessage(""); // Clear previous messages
     // Basic validation
     if (
       !formData.username ||
@@ -614,7 +614,7 @@ const HiringAgencies = () => {
       !formData.password ||
       !formData.role
     ) {
-      setApiMessage("Error: All fields are required.");
+      notify.error("All fields are required.");
       return;
     }
 
@@ -649,7 +649,7 @@ const HiringAgencies = () => {
       }
 
       const result = await response.json();
-      setApiMessage(`User ${result.full_name} added successfully!`);
+      notify.success(`User ${result.full_name} added successfully!`);
       setShowAddModal(false);
       setFormData({
         username: "",
@@ -666,9 +666,7 @@ const HiringAgencies = () => {
       else if (activeTab === "Admin") dispatch(fetchAdmins()); // Re-fetch dummy admins
     } catch (error) {
       console.error("Error adding user:", error);
-      setApiMessage(`Error: ${error.message}`);
-    } finally {
-      setTimeout(() => setApiMessage(""), 5000); // Clear message after 5 seconds
+      notify.error(error.message || "Failed to add user");
     }
   };
 
@@ -706,14 +704,12 @@ const HiringAgencies = () => {
     });
 
     if (!hasChanges) {
-      setApiMessage("No changes detected.");
+      notify.info("No changes detected.");
       setEditingUserId(null);
       setEditedUserData(null);
-      setTimeout(() => setApiMessage(""), 3000);
       return;
     }
 
-    setApiMessage("Updating user...");
     try {
       let endpoint = "";
       let payload = {};
@@ -784,15 +780,10 @@ const HiringAgencies = () => {
 
       setEditingUserId(null);
       setEditedUserData(null);
-      setApiMessage("User updated successfully!");
-
-      // Clear the message after 5 seconds
-      setTimeout(() => setApiMessage(""), 5000);
+      notify.success("User updated successfully!");
     } catch (error) {
       console.error("Error updating user:", error);
-      setApiMessage(`Error: ${error.message}`);
-    } finally {
-      setTimeout(() => setApiMessage(""), 5000);
+      notify.error(error.message || "Failed to update user");
     }
   };
 
@@ -803,7 +794,7 @@ const HiringAgencies = () => {
 
   const handleViewClick = (user) => {
     console.log("Viewing user:", user);
-    alert(`Viewing user: ${user.name} (${user.email})`);
+    notify.info(`Viewing user: ${user.name} (${user.email})`, "User Details");
   };
 
   const handleDeleteClick = (userId) => {
@@ -837,7 +828,6 @@ const HiringAgencies = () => {
 
     console.log("Starting delete process for user ID:", deleteUserId);
     setIsDeleting(true);
-    setApiMessage("Deleting user...");
 
     try {
       let endpoint = "";
@@ -900,19 +890,16 @@ const HiringAgencies = () => {
       // Wait for all fetches to complete
       await Promise.all(fetchPromises);
 
-      setApiMessage("User deleted successfully!");
+      notify.success("User deleted successfully!");
       console.log("Data refresh complete");
     } catch (error) {
       console.error("Error in confirmDelete:", error);
-      setApiMessage(`Error: ${error.message}`);
+      notify.error(error.message || "Failed to delete user");
     } finally {
       console.log("Cleanup after delete operation");
       setIsDeleting(false);
       setShowDeleteConfirm(false);
       setDeleteUserId(null);
-
-      // Clear the message after 5 seconds
-      setTimeout(() => setApiMessage(""), 5000);
     }
   };
 
@@ -944,12 +931,10 @@ const HiringAgencies = () => {
     });
 
     if (!hasChanges) {
-      setApiMessage("No changes detected.");
-      setTimeout(() => setApiMessage(""), 3000);
+      notify.info("No changes detected.");
       return;
     }
 
-    setApiMessage("Updating user...");
     try {
       let endpoint = "";
       let payload = {};
@@ -1018,13 +1003,10 @@ const HiringAgencies = () => {
       else if (activeTab === "Company") dispatch(fetchCompanies());
       else if (activeTab === "Admin") dispatch(fetchAdmins());
 
-      setApiMessage("User updated successfully!");
-
-      // Clear the message after 5 seconds
-      setTimeout(() => setApiMessage(""), 5000);
+      notify.success("User updated successfully!");
     } catch (error) {
       console.error("Error updating user:", error);
-      setApiMessage(`Error: ${error.message}`);
+      notify.error(error.message || "Failed to update user");
       throw error; // Re-throw so DataTable can handle the error
     }
   };
@@ -1040,7 +1022,6 @@ const HiringAgencies = () => {
     }
 
     console.log("Starting delete process for user ID:", userId);
-    setApiMessage("Deleting user...");
 
     try {
       let endpoint = "";
@@ -1103,15 +1084,12 @@ const HiringAgencies = () => {
       // Wait for all fetches to complete
       await Promise.all(fetchPromises);
 
-      setApiMessage("User deleted successfully!");
+      notify.success("User deleted successfully!");
       console.log("Data refresh complete");
     } catch (error) {
       console.error("Error in handleDeleteUser:", error);
-      setApiMessage(`Error: ${error.message}`);
+      notify.error(error.message || "Failed to delete user");
       throw error; // Re-throw so DataTable can handle the error
-    } finally {
-      // Clear the message after 5 seconds
-      setTimeout(() => setApiMessage(""), 5000);
     }
   };
 
@@ -1696,11 +1674,6 @@ const HiringAgencies = () => {
                 />
               </div>
 
-              {apiMessage && (
-                <div className={`api-message ${apiMessage.includes('Error') ? 'error' : 'success'}`}>
-                  {apiMessage}
-                </div>
-              )}
 
               <div className="modal-actions">
                 <button

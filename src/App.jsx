@@ -21,6 +21,7 @@ import AiInterviewScheduler from './components/AiInterviewScheduler'; // Import 
 import InterviewPortal from './components/InterviewPortal'; // Import the new InterviewPortal component
 import InterviewResults from './components/InterviewResults'; // Import the new InterviewResults component
 import InterviewResultsList from './components/InterviewResultsList'; // Import the new InterviewResultsList component
+import NotificationModal from './components/common/NotificationModal'; // Import the notification modal
 import "./App.css";
 
 const initialTheme = localStorage.getItem('theme') || 'light';
@@ -349,14 +350,20 @@ function App() {
             </Routes>
           </div>
         </div>
+        {/* Global Notification Modal */}
+        <NotificationModal />
       </div>
     ) : (
-      <Routes key={isLoggedIn ? "logged-in" : "logged-out"}>
-        <Route path="/" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
-        <Route path="/login" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
-        <Route path="/register" element={<Register autoFocusUsername={true} />} />
-        <Route path="*" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
-      </Routes>
+      <div>
+        <Routes key={isLoggedIn ? "logged-in" : "logged-out"}>
+          <Route path="/" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
+          <Route path="/login" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
+          <Route path="/register" element={<Register autoFocusUsername={true} />} />
+          <Route path="*" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
+        </Routes>
+        {/* Global Notification Modal for unauthenticated users */}
+        <NotificationModal />
+      </div>
     )
   );
 }

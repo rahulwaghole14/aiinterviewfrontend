@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { baseURL } from '../data'; // Import baseURL
+import { useNotification } from '../hooks/useNotification';
 import './Registration.css'; // Import the new CSS file for Registration
 
 const Register = () => {
@@ -12,23 +13,20 @@ const Register = () => {
   const [role, setRole] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const notify = useNotification();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     // Basic validation
     if (!username || !email || !fullName || !companyName || !role || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+      notify.error('Please fill in all fields.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      notify.error('Passwords do not match.');
       return;
     }
 
@@ -51,7 +49,7 @@ const Register = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('Registration successful:', data);
-        setSuccess('Registration successful! You can now log in.');
+        notify.success('Registration successful! You can now log in.', 'Welcome to Talaro', 3000);
         setUsername('');
         setEmail('');
         setFullName('');
@@ -64,11 +62,11 @@ const Register = () => {
         }, 2000);
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || 'Registration failed. Please try again.');
+        notify.error(errorData.detail || 'Registration failed. Please try again.');
       }
     } catch (err) {
       console.error('Registration API error:', err);
-      setError('An error occurred during registration. Please try again later.');
+      notify.error('An error occurred during registration. Please try again later.');
     }
   };
 
@@ -156,8 +154,6 @@ const Register = () => {
               />
             </div>
           </div>
-          {error && <p className="registration-error-message">{error}</p>}
-          {success && <p className="registration-success-message">{success}</p>}
           <button type="submit" className="registration-button">
             Register
           </button>

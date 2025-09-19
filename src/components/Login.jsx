@@ -6,23 +6,23 @@ import { setUser } from '../redux/slices/userSlice';
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import { fetchCandidates } from '../redux/slices/candidatesSlice';
 import { baseURL } from '../config/constants';
+import { useNotification } from '../hooks/useNotification';
 import './Login.css';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const notify = useNotification();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      notify.error('Please enter both email and password.');
       setLoading(false);
       return;
     }
@@ -54,14 +54,15 @@ const Login = ({ onLogin }) => {
         dispatch(fetchCandidates());
 
         if (onLogin) onLogin(loginData.user);
+        notify.success('Successfully logged in! Welcome back.');
         // Don't navigate here - let App.jsx handle navigation
       } else {
         const errorData = await loginResponse.json();
-        setError(errorData.detail || 'Invalid email or password. Please try again.');
+        notify.error(errorData.detail || 'Invalid email or password. Please try again.');
       }
     } catch (err) {
       console.error('API error:', err);
-      setError('An error occurred. Please try again later.');
+      notify.error('An error occurred. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -96,7 +97,6 @@ const Login = ({ onLogin }) => {
               disabled={loading}
             />
           </div>
-          {error && <p className="login-error-message">{error}</p>}
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? (
               <>

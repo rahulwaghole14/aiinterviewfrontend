@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { baseURL } from "../config/constants";
+import { useNotification } from "../hooks/useNotification";
 import "./TimeSlotPicker.css";
 
 const TimeSlotPicker = ({
@@ -15,6 +16,7 @@ const TimeSlotPicker = ({
   aiInterviewType = "technical",
   isModal = false,
 }) => {
+  const notify = useNotification();
   const [localSelectedTimes, setLocalSelectedTimes] = useState(selectedTimes);
   const isCtrlPressed = useRef(false);
   const lastClickedTimeRef = useRef(null);
@@ -23,7 +25,6 @@ const TimeSlotPicker = ({
   const [bookedSlots, setBookedSlots] = useState([]);
   const [allSlotsInternal, setAllSlotsInternal] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const user = useSelector((state) => state.user?.user);
 
@@ -260,7 +261,7 @@ const TimeSlotPicker = ({
       onAllSlotsChange(allSlotsData);
     } catch (error) {
       console.error("Error fetching slots:", error);
-      setError(error.message);
+      notify.error(error.message || "Failed to fetch available slots");
     } finally {
       setIsLoading(false);
     }

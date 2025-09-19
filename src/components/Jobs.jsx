@@ -16,9 +16,11 @@ import {
 import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
+import { useNotification } from "../hooks/useNotification";
 
 const Jobs = () => {
   const dispatch = useDispatch();
+  const notify = useNotification();
   const allJobs = useSelector((state) => state.jobs.allJobs);
   const domains = useSelector((state) => state.jobs.domains);
   const jobsStatus = useSelector((state) => state.jobs.jobsStatus);
@@ -100,8 +102,6 @@ const Jobs = () => {
     }
   }, [userRole, userCompanyName]);
 
-  const [showMessage, setShowMessage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   // Loading states for various operations
   const [isCreatingJob, setIsCreatingJob] = useState(false);

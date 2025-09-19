@@ -1,8 +1,10 @@
 // components/Profile.jsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux'; // Import useSelector
+import { useNotification } from '../hooks/useNotification';
 
 const Profile = ({ onTitleChange }) => {
+  const notify = useNotification();
   // Get user data from Redux store
   const loggedInUser = useSelector((state) => state.user.user);
 
@@ -73,8 +75,7 @@ const Profile = ({ onTitleChange }) => {
     console.log('Updating profile:', formData);
     setUser(formData); // Update local state with new data
     setIsEditing(false);
-    // TODO: Replace alert with a custom modal for user feedback
-    // alert('Profile updated successfully!');
+    notify.success('Profile updated successfully!');
   };
 
   return (

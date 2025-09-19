@@ -22,6 +22,7 @@ import TimeSlotPicker from "./TimeSlotPicker";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { baseURL } from "../config/constants";
+import { useNotification } from "../hooks/useNotification";
 import "./AiInterviewScheduler.css";
 
 const AiInterviewScheduler = ({
@@ -29,6 +30,7 @@ const AiInterviewScheduler = ({
   onTitleChange,
 }) => {
   const dispatch = useDispatch();
+  const notify = useNotification();
   const {
     slots,
     loading: slotsLoading,
@@ -99,17 +101,17 @@ const AiInterviewScheduler = ({
         console.log("Slots loaded successfully:", resultAction.payload);
         if (!resultAction.payload || resultAction.payload.length === 0) {
           console.warn("No slots returned from API");
-          setFormError("No interview slots found");
+          notify.info("No interview slots found", "Information");
         }
       } else {
         console.error("Failed to load slots:", resultAction.error);
-        setFormError(
+        notify.error(
           resultAction.error.message || "Failed to load interview slots"
         );
       }
     } catch (error) {
       console.error("Error in initializeData:", error);
-      setFormError(error.message || "An error occurred while loading slots");
+      notify.error(error.message || "An error occurred while loading slots");
     } finally {
       setInitialLoading(false);
     }
@@ -122,14 +124,13 @@ const AiInterviewScheduler = ({
       initializeData();
     } else {
       console.warn("No user data found. User might not be authenticated.");
-      setFormError("Please log in to access interview scheduling.");
+      notify.error("Please log in to access interview scheduling.");
     }
   }, [user, initializeData]);
 
   // Add a manual refresh function
   const handleRefresh = useCallback(() => {
     setRetryCount(0);
-    setFormError(null);
     initializeData();
   }, [initializeData]);
 
@@ -189,7 +190,7 @@ const AiInterviewScheduler = ({
         return validSlots;
       } catch (error) {
         console.error("Error in fetchSlots:", error);
-        setFormError(error.message);
+        notify.error(error.message || "Failed to fetch slots");
         throw error;
       }
     },
@@ -216,7 +217,7 @@ const AiInterviewScheduler = ({
       if (e) e.preventDefault();
 
       if (selectedTimes.length === 0) {
-        setFormError("Please select at least one time slot");
+        notify.error("Please select at least one time slot");
         return;
       }
 
@@ -303,10 +304,11 @@ const AiInterviewScheduler = ({
           // Also clear and reset selected times to trigger refresh
           setSelectedTimes([]);
           resetSlotForm();
+          notify.success("Interview slot created successfully!");
         }
       } catch (error) {
         console.error("Error creating slot:", error);
-        setFormError(error.message);
+        notify.error(error.message || "Failed to create slot");
       } finally {
         setIsSubmitting(false);
       }
@@ -389,9 +391,10 @@ const AiInterviewScheduler = ({
 
         await fetchSlots();
         setEditingSlot(null);
+        notify.success("Interview slot updated successfully!");
       } catch (error) {
         console.error("Error updating slot:", error);
-        setFormError(error.message);
+        notify.error(error.message || "Failed to update slot");
       } finally {
         setIsSubmitting(false);
       }
@@ -427,9 +430,10 @@ const AiInterviewScheduler = ({
         if (!response.ok) throw new Error("Failed to delete slot");
 
         await fetchSlots();
+        notify.success("Interview slot deleted successfully!");
       } catch (error) {
         console.error("Error deleting slot:", error);
-        setFormError(error.message);
+        notify.error(error.message || "Failed to delete slot");
       } finally {
         setIsSubmitting(false);
       }
@@ -1305,7 +1309,6 @@ const AiInterviewScheduler = ({
     <div className="ai-interview-scheduler">
       {/* Left Side - Form */}
       <div className="ai-int-form-container">
-          {formError && <div className="ai-int-error-message">{formError}</div>}
           <form onSubmit={handleSlotSubmit} className="ai-int-form">
           <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">

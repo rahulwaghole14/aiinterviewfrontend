@@ -13,11 +13,13 @@ import { baseURL } from "../data";
 import "./CandidateDetails.css";
 import BeatLoader from "react-spinners/BeatLoader";
 import StatusUpdateModal from "./StatusUpdateModal";
+import { useNotification } from "../hooks/useNotification";
 
 const CandidateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const notify = useNotification();
 
   const allCandidates = useSelector((state) => state.candidates.allCandidates);
   const candidatesStatus = useSelector(
@@ -31,7 +33,6 @@ const CandidateDetails = () => {
   const [interviews, setInterviews] = useState([]);
   const [interviewsLoading, setInterviewsLoading] = useState(false);
   const [authToken, setAuthToken] = useState("");
-  const [error, setError] = useState(null);
 
   // Get auth token from localStorage when component mounts
   useEffect(() => {
@@ -295,7 +296,7 @@ const CandidateDetails = () => {
   const handleEvaluationSubmit = async (evaluationData) => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      setError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
@@ -322,10 +323,10 @@ const CandidateDetails = () => {
       // Refresh the data
       await fetchInterviews();
       setShowStatusModal(false);
-      setError(null);
+      notify.success("Evaluation submitted successfully!");
     } catch (error) {
       console.error("Error submitting evaluation:", error);
-      setError(
+      notify.error(
         error.message || "Failed to submit evaluation. Please try again."
       );
     } finally {
@@ -757,7 +758,6 @@ const CandidateDetails = () => {
           isOpen={showStatusModal}
           onClose={() => {
             setShowStatusModal(false);
-            setError(null);
           }}
           onUpdateStatus={handleStatusUpdate}
           action={selectedAction}
