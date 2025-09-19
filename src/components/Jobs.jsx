@@ -35,6 +35,12 @@ const Jobs = () => {
   const userRole = user?.role?.toUpperCase(); // Get the user's role and convert to uppercase for consistent comparison
   const userCompanyName = user?.company_name; // Get the logged-in user's company name
 
+  // Helper function to get domain name by ID - moved to top to avoid hoisting issues
+  const getDomainName = (domainId) => {
+    const domain = domains.find((d) => d.id === domainId);
+    return domain ? domain.name : `Domain ${domainId}`;
+  };
+
   // Log user details for debugging
   useEffect(() => {
     if (user) {
@@ -831,11 +837,6 @@ const Jobs = () => {
     );
   };
 
-  // Helper function to get domain name by ID
-  const getDomainName = (domainId) => {
-    const domain = domains.find((d) => d.id === domainId);
-    return domain ? domain.name : `Domain ${domainId}`;
-  };
 
   // Determine if any job operation is in progress (for disabling other buttons)
   const isAnyJobOperationInProgress =
