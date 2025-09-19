@@ -540,13 +540,6 @@ const TimeSlotPicker = ({
     return <div className="slots-loading">Loading available time slots...</div>;
   }
 
-  if (error) {
-    return (
-      <div className="slots-error">
-        Error loading slots: {error}. Showing default slots.
-      </div>
-    );
-  }
 
   // Combine all actual slots from API data
   const allActualSlots = [

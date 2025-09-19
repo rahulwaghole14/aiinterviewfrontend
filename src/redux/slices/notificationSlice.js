@@ -2,8 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  notifications: [], // Array of notifications
-  currentNotification: null, // Currently displayed notification
+  notifications: [], // Array of notifications (newest first for stacking)
 };
 
 const notificationSlice = createSlice({
@@ -11,7 +10,7 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     showNotification: (state, action) => {
-      const { type, title, message, duration = 5000, id = Date.now() } = action.payload;
+      const { type, title, message, duration = 3000, id = Date.now() } = action.payload;
       
       const notification = {
         id,
@@ -22,12 +21,12 @@ const notificationSlice = createSlice({
         timestamp: new Date().toISOString(),
       };
 
-      // Add to notifications array
-      state.notifications.push(notification);
+      // Add to beginning of notifications array (newest first for stacking)
+      state.notifications.unshift(notification);
       
-      // Set as current notification if none is currently shown
-      if (!state.currentNotification) {
-        state.currentNotification = notification;
+      // Keep only the last 5 notifications to prevent memory issues
+      if (state.notifications.length > 5) {
+        state.notifications = state.notifications.slice(0, 5);
       }
     },
 
@@ -38,35 +37,10 @@ const notificationSlice = createSlice({
       state.notifications = state.notifications.filter(
         notification => notification.id !== notificationId
       );
-      
-      // Clear current notification if it matches
-      if (state.currentNotification?.id === notificationId) {
-        state.currentNotification = null;
-        
-        // Show next notification if any exist
-        if (state.notifications.length > 0) {
-          state.currentNotification = state.notifications[0];
-        }
-      }
-    },
-
-    clearCurrentNotification: (state) => {
-      const currentId = state.currentNotification?.id;
-      
-      if (currentId) {
-        // Remove from notifications array
-        state.notifications = state.notifications.filter(
-          notification => notification.id !== currentId
-        );
-      }
-      
-      // Set next notification as current
-      state.currentNotification = state.notifications.length > 0 ? state.notifications[0] : null;
     },
 
     clearAllNotifications: (state) => {
       state.notifications = [];
-      state.currentNotification = null;
     },
   },
 });
@@ -74,7 +48,6 @@ const notificationSlice = createSlice({
 export const {
   showNotification,
   hideNotification,
-  clearCurrentNotification,
   clearAllNotifications,
 } = notificationSlice.actions;
 

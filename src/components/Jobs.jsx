@@ -923,13 +923,6 @@ const Jobs = () => {
           </div>
         )}
 
-        {/* Main page error/success messages (only for job creation) */}
-        {errorMessage && !isAnyDomainOperationInProgress && (
-          <div className="error-msg">⚠️ {errorMessage}</div>
-        )}
-        {showMessage && !isAnyDomainOperationInProgress && (
-          <div className="success-msg">✅ Job successfully added!</div>
-        )}
         {jobsError && (
           <div className="error-msg">⚠️ Failed to load jobs: {jobsError}</div>
         )}

@@ -65,7 +65,6 @@ const AddCandidates = () => {
 
   // NEW: State for success modal
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
   // State for filtered jobs based on selected domain
   const [filteredJobsByDomain, setFilteredJobsByDomain] = useState([]);
@@ -135,8 +134,6 @@ const AddCandidates = () => {
   // Function to handle bulk resume upload and extraction
   const handleBulkResumeUpload = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
-    setShowMessage(false); // Clear previous success message
     setShowSuccessModal(false); // Clear any previous success modal
 
     if (!validateForm()) return;
@@ -200,19 +197,18 @@ const AddCandidates = () => {
   // Function to handle submitting candidates from parsed data
   const handleSubmitCandidates = async () => {
     if (parsedResumeData.length === 0) {
-      setErrorMessage("No candidate data to submit");
+      notify.error("No candidate data to submit");
       return;
     }
 
     const authToken = localStorage.getItem('authToken');
     if (!authToken) {
-      setErrorMessage("Please log in to submit candidates.");
+      notify.error("Please log in to submit candidates.");
       navigate('/login');
       return;
     }
 
     setIsSubmittingCandidates(true);
-    setErrorMessage(""); // Clear previous errors
     setShowSuccessModal(false); // Clear any previous success modal
 
     // Get domain name from ID
@@ -260,7 +256,7 @@ const AddCandidates = () => {
 
       // Display success message if any candidates were successfully created
       if (response.data.summary.successful_creations > 0) {
-        setSuccessMessage("Candidates added successfully!");
+        notify.success("Candidates added successfully!");
         setShowSuccessModal(true); // Show the new success modal
         // Clear parsed data after successful submission
         setParsedResumeData([]);
@@ -274,13 +270,13 @@ const AddCandidates = () => {
         });
         if (fileInputRef.current) fileInputRef.current.value = "";
       } else {
-        setErrorMessage(response.data.message || "No candidates were successfully added.");
+        notify.error(response.data.message || "No candidates were successfully added.");
       }
 
       // No need for setTimeout here, modal will be closed by user
     } catch (error) {
       console.error("Submit candidates error:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Failed to submit candidates. Please try again.");
+      notify.error(error.response?.data?.message || "Failed to submit candidates. Please try again.");
       if (error.response?.status === 401) {
         navigate('/login');
       }
@@ -292,7 +288,6 @@ const AddCandidates = () => {
   // NEW: Function to close the success modal
   const closeSuccessModal = () => {
     setShowSuccessModal(false);
-    setSuccessMessage("");
   };
 
   // Modified handleDeleteClick to work with parsedResumeData (client-side)
@@ -307,7 +302,6 @@ const AddCandidates = () => {
     if (!deleteTempId) return;
 
     setParsedResumeData(prev => prev.filter(c => c.tempId !== deleteTempId));
-    setErrorMessage(""); // Clear any previous error messages
     setShowDeleteModalOverlay(false);
     setShowDeleteConfirm(false);
     setDeleteTempId(null);
@@ -364,13 +358,11 @@ const AddCandidates = () => {
     );
     setEditingCandidateTempId(null);
     setEditedCandidateData(null);
-    setErrorMessage('');
   };
 
   const handleCancelEdit = () => {
     setEditingCandidateTempId(null);
     setEditedCandidateData(null);
-    setErrorMessage('');
   };
 
   // Helper function to get domain name by ID
@@ -717,7 +709,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#3D8E3D"/>
             </svg>
             <h3>Success!</h3>
-            <p>{successMessage}</p>
+            <p>Candidates processed successfully!</p>
             <div className="modal-actions">
               <button className="modal-submit-btn" onClick={closeSuccessModal}>
                 Close

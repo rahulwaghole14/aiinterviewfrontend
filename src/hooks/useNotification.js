@@ -20,9 +20,9 @@ export const useNotification = () => {
      * Show a success notification
      * @param {string} message - The message to display
      * @param {string} title - Optional title (defaults to "Success")
-     * @param {number} duration - Auto-dismiss duration in ms (defaults to 5000)
+     * @param {number} duration - Auto-dismiss duration in ms (defaults to 3000)
      */
-    success: (message, title = "Success", duration = 5000) => {
+    success: (message, title = "Success", duration = 3000) => {
       dispatch(showSuccess(title, message, duration));
     },
 
@@ -40,9 +40,9 @@ export const useNotification = () => {
      * Show a warning notification
      * @param {string} message - The message to display
      * @param {string} title - Optional title (defaults to "Warning")
-     * @param {number} duration - Auto-dismiss duration in ms (defaults to 7000)
+     * @param {number} duration - Auto-dismiss duration in ms (defaults to 4000)
      */
-    warning: (message, title = "Warning", duration = 7000) => {
+    warning: (message, title = "Warning", duration = 4000) => {
       dispatch(showWarning(title, message, duration));
     },
 
@@ -50,9 +50,9 @@ export const useNotification = () => {
      * Show an info notification
      * @param {string} message - The message to display
      * @param {string} title - Optional title (defaults to "Information")
-     * @param {number} duration - Auto-dismiss duration in ms (defaults to 5000)
+     * @param {number} duration - Auto-dismiss duration in ms (defaults to 3000)
      */
-    info: (message, title = "Information", duration = 5000) => {
+    info: (message, title = "Information", duration = 3000) => {
       dispatch(showInfo(title, message, duration));
     },
 

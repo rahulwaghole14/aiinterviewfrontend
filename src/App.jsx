@@ -21,7 +21,7 @@ import AiInterviewScheduler from './components/AiInterviewScheduler'; // Import 
 import InterviewPortal from './components/InterviewPortal'; // Import the new InterviewPortal component
 import InterviewResults from './components/InterviewResults'; // Import the new InterviewResults component
 import InterviewResultsList from './components/InterviewResultsList'; // Import the new InterviewResultsList component
-import NotificationModal from './components/common/NotificationModal'; // Import the notification modal
+import NotificationToast from './components/common/NotificationToast'; // Import the notification toast
 import "./App.css";
 
 const initialTheme = localStorage.getItem('theme') || 'light';
@@ -350,8 +350,8 @@ function App() {
             </Routes>
           </div>
         </div>
-        {/* Global Notification Modal */}
-        <NotificationModal />
+        {/* Global Notification Toast */}
+        <NotificationToast />
       </div>
     ) : (
       <div>
@@ -361,8 +361,8 @@ function App() {
           <Route path="/register" element={<Register autoFocusUsername={true} />} />
           <Route path="*" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
         </Routes>
-        {/* Global Notification Modal for unauthenticated users */}
-        <NotificationModal />
+        {/* Global Notification Toast for unauthenticated users */}
+        <NotificationToast />
       </div>
     )
   );
