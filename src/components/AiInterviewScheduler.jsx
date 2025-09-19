@@ -45,6 +45,48 @@ const AiInterviewScheduler = ({
     (state) => state?.user?.user || state?.user?.currentUser || {}
   );
   console.log("User data in AiInterviewScheduler:", user);
+  
+  // Get search term for sorting
+  const searchTerm = useSelector((state) => state.search?.searchTerm || '');
+
+  // Sort slots based on search term relevance
+  const sortedSlots = React.useMemo(() => {
+    if (!searchTerm || !slots) return slots || [];
+    
+    console.log('AiInterviewScheduler sorting with search term:', searchTerm);
+    const searchLower = searchTerm.toLowerCase();
+    
+    return [...slots].sort((a, b) => {
+      // Calculate relevance scores for both slots
+      const getRelevanceScore = (slot) => {
+        let score = 0;
+        const searchableFields = [
+          slot.job_title, slot.company_name, slot.ai_interview_type,
+          slot.status, slot.slot_type, slot.interview_date,
+          slot.notes, slot.start_time, slot.end_time
+        ].filter(Boolean);
+        
+        searchableFields.forEach(field => {
+          const fieldStr = String(field).toLowerCase();
+          if (fieldStr.includes(searchLower)) {
+            if (fieldStr.startsWith(searchLower)) score += 10; // Starts with search term
+            else score += 5; // Contains search term
+          }
+        });
+        
+        return score;
+      };
+      
+      const aScore = getRelevanceScore(a);
+      const bScore = getRelevanceScore(b);
+      
+      if (aScore !== bScore) {
+        return bScore - aScore; // Higher relevance first
+      }
+      
+      return 0; // No additional sorting if scores are equal
+    });
+  }, [slots, searchTerm]);
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
@@ -1208,7 +1250,7 @@ const AiInterviewScheduler = ({
                 },
               },
             ]}
-            data={slots || []}
+            data={sortedSlots}
             loading={slotsLoading}
             actions={["edit", "delete"]}
             onAction={(action, rowData, rowIndex) => {
@@ -1622,7 +1664,7 @@ const AiInterviewScheduler = ({
             render: (value) => value || 1,
           },
         ]}
-        data={slots || []}
+        data={sortedSlots}
         loading={slotsLoading}
         actions={["edit", "delete"]}
         onAction={(action, rowData, rowIndex) => {
