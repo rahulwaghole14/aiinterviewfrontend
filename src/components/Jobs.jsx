@@ -136,19 +136,15 @@ const Jobs = () => {
     description: "",
   });
   const [editingDomain, setEditingDomain] = useState(null);
-  const [domainMessage, setDomainMessage] = useState("");
-  const [domainError, setDomainError] = useState("");
 
   // Function to create a new domain
   const handleCreateDomain = async (e) => {
     e.preventDefault();
     setIsCreatingDomain(true);
-    setDomainMessage("");
-    setDomainError("");
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
       setIsCreatingDomain(false);
-      setDomainError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
@@ -172,12 +168,10 @@ const Jobs = () => {
       const newDomain = await response.json();
       dispatch(addDomain(newDomain)); // Dispatch to Redux store
       setDomainFormData({ name: "", description: "" });
-      setDomainMessage("Domain created successfully!");
-      setTimeout(() => setDomainMessage(""), 3000);
+      notify.success("Domain created successfully!");
     } catch (error) {
       console.error("Error creating domain:", error);
-      setDomainError(error.message || "Failed to create domain.");
-      setTimeout(() => setDomainError(""), 3000);
+      notify.error(error.message || "Failed to create domain.");
     } finally {
       setIsCreatingDomain(false);
     }
@@ -186,12 +180,10 @@ const Jobs = () => {
   // Function to update a domain
   const handleUpdateDomain = async (domainId, updatedData) => {
     setUpdatingDomainId(domainId);
-    setDomainMessage("");
-    setDomainError("");
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
       setUpdatingDomainId(null);
-      setDomainError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
@@ -215,12 +207,10 @@ const Jobs = () => {
       const updatedDomain = await response.json();
       dispatch(updateDomain({ id: domainId, updatedData: updatedDomain })); // Dispatch to Redux store
       setEditingDomain(null);
-      setDomainMessage("Domain updated successfully!");
-      setTimeout(() => setDomainMessage(""), 3000);
+      notify.success("Domain updated successfully!");
     } catch (error) {
       console.error("Error updating domain:", error);
-      setDomainError(error.message || "Failed to update domain.");
-      setTimeout(() => setDomainError(""), 3000);
+      notify.error(error.message || "Failed to update domain.");
     } finally {
       setUpdatingDomainId(null);
     }
@@ -229,12 +219,10 @@ const Jobs = () => {
   // Function to delete a domain
   const handleDeleteDomain = async (domainId) => {
     setDeletingDomainId(domainId);
-    setDomainMessage("");
-    setDomainError("");
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
       setDeletingDomainId(null);
-      setDomainError("Authentication token not found. Please log in again.");
+      notify.error("Authentication token not found. Please log in again.");
       return;
     }
 
@@ -254,12 +242,10 @@ const Jobs = () => {
       }
 
       dispatch(deleteDomain(domainId)); // Dispatch to Redux store
-      setDomainMessage("Domain deleted successfully!");
-      setTimeout(() => setDomainMessage(""), 3000);
+      notify.success("Domain deleted successfully!");
     } catch (error) {
       console.error("Error deleting domain:", error);
-      setDomainError(error.message || "Failed to delete domain.");
-      setTimeout(() => setDomainError(""), 3000);
+      notify.error(error.message || "Failed to delete domain.");
     } finally {
       setDeletingDomainId(null);
     }
@@ -385,9 +371,6 @@ const Jobs = () => {
         createDomainModalOverlay.classList.remove("hidden");
       } else {
         createDomainModalOverlay.classList.add("hidden"); // Corrected from createDomainModal.classList.add('hidden');
-        // Clear messages when modal closes
-        setDomainMessage("");
-        setDomainError("");
       }
     }
   }, [showCreateDomainModal]);
@@ -402,9 +385,6 @@ const Jobs = () => {
         viewDomainsModalOverlay.classList.remove("hidden");
       } else {
         viewDomainsModalOverlay.classList.add("hidden");
-        // Clear messages when modal closes
-        setDomainMessage("");
-        setDomainError("");
       }
     }
   }, [showViewDomainsModal]);
@@ -1323,12 +1303,6 @@ const Jobs = () => {
             </div>
             <form onSubmit={handleCreateDomain}>
               <div className="modal-body">
-                {domainMessage && (
-                  <div className="success-message">{domainMessage}</div>
-                )}
-                {domainError && (
-                  <div className="error-message">{domainError}</div>
-                )}
                 <div className="form-group">
                   <label htmlFor="domain-name">Domain Name</label>
                   <input
@@ -1395,12 +1369,6 @@ const Jobs = () => {
               </button>
             </div>
             <div className="modal-body">
-              {domainsError && (
-                <div className="error-message">{domainsError}</div>
-              )}
-              {domainMessage && (
-                <div className="success-message">{domainMessage}</div>
-              )}
               {domainsStatus === "loading" ? (
                 <div className="loading-overlay">
                   <div className="loading-spinner"></div>

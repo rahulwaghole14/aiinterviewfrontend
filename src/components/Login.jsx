@@ -16,6 +16,13 @@ const Login = ({ onLogin }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const notify = useNotification();
+  
+  // Test notification on component mount
+  React.useEffect(() => {
+    console.log('Login component mounted, testing notification...');
+    // Test notification to verify toast system is working
+    notify.info('Login page loaded successfully!', 'System');
+  }, [notify]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

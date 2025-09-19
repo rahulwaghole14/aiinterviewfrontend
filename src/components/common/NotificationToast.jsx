@@ -32,15 +32,20 @@ const NotificationToast = () => {
 
   useEffect(() => {
     // Auto-dismiss notifications that have duration > 0 and are not expanded
+    const timers = [];
+    
     notifications.forEach(notification => {
       if (notification.duration > 0 && !expandedNotifications.has(notification.id)) {
         const timer = setTimeout(() => {
           dispatch(hideNotification(notification.id));
         }, notification.duration);
-
-        return () => clearTimeout(timer);
+        timers.push(timer);
       }
     });
+
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
   }, [notifications, expandedNotifications, dispatch]);
 
   if (notifications.length === 0) {

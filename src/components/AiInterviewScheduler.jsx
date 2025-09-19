@@ -1288,21 +1288,9 @@ const AiInterviewScheduler = ({
     );
   }
 
-  if (slotsError) {
-    return (
-      <div className="ai-int-interview-scheduler">
-        <div className="ai-int-error-container">
-          <p className="ai-int-error-message">{slotsError}</p>
-          <button
-            onClick={handleRefresh}
-            className="ai-int-retry-button"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Retrying..." : "Retry"}
-          </button>
-        </div>
-      </div>
-    );
+  // Show error notification and continue with normal render
+  if (slotsError && retryCount === 0) {
+    notify.error(slotsError, "Failed to Load Slots");
   }
 
   return (
