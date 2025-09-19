@@ -94,6 +94,16 @@ class SearchService {
       sortByRelevance = true,
     } = options;
 
+    console.log('Search query:', query);
+    console.log('Available data:', {
+      candidates: this.searchableData.candidates.length,
+      jobs: this.searchableData.jobs.length,
+      hiringAgencies: this.searchableData.hiringAgencies.length,
+      companies: this.searchableData.companies.length,
+      recruiters: this.searchableData.recruiters.length,
+      interviewSlots: this.searchableData.interviewSlots.length,
+    });
+
     const results = [];
     const lowerQuery = query.toLowerCase();
 

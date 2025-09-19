@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiUser, FiMenu, FiChevronLeft, FiX } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSearchTerm } from '../redux/actions/searchActions';
+import { setSearchTerm } from '../redux/slices/searchSlice';
 import { searchService } from '../services/searchService';
 
 const Header = ({
@@ -27,15 +27,27 @@ const Header = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const reduxSearchTerm = useSelector((state) => state.search.searchTerm); // Get current Redux search term
+  const reduxSearchTerm = useSelector((state) => state.search?.searchTerm || ''); // Get current Redux search term
   
   // Get data from Redux stores for search
-  const candidates = useSelector((state) => state.candidates.allCandidates || []);
-  const jobs = useSelector((state) => state.jobs.allJobs || []);
-  const hiringAgencies = useSelector((state) => state.hiringAgencies.hiringAgencies || []);
-  const companies = useSelector((state) => state.companies.companies || []);
-  const recruiters = useSelector((state) => state.recruiters.recruiters || []);
-  const interviewSlots = useSelector((state) => state.interviewSlots.slots || []);
+  const candidates = useSelector((state) => state.candidates?.allCandidates || []);
+  const jobs = useSelector((state) => state.jobs?.allJobs || []);
+  const hiringAgencies = useSelector((state) => state.hiringAgencies?.hiringAgencies || []);
+  const companies = useSelector((state) => state.companies?.companies || []);
+  const recruiters = useSelector((state) => state.recruiters?.recruiters || []);
+  const interviewSlots = useSelector((state) => state.interviewSlots?.slots || []);
+
+  // Debug data availability
+  useEffect(() => {
+    console.log('Search data updated:', {
+      candidates: candidates.length,
+      jobs: jobs.length,
+      hiringAgencies: hiringAgencies.length,
+      companies: companies.length,
+      recruiters: recruiters.length,
+      interviewSlots: interviewSlots.length,
+    });
+  }, [candidates, jobs, hiringAgencies, companies, recruiters, interviewSlots]);
 
   // Update search service with latest data
   useEffect(() => {
@@ -84,6 +96,7 @@ const Header = ({
     if (term && term.length >= 2) {
       // Use search service for comprehensive search
       const results = searchService.search(term, { limit: 10 });
+      console.log('Search results:', results);
       setSearchResults(results);
     } else {
       setSearchResults([]);

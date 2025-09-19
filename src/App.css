@@ -412,6 +412,7 @@ body, html {
   padding: 0.5rem 0.75rem;
   width: 250px;
   transition: var(--transition);
+  gap: 0.5rem;
 }
 
 .header-search:focus-within {
@@ -419,14 +420,19 @@ body, html {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.header-search .search-icon {
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
 .header-search input {
   border: none;
   outline: none;
   color: var(--color-text);
-  margin-left: 0.5rem;
   width: 100%;
   font-size: 0.95rem;
   background: transparent;
+  flex: 1;
 }
 
 .header-search input::placeholder {
