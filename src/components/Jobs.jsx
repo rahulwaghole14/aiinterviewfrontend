@@ -16,7 +16,7 @@ import {
 import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
-import { FormModal, ConfirmModal } from "./common/Modal";
+import Modal, { FormModal, ConfirmModal } from "./common/Modal";
 import { useNotification } from "../hooks/useNotification";
 
 const Jobs = () => {
@@ -1330,20 +1330,14 @@ const Jobs = () => {
       </FormModal>
 
       {/* View Domains Modal - Moved outside main container */}
-      {showViewDomainsModal && (
-        <div id="view-domains-modal-overlay" className="modal-overlay">
-          <div className="modal-content large-modal">
-            <div className="modal-header">
-              <h3>All Domains</h3>
-              <button
-                className="modal-close-btn"
-                onClick={() => setShowViewDomainsModal(false)}
-                disabled={isAnyDomainOperationInProgress}
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
+      <Modal
+        isOpen={showViewDomainsModal}
+        onClose={() => setShowViewDomainsModal(false)}
+        title="All Domains"
+        size="large"
+        closeOnBackdrop={!isAnyDomainOperationInProgress}
+        closeOnEscape={!isAnyDomainOperationInProgress}
+      >
               {domainsStatus === "loading" ? (
                 <div className="loading-overlay">
                   <div className="loading-spinner"></div>
@@ -1452,18 +1446,7 @@ const Jobs = () => {
                 </div>
               )}
             </div>
-            <div className="modal-footer">
-              <button
-                className="cancel-btn"
-                onClick={() => setShowViewDomainsModal(false)}
-                disabled={isAnyDomainOperationInProgress}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
     </>
   );
 };

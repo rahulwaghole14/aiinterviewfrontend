@@ -6,6 +6,7 @@ import { baseURL } from "../data";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
+import Modal, { ConfirmModal } from './common/Modal';
 import { useNotification } from '../hooks/useNotification';
 
 const AddCandidates = () => {
@@ -393,7 +394,8 @@ const AddCandidates = () => {
   const isAnyModalOpen = showSuccessModal || showDeleteModalOverlay || showDeleteConfirm;
 
   return (
-    <div className={`add-candidates-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
+    <>
+      <div className={`add-candidates-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
       <div className="add-candidates-top-section">
         <div className="add-candidates-header-cards">
           <div className="add-candidates-card">
@@ -687,41 +689,40 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
         </div>
       </div>
 
-      {showDeleteModalOverlay && (
-        <div className={`modal-overlay ${showDeleteConfirm ? 'show' : ''}`}>
-          <div className={`delete-confirm-modal ${showDeleteConfirm ? 'show' : ''}`}>
-            <h3>Confirm Deletion</h3>
-            <p>Are you sure you want to delete this candidate? This action cannot be undone.</p>
-            <div className="delete-confirm-actions">
-              <button className="confirm-delete-btn" onClick={confirmDelete}>
-                Delete
-              </button>
-              <button className="cancel-delete-btn" onClick={cancelDelete}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modals outside the main container to avoid blur effect */}
+      <ConfirmModal
+        isOpen={showDeleteModalOverlay}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this candidate? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmButtonClass="btn-danger"
+      />
 
-      {/* NEW: Success Modal */}
-      {showSuccessModal && (
-        <div className={`modal-overlay show`}>
-          <div className={`success-modal show`}>
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#3D8E3D"/>
-            </svg>
-            <h3>Success!</h3>
-            <p>Candidates processed successfully!</p>
-            <div className="modal-actions">
-              <button className="modal-submit-btn" onClick={closeSuccessModal}>
-                Close
-              </button>
-            </div>
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={closeSuccessModal}
+        title="Success!"
+        size="small"
+        showFooter={true}
+        footer={
+          <div className="modal-confirm-actions">
+            <button className="common-modal-btn btn-primary" onClick={closeSuccessModal}>
+              Close
+            </button>
           </div>
+        }
+      >
+        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginBottom: '1rem' }}>
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#10b981"/>
+          </svg>
+          <p>Candidates processed successfully!</p>
         </div>
-      )}
-    </div>
+      </Modal>
+    </>
   );
 };
 

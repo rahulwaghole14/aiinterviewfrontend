@@ -360,7 +360,8 @@ const CandidateDetails = () => {
   const currentStatus = getCurrentStatus();
 
   return (
-    <div className="candidate-details-layout">
+    <>
+      <div className={`candidate-details-layout ${showStatusModal ? 'blur-background' : ''}`}>
       <div className="candidate-details-left-panel">
         <div className="candidate-details-content card">
           <div className="back-button-container">
@@ -767,9 +768,7 @@ const CandidateDetails = () => {
           onInterviewScheduled={fetchInterviews}
         />
       )}
-
-
-    </div>
+    </>
   );
 };
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { baseURL } from "../data";
 import HorizontalDatePicker from "./HorizontalDatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
+import Modal from "./common/Modal";
 import { useNotification } from "../hooks/useNotification";
 import "./StatusUpdateModal.css";
 
@@ -563,22 +564,33 @@ const StatusUpdateModal = ({
     }
   };
 
+  const getModalTitle = () => {
+    switch (action) {
+      case "schedule_interview":
+        return "Schedule Interview";
+      case "evaluate":
+        return "Evaluate Candidate";
+      case "hire_reject":
+        return "Hire/Reject Decision";
+      default:
+        return "Update Status";
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <div className="modal-header">
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
-        </div>
-
-        <div className="modal-content">
-          {renderForm()}
-        </div>
-      </div>
-    </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={getModalTitle()}
+      size="large"
+      showCloseButton={true}
+      closeOnBackdrop={!loading}
+      closeOnEscape={!loading}
+    >
+      {renderForm()}
+    </Modal>
   );
 };
 

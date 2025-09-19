@@ -12,6 +12,13 @@
   background-color: var(--color-bg); /* Ensure background matches global theme */
   color: var(--color-text); /* Ensure text color matches global theme */
   font-family: var(--font-family-base); /* Consistent font */
+  transition: filter 0.3s ease;
+}
+
+/* Blur effect when modal is open */
+.add-candidates-container.blur-background {
+  filter: blur(4px);
+  pointer-events: none;
 }
 
 /* Hide scrollbar for Webkit browsers (Chrome, Safari) */

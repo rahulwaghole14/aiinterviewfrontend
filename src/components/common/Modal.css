@@ -80,6 +80,14 @@
   flex: 1;
   min-height: 0;
   background: var(--color-card);
+  /* Hide scrollbars */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Webkit browsers (Chrome, Safari) */
+.common-modal-body::-webkit-scrollbar {
+  display: none;
 }
 
 /* Modal Footer */
@@ -94,16 +102,19 @@
 .modal-small .common-modal-content {
   width: 100%;
   max-width: 400px;
+  max-height: 400px;
 }
 
 .modal-medium .common-modal-content {
   width: 100%;
   max-width: 600px;
+  max-height: 500px;
 }
 
 .modal-large .common-modal-content {
   width: 100%;
   max-width: 800px;
+  max-height: 600px;
 }
 
 .modal-fullscreen .common-modal-content {

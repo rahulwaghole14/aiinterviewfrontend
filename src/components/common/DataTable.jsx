@@ -22,6 +22,7 @@ import React, {
   } from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
 import TimePicker12 from "./TimePicker12";
+import { ConfirmModal } from "./Modal";
 import "./DataTable.css";
 import PropTypes from "prop-types";
   
@@ -1388,35 +1389,16 @@ import PropTypes from "prop-types";
         {renderContextMenu()}
   
         {/* Delete Confirmation Modal */}
-        {dtDeleteConfirm.isOpen && (
-          <div className="dt-modal-overlay">
-            <div className="dt-modal-content">
-              <div className="dt-modal-header">
-                <h3>Confirm Delete</h3>
-              </div>
-              <div className="dt-modal-body">
-                <p>
-                  Are you sure you want to delete this item? This action cannot be
-                  undone.
-                </p>
-              </div>
-              <div className="dt-modal-actions">
-                <button
-                  className="dt-modal-button dt-modal-button-cancel"
-                  onClick={handleDtCancelDelete}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="dt-modal-button dt-modal-button-delete"
-                  onClick={handleDtConfirmDelete}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmModal
+          isOpen={dtDeleteConfirm.isOpen}
+          onClose={handleDtCancelDelete}
+          onConfirm={handleDtConfirmDelete}
+          title="Confirm Delete"
+          message="Are you sure you want to delete this item? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          confirmButtonClass="btn-danger"
+        />
       </div>
     );
   };

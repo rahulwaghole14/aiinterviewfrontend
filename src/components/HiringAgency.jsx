@@ -1580,12 +1580,12 @@ const HiringAgencies = () => {
 
       {/* Modals outside the main container to avoid blur effect */}
       <FormModal
-      isOpen={showAddModal}
-      onClose={() => setShowAddModal(false)}
-      onSubmit={handleAddUser}
-      title={getAddButtonText()}
-      submitText="Add User"
-      size="medium"
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleAddUser}
+        title={getAddButtonText()}
+        submitText="Add User"
+        size="medium"
     >
       <div className="form-group">
         <label htmlFor="username">Username *</label>
