@@ -1,6 +1,6 @@
 // src/redux/store.js
 import { configureStore } from '@reduxjs/toolkit';
-import searchReducer from './reducers/searchReducer';
+import searchReducer from './slices/searchSlice';
 import candidatesReducer from './slices/candidatesSlice';
 import jobsReducer from './slices/jobsSlice';
 import userReducer from './slices/userSlice';

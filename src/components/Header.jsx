@@ -4,7 +4,7 @@ import { FiSearch, FiUser, FiMenu, FiChevronLeft, FiX } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from '../redux/actions/searchActions';
-import { searchableItems } from '../data'; // Import searchable items from data.js
+import { searchService } from '../services/searchService';
 
 const Header = ({
   headerTitle, // Changed from 'title' to 'headerTitle' to match prop name in App.jsx
@@ -28,10 +28,26 @@ const Header = ({
   const location = useLocation();
   const dispatch = useDispatch();
   const reduxSearchTerm = useSelector((state) => state.search.searchTerm); // Get current Redux search term
+  
+  // Get data from Redux stores for search
+  const candidates = useSelector((state) => state.candidates.allCandidates || []);
+  const jobs = useSelector((state) => state.jobs.allJobs || []);
+  const hiringAgencies = useSelector((state) => state.hiringAgencies.hiringAgencies || []);
+  const companies = useSelector((state) => state.companies.companies || []);
+  const recruiters = useSelector((state) => state.recruiters.recruiters || []);
+  const interviewSlots = useSelector((state) => state.interviewSlots.slots || []);
+
+  // Update search service with latest data
+  useEffect(() => {
+    searchService.updateData('candidates', candidates);
+    searchService.updateData('jobs', jobs);
+    searchService.updateData('hiringAgencies', hiringAgencies);
+    searchService.updateData('companies', companies);
+    searchService.updateData('recruiters', recruiters);
+    searchService.updateData('interviewSlots', interviewSlots);
+  }, [candidates, jobs, hiringAgencies, companies, recruiters, interviewSlots]);
 
   // Sync localSearchTerm with Redux searchTerm when Redux searchTerm changes
-  // This ensures that if a search is active (e.g., from a search result click),
-  // the search input box reflects that search term.
   useEffect(() => {
     setLocalSearchTerm(reduxSearchTerm);
   }, [reduxSearchTerm]);
@@ -65,13 +81,10 @@ const Header = ({
     setLocalSearchTerm(term);
     dispatch(setSearchTerm(term)); // Update Redux search term immediately
 
-    if (term) {
-      const lowerCaseTerm = term.toLowerCase(); // Convert term to lowercase once
-      const filtered = searchableItems.filter(
-        (item) =>
-          item && item.name && item.name.toLowerCase().includes(lowerCaseTerm) // Safely check item and item.name
-      );
-      setSearchResults(filtered);
+    if (term && term.length >= 2) {
+      // Use search service for comprehensive search
+      const results = searchService.search(term, { limit: 10 });
+      setSearchResults(results);
     } else {
       setSearchResults([]);
     }
@@ -108,12 +121,26 @@ const Header = ({
     }
   };
 
-  const handleSearchResultClick = (item) => {
-    setLocalSearchTerm(item.name);           // Update local search box
-    dispatch(setSearchTerm(item.name));      // Update Redux search term
-    navigate(`/${item.path}`);               // Navigate to the associated path
+  const handleSearchResultClick = (result) => {
+    setLocalSearchTerm(result.title);        // Update local search box with result title
+    dispatch(setSearchTerm(result.title));   // Update Redux search term
+    
+    // Navigate to the appropriate component
+    if (result.detailPath && result.type === 'candidate') {
+      navigate(`/${result.detailPath}`);     // Navigate to specific candidate details
+    } else {
+      navigate(`/${result.path}`);           // Navigate to the component
+    }
+    
     setIsSearchModalOpen(false);             // Close modal (for mobile)
     setSearchResults([]);                    // Clear suggestions
+    
+    // Store the selected result for highlighting in the target component
+    localStorage.setItem('searchHighlight', JSON.stringify({
+      type: result.type,
+      id: result.id,
+      query: result.title,
+    }));
   };
 
   // Handle Enter key to trigger search
@@ -179,11 +206,28 @@ const Header = ({
               />
             )}
             {localSearchTerm && searchResults.length > 0 && (
-              <ul className="search-dropdown">
-                {searchResults.map((item, index) => (
-                  <li key={index} onClick={() => handleSearchResultClick(item)}>{item.name}</li>
+              <div className="search-dropdown">
+                {searchResults.map((result, index) => (
+                  <div 
+                    key={`${result.type}-${result.id}`} 
+                    className="search-result-item"
+                    onClick={() => handleSearchResultClick(result)}
+                  >
+                    <div className="search-result-content">
+                      <div className="search-result-title">
+                        {result.title}
+                        <span className="search-result-type">{result.type}</span>
+                      </div>
+                      {result.subtitle && (
+                        <div className="search-result-subtitle">{result.subtitle}</div>
+                      )}
+                      {result.description && (
+                        <div className="search-result-description">{result.description}</div>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         )}
@@ -203,11 +247,28 @@ const Header = ({
                 <FiX size={24} onClick={toggleSearchModal} className="close-search-modal" />
               </div>
               {localSearchTerm && searchResults.length > 0 && (
-                <ul className="search-modal-results">
-                  {searchResults.map((item, index) => (
-                    <li key={index} onClick={() => handleSearchResultClick(item)}>{item.name}</li>
+                <div className="search-modal-results">
+                  {searchResults.map((result, index) => (
+                    <div 
+                      key={`${result.type}-${result.id}`} 
+                      className="search-result-item"
+                      onClick={() => handleSearchResultClick(result)}
+                    >
+                      <div className="search-result-content">
+                        <div className="search-result-title">
+                          {result.title}
+                          <span className="search-result-type">{result.type}</span>
+                        </div>
+                        {result.subtitle && (
+                          <div className="search-result-subtitle">{result.subtitle}</div>
+                        )}
+                        {result.description && (
+                          <div className="search-result-description">{result.description}</div>
+                        )}
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
               {localSearchTerm && searchResults.length === 0 && (
                 <p className="no-results">No results found for "{localSearchTerm}"</p>
