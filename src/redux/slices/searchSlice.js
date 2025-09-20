@@ -166,3 +166,5 @@ export const selectIsSearchModalOpen = (state) => state.search.isSearchModalOpen
 
 export default searchSlice.reducer;
 
+
+

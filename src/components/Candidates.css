@@ -83,6 +83,7 @@
 
 .filter-sidebar-section {
   background-color: var(--color-card); /* Use theme variable */
+  border: 1px solid var(--color-border); /* Add border to match other sections */
   border-radius: var(--radius); /* Use theme variable */
   box-shadow: var(--shadow-soft); /* Use theme variable */
   padding: 2rem;
@@ -152,7 +153,7 @@
 .status-badge {
   padding: 0.2rem 0.6rem; /* Reduced padding */
   font-size: 0.7rem; /* Reduced font size */
-  border-radius: 9999px; /* Full rounded corners */
+  border-radius: var(--radius-full); /* Full rounded corners using CSS variable */
   border: none; /* Removed border */
   font-weight: 600;
   white-space: normal; /* Allow text wrapping */
@@ -227,7 +228,7 @@
   font-weight: 600;
   font-size: 0.75rem;
   padding: 0.15rem 0.4rem;
-  border-radius: 0.2rem;
+  border-radius: var(--radius-small); /* Use CSS variable */
   min-width: 2.5rem;
   text-align: center;
   display: inline-block;

@@ -310,3 +310,5 @@ const GlobalSearch = ({ isMobile = false, onResultSelect }) => {
 
 export default GlobalSearch;
 
+
+
