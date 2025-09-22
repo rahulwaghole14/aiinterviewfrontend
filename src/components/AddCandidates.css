@@ -842,13 +842,14 @@
   border-radius: var(--radius);
   padding: 1rem;
   box-shadow: var(--shadow-soft);
+  margin-bottom: 1rem;
 }
 
 .mobile-cards-icons {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  flex: 1;
+  flex-shrink: 0;
 }
 
 .mobile-card-icon {
@@ -996,6 +997,8 @@
   flex-shrink: 0;
   min-height: 60px;
   justify-content: center;
+  width: auto;
+  min-width: 80px;
 }
 
 .button-text {
