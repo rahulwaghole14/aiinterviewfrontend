@@ -923,6 +923,31 @@
   line-height: 1;
 }
 
+.close-selected-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.close-selected-icon:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.close-selected-icon:active {
+  transform: scale(0.95);
+}
+
 .icon-wrapper {
   display: flex;
   align-items: center;
@@ -1151,6 +1176,11 @@
 
   .selected-number {
     font-size: 1rem;
+  }
+
+  .close-selected-icon {
+    width: 28px;
+    height: 28px;
   }
 
   .preview-section,
