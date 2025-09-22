@@ -244,9 +244,9 @@
   display: flex;
   width: 100%; /* Full width to match chart-bars */
   min-width: 500px; /* Match chart-bars min-width */
-  justify-content: space-between; /* Distribute labels evenly between bars */
   margin-top: 0.5rem;
-  padding: 0 0.5rem; /* Add padding to match chart-bars gap */
+  padding-left: 30px; /* Match chart-bars padding for Y-axis label */
+  padding-right: 0.5rem; /* Match chart-bars right padding */
 }
 
 .x-axis-label {
@@ -454,7 +454,8 @@
   .chart-x-axis {
     width: 100%; /* Full width to match chart-bars */
     min-width: 350px; /* Match chart-bars min-width */
-    padding: 0 0.5rem; /* Add padding to match chart-bars gap */
+    padding-left: 25px; /* Match chart-bars padding for Y-axis label */
+    padding-right: 0.5rem; /* Match chart-bars right padding */
   }
 
   .x-axis-label {
@@ -513,7 +514,8 @@
   .chart-x-axis {
     width: 100%; /* Full width to match chart-bars */
     min-width: 300px; /* Match chart-bars min-width */
-    padding: 0 0.5rem; /* Add padding to match chart-bars gap */
+    padding-left: 20px; /* Match chart-bars padding for Y-axis label */
+    padding-right: 0.5rem; /* Match chart-bars right padding */
   }
 
   .chart-tooltip {
