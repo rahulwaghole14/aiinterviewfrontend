@@ -414,9 +414,10 @@ const AddCandidates = () => {
       setSelectedCard(null);
       setIsExpanded(false);
     } else {
-      // If different card clicked, expand and select
+      // If different card clicked, select it
       setSelectedCard(cardType);
-      setIsExpanded(true);
+      // Only set expanded to true for Add Candidate button
+      setIsExpanded(cardType === 'add');
     }
   };
 
