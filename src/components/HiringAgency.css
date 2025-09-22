@@ -2,11 +2,22 @@
 
 /* Override DataTable height for Hiring Agency to reduce blank space */
 .hiring-agencies-container .data-table-container {
-  min-height: 400px !important; /* Reduced from 700px to 400px */
+  min-height: 350px !important; /* Further reduced to eliminate gap */
 }
 
 .hiring-agencies-container .table-responsive {
-  min-height: 300px !important; /* Reduced from 500px to 300px */
+  min-height: 250px !important; /* Further reduced to eliminate gap */
+}
+
+/* Remove any margin/padding that creates gap between table and pagination */
+.hiring-agencies-container .data-table-container .table-box {
+  margin-bottom: 0 !important;
+}
+
+.hiring-agencies-container .data-table-container .pagination {
+  margin-top: 0 !important;
+  padding-top: 8px !important; /* Reduce top padding */
+  padding-bottom: 8px !important; /* Reduce bottom padding */
 }
 
 .hiring-agencies-container {
