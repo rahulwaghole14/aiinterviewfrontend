@@ -844,6 +844,7 @@ body, html {
     align-items: center;
     position: relative;
     z-index: 1;
+    order: 1; /* Ensure left section stays on left */
   }
   
   .header-right {
@@ -854,6 +855,8 @@ body, html {
     position: relative;
     z-index: 1;
     min-width: 80px; /* Ensure minimum width for both icons */
+    order: 2; /* Ensure right section stays on right */
+    margin-left: auto; /* Push to the right side */
   }
   
   .header-title {
@@ -890,6 +893,19 @@ body, html {
     order: 2;
     flex-shrink: 0; /* Prevent shrinking */
     margin-left: 0; /* Reset any margin */
+  }
+  
+  /* Ensure header-right maintains its position */
+  .header-right > * {
+    order: unset; /* Reset any inherited order */
+  }
+  
+  .header-right .mobile-search-icon {
+    order: 1; /* Search first */
+  }
+  
+  .header-right .header-profile-wrapper {
+    order: 2; /* Profile second */
   }
 }
 
