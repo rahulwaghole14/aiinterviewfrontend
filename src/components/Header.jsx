@@ -184,6 +184,7 @@ const Header = ({
   };
 
   const toggleSearchModal = () => {
+    console.log('Search modal toggle clicked, current state:', isSearchModalOpen);
     setIsSearchModalOpen(!isSearchModalOpen);
     // When opening the modal, set localSearchTerm to the current Redux searchTerm
     if (!isSearchModalOpen) { // If modal is about to open
@@ -268,8 +269,16 @@ const Header = ({
       </div>
 
       <div className="header-right">
+        {console.log('isMobile:', isMobile)}
         {isMobile ? (
-          <FiSearch className="search-icon mobile-search-icon" onClick={toggleSearchModal} size={20} />
+          <FiSearch 
+            className="search-icon mobile-search-icon" 
+            onClick={(e) => {
+              console.log('Search icon clicked!', e);
+              toggleSearchModal();
+            }} 
+            size={20} 
+          />
         ) : (
           <div className="header-search" ref={searchInputRef}>
             <FiSearch className="search-icon" />

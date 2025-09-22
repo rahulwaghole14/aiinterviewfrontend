@@ -881,8 +881,10 @@ body, html {
     align-items: center;
     cursor: pointer;
     position: relative;
-    z-index: 2;
+    z-index: 10; /* Higher z-index to ensure clickability */
     flex-shrink: 0; /* Prevent shrinking */
+    pointer-events: auto; /* Ensure click events work */
+    user-select: none; /* Prevent text selection */
   }
   
   /* Ensure sidebar toggle doesn't interfere with search */
