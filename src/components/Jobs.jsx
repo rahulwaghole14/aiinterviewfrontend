@@ -1302,7 +1302,7 @@ const Jobs = () => {
             onRefresh={() => dispatch(fetchJobs())}
             showActions={true}
             defaultPageSize={recordsPerPage}
-            pageSizeOptions={[5, 10, 20, 50]}
+            pageSizeOptions={[10, 20, 50, 100]}
           />
 
         </div>

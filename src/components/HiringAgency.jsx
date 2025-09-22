@@ -1637,7 +1637,7 @@ const HiringAgencies = () => {
         }}
         showActions={true}
         defaultPageSize={recordsPerPage}
-        pageSizeOptions={[5, 10, 25, 50, 100]}
+        pageSizeOptions={[10, 25, 50, 100]}
         editingRow={editingUserId !== null ? currentRecords.findIndex(item => item.id === editingUserId) : null}
         editingData={editedUserData}
         setEditingRow={(rowIndex) => {
