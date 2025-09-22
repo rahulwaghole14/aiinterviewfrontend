@@ -1258,8 +1258,9 @@
     }
   
     .refresh-button {
-      width: 100%;
-      justify-content: center;
+      width: auto;
+      justify-content: flex-end;
+      margin-left: auto;
     }
   
     .pagination {
