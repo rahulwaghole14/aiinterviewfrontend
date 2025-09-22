@@ -509,131 +509,111 @@ const AddCandidates = () => {
               </button>
             </div>
             
-            {/* Show selected card details below */}
-            {isExpanded && selectedCard && (
+            {/* Show Add Candidate form below when selected */}
+            {isExpanded && selectedCard === 'add' && (
               <div className="mobile-selected-card">
-                {selectedCard === 'files' && (
-                  <div className="add-candidates-card">
-                    <h3>Total Files</h3>
-                    <p>{extractionSummary.total_files}</p>
-                  </div>
-                )}
-                {selectedCard === 'successful' && (
-                  <div className="add-candidates-card">
-                    <h3>Successful Extractions</h3>
-                    <p>{extractionSummary.successful_extractions}</p>
-                  </div>
-                )}
-                {selectedCard === 'failed' && (
-                  <div className="add-candidates-card">
-                    <h3>Failed Extractions</h3>
-                    <p>{extractionSummary.failed_extractions}</p>
-                  </div>
-                )}
-                {selectedCard === 'add' && (
-                  <div className="add-candidates-form card">
-                    <h2 className="form-title">Add New Candidate</h2>
-                    <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
-                      <div className="form-box">
-                        <div className="form-group">
-                          <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
-                          <select
-                            id="domainSelect"
-                            name="domain"
-                            value={formData.domain}
-                            onChange={handleChange}
-                            className="add-candidates-select"
-                            required
-                            disabled={domainsStatus === 'loading'}
-                          >
-                            <option value="">Select Domain</option>
-                            {domains.map((domain) => (
-                              <option key={domain.id} value={domain.id}>
-                                {domain.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div className="form-group">
-                          <label htmlFor="jobTitleSelect">Job Title <span className="required-field">*</span></label>
-                          <select
-                            id="jobTitleSelect"
-                            name="job_title"
-                            value={formData.job_title}
-                            onChange={handleChange}
-                            className="add-candidates-select"
-                            required
-                            disabled={!formData.domain || jobsStatus === 'loading'}
-                          >
-                            <option value="">Select Job Title</option>
-                            {filteredJobsByDomain.map((job) => (
-                              <option key={job.id} value={job.id}>
-                                {job.job_title} ({job.company_name})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div className="form-group">
-                          <label htmlFor="pocEmail">POC Email <span className="required-field">*</span></label>
-                          <input
-                            type="email"
-                            id="pocEmail"
-                            name="poc_email"
-                            placeholder="Point of contact email"
-                            value={formData.poc_email}
-                            onChange={handleChange}
-                            className="add-candidates-input"
-                            required
-                            readOnly={userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY'}
-                          />
-                        </div>
-
-                        <div className="form-group resume-upload">
-                          <label htmlFor="resumeUploadInput" className="resume-upload-label">
-                            <p className="resume-upload-text">Upload Resumes (Max 10) <span className="required-field">*</span></p>
-                            <div className="upload-icon-container">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
-                                  stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M14 2V8H20" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M12 13V17" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M10 15H14" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </div>
-                            {formData.resumes.length > 0 ? (
-                              <p className="selected-files-text resume-upload-text">
-                                Selected: {formData.resumes.map((file) => file.name).join(", ")}
-                              </p>
-                            ) : (
-                              <p className="selected-files-text resume-upload-text">No files selected</p>
-                            )}
-                          </label>
-                          <input
-                            type="file"
-                            id="resumeUploadInput"
-                            accept=".pdf,.doc,.docx"
-                            multiple
-                            ref={fileInputRef}
-                            onChange={handleResumeChange}
-                            style={{ display: "none" }}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="form-actions">
-                        <button
-                          className="submit-btn"
-                          type="submit"
-                          disabled={isUploading}
+                <div className="add-candidates-form card">
+                  <h2 className="form-title">Add New Candidate</h2>
+                  <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
+                    <div className="form-box">
+                      <div className="form-group">
+                        <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
+                        <select
+                          id="domainSelect"
+                          name="domain"
+                          value={formData.domain}
+                          onChange={handleChange}
+                          className="add-candidates-select"
+                          required
+                          disabled={domainsStatus === 'loading'}
                         >
-                          {isUploading ? 'Uploading & Parsing...' : 'Upload & Parse Resumes'}
-                        </button>
+                          <option value="">Select Domain</option>
+                          {domains.map((domain) => (
+                            <option key={domain.id} value={domain.id}>
+                              {domain.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                    </form>
-                  </div>
-                )}
+
+                      <div className="form-group">
+                        <label htmlFor="jobTitleSelect">Job Title <span className="required-field">*</span></label>
+                        <select
+                          id="jobTitleSelect"
+                          name="job_title"
+                          value={formData.job_title}
+                          onChange={handleChange}
+                          className="add-candidates-select"
+                          required
+                          disabled={!formData.domain || jobsStatus === 'loading'}
+                        >
+                          <option value="">Select Job Title</option>
+                          {filteredJobsByDomain.map((job) => (
+                            <option key={job.id} value={job.id}>
+                              {job.job_title} ({job.company_name})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="pocEmail">POC Email <span className="required-field">*</span></label>
+                        <input
+                          type="email"
+                          id="pocEmail"
+                          name="poc_email"
+                          placeholder="Point of contact email"
+                          value={formData.poc_email}
+                          onChange={handleChange}
+                          className="add-candidates-input"
+                          required
+                          readOnly={userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY'}
+                        />
+                      </div>
+
+                      <div className="form-group resume-upload">
+                        <label htmlFor="resumeUploadInput" className="resume-upload-label">
+                          <p className="resume-upload-text">Upload Resumes (Max 10) <span className="required-field">*</span></p>
+                          <div className="upload-icon-container">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                                stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M14 2V8H20" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M12 13V17" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M10 15H14" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                          {formData.resumes.length > 0 ? (
+                            <p className="selected-files-text resume-upload-text">
+                              Selected: {formData.resumes.map((file) => file.name).join(", ")}
+                            </p>
+                          ) : (
+                            <p className="selected-files-text resume-upload-text">No files selected</p>
+                          )}
+                        </label>
+                        <input
+                          type="file"
+                          id="resumeUploadInput"
+                          accept=".pdf,.doc,.docx"
+                          multiple
+                          ref={fileInputRef}
+                          onChange={handleResumeChange}
+                          style={{ display: "none" }}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button
+                        className="submit-btn"
+                        type="submit"
+                        disabled={isUploading}
+                      >
+                        {isUploading ? 'Uploading & Parsing...' : 'Upload & Parse Resumes'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
           </div>
