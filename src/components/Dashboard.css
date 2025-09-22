@@ -115,6 +115,23 @@
   gap: 1.5rem;
 }
 
+/* Mobile: Make charts container horizontally scrollable */
+@media (max-width: 768px) {
+  .dashboard-graphs-container {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .dashboard-graphs-container::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .chart-container {
   background-color: var(--color-card);
   box-shadow: var(--shadow-soft);
@@ -345,12 +362,14 @@
   }
 
   .dashboard-graphs-container {
-    grid-template-columns: 1fr;
+    /* Mobile styles moved above - this is now handled by the flex layout */
   }
 
   .chart-container {
     padding: 1rem;
     min-height: 250px;
+    min-width: 280px; /* Fixed width for mobile charts */
+    flex-shrink: 0; /* Prevent charts from shrinking */
   }
 
   .chart-title {
@@ -400,6 +419,8 @@
 
   .chart-container {
     min-height: 200px;
+    min-width: 240px; /* Even smaller fixed width for very small screens */
+    flex-shrink: 0; /* Prevent charts from shrinking */
   }
 
   .chart-title {
@@ -447,6 +468,10 @@
 @media (max-width: 480px) {
   .dashboard-card p {
     font-size: 1.5rem;
+  }
+  
+  .chart-container {
+    min-width: 220px; /* Smallest fixed width for very small screens */
   }
   
   .chart-title {
