@@ -584,6 +584,8 @@ body, html {
   align-items: flex-start;
   z-index: 9999;
   padding-top: 20px;
+  visibility: visible !important; /* Ensure modal is visible */
+  opacity: 1 !important; /* Ensure modal is not transparent */
 }
 
 .search-modal {
@@ -597,6 +599,8 @@ body, html {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  visibility: visible !important; /* Ensure modal content is visible */
+  opacity: 1 !important; /* Ensure modal content is not transparent */
 }
 
 .search-modal-header {
