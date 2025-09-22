@@ -14,6 +14,18 @@
   margin-top: 0 !important; /* Remove the 0.5rem margin that creates the gap */
 }
 
+/* Ensure table-box doesn't create extra space */
+.hiring-agencies-container .data-table-container .table-box {
+  flex: none !important; /* Remove flex: 1 that might create extra space */
+  height: auto !important; /* Let height be determined by content */
+}
+
+/* Ensure table-responsive doesn't create extra space */
+.hiring-agencies-container .data-table-container .table-responsive {
+  margin-bottom: 0 !important; /* Remove any bottom margin */
+  height: auto !important; /* Let height be determined by content */
+}
+
 .hiring-agencies-container {
   display: flex;
   flex-direction: column;
