@@ -850,7 +850,7 @@
   align-items: center;
   justify-content: space-around;
   gap: 0.8rem;
-  flex-shrink: 0;
+  flex: 1;
   width: 100%;
 }
 
@@ -863,7 +863,8 @@
   padding: 0.5rem;
   border-radius: var(--radius);
   transition: all 0.2s ease;
-  min-width: 50px;
+  flex: 1;
+  min-width: 0;
 }
 
 .mobile-card-icon:hover {
@@ -899,7 +900,8 @@
   box-shadow: var(--shadow-button-hover);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 200px;
+  flex: 1;
+  min-width: 0;
 }
 
 .mobile-selected-icon .icon-wrapper {
