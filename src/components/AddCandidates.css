@@ -827,17 +827,28 @@
 .mobile-cards-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
   width: 100%;
 }
 
+.mobile-cards-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow-soft);
+}
+
 .mobile-cards-icons {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 2rem;
-  width: 100%;
+  gap: 1.5rem;
+  flex: 1;
 }
 
 .mobile-card-icon {
@@ -878,16 +889,18 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1rem;
   background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--radius);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-soft);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .mobile-add-candidate-btn:hover {
@@ -900,9 +913,13 @@
   transform: translateY(0);
 }
 
-/* Mobile collapsed state */
-.mobile-collapsed {
+/* Mobile collapsed state - hide form but show table */
+.mobile-collapsed .add-candidates-form {
   display: none !important;
+}
+
+.mobile-collapsed .preview-section {
+  grid-column: 1 / -1; /* Take full width when form is hidden */
 }
 
 @media (max-width: 768px) {
@@ -914,6 +931,17 @@
   .preview-section,
   .add-candidates-form {
     padding: 1rem;
+  }
+
+  /* Mobile grid layout */
+  .add-candidates-main-content.fixed-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Show table below mobile cards */
+  .mobile-cards-container + .add-candidates-main-content {
+    margin-top: 1rem;
   }
 
   .table-title, .form-title {
