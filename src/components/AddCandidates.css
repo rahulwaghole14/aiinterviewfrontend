@@ -932,7 +932,7 @@
   background-color: transparent;
   border: none;
   border-radius: 50%;
-  color: var(--color-primary-dark);
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -942,7 +942,7 @@
 .close-selected-icon:hover {
   background-color: transparent;
   transform: scale(1.1);
-  color: var(--color-primary);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .close-selected-icon:active {
