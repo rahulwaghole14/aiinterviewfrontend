@@ -998,11 +998,11 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-soft);
-  flex: 1;
+  flex-shrink: 0;
   min-height: 60px;
   justify-content: center;
-  width: auto;
-  min-width: 120px;
+  width: 100px;
+  min-width: 100px;
 }
 
 .button-text {
