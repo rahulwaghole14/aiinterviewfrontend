@@ -42,7 +42,7 @@
 .ai-int-table-container {
   flex: 1;
   height: 100%;
-  min-height: 400px; /* Ensure minimum height for table visibility */
+  min-height: 600px; /* Match desktop view height */
   display: flex;
   flex-direction: column;
 }
@@ -218,7 +218,7 @@
   
   .ai-int-table-container {
     height: 100%; /* Take full height on mobile */
-    min-height: 60vh; /* Use 60% of viewport height for better visibility */
+    min-height: 70vh; /* Use 70% of viewport height for better visibility */
   }
   
   .ai-int-card {
@@ -252,7 +252,7 @@
   
   .ai-int-table-container {
     height: 100%; /* Take full height on small mobile */
-    min-height: 50vh; /* Use 50% of viewport height for smaller screens */
+    min-height: 60vh; /* Use 60% of viewport height for smaller screens */
   }
 }
 

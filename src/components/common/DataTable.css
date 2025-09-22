@@ -12,7 +12,7 @@
     max-width: 100%;
     width: 100%;
     height: 100%; /* Take full height of parent container */
-    min-height: 400px; /* Ensure minimum height for table visibility */
+    min-height: 600px; /* Match desktop view height */
     flex: 1; /* Take available space */
   }
   
