@@ -144,8 +144,8 @@
 /* Mobile: Keep charts stacked vertically with same width as other cards */
 @media (max-width: 768px) {
   .dashboard-graphs-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr; /* Match dashboard-cards-container mobile layout */
     gap: 1rem;
   }
   
