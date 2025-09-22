@@ -22,6 +22,7 @@
     width: 100%;
     max-width: 100%;
     overflow: hidden;
+    position: relative; /* Ensure proper containment */
   }
   
   .data-table-header {
@@ -58,6 +59,7 @@
     min-width: 100%;
     table-layout: auto;
     white-space: nowrap;
+    position: relative; /* Ensure proper containment */
   }
   
   .data-table th,
@@ -68,6 +70,7 @@
     vertical-align: middle;
     width: auto;
     min-width: fit-content;
+    position: relative; /* Ensure proper containment */
   }
   
   .data-table th:first-child,
@@ -96,7 +99,7 @@
     letter-spacing: 0.5px;
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 10; /* Higher z-index than action menus */
   }
 
   /* Sortable header styles */
@@ -516,7 +519,7 @@
   .action-menu {
     position: absolute;
     right: 0;
-    z-index: 5;
+    z-index: 5; /* Lower than table header z-index: 10 */
     margin-top: 8px;
     min-width: 200px;
     border-radius: 6px;
@@ -526,6 +529,8 @@
     padding: 4px 0;
     animation: fadeIn 0.15s ease-out;
     transform-origin: top right;
+    max-height: 200px; /* Prevent overflow */
+    overflow-y: auto; /* Allow scrolling if needed */
   }
   
   @keyframes fadeIn {
@@ -586,6 +591,8 @@
     position: relative;
     z-index: 1;
     text-align: center;
+    overflow: visible; /* Allow action menus to show */
+    contain: layout; /* Prevent overflow issues */
   }
   
   /* DataTable Delete Confirmation Modal */
@@ -1216,13 +1223,13 @@
   @media (max-width: 992px) {
     .pagination {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
       gap: 12px;
     }
   
     .pagination-controls {
       width: 100%;
-      justify-content: space-between;
+      justify-content: center;
       flex-wrap: wrap;
     }
   
@@ -1256,10 +1263,14 @@
   
     .pagination {
       padding: 12px;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
     }
   
     .pagination-controls {
       gap: 2px;
+      justify-content: center;
     }
   
     .pagination-button {
@@ -1275,6 +1286,7 @@
   
     .pagination-info {
       font-size: 13px;
+      text-align: center;
     }
   
     .context-menu {
@@ -1305,6 +1317,30 @@
   
     .data-table-title {
       font-size: 16px;
+    }
+  
+    .pagination {
+      padding: 8px;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+  
+    .pagination-controls {
+      gap: 1px;
+      justify-content: center;
+    }
+  
+    .pagination-button {
+      min-width: 24px;
+      height: 24px;
+      font-size: 12px;
+      padding: 0 4px;
+    }
+  
+    .pagination-info {
+      font-size: 12px;
+      text-align: center;
     }
   
     .context-menu-item {
