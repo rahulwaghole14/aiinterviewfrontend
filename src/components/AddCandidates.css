@@ -834,7 +834,6 @@
 .mobile-cards-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   width: 100%;
   background-color: var(--color-card);
@@ -866,6 +865,22 @@
 .mobile-card-icon:hover {
   background-color: var(--color-bg-secondary);
   transform: translateY(-2px);
+}
+
+.mobile-card-icon.selected {
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.mobile-card-icon.selected .icon-wrapper {
+  background-color: white;
+  color: var(--color-primary);
+}
+
+.mobile-card-icon.selected .icon-number {
+  color: white;
 }
 
 .icon-wrapper {
@@ -921,6 +936,29 @@
 
 .mobile-add-candidate-btn:active {
   transform: translateY(0);
+}
+
+.mobile-add-candidate-btn.selected {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+/* Mobile selected card */
+.mobile-selected-card {
+  margin-top: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Mobile collapsed state - hide form but show table */

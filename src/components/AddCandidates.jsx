@@ -70,6 +70,7 @@ const AddCandidates = () => {
   // State for mobile view and expand functionality
   const [isMobileView, setIsMobileView] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null); // null, 'files', 'successful', 'failed', 'add'
 
   // State for filtered jobs based on selected domain
   const [filteredJobsByDomain, setFilteredJobsByDomain] = useState([]);
@@ -406,9 +407,17 @@ const AddCandidates = () => {
     return job ? job.id : '';
   };
 
-  // Function to toggle expand/collapse on mobile
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+  // Function to handle card/button clicks on mobile
+  const handleCardClick = (cardType) => {
+    if (selectedCard === cardType) {
+      // If same card clicked, collapse
+      setSelectedCard(null);
+      setIsExpanded(false);
+    } else {
+      // If different card clicked, expand and select
+      setSelectedCard(cardType);
+      setIsExpanded(true);
+    }
   };
 
   // Check if any modal is open for blur effect
@@ -421,34 +430,7 @@ const AddCandidates = () => {
         {isMobileView ? (
           <div className="mobile-cards-container">
             <div className="mobile-cards-row">
-              <div className="mobile-cards-icons">
-                <div className="mobile-card-icon" onClick={toggleExpand}>
-                  <div className="icon-wrapper">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <span className="icon-number">{extractionSummary.total_files}</span>
-                </div>
-                <div className="mobile-card-icon" onClick={toggleExpand}>
-                  <div className="icon-wrapper">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <span className="icon-number">{extractionSummary.successful_extractions}</span>
-                </div>
-                <div className="mobile-card-icon" onClick={toggleExpand}>
-                  <div className="icon-wrapper">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <span className="icon-number">{extractionSummary.failed_extractions}</span>
-                </div>
-              </div>
-              <button className="mobile-add-candidate-btn" onClick={toggleExpand}>
+              <button className={`mobile-add-candidate-btn ${selectedCard === 'add' ? 'selected' : ''}`} onClick={() => handleCardClick('add')}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -457,7 +439,162 @@ const AddCandidates = () => {
                   <span>Candidate</span>
                 </div>
               </button>
+              <div className="mobile-cards-icons">
+                <div className={`mobile-card-icon ${selectedCard === 'files' ? 'selected' : ''}`} onClick={() => handleCardClick('files')}>
+                  <div className="icon-wrapper">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span className="icon-number">{extractionSummary.total_files}</span>
+                </div>
+                <div className={`mobile-card-icon ${selectedCard === 'successful' ? 'selected' : ''}`} onClick={() => handleCardClick('successful')}>
+                  <div className="icon-wrapper">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span className="icon-number">{extractionSummary.successful_extractions}</span>
+                </div>
+                <div className={`mobile-card-icon ${selectedCard === 'failed' ? 'selected' : ''}`} onClick={() => handleCardClick('failed')}>
+                  <div className="icon-wrapper">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span className="icon-number">{extractionSummary.failed_extractions}</span>
+                </div>
+              </div>
             </div>
+            
+            {/* Show selected card details below */}
+            {isExpanded && selectedCard && (
+              <div className="mobile-selected-card">
+                {selectedCard === 'files' && (
+                  <div className="add-candidates-card">
+                    <h3>Total Files</h3>
+                    <p>{extractionSummary.total_files}</p>
+                  </div>
+                )}
+                {selectedCard === 'successful' && (
+                  <div className="add-candidates-card">
+                    <h3>Successful Extractions</h3>
+                    <p>{extractionSummary.successful_extractions}</p>
+                  </div>
+                )}
+                {selectedCard === 'failed' && (
+                  <div className="add-candidates-card">
+                    <h3>Failed Extractions</h3>
+                    <p>{extractionSummary.failed_extractions}</p>
+                  </div>
+                )}
+                {selectedCard === 'add' && (
+                  <div className="add-candidates-form card">
+                    <h2 className="form-title">Add New Candidate</h2>
+                    <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
+                      <div className="form-box">
+                        <div className="form-group">
+                          <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
+                          <select
+                            id="domainSelect"
+                            name="domain"
+                            value={formData.domain}
+                            onChange={handleChange}
+                            className="add-candidates-select"
+                            required
+                            disabled={domainsStatus === 'loading'}
+                          >
+                            <option value="">Select Domain</option>
+                            {domains.map((domain) => (
+                              <option key={domain.id} value={domain.id}>
+                                {domain.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="jobTitleSelect">Job Title <span className="required-field">*</span></label>
+                          <select
+                            id="jobTitleSelect"
+                            name="job_title"
+                            value={formData.job_title}
+                            onChange={handleChange}
+                            className="add-candidates-select"
+                            required
+                            disabled={!formData.domain || jobsStatus === 'loading'}
+                          >
+                            <option value="">Select Job Title</option>
+                            {filteredJobsByDomain.map((job) => (
+                              <option key={job.id} value={job.id}>
+                                {job.job_title} ({job.company_name})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="pocEmail">POC Email <span className="required-field">*</span></label>
+                          <input
+                            type="email"
+                            id="pocEmail"
+                            name="poc_email"
+                            placeholder="Point of contact email"
+                            value={formData.poc_email}
+                            onChange={handleChange}
+                            className="add-candidates-input"
+                            required
+                            readOnly={userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY'}
+                          />
+                        </div>
+
+                        <div className="form-group resume-upload">
+                          <label htmlFor="resumeUploadInput" className="resume-upload-label">
+                            <p className="resume-upload-text">Upload Resumes (Max 10) <span className="required-field">*</span></p>
+                            <div className="upload-icon-container">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                                  stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M14 2V8H20" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M12 13V17" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M10 15H14" stroke="#D9F0D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                            {formData.resumes.length > 0 ? (
+                              <p className="selected-files-text resume-upload-text">
+                                Selected: {formData.resumes.map((file) => file.name).join(", ")}
+                              </p>
+                            ) : (
+                              <p className="selected-files-text resume-upload-text">No files selected</p>
+                            )}
+                          </label>
+                          <input
+                            type="file"
+                            id="resumeUploadInput"
+                            accept=".pdf,.doc,.docx"
+                            multiple
+                            ref={fileInputRef}
+                            onChange={handleResumeChange}
+                            style={{ display: "none" }}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="form-actions">
+                        <button
+                          className="submit-btn"
+                          type="submit"
+                          disabled={isUploading}
+                        >
+                          {isUploading ? 'Uploading & Parsing...' : 'Upload & Parse Resumes'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="add-candidates-header-cards">
