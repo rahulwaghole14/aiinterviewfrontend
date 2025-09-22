@@ -152,6 +152,8 @@
   .chart-container {
     width: 100%; /* Same width as other cards */
     max-width: none; /* Remove any max-width constraints */
+    padding: 1rem; /* Match dashboard-card padding on mobile */
+    box-sizing: border-box; /* Ensure padding is included in width calculation */
   }
 }
 
@@ -431,6 +433,7 @@
 
   .chart-container {
     min-height: 200px;
+    padding: 1rem; /* Match dashboard-card padding on mobile */
   }
 
   .chart-title {
@@ -482,6 +485,7 @@
   
   .chart-container {
     min-height: 200px;
+    padding: 1rem; /* Match dashboard-card padding on mobile */
   }
   
   .chart-title {
