@@ -1,5 +1,14 @@
 /* src/components/HiringAgency.css */
 
+/* Override DataTable height for Hiring Agency to reduce blank space */
+.hiring-agencies-container .data-table-container {
+  min-height: 400px !important; /* Reduced from 700px to 400px */
+}
+
+.hiring-agencies-container .table-responsive {
+  min-height: 300px !important; /* Reduced from 500px to 300px */
+}
+
 .hiring-agencies-container {
   display: flex;
   flex-direction: column;
