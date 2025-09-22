@@ -873,13 +873,18 @@ body, html {
     cursor: pointer;
     position: relative;
     z-index: 2;
-    margin-left: auto; /* Push to the right side */
+    order: 1; /* Ensure search icon comes before profile icon */
   }
   
   /* Ensure sidebar toggle doesn't interfere with search */
   .sidebar-toggle {
     position: relative;
     z-index: 3;
+  }
+  
+  /* Ensure profile icon comes after search icon */
+  .header-profile-wrapper {
+    order: 2;
   }
 }
 
