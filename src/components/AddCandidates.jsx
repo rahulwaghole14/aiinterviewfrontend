@@ -634,6 +634,7 @@ const AddCandidates = () => {
                 </div>
               </div>
             )}
+          </div>
         ) : (
           <div className="add-candidates-header-cards">
             <div className="add-candidates-card">
