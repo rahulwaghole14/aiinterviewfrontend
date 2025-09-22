@@ -242,11 +242,11 @@
 
 .chart-x-axis {
   display: flex;
-  width: calc(100% - 30px); /* Adjust for Y-axis label space */
-  min-width: 470px; /* Match chart-bars width minus padding */
+  width: 100%; /* Full width to match chart-bars */
+  min-width: 500px; /* Match chart-bars min-width */
   justify-content: space-between; /* Distribute labels evenly between bars */
   margin-top: 0.5rem;
-  padding-left: 30px; /* Match chart-bars padding for alignment */
+  padding: 0 0.5rem; /* Add padding to match chart-bars gap */
 }
 
 .x-axis-label {
@@ -258,6 +258,49 @@
   white-space: nowrap; /* Prevent label wrapping */
   overflow: hidden; /* Hide overflow if label is too long */
   text-overflow: ellipsis; /* Show ellipsis for long labels */
+  cursor: pointer; /* Make labels clickable/hoverable */
+  position: relative; /* For tooltip positioning */
+  transition: color 0.2s ease; /* Smooth color transition */
+}
+
+.x-axis-label:hover {
+  color: var(--color-primary); /* Highlight on hover */
+}
+
+/* Tooltip for x-axis labels */
+.x-axis-label-tooltip {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-card-dark);
+  color: var(--color-text-light);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-small);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+.x-axis-label:hover .x-axis-label-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile touch interactions */
+@media (max-width: 768px) {
+  .x-axis-label {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .x-axis-label:active {
+    color: var(--color-primary);
+  }
 }
 
 .x-axis-title {
@@ -409,12 +452,20 @@
   }
 
   .chart-x-axis {
-    width: calc(100% - 25px);
-    padding-left: 25px; /* Match chart-bars padding for alignment */
+    width: 100%; /* Full width to match chart-bars */
+    min-width: 350px; /* Match chart-bars min-width */
+    padding: 0 0.5rem; /* Add padding to match chart-bars gap */
   }
 
   .x-axis-label {
     font-size: 0.7rem;
+    /* Enhanced mobile touch interaction */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .x-axis-label:active {
+    color: var(--color-primary);
   }
 
   .activity-table th,
@@ -460,8 +511,9 @@
   }
 
   .chart-x-axis {
-    width: calc(100% - 20px);
-    padding-left: 20px; /* Match chart-bars padding for alignment */
+    width: 100%; /* Full width to match chart-bars */
+    min-width: 300px; /* Match chart-bars min-width */
+    padding: 0 0.5rem; /* Add padding to match chart-bars gap */
   }
 
   .chart-tooltip {

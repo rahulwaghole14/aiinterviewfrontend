@@ -43,7 +43,33 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) 
         </div>
         <div className="chart-x-axis">
           {data.map(item => (
-            <span key={item[dataKey]} className="x-axis-label">{item[dataKey]}</span>
+            <span 
+              key={item[dataKey]} 
+              className="x-axis-label"
+              title={item[dataKey]} // Native tooltip for mobile
+              onTouchStart={(e) => {
+                // Mobile touch interaction
+                e.preventDefault();
+                const tooltip = e.target.querySelector('.x-axis-label-tooltip');
+                if (tooltip) {
+                  tooltip.style.opacity = '1';
+                  tooltip.style.visibility = 'visible';
+                }
+              }}
+              onTouchEnd={(e) => {
+                // Hide tooltip on touch end
+                const tooltip = e.target.querySelector('.x-axis-label-tooltip');
+                if (tooltip) {
+                  tooltip.style.opacity = '0';
+                  tooltip.style.visibility = 'hidden';
+                }
+              }}
+            >
+              {item[dataKey]}
+              <div className="x-axis-label-tooltip">
+                {item[dataKey]}
+              </div>
+            </span>
           ))}
         </div>
         <div className="x-x-axis-title">{xLabel}</div>
