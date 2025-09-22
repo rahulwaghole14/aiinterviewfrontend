@@ -834,6 +834,7 @@
 .mobile-cards-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   width: 100%;
   background-color: var(--color-card);
@@ -881,6 +882,45 @@
 
 .mobile-card-icon.selected .icon-number {
   color: white;
+}
+
+/* Selected icon layout */
+.mobile-selected-icon {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-button-hover);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 200px;
+}
+
+.mobile-selected-icon .icon-wrapper {
+  background-color: white;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.selected-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.selected-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.selected-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .icon-wrapper {
@@ -1098,6 +1138,19 @@
     padding: 0.6rem 0.4rem;
     font-size: 0.7rem;
     min-height: 55px;
+  }
+
+  .mobile-selected-icon {
+    min-width: 150px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .selected-title {
+    font-size: 0.8rem;
+  }
+
+  .selected-number {
+    font-size: 1rem;
   }
 
   .preview-section,
