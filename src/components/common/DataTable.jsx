@@ -1353,14 +1353,6 @@ import PropTypes from "prop-types";
           <div className="pagination-controls">
             <button
               className="pagination-button pagination-arrow"
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1 || loading}
-              title="First page"
-            >
-              «
-            </button>
-            <button
-              className="pagination-button pagination-arrow"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || loading}
               title="Previous page"
@@ -1377,14 +1369,6 @@ import PropTypes from "prop-types";
               title="Next page"
             >
               ›
-            </button>
-            <button
-              className="pagination-button pagination-arrow"
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages || loading}
-              title="Last page"
-            >
-              »
             </button>
           </div>
         </div>
