@@ -39,14 +39,7 @@
 }
 
 /* DataTable Section - 75% width */
-.ai-int-table-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  height: 100%; /* Take full height */
-  min-height: 0; /* Allow flex shrinking */
-}
+/* Table container styling is handled by DataTable component */
 
 .ai-int-form-card {
   flex: 1;
@@ -195,8 +188,7 @@
   }
   
   .ai-int-table-container {
-    flex: 1;
-    min-width: 0;
+    height: 100%;
   }
 }
 
@@ -219,9 +211,6 @@
   }
   
   .ai-int-table-container {
-    flex: 1;
-    min-width: 0;
-    overflow-x: auto;
     height: 100%; /* Take full height on mobile */
     min-height: 60vh; /* Use 60% of viewport height for better visibility */
   }
@@ -256,7 +245,6 @@
   }
   
   .ai-int-table-container {
-    min-width: 300px; /* Ensure table has minimum width for scrolling */
     height: 100%; /* Take full height on small mobile */
     min-height: 50vh; /* Use 50% of viewport height for smaller screens */
   }
