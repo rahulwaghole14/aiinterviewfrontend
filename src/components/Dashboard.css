@@ -362,12 +362,17 @@
     min-height: 250px;
     width: 100%; /* Full width on mobile */
     max-height: 300px; /* Limit height for scrollable content */
-    overflow-y: auto; /* Make chart content scrollable */
+    overflow: hidden; /* Hide overflow to prevent width issues */
+  }
+  
+  .chart-content {
+    width: 100%;
+    overflow-x: auto; /* Make chart content horizontally scrollable */
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   
-  .chart-container::-webkit-scrollbar {
+  .chart-content::-webkit-scrollbar {
     display: none;
   }
 
@@ -377,6 +382,7 @@
 
   .chart-bars-wrapper {
     height: 150px;
+    width: 100%;
     overflow-x: auto; /* Make bars scrollable horizontally if needed */
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -384,6 +390,10 @@
   
   .chart-bars-wrapper::-webkit-scrollbar {
     display: none;
+  }
+  
+  .chart-bars {
+    min-width: 400px; /* Fixed minimum width for bars to enable horizontal scrolling */
   }
 
   .y-axis-label {
@@ -427,12 +437,17 @@
     min-height: 200px;
     max-height: 280px; /* Slightly smaller max height for smaller screens */
     width: 100%; /* Full width on mobile */
-    overflow-y: auto; /* Make chart content scrollable */
+    overflow: hidden; /* Hide overflow to prevent width issues */
+  }
+  
+  .chart-content {
+    width: 100%;
+    overflow-x: auto; /* Make chart content horizontally scrollable */
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   
-  .chart-container::-webkit-scrollbar {
+  .chart-content::-webkit-scrollbar {
     display: none;
   }
 
@@ -442,6 +457,7 @@
 
   .chart-bars-wrapper {
     height: 120px;
+    width: 100%;
     overflow-x: auto; /* Make bars scrollable horizontally if needed */
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -449,6 +465,10 @@
   
   .chart-bars-wrapper::-webkit-scrollbar {
     display: none;
+  }
+  
+  .chart-bars {
+    min-width: 350px; /* Fixed minimum width for bars to enable horizontal scrolling */
   }
 
   .y-axis-label {
@@ -493,12 +513,17 @@
   .chart-container {
     max-height: 250px; /* Even smaller max height for very small screens */
     width: 100%; /* Full width on mobile */
-    overflow-y: auto; /* Make chart content scrollable */
+    overflow: hidden; /* Hide overflow to prevent width issues */
+  }
+  
+  .chart-content {
+    width: 100%;
+    overflow-x: auto; /* Make chart content horizontally scrollable */
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   
-  .chart-container::-webkit-scrollbar {
+  .chart-content::-webkit-scrollbar {
     display: none;
   }
   
@@ -508,6 +533,7 @@
 
   .chart-bars-wrapper {
     height: 100px;
+    width: 100%;
     overflow-x: auto; /* Make bars scrollable horizontally if needed */
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -515,6 +541,10 @@
   
   .chart-bars-wrapper::-webkit-scrollbar {
     display: none;
+  }
+  
+  .chart-bars {
+    min-width: 300px; /* Fixed minimum width for bars to enable horizontal scrolling */
   }
 
   .y-axis-label {

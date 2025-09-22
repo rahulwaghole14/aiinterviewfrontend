@@ -20,32 +20,34 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) 
   return (
     <div className="chart-container card">
       <h3 className="chart-title">{title}</h3>
-      <div className="chart-bars-wrapper">
-        <div className="y-axis-label">{yLabel}</div>
-        <div className="chart-bars">
-          {data.map((item, index) => (
-            <div
-              key={item[dataKey]}
-              className="chart-bar"
-              style={{ height: `${(item.count / maxCount) * 100}%` }}
-              onMouseEnter={() => setHoveredBar({ ...item, index })}
-              onMouseLeave={() => setHoveredBar(null)}
-            >
-              {hoveredBar && hoveredBar.index === index && (
-                <div className="chart-tooltip">
-                  {tooltipLabelPrefix}: {item.count}
-                </div>
-              )}
-            </div>
+      <div className="chart-content">
+        <div className="chart-bars-wrapper">
+          <div className="y-axis-label">{yLabel}</div>
+          <div className="chart-bars">
+            {data.map((item, index) => (
+              <div
+                key={item[dataKey]}
+                className="chart-bar"
+                style={{ height: `${(item.count / maxCount) * 100}%` }}
+                onMouseEnter={() => setHoveredBar({ ...item, index })}
+                onMouseLeave={() => setHoveredBar(null)}
+              >
+                {hoveredBar && hoveredBar.index === index && (
+                  <div className="chart-tooltip">
+                    {tooltipLabelPrefix}: {item.count}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="chart-x-axis">
+          {data.map(item => (
+            <span key={item[dataKey]} className="x-axis-label">{item[dataKey]}</span>
           ))}
         </div>
+        <div className="x-x-axis-title">{xLabel}</div>
       </div>
-      <div className="chart-x-axis">
-        {data.map(item => (
-          <span key={item[dataKey]} className="x-axis-label">{item[dataKey]}</span>
-        ))}
-      </div>
-      <div className="x-x-axis-title">{xLabel}</div>
     </div>
   );
 };
