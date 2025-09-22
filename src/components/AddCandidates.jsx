@@ -524,11 +524,13 @@ const AddCandidates = () => {
                 <span>Candidate</span>
               </div>
             </button>
-            
-            {/* Show Add Candidate form below when Add Candidate button is selected */}
-            {selectedCard === 'add' && (
-              <div className="mobile-selected-card">
-                <div className="add-candidates-form card">
+          </div>
+        </div>
+        
+        {/* Show Add Candidate form below when Add Candidate button is selected */}
+        {selectedCard === 'add' && (
+          <div className="mobile-selected-card">
+            <div className="add-candidates-form card">
                   <h2 className="form-title">Add New Candidate</h2>
                   <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
                     <div className="form-box">
@@ -632,7 +634,6 @@ const AddCandidates = () => {
                 </div>
               </div>
             )}
-          </div>
         ) : (
           <div className="add-candidates-header-cards">
             <div className="add-candidates-card">
