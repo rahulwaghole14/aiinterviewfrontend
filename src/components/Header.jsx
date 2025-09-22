@@ -185,15 +185,20 @@ const Header = ({
 
   const toggleSearchModal = () => {
     console.log('Search modal toggle clicked, current state:', isSearchModalOpen);
-    setIsSearchModalOpen(!isSearchModalOpen);
+    const newState = !isSearchModalOpen;
+    console.log('Setting search modal to:', newState);
+    setIsSearchModalOpen(newState);
     // When opening the modal, set localSearchTerm to the current Redux searchTerm
-    if (!isSearchModalOpen) { // If modal is about to open
+    if (newState) { // If modal is about to open
+      console.log('Opening search modal, setting local search term to:', reduxSearchTerm);
       setLocalSearchTerm(reduxSearchTerm);
       // Focus the input when modal opens
       setTimeout(() => {
         searchModalInputRef.current?.focus();
-      }, 0);
+        console.log('Search modal input focused');
+      }, 100);
     } else { // If modal is about to close
+      console.log('Closing search modal');
       // Only clear local state, keep Redux search term for component filtering
       setLocalSearchTerm('');
       setSearchResults([]);
@@ -271,14 +276,18 @@ const Header = ({
       <div className="header-right">
         {console.log('isMobile:', isMobile)}
         {isMobile ? (
-          <FiSearch 
-            className="search-icon mobile-search-icon" 
+          <div 
+            className="mobile-search-icon" 
             onClick={(e) => {
               console.log('Search icon clicked!', e);
+              e.preventDefault();
+              e.stopPropagation();
               toggleSearchModal();
-            }} 
-            size={20} 
-          />
+            }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          >
+            <FiSearch size={20} />
+          </div>
         ) : (
           <div className="header-search" ref={searchInputRef}>
             <FiSearch className="search-icon" />
@@ -338,6 +347,22 @@ const Header = ({
           </div>
         )}
 
+        {console.log('Rendering search modal, isSearchModalOpen:', isSearchModalOpen)}
+        {/* Debug indicator */}
+        {isMobile && (
+          <div style={{ 
+            position: 'fixed', 
+            top: '10px', 
+            right: '10px', 
+            background: 'red', 
+            color: 'white', 
+            padding: '5px', 
+            zIndex: 10000,
+            fontSize: '12px'
+          }}>
+            Modal: {isSearchModalOpen ? 'OPEN' : 'CLOSED'}
+          </div>
+        )}
         {isSearchModalOpen && (
           <div className="search-modal-overlay" onClick={toggleSearchModal}>
             <div className="search-modal" onClick={(e) => e.stopPropagation()}>
