@@ -923,7 +923,7 @@
   line-height: 1;
 }
 
-.close-selected-icon {
+.mobile-close-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -932,22 +932,32 @@
   background-color: transparent;
   border: none;
   border-radius: 50%;
-  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
   margin-left: auto;
   opacity: 1;
   visibility: visible;
+  padding: 0;
 }
 
-.close-selected-icon:hover {
+.mobile-close-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.mobile-close-btn:hover {
   background-color: transparent;
   transform: scale(1.1);
-  color: white;
 }
 
-.close-selected-icon:active {
+.mobile-close-btn:hover svg {
+  stroke: white;
+}
+
+.mobile-close-btn:active {
   transform: scale(0.95);
 }
 

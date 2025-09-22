@@ -444,9 +444,9 @@ const AddCandidates = () => {
                       <span className="selected-title">Total Files</span>
                       <span className="selected-number">{extractionSummary.total_files}</span>
                     </div>
-                    <button className="close-selected-icon" onClick={() => handleCardClick('files')}>
+                    <button className="mobile-close-btn" onClick={() => handleCardClick('files')}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
                   </div>
@@ -461,9 +461,9 @@ const AddCandidates = () => {
                       <span className="selected-title">Successful Extractions</span>
                       <span className="selected-number">{extractionSummary.successful_extractions}</span>
                     </div>
-                    <button className="close-selected-icon" onClick={() => handleCardClick('successful')}>
+                    <button className="mobile-close-btn" onClick={() => handleCardClick('successful')}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
                   </div>
@@ -478,9 +478,9 @@ const AddCandidates = () => {
                       <span className="selected-title">Failed Extractions</span>
                       <span className="selected-number">{extractionSummary.failed_extractions}</span>
                     </div>
-                    <button className="close-selected-icon" onClick={() => handleCardClick('failed')}>
+                    <button className="mobile-close-btn" onClick={() => handleCardClick('failed')}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </button>
                   </div>
