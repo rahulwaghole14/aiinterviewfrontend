@@ -429,108 +429,108 @@ const AddCandidates = () => {
       <div className={`add-candidates-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
       <div className="add-candidates-top-section">
         {isMobileView ? (
-          <div className="mobile-cards-container">
-            <div className="mobile-cards-row">
-              <div className="mobile-cards-icons">
-                {selectedCard === 'files' ? (
-                  <div className="mobile-selected-icon">
-                    <div className="icon-wrapper">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div className="selected-content">
-                      <span className="selected-title">Total Files</span>
-                      <span className="selected-number">{extractionSummary.total_files}</span>
-                    </div>
-                    <button className="mobile-close-btn" onClick={() => handleCardClick('files')}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                ) : selectedCard === 'successful' ? (
-                  <div className="mobile-selected-icon">
-                    <div className="icon-wrapper">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div className="selected-content">
-                      <span className="selected-title">Successful Extractions</span>
-                      <span className="selected-number">{extractionSummary.successful_extractions}</span>
-                    </div>
-                    <button className="mobile-close-btn" onClick={() => handleCardClick('successful')}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                ) : selectedCard === 'failed' ? (
-                  <div className="mobile-selected-icon">
-                    <div className="icon-wrapper">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div className="selected-content">
-                      <span className="selected-title">Failed Extractions</span>
-                      <span className="selected-number">{extractionSummary.failed_extractions}</span>
-                    </div>
-                    <button className="mobile-close-btn" onClick={() => handleCardClick('failed')}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <div className={`mobile-card-icon ${selectedCard === 'files' ? 'selected' : ''}`} onClick={() => handleCardClick('files')}>
+          <>
+            <div className="mobile-cards-container">
+              <div className="mobile-cards-row">
+                <div className="mobile-cards-icons">
+                  {selectedCard === 'files' ? (
+                    <div className="mobile-selected-icon">
                       <div className="icon-wrapper">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </div>
-                      <span className="icon-number">{extractionSummary.total_files}</span>
+                      <div className="selected-content">
+                        <span className="selected-title">Total Files</span>
+                        <span className="selected-number">{extractionSummary.total_files}</span>
+                      </div>
+                      <button className="mobile-close-btn" onClick={() => handleCardClick('files')}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
                     </div>
-                    <div className={`mobile-card-icon ${selectedCard === 'successful' ? 'selected' : ''}`} onClick={() => handleCardClick('successful')}>
+                  ) : selectedCard === 'successful' ? (
+                    <div className="mobile-selected-icon">
                       <div className="icon-wrapper">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </div>
-                      <span className="icon-number">{extractionSummary.successful_extractions}</span>
+                      <div className="selected-content">
+                        <span className="selected-title">Successful Extractions</span>
+                        <span className="selected-number">{extractionSummary.successful_extractions}</span>
+                      </div>
+                      <button className="mobile-close-btn" onClick={() => handleCardClick('successful')}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
                     </div>
-                    <div className={`mobile-card-icon ${selectedCard === 'failed' ? 'selected' : ''}`} onClick={() => handleCardClick('failed')}>
+                  ) : selectedCard === 'failed' ? (
+                    <div className="mobile-selected-icon">
                       <div className="icon-wrapper">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </div>
-                      <span className="icon-number">{extractionSummary.failed_extractions}</span>
+                      <div className="selected-content">
+                        <span className="selected-title">Failed Extractions</span>
+                        <span className="selected-number">{extractionSummary.failed_extractions}</span>
+                      </div>
+                      <button className="mobile-close-btn" onClick={() => handleCardClick('failed')}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <div className={`mobile-card-icon ${selectedCard === 'files' ? 'selected' : ''}`} onClick={() => handleCardClick('files')}>
+                        <div className="icon-wrapper">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <span className="icon-number">{extractionSummary.total_files}</span>
+                      </div>
+                      <div className={`mobile-card-icon ${selectedCard === 'successful' ? 'selected' : ''}`} onClick={() => handleCardClick('successful')}>
+                        <div className="icon-wrapper">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <span className="icon-number">{extractionSummary.successful_extractions}</span>
+                      </div>
+                      <div className={`mobile-card-icon ${selectedCard === 'failed' ? 'selected' : ''}`} onClick={() => handleCardClick('failed')}>
+                        <div className="icon-wrapper">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <span className="icon-number">{extractionSummary.failed_extractions}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
+              <button className={`mobile-add-candidate-btn ${selectedCard === 'add' ? 'selected' : ''}`} onClick={() => handleCardClick('add')}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div className="button-text">
+                  <span>Add</span>
+                  <span>Candidate</span>
+                </div>
+              </button>
             </div>
-            <button className={`mobile-add-candidate-btn ${selectedCard === 'add' ? 'selected' : ''}`} onClick={() => handleCardClick('add')}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <div className="button-text">
-                <span>Add</span>
-                <span>Candidate</span>
-              </div>
-            </button>
-          </div>
-        </div>
-        
-        {/* Show Add Candidate form below when Add Candidate button is selected */}
-        {selectedCard === 'add' && (
-          <div className="mobile-selected-card">
-            <div className="add-candidates-form card">
+            
+            {/* Show Add Candidate form below when Add Candidate button is selected */}
+            {selectedCard === 'add' && (
+              <div className="mobile-selected-card">
+                <div className="add-candidates-form card">
                   <h2 className="form-title">Add New Candidate</h2>
                   <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
                     <div className="form-box">
@@ -634,7 +634,7 @@ const AddCandidates = () => {
                 </div>
               </div>
             )}
-          </div>
+          </>
         ) : (
           <div className="add-candidates-header-cards">
             <div className="add-candidates-card">
