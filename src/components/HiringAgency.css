@@ -9,9 +9,9 @@
   min-height: 250px !important; /* Reduced table content height */
 }
 
-/* Remove only the gap between table bottom border and pagination container */
+/* Add appropriate spacing between table bottom border and pagination container */
 .hiring-agencies-container .data-table-container .pagination {
-  margin-top: 0 !important; /* Remove the 0.5rem margin that creates the gap */
+  margin-top: 0.5rem !important; /* Restore small, appropriate gap */
 }
 
 /* Ensure table-box doesn't create extra space */
