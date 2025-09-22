@@ -39,7 +39,13 @@
 }
 
 /* DataTable Section - 75% width */
-/* Table container styling is handled by DataTable component */
+.ai-int-table-container {
+  flex: 1;
+  height: 100%;
+  min-height: 400px; /* Ensure minimum height for table visibility */
+  display: flex;
+  flex-direction: column;
+}
 
 .ai-int-form-card {
   flex: 1;

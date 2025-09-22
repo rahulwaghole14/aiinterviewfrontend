@@ -12,7 +12,8 @@
     max-width: 100%;
     width: 100%;
     height: 100%; /* Take full height of parent container */
-    min-height: 0; /* Allow flex shrinking */
+    min-height: 400px; /* Ensure minimum height for table visibility */
+    flex: 1; /* Take available space */
   }
   
   .table-box {
