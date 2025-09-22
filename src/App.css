@@ -831,19 +831,39 @@ body, html {
 }
 
 @media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 1rem; /* Reduce padding to give more space */
+    justify-content: space-between; /* Ensure proper separation */
+  }
+  
+  .header-left {
+    gap: 0.5rem; /* Reduce gap in left section */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  .header-right {
+    gap: 0.5rem; /* Reduce gap in right section */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  .header-title {
+    font-size: 1rem; /* Slightly smaller title to save space */
+    white-space: nowrap; /* Prevent title wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px; /* Limit title width */
+  }
+  
   .header-search {
     display: none !important; /* Hide full search bar on small screens */
   }
+  
   .mobile-search-icon {
     display: inline-flex !important; /* Ensure search icon is visible and flex-aligned */
     align-items: center;
     cursor: pointer;
     z-index: 10; /* Ensure it's above other elements */
     position: relative; /* Ensure proper positioning context */
-  }
-  
-  .header-right {
-    gap: 0.5rem; /* Reduce gap in mobile to prevent overlap */
   }
 }
 
