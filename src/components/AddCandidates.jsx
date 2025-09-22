@@ -509,8 +509,8 @@ const AddCandidates = () => {
               </button>
             </div>
             
-            {/* Show Add Candidate form below when selected */}
-            {isExpanded && selectedCard === 'add' && (
+            {/* Show Add Candidate form below when Add Candidate button is selected */}
+            {selectedCard === 'add' && (
               <div className="mobile-selected-card">
                 <div className="add-candidates-form card">
                   <h2 className="form-title">Add New Candidate</h2>
