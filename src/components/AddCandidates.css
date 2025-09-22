@@ -862,20 +862,27 @@
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--radius);
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
   min-width: 0;
+  transform: scale(1);
 }
 
 .mobile-card-icon:hover {
   background-color: var(--color-bg-secondary);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-card-icon:active {
+  transform: translateY(-1px) scale(0.98);
+  transition: all 0.1s ease;
 }
 
 .mobile-card-icon.selected {
   background-color: var(--color-primary);
   color: white;
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05);
   box-shadow: var(--shadow-button-hover);
 }
 
@@ -899,9 +906,22 @@
   border-radius: var(--radius);
   box-shadow: var(--shadow-button-hover);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
   min-width: 0;
+  transform: scale(1.05);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
 }
 
 .mobile-selected-icon .icon-wrapper {
@@ -938,12 +958,24 @@
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
   margin-left: auto;
   opacity: 1;
   visibility: visible;
   padding: 0;
+  transform: scale(1);
+}
+
+.mobile-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-close-btn:active {
+  transform: scale(0.95);
+  transition: all 0.1s ease;
 }
 
 .mobile-close-btn svg {
@@ -951,19 +983,12 @@
   height: 20px;
   stroke: white;
   stroke-width: 2;
-}
-
-.mobile-close-btn:hover {
-  background-color: transparent;
-  transform: scale(1.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mobile-close-btn:hover svg {
   stroke: white;
-}
-
-.mobile-close-btn:active {
-  transform: scale(0.95);
+  transform: rotate(90deg);
 }
 
 .icon-wrapper {
@@ -996,13 +1021,25 @@
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-soft);
   flex-shrink: 0;
   min-height: 60px;
   justify-content: center;
   width: 120px;
   min-width: 120px;
+  transform: scale(1);
+}
+
+.mobile-add-candidate-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-button-hover);
+}
+
+.mobile-add-candidate-btn:active {
+  transform: translateY(-1px) scale(0.98);
+  transition: all 0.1s ease;
 }
 
 .button-text {
