@@ -284,7 +284,6 @@ const Header = ({
               e.stopPropagation();
               toggleSearchModal();
             }}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           >
             <FiSearch size={20} />
           </div>
@@ -348,21 +347,6 @@ const Header = ({
         )}
 
         {console.log('Rendering search modal, isSearchModalOpen:', isSearchModalOpen)}
-        {/* Debug indicator */}
-        {isMobile && (
-          <div style={{ 
-            position: 'fixed', 
-            top: '10px', 
-            right: '10px', 
-            background: 'red', 
-            color: 'white', 
-            padding: '5px', 
-            zIndex: 10000,
-            fontSize: '12px'
-          }}>
-            Modal: {isSearchModalOpen ? 'OPEN' : 'CLOSED'}
-          </div>
-        )}
         {isSearchModalOpen && (
           <div className="search-modal-overlay" onClick={toggleSearchModal}>
             <div className="search-modal" onClick={(e) => e.stopPropagation()}>

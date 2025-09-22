@@ -877,7 +877,7 @@ body, html {
   }
   
   .mobile-search-icon {
-    display: inline-flex !important; /* Ensure search icon is visible and flex-aligned */
+    display: flex !important; /* Ensure search icon is visible and flex-aligned */
     align-items: center;
     cursor: pointer;
     position: relative;
@@ -885,6 +885,13 @@ body, html {
     flex-shrink: 0; /* Prevent shrinking */
     pointer-events: auto; /* Ensure click events work */
     user-select: none; /* Prevent text selection */
+    padding: 8px; /* Add padding for better click target */
+    border-radius: var(--radius-small); /* Add border radius for better UX */
+    transition: background-color 0.2s ease; /* Smooth transition */
+  }
+  
+  .mobile-search-icon:hover {
+    background-color: var(--color-bg-secondary); /* Hover effect */
   }
   
   /* Ensure sidebar toggle doesn't interfere with search */
