@@ -1,12 +1,12 @@
 /* src/components/HiringAgency.css */
 
-/* Override DataTable height for Hiring Agency to reduce blank space */
+/* Override DataTable height for Hiring Agency to position pagination at bottom */
 .hiring-agencies-container .data-table-container {
-  min-height: 350px !important; /* Reduced height for 5 rows */
+  min-height: 500px !important; /* Increased height to push pagination down */
 }
 
 .hiring-agencies-container .table-responsive {
-  min-height: 250px !important; /* Reduced table content height */
+  min-height: 400px !important; /* Increased table content height */
 }
 
 /* Add appropriate spacing between table bottom border and pagination container */
