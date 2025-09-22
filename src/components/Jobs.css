@@ -1373,22 +1373,4 @@ input[type="checkbox"]:checked {
 
 /* Remove left border from the first cell */
 
-/* Fixed height for DataTable in Jobs component */
-.jobs-container .data-table-container .table-responsive {
-  height: 555px;
-  overflow: auto;
-}
-
-/* Responsive height adjustments for Jobs DataTable */
-@media (max-width: 768px) {
-  .jobs-container .data-table-container .table-responsive {
-    height: 445px;
-  }
-}
-
-@media (max-width: 480px) {
-  .jobs-container .data-table-container .table-responsive {
-    height: 375px;
-  }
-}
 

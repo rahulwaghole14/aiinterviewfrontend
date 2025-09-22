@@ -1134,21 +1134,3 @@ td:last-child {
   width: auto;
 }
 
-/* Fixed height for DataTable in HiringAgency component */
-.hiring-agencies-container .hiring-agencies-card .data-table-container .table-responsive {
-  height: 545px;
-  overflow: auto;
-}
-
-/* Responsive height adjustments for HiringAgency DataTable */
-@media (max-width: 768px) {
-  .hiring-agencies-container .hiring-agencies-card .data-table-container .table-responsive {
-    height: 395px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hiring-agencies-container .hiring-agencies-card .data-table-container .table-responsive {
-    height: 295px;
-  }
-}
