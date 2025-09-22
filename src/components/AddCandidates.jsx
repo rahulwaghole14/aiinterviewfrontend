@@ -67,8 +67,24 @@ const AddCandidates = () => {
   // NEW: State for success modal
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // State for mobile view and expand functionality
+  const [isMobileView, setIsMobileView] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
   // State for filtered jobs based on selected domain
   const [filteredJobsByDomain, setFilteredJobsByDomain] = useState([]);
+
+  // Effect to detect mobile screen size
+  useEffect(() => {
+    const checkMobileView = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+    
+    checkMobileView();
+    window.addEventListener('resize', checkMobileView);
+    
+    return () => window.removeEventListener('resize', checkMobileView);
+  }, []);
 
   // Effect to update filteredJobsByDomain when domain or allJobs changes
   useEffect(() => {
@@ -390,6 +406,11 @@ const AddCandidates = () => {
     return job ? job.id : '';
   };
 
+  // Function to toggle expand/collapse on mobile
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   // Check if any modal is open for blur effect
   const isAnyModalOpen = showSuccessModal || showDeleteModalOverlay || showDeleteConfirm;
 
@@ -397,23 +418,61 @@ const AddCandidates = () => {
     <>
       <div className={`add-candidates-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
       <div className="add-candidates-top-section">
-        <div className="add-candidates-header-cards">
-          <div className="add-candidates-card">
-            <h3>Total Files</h3>
-            <p>{extractionSummary.total_files}</p>
+        {isMobileView ? (
+          <div className="mobile-cards-container">
+            <div className="mobile-cards-icons">
+              <div className="mobile-card-icon" onClick={toggleExpand}>
+                <div className="icon-wrapper">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <span className="icon-number">{extractionSummary.total_files}</span>
+              </div>
+              <div className="mobile-card-icon" onClick={toggleExpand}>
+                <div className="icon-wrapper">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <span className="icon-number">{extractionSummary.successful_extractions}</span>
+              </div>
+              <div className="mobile-card-icon" onClick={toggleExpand}>
+                <div className="icon-wrapper">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <span className="icon-number">{extractionSummary.failed_extractions}</span>
+              </div>
+            </div>
+            <button className="mobile-add-candidate-btn" onClick={toggleExpand}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Add Candidate
+            </button>
           </div>
-          <div className="add-candidates-card">
-            <h3>Successful Extractions</h3>
-            <p>{extractionSummary.successful_extractions}</p>
+        ) : (
+          <div className="add-candidates-header-cards">
+            <div className="add-candidates-card">
+              <h3>Total Files</h3>
+              <p>{extractionSummary.total_files}</p>
+            </div>
+            <div className="add-candidates-card">
+              <h3>Successful Extractions</h3>
+              <p>{extractionSummary.successful_extractions}</p>
+            </div>
+            <div className="add-candidates-card">
+              <h3>Failed Extractions</h3>
+              <p>{extractionSummary.failed_extractions}</p>
+            </div>
           </div>
-          <div className="add-candidates-card">
-            <h3>Failed Extractions</h3>
-            <p>{extractionSummary.failed_extractions}</p>
-          </div>
-        </div>
+        )}
       </div>
 
-      <div className="add-candidates-main-content fixed-grid">
+      <div className={`add-candidates-main-content fixed-grid ${isMobileView && !isExpanded ? 'mobile-collapsed' : ''}`}>
         <div className="add-candidates-form card">
           <h2 className="form-title">Add New Candidate</h2>
           <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
