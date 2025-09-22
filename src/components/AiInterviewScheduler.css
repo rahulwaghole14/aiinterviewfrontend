@@ -44,6 +44,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100%; /* Take full height */
+  min-height: 0; /* Allow flex shrinking */
 }
 
 .ai-int-form-card {
@@ -220,7 +222,8 @@
     flex: 1;
     min-width: 0;
     overflow-x: auto;
-    height: auto; /* Allow table to grow with content */
+    height: 100%; /* Take full height on mobile */
+    min-height: 400px; /* Ensure minimum height for table visibility */
   }
   
   .ai-int-card {
@@ -254,7 +257,8 @@
   
   .ai-int-table-container {
     min-width: 300px; /* Ensure table has minimum width for scrolling */
-    height: auto; /* Allow table to grow with content */
+    height: 100%; /* Take full height on small mobile */
+    min-height: 350px; /* Ensure minimum height for table visibility */
   }
 }
 
