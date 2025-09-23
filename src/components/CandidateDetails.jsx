@@ -147,6 +147,7 @@ const CandidateDetails = () => {
         });
 
       console.log("Processed interviews with evaluations:", processedInterviews);
+      console.log("Sample interview slot_details:", processedInterviews[0]?.slot_details);
       setInterviews(processedInterviews);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -599,17 +600,26 @@ const CandidateDetails = () => {
                   </p>
                   <p>
                     <strong>Slot:</strong>{" "}
-                    {interview.slot_details ? (
-                      `${new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })} - ${new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}`
-                    ) : "N/A"}
+                    {(() => {
+                      console.log("Interview slot_details:", interview.slot_details);
+                      if (interview.slot_details) {
+                        try {
+                          return `${new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })} - ${new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}`;
+                        } catch (error) {
+                          console.error("Error formatting slot time:", error);
+                          return "Invalid time format";
+                        }
+                      }
+                      return "N/A";
+                    })()}
                   </p>
                 </div>
                 
