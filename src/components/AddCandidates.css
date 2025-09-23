@@ -207,6 +207,7 @@
 .empty-table-message {
   text-align: center;
   vertical-align: middle;
+  width: 100%; /* Take full width of table */
 }
 
 .empty-state {
@@ -215,21 +216,23 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 150px;
-  padding: 1rem 0;
+  min-height: 200px; /* Increased height for better visibility */
+  padding: 2rem 1rem; /* More padding */
+  width: 100%; /* Take full width */
 }
 
 .empty-state svg {
-  width: 48px;
-  height: 48px;
-  color: var(--color-muted);
-  margin-bottom: 0.5rem;
+  width: 64px; /* Larger icon */
+  height: 64px;
+  color: var(--color-primary); /* Apply theme color */
+  margin-bottom: 1rem;
 }
 
 .empty-state p {
-  font-size: 0.9rem;
-  color: var(--color-muted);
+  font-size: 1rem; /* Larger text */
+  color: var(--color-text-secondary);
   margin: 0;
+  font-weight: 500;
 }
 
 
@@ -237,7 +240,7 @@
 .upload-icon-container {
   width: 100px;
   height: 100px;
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem auto; /* Center the container */
   display: flex;
   justify-content: center; /* Centers content horizontally */
   align-items: center;   /* Centers content vertically */
@@ -246,6 +249,7 @@
 .upload-icon-container svg {
   width: 100%; /* Ensure SVG fills its container */
   height: 100%; /* Ensure SVG fills its container */
+  color: var(--color-primary); /* Apply theme color */
 }
 
 .upload-icon-container .second-upload-icon {
@@ -1070,6 +1074,8 @@
 .mobile-selected-card {
   margin-top: 1rem;
   animation: slideDown 0.3s ease-out;
+  width: 100%;
+  display: block;
 }
 
 @keyframes slideDown {
@@ -1163,6 +1169,11 @@
   .upload-icon-container {
     width: 80px;
     height: 80px;
+    margin: 0 auto 1rem auto; /* Center the container */
+  }
+  
+  .upload-icon-container svg {
+    color: var(--color-primary); /* Apply theme color */
   }
 
   .upload-icon-container .second-upload-icon {
@@ -1172,8 +1183,13 @@
 
   /* Corrected this section to target the resume icon in the table correctly */
   .empty-state svg {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
+    color: var(--color-primary); /* Apply theme color */
+  }
+  
+  .empty-state p {
+    font-size: 0.9rem;
   }
 
   .submit-btn {
@@ -1285,6 +1301,11 @@
   .upload-icon-container {
     width: 60px;
     height: 60px;
+    margin: 0 auto 1rem auto; /* Center the container */
+  }
+  
+  .upload-icon-container svg {
+    color: var(--color-primary); /* Apply theme color */
   }
 
   .upload-icon-container .second-upload-icon {
@@ -1294,8 +1315,13 @@
 
   /* Corrected this section to target the resume icon in the table correctly */
   .empty-state svg {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
+    color: var(--color-primary); /* Apply theme color */
+  }
+  
+  .empty-state p {
+    font-size: 0.9rem;
   }
 
   .submit-btn {
