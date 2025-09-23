@@ -598,10 +598,7 @@ const CandidateDetails = () => {
                       : "TBD"}
                   </p>
                   <p>
-                    <strong>Slot ID:</strong> {interview.slot_details?.id || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Time:</strong>{" "}
+                    <strong>Slot:</strong>{" "}
                     {interview.slot_details ? (
                       `${new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
                         hour: 'numeric',
@@ -613,12 +610,6 @@ const CandidateDetails = () => {
                         hour12: true
                       })}`
                     ) : "N/A"}
-                  </p>
-                  <p>
-                    <strong>Duration:</strong> {interview.slot_details?.duration_minutes || "N/A"} minutes
-                  </p>
-                  <p>
-                    <strong>Interview Type:</strong> {interview.slot_details?.ai_interview_type || "N/A"}
                   </p>
                 </div>
                 
