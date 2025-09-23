@@ -500,19 +500,20 @@ const CandidatePage = () => {
           </div>
 
           {sortedCandidates.length > itemsPerPage && (
-            <div className="pagination-container">
+            <div className="candidates-pagination-container">
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="pagination-button"
+                className="candidates-pagination-button"
+                title="Previous page"
               >
-                Previous
+                ‹
               </button>
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   onClick={() => paginate(i + 1)}
-                  className={`pagination-page-number ${currentPage === i + 1 ? "active" : ""}`}
+                  className={`candidates-pagination-button ${currentPage === i + 1 ? "active" : ""}`}
                 >
                   {i + 1}
                 </button>
@@ -520,9 +521,10 @@ const CandidatePage = () => {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="pagination-button"
+                className="candidates-pagination-button"
+                title="Next page"
               >
-                Next
+                ›
               </button>
             </div>
           )}
