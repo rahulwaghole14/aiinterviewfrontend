@@ -154,7 +154,10 @@ const CandidateDetails = () => {
 
             if (slotResponse.ok) {
               const slotData = await slotResponse.json();
+              console.log(`=== SLOT DATA COMPARISON ===`);
               console.log(`Fetched slot data for interview ${interview.id}:`, slotData);
+              console.log(`Raw start_time: "${slotData.start_time}" (type: ${typeof slotData.start_time})`);
+              console.log(`Raw end_time: "${slotData.end_time}" (type: ${typeof slotData.end_time})`);
               
               // Create slot_details object with the same structure as AI Interview Scheduler
               const slotDetails = {
@@ -170,6 +173,8 @@ const CandidateDetails = () => {
               };
               
               console.log(`Created slot_details for interview ${interview.id}:`, slotDetails);
+              console.log(`Slot details start_time: "${slotDetails.start_time}"`);
+              console.log(`Slot details end_time: "${slotDetails.end_time}"`);
               
               return { 
                 ...interview, 
@@ -697,19 +702,25 @@ const CandidateDetails = () => {
                             console.log("  Start time string:", slotData.start_time);
                             console.log("  End time string:", slotData.end_time);
                             
-                            // Use the same method as AI Interview Scheduler - create date with fixed year 2000
+                            // Use the EXACT same method as AI Interview Scheduler DataTable render function
                             const formatTime = (timeStr) => {
                               if (!timeStr || typeof timeStr !== 'string') {
                                 return 'N/A';
                               }
                               
-                              // Convert 24-hour time to 12-hour format for display
+                              console.log("Formatting time string:", timeStr);
+                              
+                              // Convert 24-hour time to 12-hour format for display (EXACT same as DataTable)
                               const [hours, minutes] = timeStr.split(':');
+                              console.log("Split time - hours:", hours, "minutes:", minutes);
+                              
                               const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
                                 hour: "numeric",
                                 minute: "2-digit",
                                 hour12: true
                               });
+                              
+                              console.log("Formatted time result:", hour12);
                               return hour12;
                             };
                             
