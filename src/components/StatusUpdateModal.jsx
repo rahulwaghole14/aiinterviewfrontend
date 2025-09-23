@@ -15,6 +15,7 @@ const StatusUpdateModal = ({
   interviews,
   onInterviewScheduled,
   onEvaluationSubmitted,
+  onUpdateStatus,
 }) => {
   const notify = useNotification();
   const [loading, setLoading] = useState(false);
@@ -336,6 +337,10 @@ const StatusUpdateModal = ({
       }
 
       notify.success(`Candidate ${hireRejectForm.decision} successfully!`);
+      // Call the onUpdateStatus callback if provided
+      if (onUpdateStatus) {
+        onUpdateStatus();
+      }
       setTimeout(() => {
         onClose();
       }, 2000);

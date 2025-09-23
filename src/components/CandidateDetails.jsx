@@ -265,8 +265,10 @@ const CandidateDetails = () => {
   const handleModalClose = () => {
     setShowStatusModal(false);
     setSelectedAction(null);
-    // Refresh interviews after modal closes
+    // Refresh both interviews and candidate data after modal closes
     fetchInterviews();
+    // Refresh candidate data from Redux
+    dispatch(fetchCandidates());
   };
 
 
@@ -436,159 +438,46 @@ const CandidateDetails = () => {
         {/* Evaluation Section - Moved here */}
         <div className="evaluation-section card">
           <h3>Evaluation</h3>
-          {interviews.some((i) => i.ai_result) ? (
+          {interviews.some((i) => i.evaluation) ? (
             <div className="evaluation-info">
               {interviews
-                .filter((i) => i.ai_result)
+                .filter((i) => i.evaluation)
                 .map((interview) => (
                   <div key={interview.id} className="evaluation-item">
                     <div className="evaluation-header">
-                      <h4>Talaro Interview Results</h4>
-                      <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
-                        {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
+                      <h4>Interview Evaluation Results</h4>
+                      <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
+                        {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
                       </span>
                     </div>
                     
                     <div className="score-breakdown">
                       <div className="score-item">
-                        <strong>Total Score:</strong>{" "}
-                        <span className={`score ${interview.ai_result.total_score >= 80 ? "high-score" : interview.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interview.ai_result.total_score?.toFixed(1) || "N/A"}/100
+                        <strong>Overall Score:</strong>{" "}
+                        <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
+                          {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10
                         </span>
                       </div>
                       
-                      {interview.ai_result.technical_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Technical Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.technical_score >= 80 ? "high-score" : interview.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.technical_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                      
-                      {interview.ai_result.behavioral_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Behavioral Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.behavioral_score >= 80 ? "high-score" : interview.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                      
-                      {interview.ai_result.coding_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Coding Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.coding_score >= 80 ? "high-score" : interview.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.coding_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
                     </div>
                     
-                    <div className="performance-metrics">
-                      <div className="metric-item">
-                        <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
+                    {interview.evaluation.traits && (
+                      <div className="traits">
+                        <strong>Key Traits:</strong>
+                        <p>{interview.evaluation.traits}</p>
                       </div>
-                      <div className="metric-item">
-                        <strong>Questions Correct:</strong> {interview.ai_result.questions_correct || 0}
+                    )}
+                    
+                    {interview.evaluation.suggestions && (
+                      <div className="suggestions">
+                        <strong>Suggestions:</strong>
+                        <p>{interview.evaluation.suggestions}</p>
                       </div>
-                      <div className="metric-item">
-                        <strong>Accuracy:</strong> {interview.ai_result.accuracy_percentage?.toFixed(1) || 0}%
-                      </div>
-                      <div className="metric-item">
-                        <strong>Average Response Time:</strong> {interview.ai_result.average_response_time?.toFixed(1) || 0}s
-                      </div>
-                      <div className="metric-item">
-                        <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
-                      </div>
+                    )}
+                    
+                    <div className="evaluation-metadata">
+                      <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString()}</p>
                     </div>
-                    
-                    {interview.ai_result.ai_summary && (
-                      <div className="ai-summary">
-                        <strong>AI Summary:</strong>
-                        <p>{interview.ai_result.ai_summary}</p>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.ai_recommendations && (
-                      <div className="ai-recommendations">
-                        <strong>AI Recommendations:</strong>
-                        <p>{interview.ai_result.ai_recommendations}</p>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.coding_details && interview.ai_result.coding_details.length > 0 && (
-                      <div className="coding-details">
-                        <strong>Coding Questions:</strong>
-                        {interview.ai_result.coding_details.map((coding, index) => (
-                          <div key={index} className="coding-question">
-                            <h4>Question {index + 1}</h4>
-                            <p><strong>Question:</strong> {coding.question_text}</p>
-                            <p><strong>Language:</strong> {coding.language}</p>
-                            <p><strong>Status:</strong> 
-                              <span className={`test-status ${coding.passed_all_tests ? 'passed' : 'failed'}`}>
-                                {coding.passed_all_tests ? '✅ PASSED' : '❌ FAILED'}
-                              </span>
-                            </p>
-                            <div className="code-block">
-                              <strong>Submitted Code:</strong>
-                              <pre><code>{coding.submitted_code}</code></pre>
-                            </div>
-                            {coding.output_log && (
-                              <div className="output-log">
-                                <strong>Test Results:</strong>
-                                <pre>{coding.output_log}</pre>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.strengths && interview.ai_result.strengths.length > 0 && (
-                      <div className="strengths">
-                        <strong>Strengths:</strong>
-                        <ul>
-                          {interview.ai_result.strengths.map((strength, index) => (
-                            <li key={index}>{strength}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.weaknesses && interview.ai_result.weaknesses.length > 0 && (
-                      <div className="weaknesses">
-                        <strong>Areas for Improvement:</strong>
-                        <ul>
-                          {interview.ai_result.weaknesses.map((weakness, index) => (
-                            <li key={index}>{weakness}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    <div className="hire-recommendation">
-                      <strong>Hire Recommendation:</strong>{" "}
-                      <span className={`recommendation ${interview.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
-                        {interview.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
-                      </span>
-                    </div>
-                    
-                    {interview.ai_result.confidence_level && (
-                      <div className="confidence-level">
-                        <strong>AI Confidence Level:</strong> {interview.ai_result.confidence_level?.toFixed(1)}%
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.human_feedback && (
-                      <div className="human-feedback">
-                        <strong>Human Reviewer Feedback:</strong>
-                        <p>{interview.ai_result.human_feedback}</p>
-                        {interview.ai_result.human_rating && (
-                          <p><strong>Human Rating:</strong> {interview.ai_result.human_rating}</p>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))}
             </div>
@@ -639,13 +528,14 @@ const CandidateDetails = () => {
                 const isNextAction =
                   nextAction && statusStages[index] === nextAction.status;
                 const isClickable = isNextAction || isCompleted;
+                const isRecommended = isNextAction; // Highlight the next recommended action
 
                 return (
                   <div
                     key={stage}
                     className={`status-step ${isCompleted ? "completed" : ""} ${
                       isCurrent ? "current" : ""
-                    } ${isClickable ? "clickable" : ""}`}
+                    } ${isClickable ? "clickable" : ""} ${isRecommended ? "recommended" : ""}`}
                     onClick={() => {
                       if (!isClickable) return;
 
@@ -762,10 +652,11 @@ const CandidateDetails = () => {
       {showStatusModal && (
         <StatusUpdateModal
           isOpen={showStatusModal}
-          onClose={() => {
-            setShowStatusModal(false);
+          onClose={handleModalClose}
+          onUpdateStatus={() => {
+            // Refresh candidate data when status is updated
+            dispatch(fetchCandidates());
           }}
-          onUpdateStatus={handleStatusUpdate}
           action={selectedAction}
           candidate={candidate}
           interviews={interviews}
