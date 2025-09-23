@@ -300,11 +300,114 @@ const TimeSlotPicker = ({
   // Book an interview slot
   const bookSlot = async (slotId, bookingData) => {
     try {
+      console.log("=== TIME SLOT PICKER - SLOT BOOKING ===");
+      console.log("Booking slot ID:", slotId);
+      console.log("Booking data:", bookingData);
+      
       const authToken = localStorage.getItem("authToken");
       if (!authToken) {
         throw new Error("Authentication token not found");
       }
 
+      // First, get the current slot data to check bookings
+      console.log("Fetching current slot data...");
+      const slotResponse = await fetch(
+        `${baseURL}/api/interviews/slots/${slotId}/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!slotResponse.ok) {
+        throw new Error(`Failed to fetch slot data: ${slotResponse.status}`);
+      }
+
+      const slotData = await slotResponse.json();
+      console.log("Current slot data:", slotData);
+      
+      const currentBookings = slotData.current_bookings || 0;
+      const maxCandidates = slotData.max_candidates || 1;
+      
+      console.log("Slot booking details:", {
+        current_bookings: currentBookings,
+        max_candidates: maxCandidates,
+        start_time: slotData.start_time,
+        end_time: slotData.end_time,
+        status: slotData.status
+      });
+      
+      // Update slot booking based on current bookings
+      let updateData;
+      if (currentBookings >= maxCandidates - 1) {
+        // If this is the last available slot, mark as booked
+        updateData = {
+          current_bookings: maxCandidates,
+          status: "booked"
+        };
+        console.log("Slot will be marked as BOOKED (max candidates reached)");
+      } else {
+        // Otherwise, just increment current_bookings
+        updateData = {
+          current_bookings: currentBookings + 1
+        };
+        console.log("Slot booking count will be incremented");
+      }
+
+      console.log("=== SLOT UPDATE PROCESS ===");
+      console.log(`Updating slot ${slotId}:`, updateData);
+      console.log(`Before update - current_bookings: ${currentBookings}, max_candidates: ${maxCandidates}`);
+
+      // Merge the update data with complete slot data
+      const fullUpdateData = {
+        ...slotData,
+        ...updateData
+      };
+
+      console.log("Full update data (merged):", fullUpdateData);
+      console.log("Update data being sent:", updateData);
+
+      // Update the slot using PUT method
+      console.log("Sending PUT request to update slot...");
+      const updateResponse = await fetch(
+        `${baseURL}/api/interviews/slots/${slotId}/`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(fullUpdateData),
+        }
+      );
+
+      console.log("Slot update response status:", updateResponse.status);
+      console.log("Slot update response headers:", Object.fromEntries(updateResponse.headers.entries()));
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json().catch(() => ({}));
+        console.error("=== SLOT UPDATE FAILED ===");
+        console.error("Failed to update slot:", errorData);
+        console.error("Response status:", updateResponse.status);
+        throw new Error(`Failed to update slot: ${updateResponse.status}`);
+      } else {
+        const updatedSlotData = await updateResponse.json();
+        console.log("=== SLOT UPDATE SUCCESS ===");
+        console.log("Slot updated successfully:", updatedSlotData);
+        console.log(`After update - current_bookings: ${updatedSlotData.current_bookings}, status: ${updatedSlotData.status}`);
+        console.log("Updated slot times:", {
+          start_time: updatedSlotData.start_time,
+          end_time: updatedSlotData.end_time
+        });
+      }
+
+      // Create the schedule relationship
+      console.log("=== CREATING SCHEDULE RELATIONSHIP ===");
+      console.log("Sending booking data:", bookingData);
+      
       const response = await fetch(
         `${baseURL}/api/interviews/slots/${slotId}/book_slot/`,
         {
@@ -317,11 +420,22 @@ const TimeSlotPicker = ({
         }
       );
 
+      console.log("Schedule creation response status:", response.status);
+      console.log("Schedule creation response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("=== SCHEDULE CREATION FAILED ===");
+        console.error("Failed to create schedule relationship:", errorData);
+        console.error("Response status:", response.status);
         throw new Error(`Failed to book slot: ${response.status}`);
       }
 
-      return await response.json();
+      const scheduleResult = await response.json();
+      console.log("=== SCHEDULE CREATION SUCCESS ===");
+      console.log("Schedule relationship created:", scheduleResult);
+      
+      return scheduleResult;
     } catch (error) {
       console.error("Error booking interview slot:", error);
       throw error;
@@ -336,6 +450,69 @@ const TimeSlotPicker = ({
         throw new Error("Authentication token not found");
       }
 
+      // First, get the current slot data to check bookings
+      const slotResponse = await fetch(
+        `${baseURL}/api/interviews/slots/${slotId}/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!slotResponse.ok) {
+        throw new Error(`Failed to fetch slot data: ${slotResponse.status}`);
+      }
+
+      const slotData = await slotResponse.json();
+      const currentBookings = slotData.current_bookings || 0;
+      const maxCandidates = slotData.max_candidates || 1;
+      
+      // Update slot booking based on current bookings
+      let updateData;
+      if (currentBookings <= 1) {
+        // If this was the last booking, mark as available
+        updateData = {
+          current_bookings: 0,
+          status: "available"
+        };
+      } else {
+        // Otherwise, just decrement current_bookings
+        updateData = {
+          current_bookings: currentBookings - 1
+        };
+      }
+
+      console.log(`Releasing slot ${slotId}:`, updateData);
+
+      // Merge the update data with complete slot data
+      const fullUpdateData = {
+        ...slotData,
+        ...updateData
+      };
+
+      console.log("Full release update data:", fullUpdateData);
+
+      // Update the slot using PUT method
+      const updateResponse = await fetch(
+        `${baseURL}/api/interviews/slots/${slotId}/`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Token ${authToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(fullUpdateData),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        throw new Error(`Failed to update slot: ${updateResponse.status}`);
+      }
+
+      // Also call the release_slot endpoint for cleanup
       const response = await fetch(
         `${baseURL}/api/interviews/slots/${slotId}/release_slot/`,
         {

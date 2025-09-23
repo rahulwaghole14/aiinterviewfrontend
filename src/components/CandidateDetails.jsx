@@ -120,19 +120,8 @@ const CandidateDetails = () => {
       console.log("Fetched interviews data:", interviewsData);
       console.log("Fetched evaluations data:", evaluationsData);
       
-      // Debug: Check if interviews have slot_details
-      if (Array.isArray(interviewsData)) {
-        interviewsData.forEach((interview, index) => {
-          console.log(`Interview ${index} slot_details:`, interview.slot_details);
-          if (interview.slot_details) {
-            console.log(`  - start_time: ${interview.slot_details.start_time} (type: ${typeof interview.slot_details.start_time})`);
-            console.log(`  - end_time: ${interview.slot_details.end_time} (type: ${typeof interview.slot_details.end_time})`);
-          }
-        });
-      }
-
       // Process interviews and evaluations
-      const processedInterviews = (
+      const candidateInterviews = (
         Array.isArray(interviewsData)
           ? interviewsData
           : interviewsData.results || []
@@ -142,23 +131,82 @@ const CandidateDetails = () => {
             interview.candidate === candidate.id ||
             (interview.candidate_object &&
               interview.candidate_object.id === candidate.id)
-        )
-        .map((interview) => {
-          // Find matching evaluation if exists
-          const evaluation = Array.isArray(evaluationsData)
-            ? evaluationsData.find(
-                (evalItem) => evalItem.interview === interview.id
-              )
-            : null;
+        );
 
-          return {
-            ...interview,
-            evaluation: evaluation || null,
-          };
-        });
+      console.log("Candidate interviews:", candidateInterviews);
 
-      console.log("Processed interviews with evaluations:", processedInterviews);
-      console.log("Sample interview slot_details:", processedInterviews[0]?.slot_details);
+      // For each interview, fetch the associated slot details directly from slots API (same as AI Interview Scheduler)
+      const interviewsWithSlots = await Promise.all(candidateInterviews.map(async (interview) => {
+        console.log(`Processing interview ${interview.id} with slot:`, interview.slot);
+        
+        if (interview.slot) {
+          try {
+            console.log(`Fetching slot details for slot ID: ${interview.slot}`);
+            const slotResponse = await fetch(`${baseURL}/api/interviews/slots/${interview.slot}/`, {
+              method: "GET",
+              headers: {
+                Authorization: `Token ${authToken}`,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              credentials: "include",
+            });
+
+            if (slotResponse.ok) {
+              const slotData = await slotResponse.json();
+              console.log(`Fetched slot data for interview ${interview.id}:`, slotData);
+              
+              // Create slot_details object with the same structure as AI Interview Scheduler
+              const slotDetails = {
+                id: slotData.id,
+                start_time: slotData.start_time,
+                end_time: slotData.end_time,
+                duration_minutes: slotData.duration_minutes,
+                ai_interview_type: slotData.ai_interview_type,
+                status: slotData.status,
+                current_bookings: slotData.current_bookings,
+                max_candidates: slotData.max_candidates,
+                interview_date: slotData.interview_date
+              };
+              
+              console.log(`Created slot_details for interview ${interview.id}:`, slotDetails);
+              
+              return { 
+                ...interview, 
+                slot_details: slotDetails,
+                slot: slotData // Keep original slot data too
+              };
+            } else {
+              console.error(`Failed to fetch slot ${interview.slot}:`, slotResponse.status);
+              return interview;
+            }
+          } catch (error) {
+            console.error(`Error fetching slot ${interview.slot}:`, error);
+            return interview;
+          }
+        }
+        
+        return interview;
+      }));
+
+      console.log("Interviews with slots:", interviewsWithSlots);
+
+      // Add evaluations to interviews
+      const processedInterviews = interviewsWithSlots.map((interview) => {
+        // Find matching evaluation if exists
+        const evaluation = Array.isArray(evaluationsData)
+          ? evaluationsData.find(
+              (evalItem) => evalItem.interview === interview.id
+            )
+          : null;
+
+        return {
+          ...interview,
+          evaluation: evaluation || null,
+        };
+      });
+
+      console.log("Processed interviews with evaluations and slots:", processedInterviews);
       setInterviews(processedInterviews);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -643,63 +691,58 @@ const CandidateDetails = () => {
                           console.log("Raw slot start_time:", slotData.start_time);
                           console.log("Raw slot end_time:", slotData.end_time);
                           
-                          // Check if it's a time string or datetime
-                          let startTime, endTime;
-                          
-                          if (typeof slotData.start_time === 'string') {
-                            // If it's a time string like "09:30:00", create a proper datetime
-                            const today = new Date().toISOString().split('T')[0];
-                            startTime = new Date(`${today}T${slotData.start_time}`);
-                            endTime = new Date(`${today}T${slotData.end_time}`);
-                          } else {
-                            startTime = new Date(slotData.start_time);
-                            endTime = new Date(slotData.end_time);
-                          }
-                          
-                          // Check if there's a timezone offset issue
-                          console.log("Timezone offset (minutes):", new Date().getTimezoneOffset());
-                          console.log("UTC start time:", startTime.toISOString());
-                          console.log("UTC end time:", endTime.toISOString());
-                          
-                          // Handle time strings properly to avoid timezone issues
+                          // Handle time strings using the same approach as AI Interview Scheduler
                           if (typeof slotData.start_time === 'string' && slotData.start_time.includes(':')) {
-                            // Parse time string (e.g., "09:30:00" or "09:30")
-                            const parseTimeString = (timeStr) => {
-                              const parts = timeStr.split(':');
-                              const hour = parseInt(parts[0], 10);
-                              const minute = parseInt(parts[1], 10);
-                              return { hour, minute };
+                            console.log("Time string parsing (AI Interview Scheduler method):");
+                            console.log("  Start time string:", slotData.start_time);
+                            console.log("  End time string:", slotData.end_time);
+                            
+                            // Use the same method as AI Interview Scheduler - create date with fixed year 2000
+                            const formatTime = (timeStr) => {
+                              if (!timeStr || typeof timeStr !== 'string') {
+                                return 'N/A';
+                              }
+                              
+                              // Convert 24-hour time to 12-hour format for display
+                              const [hours, minutes] = timeStr.split(':');
+                              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true
+                              });
+                              return hour12;
                             };
                             
-                            const startTimeData = parseTimeString(slotData.start_time);
-                            const endTimeData = parseTimeString(slotData.end_time);
+                            const startTimeFormatted = formatTime(slotData.start_time);
+                            const endTimeFormatted = formatTime(slotData.end_time);
                             
-                            // Create date objects using local timezone
-                            const today = new Date();
-                            startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
-                                               startTimeData.hour, startTimeData.minute, 0);
-                            endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
-                                             endTimeData.hour, endTimeData.minute, 0);
+                            console.log("  Formatted start time:", startTimeFormatted);
+                            console.log("  Formatted end time:", endTimeFormatted);
                             
-                            console.log("Time string parsing:");
-                            console.log("  Start time string:", slotData.start_time, "→", startTimeData);
-                            console.log("  End time string:", slotData.end_time, "→", endTimeData);
-                            console.log("  Local start time:", startTime);
-                            console.log("  Local end time:", endTime);
+                            return `${startTimeFormatted} - ${endTimeFormatted}`;
+                          } else if (typeof slotData.start_time === 'string' && slotData.start_time.includes('T')) {
+                            // Handle datetime format (e.g., "2025-09-23T09:30:00")
+                            const startTime = new Date(slotData.start_time);
+                            const endTime = new Date(slotData.end_time);
+                            
+                            console.log("Datetime string parsing:");
+                            console.log("  Start datetime string:", slotData.start_time, "→", startTime);
+                            console.log("  End datetime string:", slotData.end_time, "→", endTime);
+                            
+                            return `${startTime.toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })} - ${endTime.toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}`;
+                          } else {
+                            // Fallback for other formats
+                            console.log("Unknown time format, using fallback");
+                            return "Invalid time format";
                           }
-                          
-                          console.log("Parsed start time:", startTime);
-                          console.log("Parsed end time:", endTime);
-                          
-                          return `${startTime.toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                          })} - ${endTime.toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                          })}`;
                         } catch (error) {
                           console.error("Error formatting slot time:", error);
                           return "Invalid time format";
