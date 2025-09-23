@@ -629,6 +629,25 @@ const CandidateDetails = () => {
                             endTime = new Date(slotData.end_time);
                           }
                           
+                          // Check if there's a timezone offset issue
+                          console.log("Timezone offset (minutes):", new Date().getTimezoneOffset());
+                          console.log("UTC start time:", startTime.toISOString());
+                          console.log("UTC end time:", endTime.toISOString());
+                          
+                          // Try to handle timezone issues by treating as local time
+                          if (typeof slotData.start_time === 'string' && slotData.start_time.includes(':')) {
+                            // If it's a time string, treat it as local time directly
+                            const [startHour, startMin] = slotData.start_time.split(':').map(Number);
+                            const [endHour, endMin] = slotData.end_time.split(':').map(Number);
+                            
+                            const today = new Date();
+                            startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), startHour, startMin);
+                            endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHour, endMin);
+                            
+                            console.log("Local time parsing - start:", startTime);
+                            console.log("Local time parsing - end:", endTime);
+                          }
+                          
                           console.log("Parsed start time:", startTime);
                           console.log("Parsed end time:", endTime);
                           
