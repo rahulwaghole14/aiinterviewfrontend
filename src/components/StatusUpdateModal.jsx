@@ -5,6 +5,8 @@ import HorizontalDatePicker from "./HorizontalDatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
 import Modal from "./common/Modal";
 import { useNotification } from "../hooks/useNotification";
+import { useDispatch } from "react-redux";
+import { updateCandidateStatus } from "../redux/slices/candidatesSlice";
 import "./StatusUpdateModal.css";
 
 const StatusUpdateModal = ({
@@ -18,6 +20,7 @@ const StatusUpdateModal = ({
   onUpdateStatus,
 }) => {
   const notify = useNotification();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [authToken, setAuthToken] = useState("");
 
@@ -335,6 +338,17 @@ const StatusUpdateModal = ({
       if (!response.ok) {
         throw new Error("Failed to update candidate status");
       }
+
+      // Update Redux state immediately
+      dispatch(updateCandidateStatus({
+        id: candidate.id,
+        newStatus: hireRejectForm.decision === "hired" ? "HIRED" : "REJECTED",
+        updatedData: {
+          status: hireRejectForm.decision === "hired" ? "HIRED" : "REJECTED",
+          feedback: hireRejectForm.feedback,
+          last_updated: new Date().toISOString()
+        }
+      }));
 
       notify.success(`Candidate ${hireRejectForm.decision} successfully!`);
       // Call the onUpdateStatus callback if provided

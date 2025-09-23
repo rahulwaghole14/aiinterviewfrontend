@@ -186,8 +186,12 @@ const CandidateDetails = () => {
     }
   };
 
-  // Determine current status based on interviews
+  // Determine current status based on interviews and candidate status
   const getCurrentStatus = () => {
+    // First check if candidate has been hired or rejected
+    if (candidate?.status === "HIRED") return "HIRED";
+    if (candidate?.status === "REJECTED") return "REJECTED";
+    
     if (!interviews.length) return "NEW";
 
     const latestInterview = interviews[interviews.length - 1];
@@ -216,6 +220,9 @@ const CandidateDetails = () => {
     { id: "evaluate", label: "Complete Evaluation", status: "EVALUATED" },
     { id: "hire_reject", label: "Make Decision", status: "HIRED" },
   ];
+
+  // Don't show actions if candidate is hired or rejected
+  const shouldShowActions = currentStatus !== "HIRED" && currentStatus !== "REJECTED";
 
   // Get the next available action based on current status
   const getNextAction = (currentStatus) => {
@@ -509,6 +516,7 @@ const CandidateDetails = () => {
                 "INTERVIEW_COMPLETED",
                 "EVALUATED",
                 "HIRED",
+                "REJECTED",
               ];
 
               const statusLabels = [
@@ -516,7 +524,8 @@ const CandidateDetails = () => {
                 "Schedule Interview",
                 "Interview Completed",
                 "Evaluate",
-                "Hire/Reject",
+                "Hired",
+                "Rejected",
               ];
 
               const currentIndex = statusStages.indexOf(currentStatus);
@@ -524,7 +533,7 @@ const CandidateDetails = () => {
 
               return statusLabels.map((label, index) => {
                 const stage = statusStages[index];
-                const isCompleted = index < currentIndex;
+                const isCompleted = index < currentIndex || (currentStatus === "HIRED" && stage === "HIRED") || (currentStatus === "REJECTED" && stage === "REJECTED");
                 const isCurrent = index === currentIndex;
                 const isNextAction =
                   nextAction && statusStages[index] === nextAction.status;
@@ -538,7 +547,7 @@ const CandidateDetails = () => {
                       isCurrent ? "current" : ""
                     } ${isClickable ? "clickable" : ""} ${isRecommended ? "recommended" : ""}`}
                     onClick={() => {
-                      if (!isClickable) return;
+                      if (!isClickable || !shouldShowActions) return;
 
                       if (stage === "INTERVIEW_SCHEDULED") {
                         handleStatusUpdate("schedule_interview");
