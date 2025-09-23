@@ -461,25 +461,17 @@ const StatusUpdateModal = ({
         throw new Error("Failed to update candidate status");
       }
 
-      // Update Redux state immediately
-      const newStatus = hireRejectForm.decision === "hired" ? "HIRED" : "REJECTED";
-      console.log("=== REDUX UPDATE DEBUG ===");
-      console.log("Candidate ID:", candidate.id);
-      console.log("New Status:", newStatus);
-      console.log("Updated Data:", {
-        status: newStatus,
-        feedback: hireRejectForm.feedback,
-        last_updated: new Date().toISOString()
-      });
-      
+      // Get the updated candidate data from API response
+      const updatedCandidateData = await response.json();
+      console.log("=== API RESPONSE DEBUG ===");
+      console.log("API Response:", updatedCandidateData);
+      console.log("Updated candidate status from API:", updatedCandidateData.status);
+
+      // Update Redux state with the actual API response data
       dispatch(updateCandidateStatus({
         id: candidate.id,
-        newStatus: newStatus,
-        updatedData: {
-          status: newStatus,
-          feedback: hireRejectForm.feedback,
-          last_updated: new Date().toISOString()
-        }
+        newStatus: updatedCandidateData.status,
+        updatedData: updatedCandidateData
       }));
 
       notify.success(`Candidate ${hireRejectForm.decision} successfully!`);

@@ -110,14 +110,18 @@ const candidatesSlice = createSlice({
       
       if (candidate) {
         console.log("Before update - candidate status:", candidate.status);
-        candidate.status = newStatus;
-        candidate.last_updated = new Date().toISOString();
-        console.log("After update - candidate status:", candidate.status);
-
+        
+        // Use the API response data directly instead of manual updates
         if (updatedData) {
-          console.log("Applying updatedData:", updatedData);
+          console.log("Applying API response data:", updatedData);
+          // Replace the entire candidate object with the API response
           Object.assign(candidate, updatedData);
-          console.log("After Object.assign - candidate status:", candidate.status);
+          console.log("After applying API data - candidate status:", candidate.status);
+        } else {
+          // Fallback to manual update if no API data
+          candidate.status = newStatus;
+          candidate.last_updated = new Date().toISOString();
+          console.log("After manual update - candidate status:", candidate.status);
         }
         
         console.log("Final candidate object:", candidate);
