@@ -165,6 +165,10 @@ const StatusUpdateModal = ({
       const availableSlots = slotsData.results || slotsData || [];
 
       // Find the matching slot
+      console.log("=== SLOT MATCHING DEBUG ===");
+      console.log("Available slots:", availableSlots);
+      console.log("Selected times:", scheduleForm.selectedTimes);
+      
       const matchingSlot = availableSlots.find(slot => {
         let slotStartTime, slotEndTime;
         
@@ -179,19 +183,26 @@ const StatusUpdateModal = ({
         }
         
         const slotTimeRange = `${slotStartTime}-${slotEndTime}`;
-        return scheduleForm.selectedTimes.includes(slotTimeRange);
+        console.log(`Checking slot ${slot.id}: ${slotTimeRange} vs selected: ${scheduleForm.selectedTimes}`);
+        const isMatch = scheduleForm.selectedTimes.includes(slotTimeRange);
+        console.log(`Match found: ${isMatch}`);
+        return isMatch;
       });
 
-      if (!matchingSlot) {
-        throw new Error("No matching slot found for selected time");
+      console.log("=== SLOT MATCHING RESULT ===");
+      console.log("Matching slot found:", !!matchingSlot);
+      
+      if (matchingSlot) {
+        console.log("Found matching slot:", matchingSlot);
+      } else {
+        console.log("No matching slot found, creating interview without slot link");
+        console.log("This might cause time display issues in Candidate Details");
       }
-
-      console.log("Found matching slot:", matchingSlot);
 
       const interviewData = {
         candidate: candidate.id,
         job: candidate.job?.id || candidate.job || null,
-        slot: matchingSlot.id, // Link to the actual slot
+        ...(matchingSlot && { slot: matchingSlot.id }), // Only add slot if found
         started_at: startedAt,
         ended_at: endedAt,
         feedback: scheduleForm.feedback || "",
@@ -224,7 +235,7 @@ const StatusUpdateModal = ({
       const responseData = await response.json();
       const interviewId = responseData.id;
 
-      // Step 2: Update the slot booking
+      // Step 2: Update the slot booking (only if we found a matching slot)
       if (matchingSlot) {
 
         if (slotsResponse.ok) {
