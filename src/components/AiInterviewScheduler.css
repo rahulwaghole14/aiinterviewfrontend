@@ -61,16 +61,24 @@
 /* Override DataTable min-height specifically for AI Interview Scheduler */
 .ai-int-table-container .data-table-container {
   min-height: 0; /* Allow flex to work properly */
-  height: 100%;
+  height: auto; /* Let height adjust to content */
   max-height: 100%;
   overflow: hidden;
+  flex: 1; /* Take available space */
 }
 
 .ai-int-table-container .table-responsive {
   min-height: 0; /* Allow flex to work properly */
-  height: 100%;
+  height: auto; /* Let height adjust to content */
   max-height: 100%;
   overflow: auto; /* Allow scrolling within table */
+  flex: 1; /* Take available space */
+}
+
+.ai-int-table-container .table-box {
+  min-height: 0; /* Allow flex to work properly */
+  height: auto; /* Let height adjust to content */
+  flex: 1; /* Take available space */
 }
 
 .ai-int-form-card {
@@ -255,11 +263,21 @@
   
   /* Override DataTable heights on tablet for AI Interview Scheduler */
   .ai-int-table-container .data-table-container {
-    min-height: 300px;
+    min-height: 0;
+    height: auto;
+    flex: 1;
   }
   
   .ai-int-table-container .table-responsive {
-    min-height: 250px;
+    min-height: 0;
+    height: auto;
+    flex: 1;
+  }
+  
+  .ai-int-table-container .table-box {
+    min-height: 0;
+    height: auto;
+    flex: 1;
   }
 }
 
@@ -284,11 +302,21 @@
   
   /* Override DataTable heights on mobile for AI Interview Scheduler */
   .ai-int-table-container .data-table-container {
-    min-height: 250px;
+    min-height: 0;
+    height: auto;
+    flex: 1;
   }
   
   .ai-int-table-container .table-responsive {
-    min-height: 200px;
+    min-height: 0;
+    height: auto;
+    flex: 1;
+  }
+  
+  .ai-int-table-container .table-box {
+    min-height: 0;
+    height: auto;
+    flex: 1;
   }
 }
 
