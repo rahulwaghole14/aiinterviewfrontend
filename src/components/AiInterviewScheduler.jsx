@@ -102,7 +102,11 @@ const AiInterviewScheduler = ({
             } else if (typeof value === 'number') {
               searchValue = String(value);
             } else if (value instanceof Date) {
-              searchValue = value.toLocaleDateString() + ' ' + value.toLocaleTimeString();
+              searchValue = value.toLocaleDateString() + ' ' + value.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              });
             } else {
               searchValue = String(value);
             }

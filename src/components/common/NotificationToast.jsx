@@ -142,7 +142,11 @@ const NotificationToast = () => {
                     <p className="toast-message-text">{notification.message}</p>
                     <div className="toast-meta">
                       <span className="toast-timestamp">
-                        {new Date(notification.timestamp).toLocaleTimeString()}
+                        {new Date(notification.timestamp).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
                       </span>
                       <span className="toast-type-badge">
                         {notification.type.toUpperCase()}
