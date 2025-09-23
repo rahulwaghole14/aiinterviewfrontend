@@ -613,11 +613,30 @@ const CandidateDetails = () => {
                       
                       if (slotData && slotData.start_time && slotData.end_time) {
                         try {
-                          return `${new Date(slotData.start_time).toLocaleTimeString('en-US', {
+                          console.log("Raw slot start_time:", slotData.start_time);
+                          console.log("Raw slot end_time:", slotData.end_time);
+                          
+                          // Check if it's a time string or datetime
+                          let startTime, endTime;
+                          
+                          if (typeof slotData.start_time === 'string') {
+                            // If it's a time string like "09:30:00", create a proper datetime
+                            const today = new Date().toISOString().split('T')[0];
+                            startTime = new Date(`${today}T${slotData.start_time}`);
+                            endTime = new Date(`${today}T${slotData.end_time}`);
+                          } else {
+                            startTime = new Date(slotData.start_time);
+                            endTime = new Date(slotData.end_time);
+                          }
+                          
+                          console.log("Parsed start time:", startTime);
+                          console.log("Parsed end time:", endTime);
+                          
+                          return `${startTime.toLocaleTimeString('en-US', {
                             hour: 'numeric',
                             minute: '2-digit',
                             hour12: true
-                          })} - ${new Date(slotData.end_time).toLocaleTimeString('en-US', {
+                          })} - ${endTime.toLocaleTimeString('en-US', {
                             hour: 'numeric',
                             minute: '2-digit',
                             hour12: true
