@@ -119,6 +119,17 @@ const CandidateDetails = () => {
 
       console.log("Fetched interviews data:", interviewsData);
       console.log("Fetched evaluations data:", evaluationsData);
+      
+      // Debug: Check if interviews have slot_details
+      if (Array.isArray(interviewsData)) {
+        interviewsData.forEach((interview, index) => {
+          console.log(`Interview ${index} slot_details:`, interview.slot_details);
+          if (interview.slot_details) {
+            console.log(`  - start_time: ${interview.slot_details.start_time} (type: ${typeof interview.slot_details.start_time})`);
+            console.log(`  - end_time: ${interview.slot_details.end_time} (type: ${typeof interview.slot_details.end_time})`);
+          }
+        });
+      }
 
       // Process interviews and evaluations
       const processedInterviews = (
