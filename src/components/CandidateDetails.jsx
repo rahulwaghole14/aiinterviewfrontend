@@ -634,18 +634,31 @@ const CandidateDetails = () => {
                           console.log("UTC start time:", startTime.toISOString());
                           console.log("UTC end time:", endTime.toISOString());
                           
-                          // Try to handle timezone issues by treating as local time
+                          // Handle time strings properly to avoid timezone issues
                           if (typeof slotData.start_time === 'string' && slotData.start_time.includes(':')) {
-                            // If it's a time string, treat it as local time directly
-                            const [startHour, startMin] = slotData.start_time.split(':').map(Number);
-                            const [endHour, endMin] = slotData.end_time.split(':').map(Number);
+                            // Parse time string (e.g., "09:30:00" or "09:30")
+                            const parseTimeString = (timeStr) => {
+                              const parts = timeStr.split(':');
+                              const hour = parseInt(parts[0], 10);
+                              const minute = parseInt(parts[1], 10);
+                              return { hour, minute };
+                            };
                             
+                            const startTimeData = parseTimeString(slotData.start_time);
+                            const endTimeData = parseTimeString(slotData.end_time);
+                            
+                            // Create date objects using local timezone
                             const today = new Date();
-                            startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), startHour, startMin);
-                            endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHour, endMin);
+                            startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
+                                               startTimeData.hour, startTimeData.minute, 0);
+                            endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 
+                                             endTimeData.hour, endTimeData.minute, 0);
                             
-                            console.log("Local time parsing - start:", startTime);
-                            console.log("Local time parsing - end:", endTime);
+                            console.log("Time string parsing:");
+                            console.log("  Start time string:", slotData.start_time, "→", startTimeData);
+                            console.log("  End time string:", slotData.end_time, "→", endTimeData);
+                            console.log("  Local start time:", startTime);
+                            console.log("  Local end time:", endTime);
                           }
                           
                           console.log("Parsed start time:", startTime);
