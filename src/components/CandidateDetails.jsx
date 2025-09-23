@@ -441,7 +441,7 @@ const CandidateDetails = () => {
             interviews
               .filter((i) => i.evaluation)
               .map((interview) => (
-                <div key={interview.id} className="evaluation-item">
+                <div key={interview.id}>
                   <div className="evaluation-header">
                     <h4>Interview Evaluation Results</h4>
                     <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
