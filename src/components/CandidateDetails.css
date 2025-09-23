@@ -295,9 +295,9 @@
 }
 
 .status-step.current .status-circle {
-  background-color: var(--color-primary);
+  background-color: var(--color-success);
   color: white;
-  transform: scale(1.1);
+  border-color: var(--color-success);
 }
 
 .status-step.clickable {
@@ -323,7 +323,7 @@
 
 .status-step.completed .status-label,
 .status-step.current .status-label {
-  color: #111827;
+  color: var(--color-success);
   font-weight: 500;
 }
 
@@ -616,7 +616,7 @@
 }
 
 .status-step.current .status-label {
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-success);
 }
 
