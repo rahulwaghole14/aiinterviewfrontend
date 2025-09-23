@@ -1048,8 +1048,7 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: var(--color-text);
-    font-weight: 600;
+    color: var(--color-text-secondary);
   }
   
   .records-select {
