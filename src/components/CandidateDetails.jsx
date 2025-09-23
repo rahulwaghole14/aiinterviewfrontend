@@ -585,13 +585,23 @@ const CandidateDetails = () => {
                   <p>
                     <strong>Date:</strong>{" "}
                     {interview.started_at
-                      ? new Date(interview.started_at).toLocaleDateString() + ' ' + new Date(interview.started_at).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
-                        })
+                      ? new Date(interview.started_at).toLocaleDateString()
                       : "TBD"}
                   </p>
+                  {interview.slot_details && (
+                    <p>
+                      <strong>Time:</strong>{" "}
+                      {new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })} - {new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </p>
+                  )}
                 </div>
                 
                 {/* Video Recording Section */}
