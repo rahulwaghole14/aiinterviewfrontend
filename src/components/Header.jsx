@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiUser, FiMenu, FiChevronLeft, FiX } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { createSelector } from '@reduxjs/toolkit';
 import { setSearchTerm } from '../redux/slices/searchSlice';
 import { searchService } from '../services/searchService';
 
@@ -47,12 +48,43 @@ const Header = ({
   // Get data from Redux stores for search
   const candidates = useSelector((state) => state.candidates?.allCandidates || []);
   const jobs = useSelector((state) => state.jobs?.allJobs || []);
-  const domains = useSelector((state) => state.jobs?.domains || []);
-  const hiringAgencies = useSelector((state) => state.hiringAgencies?.hiringAgencies || []);
-  const companies = useSelector((state) => state.companies?.companies || []);
-  const recruiters = useSelector((state) => state.recruiters?.recruiters || []);
-  const interviewSlots = useSelector((state) => state.interviewSlots?.slots || []);
-  const interviews = useSelector((state) => state.interviews?.interviews || []);
+  // Memoized selectors to prevent unnecessary rerenders
+  const selectDomains = useMemo(() => createSelector(
+    [(state) => state.jobs?.domains],
+    (domains) => domains || []
+  ), []);
+
+  const selectHiringAgencies = useMemo(() => createSelector(
+    [(state) => state.hiringAgencies?.hiringAgencies],
+    (hiringAgencies) => hiringAgencies || []
+  ), []);
+
+  const selectCompanies = useMemo(() => createSelector(
+    [(state) => state.companies?.companies],
+    (companies) => companies || []
+  ), []);
+
+  const selectRecruiters = useMemo(() => createSelector(
+    [(state) => state.recruiters?.recruiters],
+    (recruiters) => recruiters || []
+  ), []);
+
+  const selectInterviewSlots = useMemo(() => createSelector(
+    [(state) => state.interviewSlots?.slots],
+    (slots) => slots || []
+  ), []);
+
+  const selectInterviews = useMemo(() => createSelector(
+    [(state) => state.interviews?.interviews],
+    (interviews) => interviews || []
+  ), []);
+
+  const domains = useSelector(selectDomains);
+  const hiringAgencies = useSelector(selectHiringAgencies);
+  const companies = useSelector(selectCompanies);
+  const recruiters = useSelector(selectRecruiters);
+  const interviewSlots = useSelector(selectInterviewSlots);
+  const interviews = useSelector(selectInterviews);
 
   // Debug data availability
   useEffect(() => {

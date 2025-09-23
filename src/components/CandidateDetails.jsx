@@ -221,9 +221,6 @@ const CandidateDetails = () => {
     { id: "hire_reject", label: "Make Decision", status: "HIRED" },
   ];
 
-  // Don't show actions if candidate is hired or rejected
-  const shouldShowActions = currentStatus !== "HIRED" && currentStatus !== "REJECTED";
-
   // Get the next available action based on current status
   const getNextAction = (currentStatus) => {
     switch (currentStatus) {
@@ -373,6 +370,9 @@ const CandidateDetails = () => {
   }
 
   const currentStatus = getCurrentStatus();
+
+  // Don't show actions if candidate is hired or rejected
+  const shouldShowActions = currentStatus !== "HIRED" && currentStatus !== "REJECTED";
 
   return (
     <>
