@@ -6,7 +6,7 @@
   min-height: auto;
   background: transparent;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  gap: 0.5rem;
+  gap: 1rem;
   margin: 0;
   width: 100%;
   box-sizing: border-box;
@@ -47,17 +47,12 @@
 
 /* Override DataTable min-height specifically for AI Interview Scheduler */
 .ai-int-table-container .data-table-container {
-  min-height: 50px !important; /* Override DataTable's 700px min-height */
+  min-height: 300px !important; /* Reasonable height to show content */
   height: auto !important; /* Allow height to adjust to content */
 }
 
 .ai-int-table-container .table-responsive {
-  min-height: 30px !important; /* Override DataTable's 500px min-height */
-  height: auto !important; /* Allow height to adjust to content */
-}
-
-.ai-int-table-container .table-box {
-  min-height: 20px !important; /* Minimal height for table box */
+  min-height: 250px !important; /* Reasonable height for table content */
   height: auto !important; /* Allow height to adjust to content */
 }
 
@@ -240,17 +235,12 @@
   
   /* Override DataTable heights on tablet for AI Interview Scheduler */
   .ai-int-table-container .data-table-container {
-    min-height: 30px !important;
+    min-height: 250px !important;
     height: auto !important;
   }
   
   .ai-int-table-container .table-responsive {
-    min-height: 20px !important;
-    height: auto !important;
-  }
-  
-  .ai-int-table-container .table-box {
-    min-height: 10px !important;
+    min-height: 200px !important;
     height: auto !important;
   }
 }
@@ -275,17 +265,12 @@
   
   /* Override DataTable heights on mobile for AI Interview Scheduler */
   .ai-int-table-container .data-table-container {
-    min-height: 30px !important;
+    min-height: 200px !important;
     height: auto !important;
   }
   
   .ai-int-table-container .table-responsive {
-    min-height: 20px !important;
-    height: auto !important;
-  }
-  
-  .ai-int-table-container .table-box {
-    min-height: 10px !important;
+    min-height: 150px !important;
     height: auto !important;
   }
 }
