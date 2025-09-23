@@ -482,7 +482,7 @@
 .candidate-details-content h2 {
   font-size: 1.875rem; /* text-3xl */
   font-weight: bold;
-  color: var(--color-text-primary); /* text-gray-800 */
+  color: var(--color-primary); /* text-gray-800 */
   margin-bottom: 1.5rem; /* mb-6 */
 }
 
@@ -553,7 +553,7 @@
 .update-status-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-text-primary); /* text-gray-700 */
+  color: var(--color-primary); /* text-gray-700 */
   margin-bottom: 1rem; /* mb-4 */
 }
 

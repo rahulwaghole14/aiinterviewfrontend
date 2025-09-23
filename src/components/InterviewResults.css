@@ -117,7 +117,7 @@
 .candidate-info h2,
 .evaluation-scores h2,
 .session-metrics h2 {
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   margin-bottom: 1rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -195,7 +195,7 @@
 }
 
 .score-card h3 {
-  color: #6c757d;
+  color: var(--color-primary);
   margin-bottom: 1rem;
   font-size: 1rem;
   font-weight: 600;
@@ -269,7 +269,7 @@
 }
 
 .answer-section h4 {
-  color: #28a745;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
@@ -362,7 +362,7 @@
 
 .code-content h4,
 .output-content h4 {
-  color: #495057;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
@@ -420,7 +420,7 @@
 
 .communication-metrics h3,
 .proctoring-analytics h3 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 1rem;
   font-size: 1.25rem;
   font-weight: 600;
@@ -507,7 +507,7 @@
 }
 
 .feedback-item h3 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 1rem;
   font-size: 1.25rem;
   font-weight: 600;

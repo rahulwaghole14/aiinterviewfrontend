@@ -139,7 +139,7 @@
 }
 
 .candidate-info h3 {
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   margin-bottom: 0.25rem;
   font-size: 1.25rem;
   font-weight: 600;
