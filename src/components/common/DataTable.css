@@ -53,7 +53,7 @@
     /* Hide scrollbars */
     -ms-overflow-style: none;
     scrollbar-width: none;
-    min-height: 500px; /* Ensure enough height for 10 rows */
+    min-height: 600px; /* Increased height to get closer to pagination */
   }
   
   .table-responsive::-webkit-scrollbar {
@@ -69,6 +69,7 @@
     position: relative; /* Ensure proper containment */
     height: 100%;
     min-height: 100%;
+    max-height: 600px; /* Increased height to get closer to pagination */
   }
   
   .data-table th,
