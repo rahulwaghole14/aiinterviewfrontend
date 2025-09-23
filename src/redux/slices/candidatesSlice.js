@@ -101,14 +101,28 @@ const candidatesSlice = createSlice({
     },
     updateCandidateStatus: (state, action) => {
       const { id, newStatus, updatedData } = action.payload;
+      console.log("=== REDUX ACTION DEBUG ===");
+      console.log("Action payload:", action.payload);
+      console.log("All candidates before update:", state.allCandidates);
+      
       const candidate = (state.allCandidates || []).find(c => c.id === id);
+      console.log("Found candidate:", candidate);
+      
       if (candidate) {
+        console.log("Before update - candidate status:", candidate.status);
         candidate.status = newStatus;
         candidate.last_updated = new Date().toISOString();
+        console.log("After update - candidate status:", candidate.status);
 
         if (updatedData) {
+          console.log("Applying updatedData:", updatedData);
           Object.assign(candidate, updatedData);
+          console.log("After Object.assign - candidate status:", candidate.status);
         }
+        
+        console.log("Final candidate object:", candidate);
+      } else {
+        console.log("Candidate not found with ID:", id);
       }
     },
     deleteCandidate: (state, action) => {

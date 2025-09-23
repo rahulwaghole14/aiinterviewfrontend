@@ -462,11 +462,21 @@ const StatusUpdateModal = ({
       }
 
       // Update Redux state immediately
+      const newStatus = hireRejectForm.decision === "hired" ? "HIRED" : "REJECTED";
+      console.log("=== REDUX UPDATE DEBUG ===");
+      console.log("Candidate ID:", candidate.id);
+      console.log("New Status:", newStatus);
+      console.log("Updated Data:", {
+        status: newStatus,
+        feedback: hireRejectForm.feedback,
+        last_updated: new Date().toISOString()
+      });
+      
       dispatch(updateCandidateStatus({
         id: candidate.id,
-        newStatus: hireRejectForm.decision === "hired" ? "HIRED" : "REJECTED",
+        newStatus: newStatus,
         updatedData: {
-          status: hireRejectForm.decision === "hired" ? "HIRED" : "REJECTED",
+          status: newStatus,
           feedback: hireRejectForm.feedback,
           last_updated: new Date().toISOString()
         }
