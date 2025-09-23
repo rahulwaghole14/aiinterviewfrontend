@@ -195,7 +195,21 @@
   font-weight: bold;
   margin-bottom: 0.2rem; /* Reduced margin-bottom */
   display: block; /* Ensure it takes full width */
-  color: var(--color-text-primary); /* text-gray-900 */
+  color: var(--color-primary); /* text-gray-900 */
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.filter-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
 }
 
 .candidate-role,
