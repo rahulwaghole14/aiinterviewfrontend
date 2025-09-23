@@ -585,7 +585,11 @@ const CandidateDetails = () => {
                   <p>
                     <strong>Date:</strong>{" "}
                     {interview.started_at
-                      ? new Date(interview.started_at).toLocaleDateString()
+                      ? new Date(interview.started_at).toLocaleDateString() + ' ' + new Date(interview.started_at).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })
                       : "TBD"}
                   </p>
                 </div>
