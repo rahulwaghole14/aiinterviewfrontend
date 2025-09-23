@@ -237,15 +237,8 @@ const StatusUpdateModal = ({
 
       // Step 2: Update the slot booking (only if we found a matching slot)
       if (matchingSlot) {
-
-        if (slotsResponse.ok) {
-          const slotsData = await slotsResponse.json();
-          const availableSlots = slotsData.results || slotsData || [];
-
-          console.log("=== SLOT BOOKING DEBUG ===");
-          console.log("Available slots data:", slotsData);
-          console.log("Available slots array:", availableSlots);
-          console.log("Number of available slots:", availableSlots.length);
+        console.log("=== SLOT BOOKING PROCESS ===");
+        console.log("Using matching slot:", matchingSlot);
           
           // Log each slot's details
           availableSlots.forEach((slot, index) => {
