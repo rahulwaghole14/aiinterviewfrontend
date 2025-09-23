@@ -464,7 +464,11 @@ const CandidateDetails = () => {
                   )}
                   
                   <div className="evaluation-metadata">
-                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString()}</p>
+                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</p>
                   </div>
                   
                   <div className="evaluation-score-corner">
@@ -565,79 +569,90 @@ const CandidateDetails = () => {
         </div>
 
         <div className="interview-section card">
-          <h3>Interview Details</h3>
           {interviewsLoading ? (
             <BeatLoader color="var(--color-primary-dark)" size={8} />
           ) : interviews.length > 0 ? (
-            <div className="interview-list">
-              {interviews.map((interview, index) => (
-                <div key={interview.id} className="interview-item">
-                  <p>
-                    <strong>Round:</strong> {interview.interview_round}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {interview.status}
-                  </p>
+            interviews.map((interview, index) => (
+              <div key={interview.id}>
+                <div className="interview-header">
+                  <h4>Interview Details - Round {interview.interview_round}</h4>
+                  <span className={`interview-status ${interview.status.toLowerCase()}`}>
+                    {interview.status}
+                  </span>
+                </div>
+                
+                <div className="interview-basic-info">
                   <p>
                     <strong>Date:</strong>{" "}
                     {interview.started_at
                       ? new Date(interview.started_at).toLocaleDateString()
                       : "TBD"}
                   </p>
-
-                  
-                  {/* Video Recording Section */}
-                  {interview.ai_result?.recording_video && (
-                    <div className="recording-section">
-                      <h4>Interview Recording</h4>
-                      <div className="video-player-container">
-                        <video
-                          controls
-                          className="video-player"
-                          preload="metadata"
-                        >
-                          <source src={`${baseURL}${interview.ai_result.recording_video}`} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                      </div>
-                      {interview.ai_result.recording_created_at && (
-                        <p className="recording-metadata">
-                          <strong>Recorded:</strong>{" "}
-                          {new Date(interview.ai_result.recording_created_at).toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Slot Details */}
-                  {interview.slot_details && (
-                    <div className="slot-details">
-                      <h4>Slot Information</h4>
-                      <p>
-                        <strong>Start Time:</strong>{" "}
-                        {new Date(interview.slot_details.start_time).toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>End Time:</strong>{" "}
-                        {new Date(interview.slot_details.end_time).toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Duration:</strong> {interview.slot_details.duration_minutes} minutes
-                      </p>
-                      <p>
-                        <strong>Talaro Interview Type:</strong> {interview.slot_details.ai_interview_type}
-                      </p>
-
-                      {interview.booking_notes && (
-                        <p>
-                          <strong>Booking Notes:</strong> {interview.booking_notes}
-                        </p>
-                      )}
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
+                
+                {/* Video Recording Section */}
+                {interview.ai_result?.recording_video && (
+                  <div className="recording-section">
+                    <h4>Interview Recording</h4>
+                    <div className="video-player-container">
+                      <video
+                        controls
+                        className="video-player"
+                        preload="metadata"
+                      >
+                        <source src={`${baseURL}${interview.ai_result.recording_video}`} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                    {interview.ai_result.recording_created_at && (
+                      <p className="recording-metadata">
+                        <strong>Recorded:</strong>{" "}
+                        {new Date(interview.ai_result.recording_created_at).toLocaleString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Slot Details */}
+                {interview.slot_details && (
+                  <div className="slot-details">
+                    <h4>Slot Information</h4>
+                    <p>
+                      <strong>Start Time:</strong>{" "}
+                      {new Date(interview.slot_details.start_time).toLocaleString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </p>
+                    <p>
+                      <strong>End Time:</strong>{" "}
+                      {new Date(interview.slot_details.end_time).toLocaleString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </p>
+                    <p>
+                      <strong>Duration:</strong> {interview.slot_details.duration_minutes} minutes
+                    </p>
+                    <p>
+                      <strong>Talaro Interview Type:</strong> {interview.slot_details.ai_interview_type}
+                    </p>
+
+                    {interview.booking_notes && (
+                      <p>
+                        <strong>Booking Notes:</strong> {interview.booking_notes}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
           ) : (
             <p className="no-data">No interviews scheduled</p>
           )}
