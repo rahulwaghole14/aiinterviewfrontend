@@ -345,17 +345,17 @@ const AiInterviewScheduler = ({
           console.log("Formatted date:", formattedDate);
           console.log(
             "Final start_time:",
-            `${formattedDate}T${overallStartTime}:00`
+            overallStartTime
           );
           console.log(
             "Final end_time:",
-            `${formattedDate}T${overallEndTime}:00`
+            overallEndTime
           );
 
           const slotData = {
             date: formattedDate,
-            start_time: `${formattedDate}T${overallStartTime}:00`,
-            end_time: `${formattedDate}T${overallEndTime}:00`,
+            start_time: overallStartTime,
+            end_time: overallEndTime,
             ai_interview_type: slotForm.ai_interview_type,
             ai_configuration: {
               difficulty_level: slotForm.difficulty_level,
@@ -434,8 +434,8 @@ const AiInterviewScheduler = ({
 
         const slotData = {
           date: formattedDate,
-          start_time: `${formattedDate}T${slotForm.start_time}:00`,
-          end_time: `${formattedDate}T${slotForm.end_time}:00`,
+          start_time: slotForm.start_time,
+          end_time: slotForm.end_time,
           ai_interview_type: slotForm.ai_interview_type,
           ai_configuration: {
             difficulty_level: slotForm.difficulty_level,
