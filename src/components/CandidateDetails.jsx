@@ -598,18 +598,23 @@ const CandidateDetails = () => {
                       : "TBD"}
                   </p>
                   {interview.slot_details && (
-                    <p>
-                      <strong>Time:</strong>{" "}
-                      {new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })} - {new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
-                    </p>
+                    <>
+                      <p>
+                        <strong>Slot ID:</strong> {interview.slot_details.id || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Time:</strong>{" "}
+                        {new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })} - {new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </p>
+                    </>
                   )}
                 </div>
                 
