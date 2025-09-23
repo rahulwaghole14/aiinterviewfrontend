@@ -11,7 +11,7 @@
     box-sizing: border-box;
     max-width: 100%;
     width: 100%;
-    min-height: 700px; /* Height to fit 10 rows without scrolling */
+    min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
   }
   
   .table-box {
@@ -53,7 +53,7 @@
     /* Hide scrollbars */
     -ms-overflow-style: none;
     scrollbar-width: none;
-    min-height: 600px; /* Increased height to get closer to pagination */
+    min-height: 590px; /* Reduced by 10px to fit 10 rows without scrolling */
   }
   
   .table-responsive::-webkit-scrollbar {

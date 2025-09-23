@@ -60,7 +60,7 @@
 
 /* Override DataTable container height for AI Interview Scheduler - Fill available space */
 .ai-interview-scheduler .ai-int-slot-management-container .data-table-container {
-  min-height: 790px !important; /* Reduced by 10px */
+  min-height: 800px !important; /* Increased to fill space */
   height: 100% !important; /* Fill available space */
   max-height: none !important; /* Remove height limit */
   flex: 1 !important; /* Take all available space */
@@ -75,7 +75,7 @@
 .ai-interview-scheduler .ai-int-slot-management-container .data-table {
   max-height: none !important; /* Remove height limit */
   height: 100% !important; /* Fill available space */
-  min-height: 690px !important; /* Reduced by 10px */
+  min-height: 700px !important; /* Increased to fill space */
 }
 
 .ai-interview-scheduler .ai-int-slot-management-container .table-box {
@@ -86,7 +86,7 @@
 
 /* Even more specific - target the exact DataTable component */
 .ai-interview-scheduler .data-table-container {
-  min-height: 790px !important; /* Reduced by 10px */
+  min-height: 800px !important;
   height: 100% !important;
   max-height: none !important;
   flex: 1 !important;
@@ -101,7 +101,7 @@
 .ai-interview-scheduler .data-table {
   max-height: none !important;
   height: 100% !important;
-  min-height: 690px !important; /* Reduced by 10px */
+  min-height: 700px !important;
 }
 
 
