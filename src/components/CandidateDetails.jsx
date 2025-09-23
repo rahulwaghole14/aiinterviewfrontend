@@ -464,7 +464,7 @@ const CandidateDetails = () => {
                   )}
                   
                   <div className="evaluation-metadata">
-                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString('en-US', {
+                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleDateString() + ' ' + new Date(interview.evaluation.created_at).toLocaleTimeString('en-US', {
                       hour: 'numeric',
                       minute: '2-digit',
                       hour12: true
@@ -607,7 +607,7 @@ const CandidateDetails = () => {
                     {interview.ai_result.recording_created_at && (
                       <p className="recording-metadata">
                         <strong>Recorded:</strong>{" "}
-                        {new Date(interview.ai_result.recording_created_at).toLocaleString('en-US', {
+                        {new Date(interview.ai_result.recording_created_at).toLocaleDateString() + ' ' + new Date(interview.ai_result.recording_created_at).toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
                           hour12: true
@@ -623,7 +623,7 @@ const CandidateDetails = () => {
                     <h4>Slot Information</h4>
                     <p>
                       <strong>Start Time:</strong>{" "}
-                      {new Date(interview.slot_details.start_time).toLocaleString('en-US', {
+                      {new Date(interview.slot_details.start_time).toLocaleDateString() + ' ' + new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit',
                         hour12: true
@@ -631,7 +631,7 @@ const CandidateDetails = () => {
                     </p>
                     <p>
                       <strong>End Time:</strong>{" "}
-                      {new Date(interview.slot_details.end_time).toLocaleString('en-US', {
+                      {new Date(interview.slot_details.end_time).toLocaleDateString() + ' ' + new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit',
                         hour12: true

@@ -1121,8 +1121,8 @@
 }
 
 .interview-status.completed {
-  background-color: var(--color-success);
-  color: white;
+  background-color: #d1fae5;
+  color: #065f46;
 }
 
 .interview-status.scheduled {
