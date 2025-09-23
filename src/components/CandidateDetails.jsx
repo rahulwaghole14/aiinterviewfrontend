@@ -361,6 +361,16 @@ const CandidateDetails = () => {
     }
   }, [id, candidatesStatus, allCandidates]);
 
+  // Additional effect to update candidate when allCandidates changes (for status updates)
+  useEffect(() => {
+    if (allCandidates && candidate?.id) {
+      const updatedCandidate = allCandidates.find((c) => String(c.id) === candidate.id);
+      if (updatedCandidate && updatedCandidate.status !== candidate.status) {
+        setCandidate(updatedCandidate);
+      }
+    }
+  }, [allCandidates, candidate?.id]);
+
   useEffect(() => {
     if (candidate) {
       fetchInterviews();

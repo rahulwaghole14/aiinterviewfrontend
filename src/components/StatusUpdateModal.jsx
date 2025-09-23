@@ -477,9 +477,7 @@ const StatusUpdateModal = ({
       if (onUpdateStatus) {
         onUpdateStatus();
       }
-      setTimeout(() => {
-        onClose();
-      }, 2000);
+      onClose();
     } catch (error) {
       console.error("Error updating candidate status:", error);
       notify.error("Failed to update candidate status. Please try again.");
