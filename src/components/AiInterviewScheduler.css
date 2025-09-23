@@ -6,7 +6,7 @@
   min-height: auto;
   background: transparent;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  gap: 1.5rem;
+  gap: 0.5rem;
   margin: 0;
   width: 100%;
   box-sizing: border-box;
@@ -47,11 +47,18 @@
 
 /* Override DataTable min-height specifically for AI Interview Scheduler */
 .ai-int-table-container .data-table-container {
-  min-height: 200px !important; /* Override DataTable's 700px min-height */
+  min-height: 50px !important; /* Override DataTable's 700px min-height */
+  height: auto !important; /* Allow height to adjust to content */
 }
 
 .ai-int-table-container .table-responsive {
-  min-height: 150px !important; /* Override DataTable's 500px min-height */
+  min-height: 30px !important; /* Override DataTable's 500px min-height */
+  height: auto !important; /* Allow height to adjust to content */
+}
+
+.ai-int-table-container .table-box {
+  min-height: 20px !important; /* Minimal height for table box */
+  height: auto !important; /* Allow height to adjust to content */
 }
 
 .ai-int-form-card {
@@ -233,11 +240,18 @@
   
   /* Override DataTable heights on tablet for AI Interview Scheduler */
   .ai-int-table-container .data-table-container {
-    min-height: 150px !important;
+    min-height: 30px !important;
+    height: auto !important;
   }
   
   .ai-int-table-container .table-responsive {
-    min-height: 100px !important;
+    min-height: 20px !important;
+    height: auto !important;
+  }
+  
+  .ai-int-table-container .table-box {
+    min-height: 10px !important;
+    height: auto !important;
   }
 }
 
@@ -261,11 +275,18 @@
   
   /* Override DataTable heights on mobile for AI Interview Scheduler */
   .ai-int-table-container .data-table-container {
-    min-height: 150px !important;
+    min-height: 30px !important;
+    height: auto !important;
   }
   
   .ai-int-table-container .table-responsive {
-    min-height: 100px !important;
+    min-height: 20px !important;
+    height: auto !important;
+  }
+  
+  .ai-int-table-container .table-box {
+    min-height: 10px !important;
+    height: auto !important;
   }
 }
 
