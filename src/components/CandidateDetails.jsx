@@ -365,11 +365,20 @@ const CandidateDetails = () => {
   useEffect(() => {
     if (allCandidates && candidate?.id) {
       const updatedCandidate = allCandidates.find((c) => String(c.id) === candidate.id);
-      if (updatedCandidate && updatedCandidate.status !== candidate.status) {
+      if (updatedCandidate && (
+        updatedCandidate.status !== candidate.status ||
+        updatedCandidate.last_updated !== candidate.last_updated
+      )) {
+        console.log("Updating candidate from allCandidates:", {
+          oldStatus: candidate.status,
+          newStatus: updatedCandidate.status,
+          oldLastUpdated: candidate.last_updated,
+          newLastUpdated: updatedCandidate.last_updated
+        });
         setCandidate(updatedCandidate);
       }
     }
-  }, [allCandidates, candidate?.id]);
+  }, [allCandidates, candidate?.id, candidate?.status, candidate?.last_updated]);
 
   useEffect(() => {
     if (candidate) {

@@ -104,7 +104,7 @@ const candidatesSlice = createSlice({
       const candidate = (state.allCandidates || []).find(c => c.id === id);
       if (candidate) {
         candidate.status = newStatus;
-        candidate.lastUpdated = new Date().toISOString().slice(0, 10);
+        candidate.last_updated = new Date().toISOString();
 
         if (updatedData) {
           Object.assign(candidate, updatedData);
