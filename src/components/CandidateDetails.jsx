@@ -598,18 +598,29 @@ const CandidateDetails = () => {
                       : "TBD"}
                   </p>
                   {interview.slot_details && (
-                    <p>
-                      <strong>Time:</strong>{" "}
-                      {new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })} - {new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
-                    </p>
+                    <>
+                      <p>
+                        <strong>Slot ID:</strong> {interview.slot_details.id || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Time:</strong>{" "}
+                        {new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })} - {new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </p>
+                      <p>
+                        <strong>Duration:</strong> {interview.slot_details.duration_minutes} minutes
+                      </p>
+                      <p>
+                        <strong>Interview Type:</strong> {interview.slot_details.ai_interview_type}
+                      </p>
+                    </>
                   )}
                 </div>
                 
@@ -640,47 +651,6 @@ const CandidateDetails = () => {
                   </div>
                 )}
                 
-                {/* Slot Details - Always visible */}
-                <div className="slot-details">
-                  <h4>Slot Information</h4>
-                  {interview.slot_details ? (
-                    <>
-                      <p>
-                        <strong>Slot ID:</strong> {interview.slot_details.id || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Start Time:</strong>{" "}
-                        {new Date(interview.slot_details.start_time).toLocaleDateString() + ' ' + new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
-                        })}
-                      </p>
-                      <p>
-                        <strong>End Time:</strong>{" "}
-                        {new Date(interview.slot_details.end_time).toLocaleDateString() + ' ' + new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
-                        })}
-                      </p>
-                      <p>
-                        <strong>Duration:</strong> {interview.slot_details.duration_minutes} minutes
-                      </p>
-                      <p>
-                        <strong>Talaro Interview Type:</strong> {interview.slot_details.ai_interview_type}
-                      </p>
-
-                      {interview.booking_notes && (
-                        <p>
-                          <strong>Booking Notes:</strong> {interview.booking_notes}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p>No slot details available</p>
-                  )}
-                </div>
               </div>
             ))
           ) : (
