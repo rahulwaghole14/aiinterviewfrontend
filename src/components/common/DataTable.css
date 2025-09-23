@@ -1057,7 +1057,6 @@
     border: 1px solid var(--color-border);
     background-color: var(--color-card);
     font-size: 14px;
-    font-weight: 600;
     color: black;
     cursor: pointer;
   }
