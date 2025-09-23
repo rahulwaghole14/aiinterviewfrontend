@@ -660,11 +660,11 @@
   font-weight: 600;
 }
 
-.interview-info, .evaluation-info {
+.interview-info {
   margin-top: 1rem;
 }
 
-.interview-info p, .evaluation-info p {
+.interview-info p {
   margin: 0.5rem 0;
   color: var(--color-muted);
   font-size: 0.9rem;

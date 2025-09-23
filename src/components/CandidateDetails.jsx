@@ -438,48 +438,46 @@ const CandidateDetails = () => {
         {/* Evaluation Section - Moved here */}
         <div className="evaluation-section card">
           {interviews.some((i) => i.evaluation) ? (
-            <div className="evaluation-info">
-              {interviews
-                .filter((i) => i.evaluation)
-                .map((interview) => (
-                  <div key={interview.id} className="evaluation-item">
-                    <div className="evaluation-header">
-                      <h4>Interview Evaluation Results</h4>
-                      <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
-                        {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
-                      </span>
+            interviews
+              .filter((i) => i.evaluation)
+              .map((interview) => (
+                <div key={interview.id} className="evaluation-item">
+                  <div className="evaluation-header">
+                    <h4>Interview Evaluation Results</h4>
+                    <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
+                      {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
+                    </span>
+                  </div>
+                  
+                  {interview.evaluation.traits && (
+                    <div className="traits">
+                      <strong>Key Traits:</strong>
+                      <p>{interview.evaluation.traits}</p>
                     </div>
-                    
-                    {interview.evaluation.traits && (
-                      <div className="traits">
-                        <strong>Key Traits:</strong>
-                        <p>{interview.evaluation.traits}</p>
-                      </div>
-                    )}
-                    
-                    {interview.evaluation.suggestions && (
-                      <div className="suggestions">
-                        <strong>Suggestions:</strong>
-                        <p>{interview.evaluation.suggestions}</p>
-                      </div>
-                    )}
-                    
-                    <div className="evaluation-metadata">
-                      <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString()}</p>
+                  )}
+                  
+                  {interview.evaluation.suggestions && (
+                    <div className="suggestions">
+                      <strong>Suggestions:</strong>
+                      <p>{interview.evaluation.suggestions}</p>
                     </div>
-                    
-                    <div className="evaluation-score-corner">
-                      <div className="score-display">
-                        <div className="score-value">
-                          <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10
-                          </span>
-                        </div>
+                  )}
+                  
+                  <div className="evaluation-metadata">
+                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString()}</p>
+                  </div>
+                  
+                  <div className="evaluation-score-corner">
+                    <div className="score-display">
+                      <div className="score-value">
+                        <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
+                          {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10
+                        </span>
                       </div>
                     </div>
                   </div>
-                ))}
-            </div>
+                </div>
+              ))
           ) : (
             <p className="no-data">{`${
               currentStatus === "INTERVIEW_COMPLETED"
