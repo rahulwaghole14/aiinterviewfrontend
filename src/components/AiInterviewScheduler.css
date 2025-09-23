@@ -58,6 +58,11 @@
   overflow: visible;
 }
 
+/* Override DataTable container height for AI Interview Scheduler */
+.ai-int-table-container .data-table-container {
+  min-height: 670px !important; /* Reduced by 30px from 700px */
+}
+
 
 .ai-int-form-card {
   flex: 1;
