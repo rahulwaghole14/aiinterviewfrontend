@@ -148,9 +148,50 @@ const StatusUpdateModal = ({
     setLoading(true);
 
     try {
+      // First, find the matching slot to get the slot ID
+      const formattedDate = scheduleForm.selectedDate.toISOString().split("T")[0];
+      const slotsResponse = await fetch(
+        `${baseURL}/api/interviews/slots/?date=${formattedDate}&status=available`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
+
+      if (!slotsResponse.ok) {
+        throw new Error("Failed to fetch available slots");
+      }
+
+      const slotsData = await slotsResponse.json();
+      const availableSlots = slotsData.results || slotsData || [];
+
+      // Find the matching slot
+      const matchingSlot = availableSlots.find(slot => {
+        let slotStartTime, slotEndTime;
+        
+        if (typeof slot.start_time === 'string') {
+          if (slot.start_time.includes("T")) {
+            slotStartTime = slot.start_time.split("T")[1]?.substring(0, 5);
+            slotEndTime = slot.end_time.split("T")[1]?.substring(0, 5);
+          } else {
+            slotStartTime = slot.start_time.substring(0, 5);
+            slotEndTime = slot.end_time.substring(0, 5);
+          }
+        }
+        
+        const slotTimeRange = `${slotStartTime}-${slotEndTime}`;
+        return scheduleForm.selectedTimes.includes(slotTimeRange);
+      });
+
+      if (!matchingSlot) {
+        throw new Error("No matching slot found for selected time");
+      }
+
+      console.log("Found matching slot:", matchingSlot);
+
       const interviewData = {
         candidate: candidate.id,
-        job: candidate.job?.id || candidate.job || null, // Get job ID if it's an object, otherwise use as is
+        job: candidate.job?.id || candidate.job || null,
+        slot: matchingSlot.id, // Link to the actual slot
         started_at: startedAt,
         ended_at: endedAt,
         feedback: scheduleForm.feedback || "",
@@ -183,16 +224,8 @@ const StatusUpdateModal = ({
       const responseData = await response.json();
       const interviewId = responseData.id;
 
-      // Step 2: Find and book the appropriate slot
-      if (scheduleForm.selectedTimes.length > 0) {
-        // Get available slots for the selected date
-        const formattedDate = scheduleForm.selectedDate.toISOString().split("T")[0];
-        const slotsResponse = await fetch(
-          `${baseURL}/api/interviews/slots/?date=${formattedDate}&status=available`,
-          {
-            headers: getAuthHeaders(),
-          }
-        );
+      // Step 2: Update the slot booking
+      if (matchingSlot) {
 
         if (slotsResponse.ok) {
           const slotsData = await slotsResponse.json();
