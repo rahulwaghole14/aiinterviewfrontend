@@ -1123,9 +1123,10 @@
 }
 
 .interview-status.completed {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
   border: none;
+  padding: 0.25rem 0.75rem;
 }
 
 .interview-status.scheduled {
