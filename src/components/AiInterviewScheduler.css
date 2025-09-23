@@ -60,7 +60,15 @@
 
 /* Override DataTable container height for AI Interview Scheduler */
 .ai-int-table-container .data-table-container {
-  min-height: 670px !important; /* Reduced by 30px from 700px */
+  min-height: 600px !important; /* Reduced by 100px from 700px */
+}
+
+.ai-int-table-container .table-responsive {
+  min-height: 450px !important; /* Reduced by 150px from 600px */
+}
+
+.ai-int-table-container .data-table {
+  max-height: 450px !important; /* Reduced from 600px */
 }
 
 
