@@ -67,7 +67,6 @@
 }
 
 .ai-interview-scheduler .ai-int-slot-management-container .table-responsive {
-  min-height: 700px !important; /* Increased to fill space */
   height: 100% !important; /* Fill available space */
   max-height: none !important; /* Remove height limit */
   flex: 1 !important; /* Take all available space */
@@ -94,7 +93,6 @@
 }
 
 .ai-interview-scheduler .table-responsive {
-  min-height: 700px !important;
   height: 100% !important;
   max-height: none !important;
   flex: 1 !important;
