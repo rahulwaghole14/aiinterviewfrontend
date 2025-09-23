@@ -1048,7 +1048,8 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: var(--color-text-secondary);
+    color: var(--color-text);
+    font-weight: 600;
   }
   
   .records-select {
@@ -1057,6 +1058,8 @@
     border: 1px solid var(--color-border);
     background-color: var(--color-card);
     font-size: 14px;
+    font-weight: 600;
+    color: black;
     cursor: pointer;
   }
   
@@ -1290,6 +1293,7 @@
     .pagination-info {
       font-size: 13px;
       text-align: center;
+      color: black;
     }
   
     .context-menu {
@@ -1344,6 +1348,7 @@
     .pagination-info {
       font-size: 12px;
       text-align: center;
+      color: black;
     }
   
     .context-menu-item {
