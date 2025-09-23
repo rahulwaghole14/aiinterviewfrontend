@@ -601,14 +601,23 @@ const CandidateDetails = () => {
                   <p>
                     <strong>Slot:</strong>{" "}
                     {(() => {
+                      console.log("Full interview object:", interview);
                       console.log("Interview slot_details:", interview.slot_details);
-                      if (interview.slot_details) {
+                      console.log("Interview schedule:", interview.schedule);
+                      console.log("Interview started_at:", interview.started_at);
+                      console.log("Interview ended_at:", interview.ended_at);
+                      
+                      // Try different possible field names
+                      const slotData = interview.slot_details || interview.schedule || interview.slot;
+                      console.log("Slot data found:", slotData);
+                      
+                      if (slotData && slotData.start_time && slotData.end_time) {
                         try {
-                          return `${new Date(interview.slot_details.start_time).toLocaleTimeString('en-US', {
+                          return `${new Date(slotData.start_time).toLocaleTimeString('en-US', {
                             hour: 'numeric',
                             minute: '2-digit',
                             hour12: true
-                          })} - ${new Date(interview.slot_details.end_time).toLocaleTimeString('en-US', {
+                          })} - ${new Date(slotData.end_time).toLocaleTimeString('en-US', {
                             hour: 'numeric',
                             minute: '2-digit',
                             hour12: true
@@ -618,6 +627,25 @@ const CandidateDetails = () => {
                           return "Invalid time format";
                         }
                       }
+                      
+                      // Fallback to started_at and ended_at if available
+                      if (interview.started_at && interview.ended_at) {
+                        try {
+                          return `${new Date(interview.started_at).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })} - ${new Date(interview.ended_at).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}`;
+                        } catch (error) {
+                          console.error("Error formatting interview time:", error);
+                          return "Invalid time format";
+                        }
+                      }
+                      
                       return "N/A";
                     })()}
                   </p>
