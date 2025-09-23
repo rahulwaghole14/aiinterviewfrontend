@@ -601,6 +601,10 @@ const CandidateDetails = () => {
                   <p>
                     <strong>Slot:</strong>{" "}
                     {(() => {
+                      console.log("=== CANDIDATE DETAILS DEBUG ===");
+                      console.log("Candidate ID:", candidate.id);
+                      console.log("Candidate Name:", candidate.full_name);
+                      console.log("Interview ID:", interview.id);
                       console.log("Full interview object:", interview);
                       console.log("Interview slot_details:", interview.slot_details);
                       console.log("Interview schedule:", interview.schedule);
@@ -610,6 +614,18 @@ const CandidateDetails = () => {
                       // Try different possible field names
                       const slotData = interview.slot_details || interview.schedule || interview.slot;
                       console.log("Slot data found:", slotData);
+                      
+                      // Also check if we can get slot data from the candidate's interviews
+                      console.log("All candidate interviews:", candidate.interviews);
+                      console.log("Current interview index:", interviews.findIndex(i => i.id === interview.id));
+                      
+                      // Check if there's a schedule relationship
+                      if (interview.schedule) {
+                        console.log("Interview schedule details:", interview.schedule);
+                        if (interview.schedule.slot) {
+                          console.log("Schedule slot details:", interview.schedule.slot);
+                        }
+                      }
                       
                       if (slotData && slotData.start_time && slotData.end_time) {
                         try {
