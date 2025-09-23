@@ -271,7 +271,7 @@
 .modal-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -472,7 +472,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: var(--color-text);
+  color: var(--color-primary);
 }
 
 .delete-confirm-message {

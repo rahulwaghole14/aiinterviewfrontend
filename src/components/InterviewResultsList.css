@@ -14,7 +14,7 @@
 }
 
 .list-header h1 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
   font-size: 2.5rem;
   font-weight: 600;
@@ -197,7 +197,7 @@
 }
 
 .evaluation-scores h4 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 0.75rem;
   font-size: 1rem;
   font-weight: 600;
@@ -261,7 +261,7 @@
 .loading-container h2,
 .error-container h2 {
   margin-top: 1rem;
-  color: #2c3e50;
+  color: var(--color-primary);
 }
 
 .error-icon {
@@ -300,7 +300,7 @@
 }
 
 .no-sessions h2 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
   font-weight: 600;

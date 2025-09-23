@@ -639,7 +639,7 @@
   .dt-modal-header h3 {
     margin: 0;
     font-size: 18px;
-    color: var(--color-text-primary);
+    color: var(--color-primary);
   }
   
   .dt-modal-body {

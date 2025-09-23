@@ -63,7 +63,7 @@
 /* Section titles */
 .dashboard-section h2 {
   font-size: 1.5rem;
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   margin-bottom: 1rem;
   text-align: left;
 }
@@ -96,7 +96,7 @@
 .dashboard-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

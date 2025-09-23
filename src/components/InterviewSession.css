@@ -82,7 +82,7 @@
 
 .session-error h2 {
   margin: 0 0 15px;
-  color: #dc2626;
+  color: var(--color-primary);
   font-size: 24px;
   font-weight: 600;
 }
@@ -238,7 +238,7 @@
 
 .transcription-display h3 {
   margin: 0 0 15px;
-  color: #0369a1;
+  color: var(--color-primary);
   font-size: 18px;
   font-weight: 600;
 }

@@ -197,7 +197,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: var(--color-text);
+  color: var(--color-primary);
 }
 
 .update-status-card {
@@ -235,7 +235,7 @@
 .status-header h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   font-weight: 600;
 }
 

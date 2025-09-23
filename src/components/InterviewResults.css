@@ -14,7 +14,7 @@
 }
 
 .results-header h1 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
   font-size: 2.5rem;
   font-weight: 600;
@@ -74,7 +74,7 @@
 .error-container h2,
 .no-results h2 {
   margin-top: 1rem;
-  color: #2c3e50;
+  color: var(--color-primary);
 }
 
 .error-icon {
@@ -209,7 +209,7 @@
 
 /* Questions Section */
 .questions-section h2 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -305,7 +305,7 @@
 
 /* Code Submissions Section */
 .code-submissions-section h2 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -398,7 +398,7 @@
 
 /* Analytics Section */
 .analytics-section h2 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;
@@ -487,7 +487,7 @@
 
 /* Feedback Section */
 .feedback-section h2 {
-  color: #2c3e50;
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;

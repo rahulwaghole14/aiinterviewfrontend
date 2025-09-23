@@ -52,7 +52,7 @@
 .jobs-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
 }
 
 .jobs-card p {
@@ -265,7 +265,7 @@ input[type="checkbox"]:checked {
 .form-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
 }
 
@@ -744,7 +744,7 @@ input[type="checkbox"]:checked {
 
 .modal-header h3 {
   margin: 0;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   font-size: 1.25rem;
 }
 
@@ -836,7 +836,7 @@ input[type="checkbox"]:checked {
 
 .domain-details h4 {
   margin: 0 0 0.5rem 0;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   font-size: 1.1rem;
 }
 

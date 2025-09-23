@@ -290,7 +290,7 @@
   margin-bottom: 1.2rem; /* Reduced margin-bottom */
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
+  color: var(--color-primary); /* Changed to primary as requested for titles */
   padding-bottom: 0.8rem; /* Reduced padding-bottom */
   border-bottom: 1px solid var(--color-border-light); /* border-b border-gray-200 */
 }
@@ -518,7 +518,7 @@
 .interview-details-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
+  color: var(--color-primary); /* Changed to primary as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
@@ -529,7 +529,7 @@
 .evaluation-details-section h3 {
   font-size: 1.25rem; /* text-xl */
   font-weight: 600;
-  color: var(--color-primary-dark); /* Changed to primary-dark as requested for titles */
+  color: var(--color-primary); /* Changed to primary as requested for titles */
   margin-bottom: 1rem; /* mb-4 */
 }
 
