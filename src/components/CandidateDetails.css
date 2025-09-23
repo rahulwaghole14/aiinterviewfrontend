@@ -75,10 +75,7 @@
   min-width: 0;
 }
 
-.candidate-details-content {
-  /* All styling handled by .card class */
-  /* Remove margin-bottom as gap is handled by parent */
-}
+/* .candidate-details-content styling handled by .card class */
 
 /* Remove bottom margins from h3 elements inside candidate details */
 .candidate-details-content h3 {
@@ -465,15 +462,9 @@
 }
 
 /* Right Panel Sections */
-.status-section {
-  /* Remove margin-bottom as gap is handled by parent */
-}
+/* .status-section styling handled by parent gap */
 
-.interview-section,
-.evaluation-section {
-  /* Remove margin-top as gap is handled by parent */
-  /* All styling handled by .card class */
-}
+/* .interview-section and .evaluation-section styling handled by .card class */
 
 /* Specifically target evaluation section to reduce gap with candidate details */
 .evaluation-section {
@@ -1526,4 +1517,79 @@
     font-size: 0.75rem;
     padding: 0.5rem;
   }
+}
+
+/* Evaluation Score Corner Styles */
+.evaluation-item {
+  position: relative; /* For absolute positioning of score corner */
+}
+
+.evaluation-score-corner {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.overall-rating {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.overall-rating.excellent {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.overall-rating.good {
+  background-color: var(--color-info-light);
+  color: var(--color-info-dark);
+}
+
+.overall-rating.fair {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.overall-rating.poor {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.score-value .score {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
+}
+
+.score-value .score.high-score {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.score-value .score.medium-score {
+  color: var(--color-info);
+  border-color: var(--color-info);
+}
+
+.score-value .score.low-score {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
 }

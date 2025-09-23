@@ -437,7 +437,6 @@ const CandidateDetails = () => {
 
         {/* Evaluation Section - Moved here */}
         <div className="evaluation-section card">
-          <h3>Evaluation</h3>
           {interviews.some((i) => i.evaluation) ? (
             <div className="evaluation-info">
               {interviews
@@ -446,19 +445,6 @@ const CandidateDetails = () => {
                   <div key={interview.id} className="evaluation-item">
                     <div className="evaluation-header">
                       <h4>Interview Evaluation Results</h4>
-                      <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
-                        {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
-                      </span>
-                    </div>
-                    
-                    <div className="score-breakdown">
-                      <div className="score-item">
-                        <strong>Overall Score:</strong>{" "}
-                        <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
-                          {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10
-                        </span>
-                      </div>
-                      
                     </div>
                     
                     {interview.evaluation.traits && (
@@ -477,6 +463,19 @@ const CandidateDetails = () => {
                     
                     <div className="evaluation-metadata">
                       <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleString()}</p>
+                    </div>
+                    
+                    <div className="evaluation-score-corner">
+                      <div className="score-display">
+                        <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
+                          {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
+                        </span>
+                        <div className="score-value">
+                          <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
+                            {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
