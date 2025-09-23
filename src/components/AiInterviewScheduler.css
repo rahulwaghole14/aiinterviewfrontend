@@ -42,7 +42,16 @@
 .ai-int-table-container {
   flex: 1;
   height: 100%;
-  min-height: 100px; /* Minimal height to remove extra space */
+  min-height: 50px; /* Very minimal height to remove extra space */
+}
+
+/* Override DataTable min-height specifically for AI Interview Scheduler */
+.ai-int-table-container .data-table-container {
+  min-height: 200px !important; /* Override DataTable's 700px min-height */
+}
+
+.ai-int-table-container .table-responsive {
+  min-height: 150px !important; /* Override DataTable's 500px min-height */
 }
 
 .ai-int-form-card {
@@ -221,6 +230,15 @@
     padding: 1rem;
     height: auto; /* Allow form card to grow with content */
   }
+  
+  /* Override DataTable heights on tablet for AI Interview Scheduler */
+  .ai-int-table-container .data-table-container {
+    min-height: 150px !important;
+  }
+  
+  .ai-int-table-container .table-responsive {
+    min-height: 100px !important;
+  }
 }
 
 @media (max-width: 576px) {
@@ -241,6 +259,14 @@
     height: auto; /* Allow form card to grow with content */
   }
   
+  /* Override DataTable heights on mobile for AI Interview Scheduler */
+  .ai-int-table-container .data-table-container {
+    min-height: 150px !important;
+  }
+  
+  .ai-int-table-container .table-responsive {
+    min-height: 100px !important;
+  }
 }
 
 /* Form Actions */
