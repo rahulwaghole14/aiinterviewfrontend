@@ -601,8 +601,8 @@
   background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
 }
 
-/* Pagination Styles */
-.pagination-container {
+/* Pagination Styles - Component Specific */
+.candidates-pagination-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -612,8 +612,8 @@
   border-top: 1px solid var(--color-border);
 }
 
-.pagination-button {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
+.candidates-pagination-button {
+  background-color: var(--color-primary);
   color: white;
   padding: 0.5rem 1rem;
   border: none;
@@ -623,17 +623,17 @@
   transition: background-color 0.2s ease;
 }
 
-.pagination-button:hover:not(:disabled) {
-  background-color: var(--color-primary-dark); /* Changed to primary-dark on hover */
+.candidates-pagination-button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
 }
 
-.pagination-button:disabled {
+.candidates-pagination-button:disabled {
   background-color: var(--color-bg-secondary);
   color: var(--color-muted);
   cursor: not-allowed;
 }
 
-.pagination-page-number {
+.candidates-pagination-page-number {
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius-small);
   background-color: var(--color-bg-secondary);
@@ -641,10 +641,11 @@
   font-weight: 500;
 }
 
-.pagination-page-number.active {
-  background-color: var(--color-primary); /* Changed to primary color as requested */
+.candidates-pagination-page-number.active {
+  background-color: var(--color-primary);
   color: white;
 }
+
 
 
 /* Responsive adjustments */
@@ -775,15 +776,16 @@
     font-size: 0.85rem;
   }
 
-  .pagination-button {
+  .candidates-pagination-button {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
   }
 
-  .pagination-page-number {
+  .candidates-pagination-page-number {
     padding: 0.4rem 0.6rem;
     font-size: 0.7rem;
   }
+
 }
 
 @media (max-width: 479px) { /* Very small mobile */
@@ -855,12 +857,12 @@
     font-size: 0.8rem;
   }
 
-  .pagination-button {
+  .candidates-pagination-button {
     padding: 0.3rem 0.6rem;
     font-size: 0.7rem;
   }
 
-  .pagination-page-number {
+  .candidates-pagination-page-number {
     padding: 0.3rem 0.5rem;
     font-size: 0.7rem;
   }
