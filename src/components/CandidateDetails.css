@@ -655,6 +655,11 @@
   font-weight: bold;
 }
 
+.status-step.recommended .status-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .interview-info, .evaluation-info {
   margin-top: 1rem;
 }
