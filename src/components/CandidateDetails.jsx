@@ -445,6 +445,9 @@ const CandidateDetails = () => {
                   <div key={interview.id} className="evaluation-item">
                     <div className="evaluation-header">
                       <h4>Interview Evaluation Results</h4>
+                      <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
+                        {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
+                      </span>
                     </div>
                     
                     {interview.evaluation.traits && (
@@ -467,9 +470,6 @@ const CandidateDetails = () => {
                     
                     <div className="evaluation-score-corner">
                       <div className="score-display">
-                        <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
-                          {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
-                        </span>
                         <div className="score-value">
                           <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
                             {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10

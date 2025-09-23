@@ -596,9 +596,9 @@
 }
 
 .status-step.current .status-circle {
-  background-color: var(--color-primary);
+  background-color: var(--color-success);
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-success);
 }
 
 .status-label {
@@ -617,7 +617,7 @@
 
 .status-step.current .status-label {
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: var(--color-success);
 }
 
 .status-step.clickable {
@@ -646,6 +646,13 @@
 
 .status-step.completed .status-connector {
   background-color: var(--color-success);
+}
+
+/* Recommended next step styling - Purple for next steps */
+.status-step.recommended .status-circle {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: bold;
 }
 
 .interview-info, .evaluation-info {
