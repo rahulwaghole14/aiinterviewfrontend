@@ -1380,6 +1380,11 @@
   width: 100%; /* Ensure text takes full width to center effectively */
 }
 
+/* Success Modal Icon Theme Color */
+.modal-content svg {
+  color: var(--color-primary);
+}
+
 /* Matching Percentage Styles */
 .match-percentage {
   display: flex;
