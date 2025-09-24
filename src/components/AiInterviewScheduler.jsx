@@ -23,6 +23,7 @@ import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { baseURL } from "../config/constants";
 import { useNotification } from "../hooks/useNotification";
+import { formatTimeTo12Hour, formatTimeTo24Hour } from "../utils/timeFormatting";
 import "./AiInterviewScheduler.css";
 
 const AiInterviewScheduler = ({
@@ -61,6 +62,7 @@ const AiInterviewScheduler = ({
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTimes, setSelectedTimes] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showMobileForm, setShowMobileForm] = useState(false);
 
   // Sort slots based on search term for better user experience
   const sortedSlots = useMemo(() => {
@@ -1047,14 +1049,8 @@ const AiInterviewScheduler = ({
                     return 'N/A';
                   }
                   
-                  // Convert 24-hour time to 12-hour format for display
-                  const [hours, minutes] = value.split(':');
-                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                    hour: "numeric",
-                            minute: "2-digit",
-                    hour12: true
-                  });
-                  return hour12;
+                  // Convert 24-hour time to 12-hour format for display (using shared utility)
+                  return formatTimeTo12Hour(value);
                 },
                 formatForEdit: (value) => {
                   // Handle null or invalid time values
@@ -1063,44 +1059,15 @@ const AiInterviewScheduler = ({
                   }
                   
                   // Convert 24-hour time (17:45:00) to 12-hour format for editing (5:45 PM)
-                  const [hours, minutes] = value.split(':');
-                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                    hour: "numeric",
-                            minute: "2-digit",
-                    hour12: true
-                  });
-                  return hour12;
+                  return formatTimeTo12Hour(value);
                 },
                 parseFromEdit: (editValue, originalRowData) => {
                   // Convert 12-hour format (5:45 PM) back to 24-hour format (17:45:00) for API
                   if (!editValue) return '';
                   
-                  try {
-                    // Parse 12-hour time format
-                    const timeParts = editValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-                    if (!timeParts) {
-                      throw new Error('Invalid time format');
-                    }
-                    
-                    let hours = parseInt(timeParts[1]);
-                    const minutes = parseInt(timeParts[2]);
-                    const ampm = timeParts[3].toUpperCase();
-                    
-                    // Convert to 24-hour format
-                    if (ampm === 'AM' && hours === 12) {
-                      hours = 0;
-                    } else if (ampm === 'PM' && hours !== 12) {
-                      hours += 12;
-                    }
-                    
-                    // Format as HH:MM:SS for backend
-                    const hours24 = hours.toString().padStart(2, '0');
-                    const minutes24 = minutes.toString().padStart(2, '0');
-                    return `${hours24}:${minutes24}:00`;
-                  } catch (error) {
-                    console.error('Error parsing time:', error);
-                    return editValue; // Return original value if parsing fails
-                  }
+                  // Use shared utility to convert 12-hour to 24-hour format
+                  const time24 = formatTimeTo24Hour(editValue);
+                  return time24 ? `${time24}:00` : editValue;
                 }
               },
               {
@@ -1115,14 +1082,8 @@ const AiInterviewScheduler = ({
                     return 'N/A';
                   }
                   
-                  // Convert 24-hour time to 12-hour format for display
-                  const [hours, minutes] = value.split(':');
-                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                  });
-                  return hour12;
+                  // Convert 24-hour time to 12-hour format for display (using shared utility)
+                  return formatTimeTo12Hour(value);
                 },
                 formatForEdit: (value) => {
                   // Handle null or invalid time values
@@ -1131,44 +1092,15 @@ const AiInterviewScheduler = ({
                   }
                   
                   // Convert 24-hour time (18:45:00) to 12-hour format for editing (6:45 PM)
-                  const [hours, minutes] = value.split(':');
-                  const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                  });
-                  return hour12;
+                  return formatTimeTo12Hour(value);
                 },
                 parseFromEdit: (editValue, originalRowData) => {
                   // Convert 12-hour format (6:45 PM) back to 24-hour format (18:45:00) for API
                   if (!editValue) return '';
                   
-                  try {
-                    // Parse 12-hour time format
-                    const timeParts = editValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-                    if (!timeParts) {
-                      throw new Error('Invalid time format');
-                    }
-                    
-                    let hours = parseInt(timeParts[1]);
-                    const minutes = parseInt(timeParts[2]);
-                    const ampm = timeParts[3].toUpperCase();
-                    
-                    // Convert to 24-hour format
-                    if (ampm === 'AM' && hours === 12) {
-                      hours = 0;
-                    } else if (ampm === 'PM' && hours !== 12) {
-                      hours += 12;
-                    }
-                    
-                    // Format as HH:MM:SS for backend
-                    const hours24 = hours.toString().padStart(2, '0');
-                    const minutes24 = minutes.toString().padStart(2, '0');
-                    return `${hours24}:${minutes24}:00`;
-                  } catch (error) {
-                    console.error('Error parsing time:', error);
-                    return editValue; // Return original value if parsing fails
-                  }
+                  // Use shared utility to convert 12-hour to 24-hour format
+                  const time24 = formatTimeTo24Hour(editValue);
+                  return time24 ? `${time24}:00` : editValue;
                 }
               },
               {
@@ -1382,8 +1314,19 @@ const AiInterviewScheduler = ({
 
   return (
     <div className="ai-interview-scheduler">
+      {/* Mobile Toggle Button */}
+      <div className="mobile-form-toggle">
+        <button
+          className="mobile-create-slot-btn"
+          onClick={() => setShowMobileForm(!showMobileForm)}
+        >
+          <span className="btn-icon">+</span>
+          <span className="btn-text">Create New Slot</span>
+        </button>
+      </div>
+
       {/* Left Side - Form */}
-      <div className="ai-int-form-container">
+      <div className={`ai-int-form-container ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
           <form onSubmit={handleSlotSubmit} className="ai-int-form">
           <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
@@ -1544,14 +1487,8 @@ const AiInterviewScheduler = ({
                 return 'N/A';
               }
               
-              // Convert 24-hour time to 12-hour format for display
-              const [hours, minutes] = value.split(':');
-              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                hour: "numeric",
-                            minute: "2-digit",
-                hour12: true
-              });
-              return hour12;
+              // Convert 24-hour time to 12-hour format for display (using shared utility)
+              return formatTimeTo12Hour(value);
             },
             formatForEdit: (value) => {
               // Handle null or invalid time values
@@ -1560,13 +1497,7 @@ const AiInterviewScheduler = ({
               }
               
               // Convert 24-hour time (17:45:00) to 12-hour format for editing (5:45 PM)
-              const [hours, minutes] = value.split(':');
-              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                hour: "numeric",
-                            minute: "2-digit",
-                hour12: true
-              });
-              return hour12;
+              return formatTimeTo12Hour(value);
             },
             parseFromEdit: (editValue, originalRowData) => {
               // Convert 12-hour format (5:45 PM) back to 24-hour format (17:45:00) for API

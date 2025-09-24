@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { baseURL } from "../config/constants";
 import { useNotification } from "../hooks/useNotification";
+import { formatTimeTo12Hour, formatTimeRange } from "../utils/timeFormatting";
 import "./TimeSlotPicker.css";
 
 const TimeSlotPicker = ({
@@ -624,36 +625,8 @@ const TimeSlotPicker = ({
     }
   };
 
-  const formatTimeForDisplayInBox = (timeRange) => {
-    if (!timeRange) return "";
-
-    // Handle time range format (e.g., "09:00-09:30")
-    if (timeRange.includes("-")) {
-      const [startTime, endTime] = timeRange.split("-");
-      const formatSingleTime = (time) => {
-        const [hourStr, minuteStr] = time.split(":");
-        let hour = parseInt(hourStr, 10);
-        const minutes = parseInt(minuteStr, 10);
-        const ampm = hour >= 12 ? "PM" : "AM";
-        hour = hour % 12;
-        hour = hour ? hour : 12;
-        const minuteStr2 = minutes < 10 ? "0" + minutes : minutes;
-        return `${hour}:${minuteStr2} ${ampm}`;
-      };
-
-      return `${formatSingleTime(startTime)} - ${formatSingleTime(endTime)}`;
-    }
-
-    // Fallback for single time format
-    const [hourStr, minuteStr] = timeRange.split(":");
-    let hour = parseInt(hourStr, 10);
-    const minutes = parseInt(minuteStr, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12;
-    hour = hour ? hour : 12;
-    const minuteStr2 = minutes < 10 ? "0" + minutes : minutes;
-    return `${hour}:${minuteStr2} ${ampm}`;
-  };
+  // Use shared time formatting utility
+  const formatTimeForDisplayInBox = formatTimeRange;
 
   const calculateDuration = (startTime, endTime) => {
     const [startHour, startMin] = startTime.split(":").map(Number);
@@ -666,11 +639,19 @@ const TimeSlotPicker = ({
   };
 
   const handleSlotClick = async (time, event) => {
+    console.log("=== TIMESLOTPICKER CLICK DEBUG ===");
+    console.log("Clicked time:", time);
+    console.log("Current selectedTimes:", localSelectedTimes);
+    console.log("Available slots:", availableSlotsInternal);
+    console.log("Booked slots:", bookedSlots);
+    
     let newSelectedTimes = [...localSelectedTimes];
     const isCtrlHeld = event?.ctrlKey || event?.metaKey;
     const isAvailable = availableSlotsInternal.includes(time);
     const isBooked = bookedSlots.includes(time);
     const isNewSlot = !isAvailable && !isBooked;
+    
+    console.log("isAvailable:", isAvailable, "isBooked:", isBooked, "isNewSlot:", isNewSlot);
 
     // In modal mode, only allow selection of available slots
     if (isModal && !isAvailable) {
@@ -710,6 +691,9 @@ const TimeSlotPicker = ({
       duration = calculateDuration(startTime, endTime) + 30; // Add 30 min for the last slot
     }
 
+    console.log("=== CALLING onSelectTimes ===");
+    console.log("newSelectedTimes:", newSelectedTimes);
+    console.log("duration:", duration);
     onSelectTimes(newSelectedTimes, duration);
   };
 

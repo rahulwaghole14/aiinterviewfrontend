@@ -536,11 +536,73 @@
   animation: spin 1s linear infinite;
 }
 
+/* Mobile Tab Selector Styles */
+.mobile-tab-selector {
+  display: none;
+}
+
+.tab-dropdown {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background-color: var(--color-card);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.tab-dropdown:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.25);
+}
+
+.tab-dropdown:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .hiring-agencies-add-section,
   .hiring-agencies-list-section {
     padding: 1rem;
+  }
+  
+  /* Hide desktop tabs on mobile */
+  .desktop-tabs {
+    display: none;
+  }
+  
+  /* Show mobile dropdown on mobile */
+  .mobile-tab-selector {
+    display: block;
+    flex: 1;
+    margin-right: 1rem;
+  }
+  
+  /* Adjust tabs container for mobile */
+  .hiring-agencies-tabs-container {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+  
+  /* Adjust add button for mobile */
+  .add-agency-btn {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
 
   .hiring-agencies-header {

@@ -11,6 +11,9 @@ import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice'; // Import j
 // Status mapping from backend values to frontend display values
 const statusMapping = {
   "NEW": "New",
+  "INTERVIEW_SCHEDULED": "Interview Scheduled",
+  "INTERVIEW_COMPLETED": "Interview Completed",
+  "EVALUATED": "Evaluated",
   "REQUIRES_ACTION": "Requires Action",
   "PENDING_SCHEDULING": "Pending Scheduling",
   "BR_IN_PROCESS": "BR In Process",
@@ -26,6 +29,9 @@ const statusMapping = {
 const candidateTabsStatusList = [
   "All",
   "New",
+  "Interview Scheduled",
+  "Interview Completed",
+  "Evaluated",
   "Requires Action",
   "Pending Scheduling",
   "BR In Process",
@@ -46,7 +52,7 @@ const CandidateCard = ({ candidate, onViewReport, getDomainName, getJobTitle }) 
       return "badge-warning";
     } else if (["Rejected", "Offer Rejected", "Cancelled"].includes(displayStatus)) {
       return "badge-danger";
-    } else if (["BR Evaluated", "Internal Interviews", "Offered", "Hired"].includes(displayStatus)) {
+    } else if (["BR Evaluated", "Internal Interviews", "Offered", "Hired", "Interview Scheduled", "Interview Completed", "Evaluated"].includes(displayStatus)) {
       return "badge-success";
     } else {
       return "badge-info";
@@ -55,7 +61,13 @@ const CandidateCard = ({ candidate, onViewReport, getDomainName, getJobTitle }) 
 
   const renderStatusDisplay = (candidate) => {
     const displayStatus = statusMapping[candidate.status] || candidate.status;
-    if (displayStatus === "Pending Scheduling" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
+    if (displayStatus === "Interview Scheduled" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
+      return `Scheduled: ${candidate.interviewDetails.date} at ${candidate.interviewDetails.time}`;
+    } else if (displayStatus === "Interview Completed" && candidate.evaluation?.feedback) {
+      return `Completed: ${candidate.evaluation.score}/10 - ${candidate.evaluation.result}`;
+    } else if (displayStatus === "Evaluated" && candidate.evaluation?.feedback) {
+      return `Evaluated: ${candidate.evaluation.score}/10 - ${candidate.evaluation.result}`;
+    } else if (displayStatus === "Pending Scheduling" && candidate.interviewDetails?.date && candidate.interviewDetails?.time) {
       return `Scheduled: ${candidate.interviewDetails.date} at ${candidate.interviewDetails.time}`;
     } else if (displayStatus === "BR Evaluated" && candidate.evaluation?.feedback) {
       return `Evaluated: ${candidate.evaluation.score}/10 - ${candidate.evaluation.result}`;

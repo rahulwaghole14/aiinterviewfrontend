@@ -655,6 +655,30 @@
   font-weight: bold;
 }
 
+/* Hired status styling - Green */
+.status-step.hired .status-circle {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.status-step.hired .status-label {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Rejected status styling - Red */
+.status-step.rejected .status-circle {
+  background-color: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.status-step.rejected .status-label {
+  color: #ef4444;
+  font-weight: 600;
+}
+
 .status-step.recommended .status-label {
   color: var(--color-primary);
   font-weight: 600;
@@ -1105,6 +1129,77 @@
   font-weight: 600;
 }
 
+.interview-actions-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.interview-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.interview-actions button {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+
+.edit-interview-btn {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+
+
+.delete-interview-btn {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.interview-actions button svg {
+  flex-shrink: 0;
+}
+
+.interview-actions button:hover {
+  background-color: var(--color-background-hover);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-interview-btn:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+
+
+.delete-interview-btn:hover {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
 .overall-rating, .interview-status {
   padding: 0.5rem 1rem;
   border-radius: var(--radius-small);
@@ -1522,9 +1617,131 @@
     gap: 0.5rem;
   }
   
-  .score-breakdown {
-    grid-template-columns: 1fr;
+  .interview-actions-container {
+    justify-content: center;
+    margin-top: 0.75rem;
+    overflow-x: auto;
   }
+  
+  .interview-actions {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    justify-content: center;
+    min-width: max-content;
+  }
+  
+  .interview-actions button {
+    height: 32px;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  
+  .interview-actions button svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Evaluation Action Buttons */
+.evaluation-actions-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.evaluation-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.evaluation-actions button {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.edit-evaluation-btn {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.delete-evaluation-btn {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.evaluation-actions button svg {
+  flex-shrink: 0;
+}
+
+.evaluation-actions button:hover {
+  background-color: var(--color-background-hover);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-evaluation-btn:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.delete-evaluation-btn:hover {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
+@media (max-width: 768px) {
+  .evaluation-actions-container {
+    justify-content: center;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+  }
+  
+  .evaluation-actions {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    justify-content: center;
+    min-width: max-content;
+  }
+  
+  .evaluation-actions button {
+    height: 32px;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  .evaluation-actions button svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+}
+
+.score-breakdown {
+  grid-template-columns: 1fr;
+}
   
   .performance-metrics {
     grid-template-columns: 1fr;
@@ -1541,19 +1758,23 @@
   }
 }
 
-/* Evaluation Score Corner Styles */
+/* Evaluation Score Styles */
 .evaluation-section {
-  position: relative; /* For absolute positioning of score corner */
+  position: relative;
 }
 
-.evaluation-score-corner {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
+.evaluation-metadata {
+  margin: 1rem 0;
+}
+
+.evaluation-score-simple {
+  margin: 1rem 0;
+}
+
+.evaluation-score-simple .score-number {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 .score-display {

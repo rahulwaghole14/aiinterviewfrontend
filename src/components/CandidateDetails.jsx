@@ -11,9 +11,11 @@ import {
 } from "../redux/slices/jobsSlice";
 import { baseURL } from "../data";
 import "./CandidateDetails.css";
+import "./common/DataTable.css";
 import BeatLoader from "react-spinners/BeatLoader";
 import StatusUpdateModal from "./StatusUpdateModal";
 import { useNotification } from "../hooks/useNotification";
+import { formatTimeTo12Hour } from "../utils/timeFormatting";
 
 const CandidateDetails = () => {
   const { id } = useParams();
@@ -49,6 +51,15 @@ const CandidateDetails = () => {
   // Modal states
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
+  const [showEditInterviewModal, setShowEditInterviewModal] = useState(false);
+  const [editingInterview, setEditingInterview] = useState(null);
+  const [showEditEvaluationModal, setShowEditEvaluationModal] = useState(false);
+  const [editingEvaluation, setEditingEvaluation] = useState(null);
+  
+  // Delete confirmation modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteType, setDeleteType] = useState(null); // 'interview' or 'evaluation'
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   // Helper function to get domain name by ID
   const getDomainName = (domainId) => {
@@ -296,7 +307,7 @@ const CandidateDetails = () => {
       case "INTERVIEW_COMPLETED":
         return { id: "evaluate", status: "EVALUATED" };
       case "EVALUATED":
-        return { id: "hire_reject", status: "HIRED" };
+        return { id: "hire_reject", status: "HIRE" }; // Show hire option
       default:
         return null;
     }
@@ -338,6 +349,139 @@ const CandidateDetails = () => {
     fetchInterviews();
     // Refresh candidate data from Redux
     dispatch(fetchCandidates());
+  };
+
+  // Interview management handlers
+  const handleEditInterview = (interview) => {
+    console.log("Edit interview:", interview);
+    setEditingInterview(interview);
+    setShowEditInterviewModal(true);
+  };
+
+
+
+  // Evaluation management handlers
+  const handleEditEvaluation = (evaluation) => {
+    console.log("Edit evaluation:", evaluation);
+    console.log("Evaluation data structure:", {
+      overall_score: evaluation.overall_score,
+      traits: evaluation.traits,
+      suggestions: evaluation.suggestions,
+      created_at: evaluation.created_at
+    });
+    setEditingEvaluation(evaluation);
+    setShowEditEvaluationModal(true);
+  };
+
+  const handleDeleteEvaluation = (evaluation) => {
+    setDeleteType('evaluation');
+    setItemToDelete(evaluation);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteEvaluation = async () => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) {
+        notify.error("Authentication token not found");
+        return;
+      }
+
+      // Delete the evaluation
+      const response = await fetch(`${baseURL}/api/evaluations/${itemToDelete.id}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to delete evaluation: ${response.status}`);
+      }
+
+      notify.success("Evaluation deleted successfully!");
+      
+      // Refresh data
+      fetchInterviews();
+      dispatch(fetchCandidates());
+      
+      // Close modal
+      setShowDeleteModal(false);
+      setDeleteType(null);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error("Error deleting evaluation:", error);
+      notify.error(error.message || "Failed to delete evaluation");
+    }
+  };
+
+  const handleDeleteInterview = (interview) => {
+    setDeleteType('interview');
+    setItemToDelete(interview);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteInterview = async () => {
+    try {
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) {
+        notify.error("Authentication token not found");
+        return;
+      }
+
+      // First, release the slot if it exists
+      const slotId = itemToDelete.slot || itemToDelete.slot_details?.id;
+      if (slotId) {
+        try {
+          const releaseResponse = await fetch(`${baseURL}/api/interviews/slots/${slotId}/release_slot/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${authToken}`,
+            },
+          });
+
+          if (releaseResponse.ok) {
+            console.log("Slot released successfully");
+          } else {
+            console.warn("Failed to release slot, but continuing with interview deletion");
+          }
+        } catch (slotError) {
+          console.warn("Error releasing slot:", slotError);
+          // Continue with interview deletion even if slot release fails
+        }
+      }
+
+      // Delete the interview
+      const response = await fetch(`${baseURL}/api/interviews/${itemToDelete.id}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to delete interview: ${response.status}`);
+      }
+
+      notify.success("Interview deleted and slot released successfully!");
+      
+      // Refresh data
+      fetchInterviews();
+      dispatch(fetchCandidates());
+      
+      // Close modal
+      setShowDeleteModal(false);
+      setDeleteType(null);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error("Error deleting interview:", error);
+      notify.error(error.message || "Failed to delete interview");
+    }
   };
 
 
@@ -540,6 +684,11 @@ const CandidateDetails = () => {
                     </span>
                   </div>
                   
+                  {/* Score as simple text */}
+                  <div className="evaluation-score-simple">
+                    <p><strong>Score:</strong> <span className="score-number">{interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10</span></p>
+                  </div>
+                  
                   {interview.evaluation.traits && (
                     <div className="traits">
                       <strong>Key Traits:</strong>
@@ -562,13 +711,33 @@ const CandidateDetails = () => {
                     })}</p>
                   </div>
                   
-                  <div className="evaluation-score-corner">
-                    <div className="score-display">
-                      <div className="score-value">
-                        <span className={`score ${interview.evaluation.overall_score >= 8 ? "high-score" : interview.evaluation.overall_score >= 6 ? "medium-score" : "low-score"}`}>
-                          {interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10
-                        </span>
-                      </div>
+                  {/* Evaluation Action Buttons */}
+                  <div className="evaluation-actions-container">
+                    <div className="evaluation-actions">
+                      <button 
+                        className="edit-evaluation-btn" 
+                        onClick={() => handleEditEvaluation(interview.evaluation)}
+                        title="Edit Evaluation"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Edit
+                      </button>
+                      <button 
+                        className="delete-evaluation-btn" 
+                        onClick={() => handleDeleteEvaluation(interview.evaluation)}
+                        title="Delete Evaluation"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3,6 5,6 21,6"></polyline>
+                          <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -599,8 +768,7 @@ const CandidateDetails = () => {
                 "INTERVIEW_SCHEDULED",
                 "INTERVIEW_COMPLETED",
                 "EVALUATED",
-                "HIRED",
-                "REJECTED",
+                "HIRE",
               ];
 
               const statusLabels = [
@@ -608,8 +776,7 @@ const CandidateDetails = () => {
                 "Schedule Interview",
                 "Interview Completed",
                 "Evaluate",
-                "Hired",
-                "Rejected",
+                "Hire",
               ];
 
               const currentIndex = statusStages.indexOf(currentStatus);
@@ -617,19 +784,54 @@ const CandidateDetails = () => {
 
               return statusLabels.map((label, index) => {
                 const stage = statusStages[index];
-                const isCompleted = index < currentIndex || (currentStatus === "HIRED" && stage === "HIRED") || (currentStatus === "REJECTED" && stage === "REJECTED");
-                const isCurrent = index === currentIndex;
-                const isNextAction =
-                  nextAction && statusStages[index] === nextAction.status;
-                const isClickable = isNextAction || isCompleted;
-                const isRecommended = isNextAction; // Highlight the next recommended action
+                
+                // Status step logic
+                let isCompleted = false;
+                let isCurrent = false;
+                let isNextAction = false;
+                let isClickable = false;
+                let isRecommended = false;
+                let displayLabel = label;
+                
+                if (stage === "HIRE") {
+                  // Special handling for the hire step
+                  if (currentStatus === "HIRED" || currentStatus === "REJECTED") {
+                    // If candidate is hired or rejected, show the final status
+                    displayLabel = currentStatus === "HIRED" ? "Hired" : "Rejected";
+                    isCompleted = true;
+                    isCurrent = true;
+                    isClickable = false;
+                  } else {
+                    // Show "Hire" as the next action
+                    isNextAction = nextAction && nextAction.status === "HIRE";
+                    isClickable = isNextAction;
+                    isRecommended = isNextAction;
+                  }
+                } else {
+                  // Regular status steps
+                  isCompleted = index < currentIndex;
+                  isCurrent = index === currentIndex;
+                  isNextAction = nextAction && statusStages[index] === nextAction.status;
+                  isClickable = isNextAction || isCompleted;
+                  isRecommended = isNextAction;
+                }
+
+                // Determine additional CSS classes based on status
+                let additionalClasses = "";
+                if (stage === "HIRE") {
+                  if (currentStatus === "HIRED") {
+                    additionalClasses = "hired";
+                  } else if (currentStatus === "REJECTED") {
+                    additionalClasses = "rejected";
+                  }
+                }
 
                 return (
                   <div
                     key={stage}
                     className={`status-step ${isCompleted ? "completed" : ""} ${
                       isCurrent ? "current" : ""
-                    } ${isClickable ? "clickable" : ""} ${isRecommended ? "recommended" : ""}`}
+                    } ${isClickable ? "clickable" : ""} ${isRecommended ? "recommended" : ""} ${additionalClasses}`}
                     onClick={() => {
                       if (!isClickable || !shouldShowActions) return;
 
@@ -639,7 +841,7 @@ const CandidateDetails = () => {
                         handleStatusUpdate("complete_interview");
                       } else if (stage === "EVALUATED") {
                         handleStatusUpdate("evaluate");
-                      } else if (stage === "HIRED") {
+                      } else if (stage === "HIRE") {
                         handleStatusUpdate("hire_reject");
                       } else if (isCompleted) {
                         const next = getNextAction(stage);
@@ -650,7 +852,7 @@ const CandidateDetails = () => {
                     }}
                   >
                     <div className="status-circle">{index + 1}</div>
-                    <div className="status-label">{label}</div>
+                    <div className="status-label">{displayLabel}</div>
                     {index < statusStages.length - 1 && (
                       <div className="status-connector"></div>
                     )}
@@ -721,26 +923,12 @@ const CandidateDetails = () => {
                             console.log("  Start time string:", slotData.start_time);
                             console.log("  End time string:", slotData.end_time);
                             
-                            // Use the EXACT same method as AI Interview Scheduler DataTable render function
+                            // Use shared time formatting utility
                             const formatTime = (timeStr) => {
-                              if (!timeStr || typeof timeStr !== 'string') {
-                                return 'N/A';
-                              }
-                              
                               console.log("Formatting time string:", timeStr);
-                              
-                              // Convert 24-hour time to 12-hour format for display (EXACT same as DataTable)
-                              const [hours, minutes] = timeStr.split(':');
-                              console.log("Split time - hours:", hours, "minutes:", minutes);
-                              
-                              const hour12 = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes)).toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                                hour12: true
-                              });
-                              
-                              console.log("Formatted time result:", hour12);
-                              return hour12;
+                              const result = formatTimeTo12Hour(timeStr);
+                              console.log("Formatted time result:", result);
+                              return result;
                             };
                             
                             const startTimeFormatted = formatTime(slotData.start_time);
@@ -802,6 +990,38 @@ const CandidateDetails = () => {
                   </p>
                 </div>
                 
+                {/* Interview Action Buttons - Only show for scheduled interviews */}
+                {interview.status?.toLowerCase() === 'scheduled' && (
+                  <div className="interview-actions-container">
+                    <div className="interview-actions">
+                      <button 
+                        className="edit-interview-btn" 
+                        onClick={() => handleEditInterview(interview)}
+                        title="Edit Interview"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Edit
+                      </button>
+                      <button 
+                        className="delete-interview-btn" 
+                        onClick={() => handleDeleteInterview(interview)}
+                        title="Delete Interview"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3,6 5,6 21,6"></polyline>
+                          <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Video Recording Section */}
                 {interview.ai_result?.recording_video && (
                   <div className="recording-section">
@@ -851,9 +1071,86 @@ const CandidateDetails = () => {
           candidate={candidate}
           interviews={interviews}
           onSubmitEvaluation={handleEvaluationSubmit}
-          onInterviewScheduled={fetchInterviews}
-          onEvaluationSubmitted={fetchInterviews}
+          onInterviewScheduled={() => {
+            // Refresh both interview data and candidate data when interview is scheduled
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          onEvaluationSubmitted={() => {
+            // Refresh both interview data and candidate data when evaluation is submitted
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
         />
+      )}
+
+      {/* Edit Interview Modal */}
+      {showEditInterviewModal && editingInterview && (
+        <StatusUpdateModal
+          isOpen={showEditInterviewModal}
+          onClose={() => {
+            setShowEditInterviewModal(false);
+            setEditingInterview(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="schedule_interview"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingInterview={editingInterview}
+        />
+      )}
+
+      {/* Edit Evaluation Modal */}
+      {showEditEvaluationModal && editingEvaluation && (
+        <StatusUpdateModal
+          isOpen={showEditEvaluationModal}
+          onClose={() => {
+            setShowEditEvaluationModal(false);
+            setEditingEvaluation(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="evaluate"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingEvaluation={editingEvaluation}
+        />
+      )}
+
+      {/* Delete Confirmation Modal - Matching DataTable Style */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{deleteType === 'interview' ? "Delete Interview" : "Delete Evaluation"}</h3>
+            <p>
+              {deleteType === 'interview' 
+                ? "Are you sure you want to delete this interview? This will also release the slot and cannot be undone."
+                : "Are you sure you want to delete this evaluation? This action cannot be undone."
+              }
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteType(null);
+                  setItemToDelete(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={deleteType === 'interview' ? confirmDeleteInterview : confirmDeleteEvaluation} 
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

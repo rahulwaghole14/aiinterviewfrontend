@@ -1572,7 +1572,8 @@ const HiringAgencies = () => {
       <div className="hiring-agencies-card">
         {/* Tabs */}
         <div className="hiring-agencies-tabs-container">
-          <div className="hiring-agency-tabs">
+          {/* Desktop Tabs */}
+          <div className="hiring-agency-tabs desktop-tabs">
             {availableTabs.map((tab) => (
               <button
                 key={tab}
@@ -1586,6 +1587,23 @@ const HiringAgencies = () => {
               </button>
             ))}
           </div>
+          
+          {/* Mobile Dropdown Selector */}
+          <div className="mobile-tab-selector">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              disabled={isLoading}
+              className="tab-dropdown"
+            >
+              {availableTabs.map((tab) => (
+                <option key={tab} value={tab}>
+                  {tab}
+                </option>
+              ))}
+            </select>
+          </div>
+          
           {/* Dynamic "Add New" button visible only for ADMIN or COMPANY */}
           {["ADMIN", "COMPANY"].includes(userRole) && (
             <button

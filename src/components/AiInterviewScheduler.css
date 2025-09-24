@@ -269,6 +269,43 @@
   
 }
 
+/* Mobile Toggle Button Styles */
+.mobile-form-toggle {
+  display: none;
+}
+
+.mobile-create-slot-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 1rem;
+}
+
+.mobile-create-slot-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+}
+
+.mobile-create-slot-btn .btn-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mobile-create-slot-btn .btn-text {
+  font-size: 0.9rem;
+}
+
 /* Mobile responsive styles */
 @media (max-width: 768px) {
   .ai-interview-scheduler {
@@ -280,14 +317,35 @@
     overflow: visible;
   }
   
+  /* Show mobile toggle button */
+  .mobile-form-toggle {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-bg);
+    padding: 1rem 1rem 0 1rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
   .ai-int-form-container {
     flex: none;
     min-width: auto;
     height: auto; /* Allow form to grow with content */
     border-right: none;
     border-bottom: 1px solid var(--color-border);
+    transition: all 0.3s ease;
   }
   
+  /* Mobile form visibility controls */
+  .ai-int-form-container.mobile-form-hidden {
+    display: none;
+  }
+  
+  .ai-int-form-container.mobile-form-visible {
+    display: flex;
+  }
   
   .ai-int-card {
     padding: 1rem;
