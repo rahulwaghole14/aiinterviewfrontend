@@ -297,6 +297,19 @@
   box-shadow: var(--shadow-medium);
 }
 
+.mobile-create-slot-btn.form-open {
+  background-color: var(--color-disabled);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-create-slot-btn.form-open:hover {
+  background-color: var(--color-disabled-dark);
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+
 .mobile-create-slot-btn .btn-icon {
   font-size: 1.2rem;
   font-weight: bold;

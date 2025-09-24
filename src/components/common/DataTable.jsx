@@ -1006,10 +1006,17 @@ import PropTypes from "prop-types";
                     </div>
                   ) : column.type === "select" && column.options ? (
                     <select
-                      value={getNestedValue(editingData, column.field) || ""}
-                      onChange={(e) =>
-                        handleInputChange(column.field, e.target.value)
+                      value={
+                        column.formatForEdit
+                          ? column.formatForEdit(getNestedValue(editingData, column.field), editingData)
+                          : getNestedValue(editingData, column.field) || ""
                       }
+                      onChange={(e) => {
+                        const value = column.parseFromEdit
+                          ? column.parseFromEdit(e.target.value, editingData)
+                          : e.target.value;
+                        handleInputChange(column.field, value);
+                      }}
                       className="edit-input"
                       style={{ width: "100%" }}
                       onClick={(e) => e.stopPropagation()}

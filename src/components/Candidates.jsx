@@ -150,6 +150,9 @@ const CandidatePage = () => {
   const [itemsPerPage] = useState(4);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Mobile filter and status dropdown states
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
+
   // Fetch candidates, jobs, and domains on component mount if not already loaded
   useEffect(() => {
     if (jobsStatus === 'idle') {
@@ -377,8 +380,37 @@ const CandidatePage = () => {
 
   return (
     <div className="candidate-page-wrapper">
+      {/* Mobile Controls Row */}
+      <div className="mobile-controls-row">
+        {/* Mobile Status Dropdown */}
+        <div className="mobile-status-dropdown">
+          <select
+            value={activeTab}
+            onChange={(e) => handleTabClick(e.target.value)}
+            className="status-dropdown-select"
+          >
+            {candidateTabsStatusList.map((tab) => (
+              <option key={tab} value={tab}>
+                {tab}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Mobile Filter Toggle Button */}
+        <div className="mobile-filter-toggle">
+          <button
+            className={`mobile-filter-btn ${showMobileFilter ? 'filter-open' : ''}`}
+            onClick={() => setShowMobileFilter(!showMobileFilter)}
+          >
+            <span className="btn-icon">{showMobileFilter ? '×' : '⚙'}</span>
+            <span className="btn-text">{showMobileFilter ? 'Close' : 'Filter'}</span>
+          </button>
+        </div>
+      </div>
+
       <div className="candidates-main-content fixed-grid">
-        <div className="filter-sidebar-section card">
+        <div className={`filter-sidebar-section card ${showMobileFilter ? 'mobile-filter-visible' : 'mobile-filter-hidden'}`}>
           <div className="filter-header">
             <h3>Filters</h3>
             <button className="clear-filters" onClick={handleClearFilters}>Clear Filters</button>
@@ -476,7 +508,7 @@ const CandidatePage = () => {
         </div>
 
         <div className="candidate-details-section card">
-          <div className="candidate-status-tabs-container">
+          <div className="candidate-status-tabs-container desktop-only">
             {candidateTabsStatusList.map((tab) => (
               <div
                 key={tab}

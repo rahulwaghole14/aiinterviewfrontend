@@ -1739,25 +1739,6 @@
   
 }
 
-.score-breakdown {
-  grid-template-columns: 1fr;
-}
-  
-  .performance-metrics {
-    grid-template-columns: 1fr;
-  }
-  
-  .coding-question {
-    padding: 0.75rem;
-  }
-  
-  .code-block pre,
-  .output-log pre {
-    font-size: 0.75rem;
-    padding: 0.5rem;
-  }
-}
-
 /* Evaluation Score Styles */
 .evaluation-section {
   position: relative;

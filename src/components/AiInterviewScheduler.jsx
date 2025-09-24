@@ -1314,16 +1314,16 @@ const AiInterviewScheduler = ({
 
   return (
     <div className="ai-interview-scheduler">
-      {/* Mobile Toggle Button */}
-      <div className="mobile-form-toggle">
-        <button
-          className="mobile-create-slot-btn"
-          onClick={() => setShowMobileForm(!showMobileForm)}
-        >
-          <span className="btn-icon">+</span>
-          <span className="btn-text">Create New Slot</span>
-        </button>
-      </div>
+            {/* Mobile Toggle Button */}
+            <div className="mobile-form-toggle">
+              <button
+                className={`mobile-create-slot-btn ${showMobileForm ? 'form-open' : ''}`}
+                onClick={() => setShowMobileForm(!showMobileForm)}
+              >
+                <span className="btn-icon">{showMobileForm ? '×' : '+'}</span>
+                <span className="btn-text">{showMobileForm ? 'Close' : 'Create New Slot'}</span>
+              </button>
+            </div>
 
       {/* Left Side - Form */}
       <div className={`ai-int-form-container ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>

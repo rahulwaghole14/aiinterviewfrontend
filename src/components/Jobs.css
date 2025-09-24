@@ -645,15 +645,24 @@ input[type="checkbox"]:checked {
   }
 }
 
+/* Management Buttons Row */
+.management-buttons-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
 /* Domain Management Styles */
 .domain-management-section {
   display: flex;
   gap: 1rem;
-  margin-bottom: 0; /* Removed margin bottom */
-  margin-top: 5px; /* Added 5px margin top */
   justify-content: flex-start;
   flex-wrap: wrap;
 }
+
 
 .domain-btn {
   padding: 0.75rem 1.5rem;
@@ -683,6 +692,57 @@ input[type="checkbox"]:checked {
 .view-domains-btn:hover {
   background-color: var(--color-secondary-dark);
   transform: translateY(-2px);
+}
+
+
+/* Mobile Toggle Button Styles */
+.mobile-form-toggle {
+  display: none; /* Hidden by default */
+}
+
+.mobile-create-job-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-soft);
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.mobile-create-job-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+}
+
+.mobile-create-job-btn.form-open {
+  background-color: var(--color-disabled);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-create-job-btn.form-open:hover {
+  background-color: var(--color-disabled-dark);
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-create-job-btn .btn-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mobile-create-job-btn .btn-text {
+  font-size: 0.9rem;
 }
 
 /* Modal Styles */
@@ -985,15 +1045,44 @@ input[type="checkbox"]:checked {
   margin-bottom: 1rem;
 }
 
-/* Responsive adjustments for domain management */
+/* Responsive adjustments for management buttons */
 @media (max-width: 767px) {
+  .management-buttons-row {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
   .domain-management-section {
     flex-direction: column;
+    justify-content: center;
   }
+
 
   .domain-btn {
     width: 100%;
     text-align: center;
+  }
+
+  /* Show mobile toggle button */
+  .mobile-form-toggle {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-bg);
+    padding: 0.25rem 1rem 0.5rem 1rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* Mobile form visibility controls */
+  .jobs-form.mobile-form-hidden {
+    display: none;
+  }
+
+  .jobs-form.mobile-form-visible {
+    display: block;
   }
 
   .modal-content {

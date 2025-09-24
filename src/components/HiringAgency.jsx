@@ -97,12 +97,6 @@ const HiringAgencies = () => {
   const notify = useNotification();
   const searchTerm = useSelector((state) => state.search.searchTerm);
   
-  // Debug search term
-  useEffect(() => {
-    if (searchTerm) {
-      console.log('HiringAgency received search term:', searchTerm);
-    }
-  }, [searchTerm]);
   const user = useSelector((state) => state.user.user); // Get the full user object
   const userRole = user?.role; // Access the user's role from the Redux store
   const userCompany = user?.company_name; // Get the logged-in user's company name
@@ -116,16 +110,6 @@ const HiringAgencies = () => {
   const admins = useSelector((state) => state.admin.admins); // Get admin dummy data
 
   // Debug data to see what fields are available
-  useEffect(() => {
-    if (companies.length > 0) {
-      console.log('Sample company data:', companies[0]);
-      console.log('Company fields:', Object.keys(companies[0]));
-    }
-    if (recruiters.length > 0) {
-      console.log('Sample recruiter data:', recruiters[0]);
-      console.log('Recruiter fields:', Object.keys(recruiters[0]));
-    }
-  }, [companies, recruiters]);
 
   // Loading and error states (can be combined for a single loading indicator if preferred)
   const companiesStatus = useSelector((state) => state.companies.status);
@@ -137,12 +121,27 @@ const HiringAgencies = () => {
 
   const [activeTab, setActiveTab] = useState("Recruiter"); // Default to 'Recruiter' tab
   const [formData, setFormData] = useState({
+    // Common fields
     username: "",
     full_name: "",
     email: "",
-    company_name: userRole === "COMPANY" ? userCompany : "", // Pre-fill if company user
-    role: userRole === "COMPANY" ? "RECRUITER" : "RECRUITER", // Default role for new users based on logged-in user
     password: "",
+    role: "",
+    
+    // Company specific
+    name: "",
+    description: "",
+    is_active: true,
+    
+    // Hiring Agency specific
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+    linkedin_url: "",
+    company_name: userRole === "COMPANY" ? userCompany : "",
+    
+    // Recruiter specific
+    company_id: "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
@@ -205,6 +204,27 @@ const HiringAgencies = () => {
     }
   }, [userRole, availableTabs, activeTab]);
 
+  // Reset form data when tab changes
+  useEffect(() => {
+    setFormData({
+      username: "",
+      full_name: "",
+      email: "",
+      password: "",
+      role: "",
+      name: "",
+      description: "",
+      is_active: true,
+      first_name: "",
+      last_name: "",
+      phone_number: "",
+      linkedin_url: "",
+      company_name: userRole === "COMPANY" ? userCompany : "",
+      company_id: "",
+    });
+  }, [activeTab, userRole, userCompany]);
+
+
   // Handle search navigation to specific tab
   useEffect(() => {
     const highlightData = localStorage.getItem('searchHighlight');
@@ -212,15 +232,14 @@ const HiringAgencies = () => {
       try {
         const parsed = JSON.parse(highlightData);
         if (parsed.type === 'Hiring Agencies' || parsed.type === 'Companies') {
-          if (parsed.tab && availableTabs.includes(parsed.tab)) {
-            setActiveTab(parsed.tab);
-            console.log(`Switched to ${parsed.tab} tab from search result`);
-          }
+        if (parsed.tab && availableTabs.includes(parsed.tab)) {
+          setActiveTab(parsed.tab);
+        }
           // Clear the highlight data after using it
           localStorage.removeItem('searchHighlight');
         }
       } catch (e) {
-        console.error('Error parsing search highlight:', e);
+        // Error parsing search highlight
       }
     }
   }, [availableTabs]);
@@ -270,9 +289,11 @@ const HiringAgencies = () => {
             width: "15%",
             type: "select",
             options: [
-              { value: true, label: "Active" },
-              { value: false, label: "Inactive" },
+              { value: "true", label: "Active" },
+              { value: "false", label: "Inactive" },
             ],
+            parseFromEdit: (value) => value === "true",
+            formatForEdit: (value) => value ? "true" : "false",
             render: (value) => (
               <span className="status-cell" data-status={value ? "active" : "inactive"}>
                 {value ? "Active" : "Inactive"}
@@ -336,6 +357,8 @@ const HiringAgencies = () => {
               { value: "Active", label: "Active" },
               { value: "Inactive", label: "Inactive" },
             ],
+            parseFromEdit: (value) => value,
+            formatForEdit: (value) => value,
             render: (value) => (
               <span className="status-cell" data-status={value?.toLowerCase()}>
                 {value || 'N/A'}
@@ -383,9 +406,11 @@ const HiringAgencies = () => {
             type: "select",
             editable: true,
             options: [
-              { value: true, label: "Active" },
-              { value: false, label: "Inactive" },
+              { value: "true", label: "Active" },
+              { value: "false", label: "Inactive" },
             ],
+            parseFromEdit: (value) => value === "true",
+            formatForEdit: (value) => value ? "true" : "false",
             render: (value) => (
               <span className="status-cell" data-status={value ? "active" : "inactive"}>
                 {value ? "Active" : "Inactive"}
@@ -400,17 +425,9 @@ const HiringAgencies = () => {
   useEffect(() => {
     // Only proceed if we have user data
     if (!user) {
-      console.log("HiringAgencies - No user logged in.");
-      console.log("HiringAgencies - User data from Redux:", user);
-      console.log("HiringAgencies - Auth token:", localStorage.getItem('authToken'));
       setIsLoading(false);
       return;
     }
-
-    console.log("HiringAgencies - Logged-in user details:", user);
-    console.log("HiringAgencies - User role:", userRole);
-    console.log("HiringAgencies - User company:", userCompany);
-    console.log("HiringAgencies - Auth token exists:", !!localStorage.getItem('authToken'));
 
     // Reset permission error first
     setPermissionError("");
@@ -423,10 +440,6 @@ const HiringAgencies = () => {
       .replace(/ /g, "_");
     const allowedRoles = ["admin", "company", "hiring_agency"];
 
-    console.log("HiringAgencies - Normalized role:", normalizedRole);
-    console.log("HiringAgencies - Allowed roles:", allowedRoles);
-    console.log("HiringAgencies - Role allowed:", allowedRoles.includes(normalizedRole));
-
     if (!allowedRoles.includes(normalizedRole)) {
       setPermissionError("You do not have permission to access this page.");
       setIsLoading(false);
@@ -436,24 +449,19 @@ const HiringAgencies = () => {
     // Fetch data based on user role
     const fetchData = async () => {
       try {
-        console.log("HiringAgencies - Starting data fetch...");
-        
         if (["admin", "company"].includes(normalizedRole)) {
-          console.log("HiringAgencies - Fetching hiring agencies...");
           if (hiringAgenciesStatus === "idle") {
             await dispatch(fetchHiringAgencies()).unwrap();
           }
         }
 
         if (["admin", "company", "hiring_agency"].includes(normalizedRole)) {
-          console.log("HiringAgencies - Fetching recruiters...");
           if (recruitersStatus === "idle") {
             await dispatch(fetchRecruiters());
           }
         }
 
         if (normalizedRole === "admin") {
-          console.log("HiringAgencies - Fetching companies and admins...");
           if (companiesStatus === "idle") {
             await dispatch(fetchCompanies());
           }
@@ -461,10 +469,7 @@ const HiringAgencies = () => {
             await dispatch(fetchAdmins());
           }
         }
-        
-        console.log("HiringAgencies - Data fetch completed");
       } catch (error) {
-        console.error("Error fetching data:", error);
         setPermissionError("An error occurred while loading data.");
       } finally {
         setIsLoading(false);
@@ -484,16 +489,9 @@ const HiringAgencies = () => {
 
   // Determine the data to display based on the active tab
   const getCurrentTableData = () => {
-    console.log("getCurrentTableData - Active tab:", activeTab);
-    console.log("getCurrentTableData - Recruiters data:", recruiters);
-    console.log("getCurrentTableData - Hiring agencies data:", hiringAgencies);
-    console.log("getCurrentTableData - Companies data:", companies);
-    console.log("getCurrentTableData - Admins data:", admins);
     
     switch (activeTab) {
       case "Recruiter":
-        // Log recruiter data here to inspect its structure
-        console.log("Recruiter Data:", recruiters);
         // Map recruiter data to fit the table structure and resolve company names
         const recruiterData = (recruiters || []).map((recruiter) => {
           // Find company name by ID
@@ -501,24 +499,22 @@ const HiringAgencies = () => {
           const companyName = company ? company.name : `Company ID: ${recruiter.company}`;
           
           return {
-          id: recruiter.id,
-            full_name: recruiter.full_name, // Use full_name for 'Full Name' column
-          email: recruiter.email,
-            company_name: companyName, // Resolved company name from company ID
-            role: recruiter.role || recruiter.userType, // Use role or userType
+            id: recruiter.id,
+            full_name: recruiter.full_name,
+            email: recruiter.email,
+            company_name: companyName,
+            role: recruiter.role || recruiter.userType,
             is_active: recruiter.is_active,
           };
         });
-        console.log("Mapped recruiter data:", recruiterData);
+        
         return recruiterData;
       case "Hiring Agency":
         // Map hiring agency data to include status field
-        console.log("Hiring agency data from API:", hiringAgencies);
         const hiringAgencyData = (hiringAgencies || []).map((agency) => ({
           ...agency,
           status: agency.is_active ? "Active" : "Inactive", // Convert boolean to string status
         }));
-        console.log("Mapped hiring agency data:", hiringAgencyData);
         return hiringAgencyData;
       case "Company":
         // Map company data to fit the table structure
@@ -530,11 +526,9 @@ const HiringAgencies = () => {
           is_active: company.is_active, // Use is_active for status
           status: company.is_active ? "Active" : "Inactive", // Convert boolean to string status
         }));
-        console.log("Mapped company data:", companyData);
         return companyData;
       case "Admin":
         // Ensure admins is an array before returning
-        console.log("Admin data:", admins);
         return admins || [];
       default:
         return [];
@@ -557,7 +551,6 @@ const HiringAgencies = () => {
   const sortedUsers = [...filteredByCompany].sort((a, b) => {
     // First priority: search term relevance (if search term exists)
     if (searchTerm) {
-      console.log('HiringAgency sorting with search term:', searchTerm);
       const searchLower = searchTerm.toLowerCase();
       
       // Calculate relevance scores for both items - search ALL fields
@@ -594,9 +587,6 @@ const HiringAgencies = () => {
         
         searchAllFields(item);
         
-        if (score > 0) {
-          console.log(`Item ${item.name || item.full_name} has relevance score:`, score);
-        }
         
         return score;
       };
@@ -694,35 +684,83 @@ const HiringAgencies = () => {
   };
 
   const handleAddUser = async (e) => {
-    e.preventDefault();
-    // Basic validation
-    if (
-      !formData.username ||
-      !formData.full_name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.role
-    ) {
-      notify.error("All fields are required.");
+    // Prevent default form submission if event exists
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    
+    let endpoint = "";
+    let payload = {};
+    let requiredFields = [];
+
+    // Determine endpoint, payload, and validation based on active tab
+    switch (activeTab) {
+      case "Company":
+        endpoint = `${baseURL}/api/companies/`;
+        payload = {
+          name: formData.name,
+          email: formData.email,
+          description: formData.description,
+          is_active: formData.is_active,
+          password: formData.password,
+        };
+        requiredFields = ["name", "email"];
+        break;
+        
+      case "Hiring Agency":
+        endpoint = `${baseURL}/api/hiring_agency/`;
+        payload = {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          phone_number: formData.phone_number,
+          linkedin_url: formData.linkedin_url,
+          role: "HIRING_AGENCY",
+          company_name: formData.company_name,
+        };
+        requiredFields = ["first_name", "last_name", "email", "phone_number"];
+        break;
+        
+      case "Recruiter":
+        endpoint = `${baseURL}/api/companies/recruiters/create/`;
+        payload = {
+          username: formData.username || formData.email,
+          full_name: formData.full_name,
+          email: formData.email,
+          password: formData.password,
+          company_id: formData.company_id,
+        };
+        requiredFields = ["full_name", "email", "password"];
+        break;
+        
+      case "Admin":
+        endpoint = API_ENDPOINTS.auth.register;
+        payload = {
+          username: formData.username || formData.email,
+          email: formData.email,
+          full_name: formData.full_name,
+          role: "ADMIN",
+          password: formData.password,
+        };
+        requiredFields = ["full_name", "email", "password"];
+        break;
+        
+      default:
+        notify.error("Invalid tab selected.");
+        return;
+    }
+
+    // Validate required fields
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      notify.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
 
-    // Determine the API endpoint based on the selected role
-    let endpoint = "";
-    let payload = {};
-
-    endpoint = API_ENDPOINTS.auth.register;
-    payload = {
-      username: formData.username,
-      email: formData.email,
-      full_name: formData.full_name,
-      company_name: formData.company_name, // company_name might be optional for some roles
-      role: formData.role.toUpperCase(),
-      password: formData.password,
-    };
-
     try {
       const token = localStorage.getItem("authToken");
+      
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -734,27 +772,47 @@ const HiringAgencies = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add user.");
+        throw new Error(errorData.message || errorData.detail || "Failed to add user.");
       }
 
       const result = await response.json();
-      notify.success(`User ${result.full_name} added successfully!`);
+      
+      const successMessage = activeTab === "Company" 
+        ? `Company ${result.name} added successfully!`
+        : `User ${result.full_name || result.name} added successfully!`;
+      
+      notify.success(successMessage);
       setShowAddModal(false);
+      
+      // Reset form data
       setFormData({
         username: "",
         full_name: "",
         email: "",
-        company_name: userRole === "COMPANY" ? userCompany : "", // Reset company name based on user role
-        role: userRole === "COMPANY" ? "RECRUITER" : "RECRUITER", // Reset role based on user role
         password: "",
+        role: "",
+        name: "",
+        description: "",
+        is_active: true,
+        first_name: "",
+        last_name: "",
+        phone_number: "",
+        linkedin_url: "",
+        company_name: userRole === "COMPANY" ? userCompany : "",
+        company_id: "",
       });
+      
       // Re-fetch data for the active tab to update the table
-      if (activeTab === "Recruiter") dispatch(fetchRecruiters());
-      else if (activeTab === "Hiring Agency") dispatch(fetchHiringAgencies());
-      else if (activeTab === "Company") dispatch(fetchCompanies());
-      else if (activeTab === "Admin") dispatch(fetchAdmins()); // Re-fetch dummy admins
+      if (activeTab === "Recruiter") {
+        dispatch(fetchRecruiters());
+      } else if (activeTab === "Hiring Agency") {
+        dispatch(fetchHiringAgencies());
+      } else if (activeTab === "Company") {
+        dispatch(fetchCompanies());
+      } else if (activeTab === "Admin") {
+        dispatch(fetchAdmins());
+      }
     } catch (error) {
-      console.error("Error adding user:", error);
       notify.error(error.message || "Failed to add user");
     }
   };
@@ -766,10 +824,7 @@ const HiringAgencies = () => {
 
   const handleEditedInputChange = (e) => {
     const { name, value } = e.target;
-    setEditedUserData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setEditedUserData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSaveEdit = async () => {
@@ -788,6 +843,10 @@ const HiringAgencies = () => {
       if (key === "status") {
         const newStatus = editedUserData[key]?.toLowerCase() === "active";
         return originalUser.is_active !== newStatus;
+      }
+      // Special handling for full_name vs name
+      if (key === "full_name") {
+        return originalUser.full_name !== editedUserData[key];
       }
       return originalUser[key] !== editedUserData[key];
     });
@@ -809,9 +868,9 @@ const HiringAgencies = () => {
         case "Recruiter":
           endpoint = `${baseURL}/api/companies/recruiters/${editedUserData.id}/`;
           payload = {
-            new_full_name: editedUserData.name,
+            new_full_name: editedUserData.full_name || editedUserData.name,
             new_email: editedUserData.email,
-            is_active: editedUserData.status?.toLowerCase() === "active",
+            is_active: editedUserData.is_active !== undefined ? editedUserData.is_active : (editedUserData.status?.toLowerCase() === "active"),
           };
           break;
         case "Hiring Agency":
@@ -842,7 +901,7 @@ const HiringAgencies = () => {
           throw new Error("Invalid user type");
       }
 
-      console.log("Attempting to update from endpoint:", endpoint);
+
       const response = await fetch(endpoint, {
         method: "PATCH",
         headers: {
@@ -852,26 +911,27 @@ const HiringAgencies = () => {
         body: JSON.stringify(payload),
       });
 
-      console.log("Update response status:", response.status);
       const responseData = await response.json().catch(() => ({}));
-      console.log("Update response data:", responseData);
 
       if (!response.ok) {
         throw new Error(responseData.detail || "Failed to update user");
       }
-
-      console.log("Update successful, refreshing data...");
+      
       // Refresh the data after successful update
-      if (activeTab === "Recruiter") dispatch(fetchRecruiters());
-      else if (activeTab === "Hiring Agency") dispatch(fetchHiringAgencies());
-      else if (activeTab === "Company") dispatch(fetchCompanies());
-      else if (activeTab === "Admin") dispatch(fetchAdmins());
+      if (activeTab === "Recruiter") {
+        dispatch(fetchRecruiters());
+      } else if (activeTab === "Hiring Agency") {
+        dispatch(fetchHiringAgencies());
+      } else if (activeTab === "Company") {
+        dispatch(fetchCompanies());
+      } else if (activeTab === "Admin") {
+        dispatch(fetchAdmins());
+      }
 
       setEditingUserId(null);
       setEditedUserData(null);
       notify.success("User updated successfully!");
     } catch (error) {
-      console.error("Error updating user:", error);
       notify.error(error.message || "Failed to update user");
     }
   };
@@ -882,47 +942,35 @@ const HiringAgencies = () => {
   };
 
   const handleViewClick = (user) => {
-    console.log("Viewing user:", user);
     notify.info(`Viewing user: ${user.name} (${user.email})`, "User Details");
   };
 
   const handleDeleteClick = (userId) => {
-    console.log("handleDeleteClick called with userId:", userId);
     // If userId is an event object (from context menu), get the user ID from data attribute
     if (userId && typeof userId === "object" && userId.preventDefault) {
       userId.preventDefault();
       const userIdFromMenu = userId.currentTarget?.getAttribute("data-userid");
-      console.log("Context menu delete - userIdFromMenu:", userIdFromMenu);
       if (userIdFromMenu) {
         setDeleteUserId(userIdFromMenu);
         setShowDeleteConfirm(true);
       }
     } else {
       // Handle regular button click
-      console.log("Regular delete click - userId:", userId);
       setDeleteUserId(userId);
       setShowDeleteConfirm(true);
     }
-    console.log("Current deleteUserId state after set:", deleteUserId);
   };
 
   const confirmDelete = async () => {
-    console.log("=== confirmDelete STARTED ===");
-    console.log("confirmDelete called with deleteUserId:", deleteUserId);
 
     if (!deleteUserId) {
-      console.error("No user ID available for deletion");
       return;
     }
-
-    console.log("Starting delete process for user ID:", deleteUserId);
     setIsDeleting(true);
 
     try {
       let endpoint = "";
       const token = localStorage.getItem("authToken");
-      console.log("Active tab:", activeTab);
-      console.log("Using token:", token ? "Token exists" : "No token found");
 
       // Determine endpoint based on active tab
       switch (activeTab) {
@@ -936,11 +984,8 @@ const HiringAgencies = () => {
           endpoint = `${baseURL}/api/companies/${deleteUserId}/`;
           break;
         default:
-          console.error("Invalid tab for delete operation:", activeTab);
           throw new Error("Invalid tab for delete operation.");
       }
-
-      console.log("Sending DELETE request to:", endpoint);
       const response = await fetch(endpoint, {
         method: "DELETE",
         headers: {
@@ -949,22 +994,14 @@ const HiringAgencies = () => {
         },
       });
 
-      console.log("Delete response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          "Delete failed with status:",
-          response.status,
-          "Response:",
-          errorText
-        );
         throw new Error(
           `Failed to delete user: ${response.status} - ${errorText}`
         );
       }
 
-      console.log("Delete successful, refreshing data...");
       // Refresh the data after successful deletion
       const fetchPromises = [];
 
@@ -980,12 +1017,10 @@ const HiringAgencies = () => {
       await Promise.all(fetchPromises);
 
       notify.success("User deleted successfully!");
-      console.log("Data refresh complete");
     } catch (error) {
       console.error("Error in confirmDelete:", error);
       notify.error(error.message || "Failed to delete user");
     } finally {
-      console.log("Cleanup after delete operation");
       setIsDeleting(false);
       setShowDeleteConfirm(false);
       setDeleteUserId(null);
@@ -1016,6 +1051,22 @@ const HiringAgencies = () => {
         const newStatus = editedData[key]?.toLowerCase() === "active";
         return originalUser.is_active !== newStatus;
       }
+      // Special handling for full_name vs name
+      if (key === "full_name") {
+        return originalUser.full_name !== editedData[key];
+      }
+      // Special handling for hiring agency fields
+      if (activeTab === "Hiring Agency") {
+        if (key === "first_name" || key === "last_name" || key === "phone_number" || key === "linkedin_url") {
+          return originalUser[key] !== editedData[key];
+        }
+      }
+      // Special handling for company fields
+      if (activeTab === "Company") {
+        if (key === "email" || key === "description") {
+          return originalUser[key] !== editedData[key];
+        }
+      }
       return originalUser[key] !== editedData[key];
     });
 
@@ -1034,16 +1085,19 @@ const HiringAgencies = () => {
         case "Recruiter":
           endpoint = `${baseURL}/api/companies/recruiters/${editedData.id}/`;
           payload = {
-            new_full_name: editedData.name,
+            new_full_name: editedData.full_name || editedData.name,
             new_email: editedData.email,
-            is_active: editedData.status?.toLowerCase() === "active",
+            is_active: editedData.is_active !== undefined ? editedData.is_active : (editedData.status?.toLowerCase() === "active"),
           };
           break;
         case "Hiring Agency":
           endpoint = `${baseURL}/api/hiring_agency/${editedData.id}/`;
           payload = {
-            name: editedData.name,
+            first_name: editedData.first_name,
+            last_name: editedData.last_name,
             email: editedData.email,
+            phone_number: editedData.phone_number,
+            linkedin_url: editedData.linkedin_url,
             is_active: editedData.status?.toLowerCase() === "active",
           };
           break;
@@ -1051,8 +1105,9 @@ const HiringAgencies = () => {
           endpoint = `${baseURL}/api/companies/${editedData.id}/`;
           payload = {
             name: editedData.name,
+            email: editedData.email,
             description: editedData.description,
-            is_active: editedData.status?.toLowerCase() === "active",
+            is_active: editedData.is_active !== undefined ? editedData.is_active : (editedData.status?.toLowerCase() === "active"),
           };
           break;
         case "Admin":
@@ -1067,7 +1122,6 @@ const HiringAgencies = () => {
           throw new Error("Invalid user type");
       }
 
-      console.log("Attempting to update from endpoint:", endpoint);
       const response = await fetch(endpoint, {
         method: "PATCH",
         headers: {
@@ -1077,15 +1131,12 @@ const HiringAgencies = () => {
         body: JSON.stringify(payload),
       });
 
-      console.log("Update response status:", response.status);
       const responseData = await response.json().catch(() => ({}));
-      console.log("Update response data:", responseData);
 
       if (!response.ok) {
         throw new Error(responseData.detail || "Failed to update user");
       }
 
-      console.log("Update successful, refreshing data...");
       // Refresh the data after successful update
       if (activeTab === "Recruiter") dispatch(fetchRecruiters());
       else if (activeTab === "Hiring Agency") dispatch(fetchHiringAgencies());
@@ -1102,21 +1153,14 @@ const HiringAgencies = () => {
 
   // New function for DataTable delete integration
   const handleDeleteUser = async (userId) => {
-    console.log("=== handleDeleteUser STARTED ===");
-    console.log("handleDeleteUser called with userId:", userId);
 
     if (!userId) {
-      console.error("No user ID available for deletion");
       throw new Error("No user ID provided");
     }
-
-    console.log("Starting delete process for user ID:", userId);
 
     try {
       let endpoint = "";
       const token = localStorage.getItem("authToken");
-      console.log("Active tab:", activeTab);
-      console.log("Using token:", token ? "Token exists" : "No token found");
 
       // Determine endpoint based on active tab
       switch (activeTab) {
@@ -1130,11 +1174,9 @@ const HiringAgencies = () => {
           endpoint = `${baseURL}/api/companies/${userId}/`;
           break;
         default:
-          console.error("Invalid tab for delete operation:", activeTab);
           throw new Error("Invalid tab for delete operation.");
       }
 
-      console.log("Sending DELETE request to:", endpoint);
       const response = await fetch(endpoint, {
         method: "DELETE",
         headers: {
@@ -1143,22 +1185,14 @@ const HiringAgencies = () => {
         },
       });
 
-      console.log("Delete response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          "Delete failed with status:",
-          response.status,
-          "Response:",
-          errorText
-        );
         throw new Error(
           `Failed to delete user: ${response.status} - ${errorText}`
         );
       }
 
-      console.log("Delete successful, refreshing data...");
       // Refresh the data after successful deletion
       const fetchPromises = [];
 
@@ -1174,7 +1208,6 @@ const HiringAgencies = () => {
       await Promise.all(fetchPromises);
 
       notify.success("User deleted successfully!");
-      console.log("Data refresh complete");
     } catch (error) {
       console.error("Error in handleDeleteUser:", error);
       notify.error(error.message || "Failed to delete user");
@@ -1208,6 +1241,292 @@ const HiringAgencies = () => {
         return "status-badge on-hold";
       default:
         return "status-badge";
+    }
+  };
+
+  // Function to render form fields based on active tab
+  const renderFormFields = () => {
+    switch (activeTab) {
+      case "Company":
+        return (
+          <>
+            <div className="form-group">
+              <label htmlFor="name">Company Name *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter company name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter company email"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter company description"
+                rows="3"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="is_active">Status</label>
+              <select
+                id="is_active"
+                name="is_active"
+                value={formData.is_active ? "true" : "false"}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.value === "true" }))}
+              >
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter password (optional)"
+              />
+            </div>
+          </>
+        );
+
+      case "Hiring Agency":
+        return (
+          <>
+            <div className="form-group">
+              <label htmlFor="first_name">First Name *</label>
+              <input
+                type="text"
+                id="first_name"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter first name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="last_name">Last Name *</label>
+              <input
+                type="text"
+                id="last_name"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter last name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter email address"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone_number">Phone Number *</label>
+              <input
+                type="tel"
+                id="phone_number"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter phone number"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="linkedin_url">LinkedIn URL</label>
+              <input
+                type="url"
+                id="linkedin_url"
+                name="linkedin_url"
+                value={formData.linkedin_url}
+                onChange={handleInputChange}
+                placeholder="Enter LinkedIn profile URL"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="company_name">Company Name</label>
+              <input
+                type="text"
+                id="company_name"
+                name="company_name"
+                value={formData.company_name}
+                onChange={handleInputChange}
+                placeholder="Enter company name"
+              />
+            </div>
+          </>
+        );
+
+      case "Recruiter":
+        return (
+          <>
+            <div className="form-group">
+              <label htmlFor="full_name">Full Name *</label>
+              <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter full name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter email address"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password *</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter username (optional, defaults to email)"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="company_id">Company</label>
+              <select
+                id="company_id"
+                name="company_id"
+                value={formData.company_id}
+                onChange={handleInputChange}
+              >
+                <option value="">Select a company</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        );
+
+      case "Admin":
+        return (
+          <>
+            <div className="form-group">
+              <label htmlFor="full_name">Full Name *</label>
+              <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter full name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter email address"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Password *</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter username (optional, defaults to email)"
+              />
+            </div>
+          </>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -1402,8 +1721,8 @@ const HiringAgencies = () => {
                 <td>
                   <input
                     type="text"
-                    name="name"
-                    value={editedUserData?.name || ""}
+                    name="full_name"
+                    value={editedUserData?.full_name || editedUserData?.name || ""}
                     onChange={handleEditedInputChange}
                     style={formInputStyle}
                     className="form-input"
@@ -1421,14 +1740,19 @@ const HiringAgencies = () => {
                 </td>
                 <td>
                   <select
-                    name="status"
-                    value={editedUserData?.status || "Active"}
-                    onChange={handleEditedInputChange}
+                    name="is_active"
+                    value={editedUserData?.is_active !== undefined ? editedUserData.is_active : (editedUserData?.status?.toLowerCase() === "active")}
+                    onChange={(e) =>
+                      setEditedUserData((prev) => ({
+                        ...prev,
+                        is_active: e.target.value === "true",
+                      }))
+                    }
                     style={formInputStyle}
                     className="form-input"
                   >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                    <option value={true}>Active</option>
+                    <option value={false}>Inactive</option>
                   </select>
                 </td>
                 <td>{item.role}</td>
@@ -1489,17 +1813,15 @@ const HiringAgencies = () => {
             ) : (
               // Default for Recruiter and Admin
               <>
-                <td>{item.name}</td>
+                <td>{item.full_name || item.name}</td>
                 <td>{item.email}</td>
                 <td>
                   <span
                     className={`status-badge ${
-                      item.status === "Active"
-                        ? "status-active"
-                        : "status-inactive"
+                      item.is_active ? "status-active" : "status-inactive"
                     }`}
                   >
-                    {item.status}
+                    {item.is_active ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td>{item.role}</td>
@@ -1608,7 +1930,9 @@ const HiringAgencies = () => {
           {["ADMIN", "COMPANY"].includes(userRole) && (
             <button
               className="add-agency-btn"
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setShowAddModal(true);
+              }}
               disabled={isLoading}
             >
               {getAddButtonText()}
@@ -1631,6 +1955,7 @@ const HiringAgencies = () => {
         data={currentRecords || []}
         loading={isLoading}
         actions={["edit", "delete"]}
+        onEdit={handleUpdateUser}
         onAction={(action, rowData, rowIndex) => {
           if (action === "edit") {
             setEditingUserId(rowData.id);
@@ -1669,111 +1994,25 @@ const HiringAgencies = () => {
           }
         }}
         setEditingData={setEditedUserData}
-        onEdit={async (data) => {
-          try {
-            await handleUpdateUser(data);
-          } catch (error) {
-            console.error("Error updating user:", error);
-            throw error;
-          }
-        }}
       />
 
-            </div>
+              </div>
 
 
-            </div>
-            
+              </div>
+
       {/* Modals outside the main container to avoid blur effect */}
       <FormModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSubmit={handleAddUser}
+        onSubmit={(e) => {
+          handleAddUser(e);
+        }}
         title={getAddButtonText()}
-        submitText="Add User"
+        submitText={activeTab === "Company" ? "Add Company" : "Add User"}
         size="medium"
-    >
-              <div className="form-group">
-                <label htmlFor="username">Username *</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter username"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="full_name">Full Name *</label>
-                <input
-                  type="text"
-                  id="full_name"
-                  name="full_name"
-                  value={formData.full_name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter full name"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter email address"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="company_name">Company Name</label>
-                <input
-                  type="text"
-                  id="company_name"
-                  name="company_name"
-                  value={formData.company_name}
-                  onChange={handleInputChange}
-                  placeholder="Enter company name"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="role">Role *</label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select a role</option>
-                  {roleOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="password">Password *</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter password"
-                />
-              </div>
+      >
+        {renderFormFields()}
       </FormModal>
     </>
   );

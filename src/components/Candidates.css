@@ -816,9 +816,11 @@
   }
 
   .candidates-pagination-container {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .candidates-pagination-button {
@@ -906,9 +908,11 @@
 
   .candidates-pagination-container {
     padding: 8px;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .candidates-pagination-button {
@@ -954,4 +958,138 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Mobile Controls Row */
+.mobile-controls-row {
+  display: none; /* Hidden by default */
+}
+
+/* Mobile Filter Toggle Button Styles */
+.mobile-filter-toggle {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mobile-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-soft);
+  height: 40px; /* Reduced height */
+}
+
+.mobile-filter-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+}
+
+.mobile-filter-btn.filter-open {
+  background-color: var(--color-disabled);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-filter-btn.filter-open:hover {
+  background-color: var(--color-disabled-dark);
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-filter-btn .btn-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.mobile-filter-btn .btn-text {
+  font-size: 0.9rem;
+}
+
+/* Mobile Status Dropdown Styles */
+.mobile-status-dropdown {
+  display: flex;
+  flex: 1;
+  margin-right: 0.5rem; /* Reduced gap */
+}
+
+.status-dropdown-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px; /* Reduced height to match button */
+  box-sizing: border-box;
+}
+
+.status-dropdown-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 767px) {
+  /* Show mobile controls row */
+  .mobile-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Reduced gap */
+    padding: 0.25rem 1rem; /* Further reduced padding */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    min-height: 48px; /* Further reduced height */
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+
+  /* Reduce gap between mobile controls and content */
+  .candidate-page-wrapper {
+    gap: 0.25rem; /* Further reduced from 0.5rem */
+  }
+
+  /* Increase Candidate List title size on mobile */
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  /* Hide desktop status tabs on mobile */
+  .desktop-only {
+    display: none;
+  }
+
+  /* Mobile filter visibility controls */
+  .filter-sidebar-section.mobile-filter-hidden {
+    display: none;
+  }
+
+  .filter-sidebar-section.mobile-filter-visible {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.5rem;
+  }
 }

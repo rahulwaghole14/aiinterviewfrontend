@@ -149,6 +149,9 @@ const Jobs = () => {
   });
   const [editingDomain, setEditingDomain] = useState(null);
 
+  // Mobile form toggle state
+  const [showMobileForm, setShowMobileForm] = useState(false);
+
   // Function to create a new domain
   const handleCreateDomain = async (e) => {
     e.preventDefault();
@@ -334,28 +337,28 @@ const Jobs = () => {
     }
     
     // Second priority: column sorting (if specified)
-    if (!sortColumn) return 0;
+      if (!sortColumn) return 0;
 
-    const aValue =
-      sortColumn === "domain" ? (a.domain_name || getDomainName(a[sortColumn])) : a[sortColumn];
-    const bValue =
-      sortColumn === "domain" ? (b.domain_name || getDomainName(b[sortColumn])) : b[sortColumn];
+      const aValue =
+        sortColumn === "domain" ? (a.domain_name || getDomainName(a[sortColumn])) : a[sortColumn];
+      const bValue =
+        sortColumn === "domain" ? (b.domain_name || getDomainName(b[sortColumn])) : b[sortColumn];
 
-    if (aValue === null || aValue === undefined)
-      return sortDirection === "asc" ? 1 : -1;
-    if (bValue === null || bValue === undefined)
-      return sortDirection === "asc" ? -1 : 1;
+      if (aValue === null || aValue === undefined)
+        return sortDirection === "asc" ? 1 : -1;
+      if (bValue === null || bValue === undefined)
+        return sortDirection === "asc" ? -1 : 1;
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortDirection === "asc"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-    }
-    return 0;
-  });
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortDirection === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
+      return 0;
+    });
 
   // Pagination calculations
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -901,6 +904,8 @@ const Jobs = () => {
   return (
     <>
       <div className={`jobs-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
+        {/* Management Buttons Row */}
+        <div className="management-buttons-row">
         {/* Domain Management Buttons */}
         {(userRole === "ADMIN" || userRole === "COMPANY") && (
           <div className="domain-management-section">
@@ -915,7 +920,7 @@ const Jobs = () => {
               }}
               disabled={isAnyDomainOperationInProgress}
             >
-              {isCreatingDomain ? "Adding Domain..." : "+ Add New Domain"}
+                {isCreatingDomain ? "Adding Domain..." : "+ Create New Domain"}
             </button>
             <button
               type="button"
@@ -924,6 +929,21 @@ const Jobs = () => {
               disabled={isAnyDomainOperationInProgress}
             >
               View All Domains
+            </button>
+          </div>
+        )}
+
+        </div>
+
+        {/* Mobile Toggle Button */}
+        {(userRole === "ADMIN" || userRole === "COMPANY") && (
+          <div className="mobile-form-toggle">
+            <button
+              className={`mobile-create-job-btn ${showMobileForm ? 'form-open' : ''}`}
+              onClick={() => setShowMobileForm(!showMobileForm)}
+            >
+              <span className="btn-icon">{showMobileForm ? '×' : '+'}</span>
+              <span className="btn-text">{showMobileForm ? 'Close' : 'Create New Job'}</span>
             </button>
           </div>
         )}
@@ -948,7 +968,7 @@ const Jobs = () => {
         >
           {/* Left Column: Create New Job Form */}
           {userRole === "ADMIN" || userRole === "COMPANY" ? (
-            <div className="jobs-form card">
+            <div className={`jobs-form card ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
               <h2 className="form-title">
                 {editingJobId ? "Edit Job" : "Create New Job"}
               </h2>
@@ -1159,7 +1179,7 @@ const Jobs = () => {
                 render: (value) => (
                   <div title={value}>
                     {value}
-                  </div>
+              </div>
                 ),
               },
               {
@@ -1235,7 +1255,7 @@ const Jobs = () => {
                 render: (value) => {
                   if (!value) return 'N/A';
                   const truncated = value.length > 50 ? value.substring(0, 50) + '...' : value;
-                  return (
+                      return (
                     <div title={value}>
                       {truncated}
                     </div>
@@ -1253,7 +1273,7 @@ const Jobs = () => {
                   return (
                     <div title={value}>
                       {truncated}
-                    </div>
+                  </div>
                   );
                 },
               },
@@ -1268,7 +1288,7 @@ const Jobs = () => {
                   return (
                     <div title={value}>
                       {truncated}
-                    </div>
+                </div>
                   );
                 },
               },
@@ -1305,7 +1325,7 @@ const Jobs = () => {
             pageSizeOptions={[10, 20, 50, 100]}
           />
 
-        </div>
+                    </div>
 
       </div>
 
@@ -1319,32 +1339,32 @@ const Jobs = () => {
         isSubmitting={isCreatingDomain}
         size="medium"
       >
-        <div className="form-group">
-          <label htmlFor="domain-name">Domain Name</label>
-          <input
-            type="text"
-            id="domain-name"
-            name="name"
-            value={domainFormData.name}
-            onChange={handleDomainChange}
-            placeholder="e.g., Data Science"
-            required
-            disabled={isCreatingDomain}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="domain-description">Description</label>
-          <textarea
-            id="domain-description"
-            name="description"
-            value={domainFormData.description}
-            onChange={handleDomainChange}
-            placeholder="e.g., Data Science and Analytics domain"
-            rows="3"
-            required
-            disabled={isCreatingDomain}
-          />
-        </div>
+                <div className="form-group">
+                  <label htmlFor="domain-name">Domain Name</label>
+                  <input
+                    type="text"
+                    id="domain-name"
+                    name="name"
+                    value={domainFormData.name}
+                    onChange={handleDomainChange}
+                    placeholder="e.g., Data Science"
+                    required
+                    disabled={isCreatingDomain}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="domain-description">Description</label>
+                  <textarea
+                    id="domain-description"
+                    name="description"
+                    value={domainFormData.description}
+                    onChange={handleDomainChange}
+                    placeholder="e.g., Data Science and Analytics domain"
+                    rows="3"
+                    required
+                    disabled={isCreatingDomain}
+                  />
+                </div>
       </FormModal>
 
       {/* View Domains Modal - Moved outside main container */}
@@ -1358,14 +1378,14 @@ const Jobs = () => {
         showFooter={true}
         footer={
           <div className="modal-confirm-actions">
-            <button 
+              <button
               className="common-modal-btn btn-cancel" 
-              onClick={() => setShowViewDomainsModal(false)}
-              disabled={isAnyDomainOperationInProgress}
-            >
+                onClick={() => setShowViewDomainsModal(false)}
+                disabled={isAnyDomainOperationInProgress}
+              >
               Close
-            </button>
-          </div>
+              </button>
+            </div>
         }
       >
               {domainsStatus === "loading" ? (
