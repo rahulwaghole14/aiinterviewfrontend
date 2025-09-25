@@ -1064,7 +1064,7 @@
     border: 1px solid var(--color-border);
     background-color: var(--color-card);
     font-size: 14px;
-    color: black;
+    color: var(--color-text);
     cursor: pointer;
   }
   
@@ -1076,7 +1076,7 @@
   
   .pagination-info {
     font-size: 14px;
-    color: var(--color-text-secondary);
+    color: var(--color-text);
     margin: 0 10px;
   }
   
@@ -1386,7 +1386,7 @@
     .pagination-info {
       font-size: 13px;
       text-align: center;
-      color: black;
+      color: var(--color-text);
     }
   
     .context-menu {
@@ -1443,7 +1443,7 @@
     .pagination-info {
       font-size: 12px;
       text-align: center;
-      color: black;
+      color: var(--color-text);
     }
   
     .context-menu-item {

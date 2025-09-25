@@ -17,6 +17,20 @@ import StatusUpdateModal from "./StatusUpdateModal";
 import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour } from "../utils/timeFormatting";
 
+// Helper function to safely parse JSON fields
+const parseJsonField = (field) => {
+  if (!field) return [];
+  if (typeof field === 'string') {
+    try {
+      return JSON.parse(field);
+    } catch (e) {
+      console.warn('Failed to parse JSON field:', field);
+      return [];
+    }
+  }
+  return Array.isArray(field) ? field : [];
+};
+
 const CandidateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -605,7 +619,7 @@ const CandidateDetails = () => {
   return (
     <>
       <div className={`candidate-details-layout ${showStatusModal ? 'blur-background' : ''}`}>
-      <div className="candidate-details-left-panel">
+      <div className="candidate-details-left-panel" style={{ paddingBottom: '50px' }}>
         <div className="candidate-details-content card">
           <div className="back-button-container">
             <button className="back-button" onClick={() => navigate(-1)}>
@@ -672,77 +686,258 @@ const CandidateDetails = () => {
 
         {/* Evaluation Section - Moved here */}
         <div className="evaluation-section card">
-          {interviews.some((i) => i.evaluation) ? (
-            interviews
-              .filter((i) => i.evaluation)
-              .map((interview) => (
-                <div key={interview.id}>
-                  <div className="evaluation-header">
-                    <h4>Interview Evaluation Results</h4>
-                    <span className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
+          {/* AI Results Section */}
+          {interviews.some((i) => i.ai_result) && (
+            <div className="evaluation-info">
+              {interviews
+                .filter((i) => i.ai_result)
+                .map((interview) => (
+                  <div key={interview.id} className="evaluation-item">
+                    <div className="evaluation-header">
+                      <h4>Talaro Interview Results</h4>
+                      <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
+                        {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
+                      </span>
+                    </div>
+                    
+                    <div className="score-breakdown">
+                      <div className="score-item">
+                        <strong>Total Score:</strong>{" "}
+                        <span className={`score ${interview.ai_result.total_score >= 80 ? "high-score" : interview.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
+                          {interview.ai_result.total_score?.toFixed(1) || "N/A"}/100
+                        </span>
+                      </div>
+                      
+                      {interview.ai_result.technical_score !== undefined && (
+                        <div className="score-item">
+                          <strong>Technical Score:</strong>{" "}
+                          <span className={`score ${interview.ai_result.technical_score >= 80 ? "high-score" : interview.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.technical_score?.toFixed(1) || "N/A"}/100
+                          </span>
+                        </div>
+                      )}
+                      
+                      {interview.ai_result.behavioral_score !== undefined && (
+                        <div className="score-item">
+                          <strong>Behavioral Score:</strong>{" "}
+                          <span className={`score ${interview.ai_result.behavioral_score >= 80 ? "high-score" : interview.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
+                          </span>
+                        </div>
+                      )}
+                      
+                      {interview.ai_result.coding_score !== undefined && (
+                        <div className="score-item">
+                          <strong>Coding Score:</strong>{" "}
+                          <span className={`score ${interview.ai_result.coding_score >= 80 ? "high-score" : interview.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.coding_score?.toFixed(1) || "N/A"}/100
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="performance-metrics">
+                      <div className="metric-item">
+                        <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
+                      </div>
+                      <div className="metric-item">
+                        <strong>Questions Correct:</strong> {interview.ai_result.questions_correct || 0}
+                      </div>
+                      <div className="metric-item">
+                        <strong>Accuracy:</strong> {interview.ai_result.accuracy_percentage?.toFixed(1) || 0}%
+                      </div>
+                      <div className="metric-item">
+                        <strong>Average Response Time:</strong> {interview.ai_result.average_response_time?.toFixed(1) || 0}s
+                      </div>
+                      <div className="metric-item">
+                        <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
+                      </div>
+                    </div>
+                    
+                    {interview.ai_result.ai_summary && (
+                      <div className="ai-summary">
+                        <strong>AI Summary:</strong>
+                        <p>{interview.ai_result.ai_summary}</p>
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.ai_recommendations && (
+                      <div className="ai-recommendations">
+                        <strong>AI Recommendations:</strong>
+                        <p>{interview.ai_result.ai_recommendations}</p>
+                      </div>
+                    )}
+                    
+                    {interview.ai_result.coding_details && (() => {
+                      const codingDetails = parseJsonField(interview.ai_result.coding_details);
+                      return codingDetails.length > 0 && (
+                        <div className="coding-details">
+                          <strong>Coding Questions:</strong>
+                          {codingDetails.map((coding, index) => (
+                          <div key={index} className="coding-question">
+                            <h4>Question {index + 1}</h4>
+                            <p><strong>Question:</strong> {coding.question_text}</p>
+                            <p><strong>Language:</strong> {coding.language}</p>
+                            <p><strong>Status:</strong> 
+                              <span className={`test-status ${coding.passed_all_tests ? 'passed' : 'failed'}`}>
+                                {coding.passed_all_tests ? '✅ PASSED' : '❌ FAILED'}
+                              </span>
+                            </p>
+                            <div className="code-block">
+                              <strong>Submitted Code:</strong>
+                              <pre><code>{coding.submitted_code}</code></pre>
+                            </div>
+                            {coding.output_log && (
+                              <div className="output-log">
+                                <strong>Test Results:</strong>
+                                <pre>{coding.output_log}</pre>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        </div>
+                      );
+                    })()}
+                    
+                    {(() => {
+                      const strengths = parseJsonField(interview.ai_result.strengths);
+                      return strengths.length > 0 && (
+                        <div className="strengths">
+                          <strong>Strengths:</strong>
+                          <ul>
+                            {strengths.map((strength, index) => (
+                              <li key={index}>{strength}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })()}
+                    
+                    {(() => {
+                      const weaknesses = parseJsonField(interview.ai_result.weaknesses);
+                      return weaknesses.length > 0 && (
+                        <div className="weaknesses">
+                          <strong>Areas for Improvement:</strong>
+                          <ul>
+                            {weaknesses.map((weakness, index) => (
+                              <li key={index}>{weakness}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })()}
+                    
+                    <div className="hire-recommendation">
+                      <strong>Hire Recommendation:</strong>{" "}
+                      <span className={`recommendation ${interview.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
+                        {interview.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
+                      </span>
+                    </div>
+                    
+                    {interview.ai_result.confidence_level && (
+                      <div className="confidence-level">
+                        <strong>AI Confidence Level:</strong> {interview.ai_result.confidence_level?.toFixed(1)}%
+                      </div>
+                    )}
+                    
+                    <div className="evaluation-metadata">
+                      <p><strong>Evaluated on:</strong> {new Date(interview.created_at).toLocaleDateString() + ' ' + new Date(interview.created_at).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}</p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* Separator between AI and Manual evaluations */}
+          {interviews.some((i) => i.ai_result) && interviews.some((i) => i.evaluation) && (
+            <hr style={{ margin: '20px 0', border: '1px solid #e0e0e0' }} />
+          )}
+
+          {/* Manual Evaluation Section */}
+          {interviews.some((i) => i.evaluation) && (
+            <div className="evaluation-info">
+              <div className="evaluation-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                <h4 style={{ color: 'var(--color-primary)', fontSize: '1.2rem', fontWeight: '600', margin: 0 }}>Manual Evaluation Results</h4>
+                {interviews
+                  .filter((i) => i.evaluation)
+                  .map((interview) => (
+                    <span key={interview.id} className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
                       {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
                     </span>
-                  </div>
-                  
-                  {/* Score as simple text */}
-                  <div className="evaluation-score-simple">
-                    <p><strong>Score:</strong> <span className="score-number">{interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10</span></p>
-                  </div>
-                  
-                  {interview.evaluation.traits && (
-                    <div className="traits">
-                      <strong>Key Traits:</strong>
-                      <p>{interview.evaluation.traits}</p>
+                  ))}
+              </div>
+              {interviews
+                .filter((i) => i.evaluation)
+                .map((interview) => (
+                  <div key={interview.id}>
+                    
+                    {/* Score as simple text */}
+                    <div className="evaluation-score-simple">
+                      <p><strong>Score:</strong> <span className="score-number">{interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10</span></p>
                     </div>
-                  )}
-                  
-                  {interview.evaluation.suggestions && (
-                    <div className="suggestions">
-                      <strong>Suggestions:</strong>
-                      <p>{interview.evaluation.suggestions}</p>
+                    
+                    {interview.evaluation.traits && (
+                      <div className="traits">
+                        <strong>Key Traits:</strong>
+                        <p>{interview.evaluation.traits}</p>
+                      </div>
+                    )}
+                    
+                    {interview.evaluation.suggestions && (
+                      <div className="suggestions">
+                        <strong>Suggestions:</strong>
+                        <p>{interview.evaluation.suggestions}</p>
+                      </div>
+                    )}
+                    
+                    <div className="evaluation-metadata">
+                      <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleDateString() + ' ' + new Date(interview.evaluation.created_at).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}</p>
                     </div>
-                  )}
-                  
-                  <div className="evaluation-metadata">
-                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleDateString() + ' ' + new Date(interview.evaluation.created_at).toLocaleTimeString('en-US', {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true
-                    })}</p>
-                  </div>
-                  
-                  {/* Evaluation Action Buttons */}
-                  <div className="evaluation-actions-container">
-                    <div className="evaluation-actions">
-                      <button 
-                        className="edit-evaluation-btn" 
-                        onClick={() => handleEditEvaluation(interview.evaluation)}
-                        title="Edit Evaluation"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        Edit
-                      </button>
-                      <button 
-                        className="delete-evaluation-btn" 
-                        onClick={() => handleDeleteEvaluation(interview.evaluation)}
-                        title="Delete Evaluation"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3,6 5,6 21,6"></polyline>
-                          <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                          <line x1="10" y1="11" x2="10" y2="17"></line>
-                          <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        Delete
-                      </button>
+                    
+                    {/* Evaluation Action Buttons */}
+                    <div className="evaluation-actions-container" style={{ marginTop: '-10px' }}>
+                      <div className="evaluation-actions">
+                        <button 
+                          className="edit-evaluation-btn" 
+                          onClick={() => handleEditEvaluation(interview.evaluation)}
+                          title="Edit Evaluation"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
+                          Edit
+                        </button>
+                        <button 
+                          className="delete-evaluation-btn" 
+                          onClick={() => handleDeleteEvaluation(interview.evaluation)}
+                          title="Delete Evaluation"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3,6 5,6 21,6"></polyline>
+                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-          ) : (
+                ))}
+            </div>
+          )}
+
+          {/* No Evaluation Message */}
+          {!interviews.some((i) => i.ai_result) && !interviews.some((i) => i.evaluation) && (
             <p className="no-data">{`${
               currentStatus === "INTERVIEW_COMPLETED"
                 ? "Evaluation in progress..."

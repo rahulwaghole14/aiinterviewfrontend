@@ -1742,6 +1742,7 @@
 /* Evaluation Score Styles */
 .evaluation-section {
   position: relative;
+  margin-bottom: 2rem;
 }
 
 .evaluation-metadata {
@@ -1750,6 +1751,30 @@
 
 .evaluation-score-simple {
   margin: 1rem 0;
+}
+
+/* Dark Mode Styles for AI Evaluation Results */
+[data-theme="dark"] .strengths,
+[data-theme="dark"] .weaknesses {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .strengths ul li,
+[data-theme="dark"] .weaknesses ul li {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .performance-metrics {
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .performance-metrics .metric-item {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  padding: 0.5rem;
+  border-radius: var(--radius-small);
+  margin: 0.25rem 0;
+  border: 1px solid var(--color-border);
 }
 
 .evaluation-score-simple .score-number {
