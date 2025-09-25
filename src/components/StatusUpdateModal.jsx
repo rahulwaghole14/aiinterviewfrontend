@@ -776,6 +776,27 @@ const StatusUpdateModal = ({
     </div>
   );
 
+  const renderAIEvaluationForm = () => {
+    return (
+      <div className="ai-evaluation-info">
+        <div className="info-card">
+          <h3>🤖 AI Evaluation</h3>
+          <p>AI evaluation is automatically generated based on the candidate's interview performance.</p>
+          <p>This evaluation includes:</p>
+          <ul>
+            <li>Technical skills assessment</li>
+            <li>Problem-solving abilities</li>
+            <li>Communication skills</li>
+            <li>Overall performance rating</li>
+            <li>Strengths and areas for improvement</li>
+            <li>Hire recommendation</li>
+          </ul>
+          <p><strong>Note:</strong> AI evaluation is generated automatically after the interview is completed. No manual input is required.</p>
+        </div>
+      </div>
+    );
+  };
+
   const renderEvaluationForm = () => {
     console.log("=== RENDERING EVALUATION FORM ===");
     console.log("isEditMode:", isEditMode);
@@ -906,7 +927,9 @@ const StatusUpdateModal = ({
     switch (action) {
       case "schedule_interview":
         return renderScheduleInterviewForm();
-      case "evaluate":
+      case "ai_evaluate":
+        return renderAIEvaluationForm();
+      case "manual_evaluate":
         return renderEvaluationForm();
       case "hire_reject":
         return renderHireRejectForm();
@@ -919,8 +942,10 @@ const StatusUpdateModal = ({
     switch (action) {
       case "schedule_interview":
         return isEditMode ? "Edit Interview" : "Schedule Interview";
-      case "evaluate":
-        return isEditMode ? "Edit Evaluation" : "Evaluate Candidate";
+      case "ai_evaluate":
+        return "AI Evaluation";
+      case "manual_evaluate":
+        return isEditMode ? "Edit Manual Evaluation" : "Manual Evaluation";
       case "hire_reject":
         return "Hire/Reject Decision";
       default:
@@ -948,7 +973,15 @@ const StatusUpdateModal = ({
             </button>
           </div>
         );
-      case "evaluate":
+      case "ai_evaluate":
+        return (
+          <div className="modal-form-actions">
+            <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">
+              Close
+            </button>
+          </div>
+        );
+      case "manual_evaluate":
         return (
           <div className="modal-form-actions">
             <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">

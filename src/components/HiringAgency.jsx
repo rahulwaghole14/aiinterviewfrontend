@@ -156,7 +156,7 @@ const HiringAgencies = () => {
     company_name: userRole === "COMPANY" ? userCompany : "",
     
     // Recruiter specific
-    company_id: userRole === "COMPANY" ? (user?.id || "") : "",
+    company_id: "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
   
@@ -753,14 +753,24 @@ const HiringAgencies = () => {
         
       case "Recruiter":
         endpoint = `${baseURL}/api/companies/recruiters/create/`;
+        // For company users, we need to get the company_id from the user object
+        // For other users, use the selected company_id from the form
+        const recruiterCompanyId = userRole === "COMPANY" 
+          ? (user?.company_id || "") 
+          : formData.company_id;
+        
         payload = {
           username: formData.username || formData.email,
           full_name: formData.full_name,
           email: formData.email,
           password: formData.password,
-          company_id: formData.company_id,
+          company_id: recruiterCompanyId,
         };
-        requiredFields = ["full_name", "email", "password", "company_id"];
+        requiredFields = ["full_name", "email", "password"];
+        // Only require company_id for non-company users
+        if (userRole !== "COMPANY") {
+          requiredFields.push("company_id");
+        }
         break;
         
       case "Admin":

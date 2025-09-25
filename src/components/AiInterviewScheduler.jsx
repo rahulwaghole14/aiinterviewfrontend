@@ -1327,7 +1327,7 @@ const AiInterviewScheduler = ({
 
       {/* Left Side - Form */}
       <div className={`ai-int-form-container ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
-          <form onSubmit={handleSlotSubmit} className="ai-int-form">
+          <div className="ai-int-form">
           <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
               <label>Date</label>
@@ -1457,7 +1457,7 @@ const AiInterviewScheduler = ({
                 </button>
               )}
             </div>
-          </form>
+          </div>
       </div>
 
       {/* Interview Slots Table */}

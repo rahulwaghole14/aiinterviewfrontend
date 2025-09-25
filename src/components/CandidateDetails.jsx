@@ -293,7 +293,10 @@ const CandidateDetails = () => {
     // Also check for legacy evaluation system
     const hasLegacyEvaluation = interviews.some((i) => i.evaluation);
 
-    if (hasAIEvaluation || hasLegacyEvaluation) return "EVALUATED";
+    // Handle new status structure
+    if (hasLegacyEvaluation && hasAIEvaluation) return "AI_MANUAL_EVALUATED";
+    if (hasLegacyEvaluation) return "MANUAL_EVALUATED";
+    if (hasAIEvaluation) return "AI_EVALUATED";
     if (status === "completed") return "INTERVIEW_COMPLETED";
     if (status === "scheduled") return "INTERVIEW_SCHEDULED";
 
@@ -307,7 +310,7 @@ const CandidateDetails = () => {
       label: "Schedule Interview",
       status: "INTERVIEW_SCHEDULED",
     },
-    { id: "evaluate", label: "Complete Evaluation", status: "EVALUATED" },
+    { id: "manual_evaluate", label: "Manual Evaluation", status: "MANUAL_EVALUATED" },
     { id: "hire_reject", label: "Make Decision", status: "HIRED" },
   ];
 
@@ -319,8 +322,12 @@ const CandidateDetails = () => {
       case "INTERVIEW_SCHEDULED":
         return { id: "complete_interview", status: "INTERVIEW_COMPLETED" };
       case "INTERVIEW_COMPLETED":
-        return { id: "evaluate", status: "EVALUATED" };
-      case "EVALUATED":
+        // After interview completed, next step is manual evaluation (can be done even without AI evaluation)
+        return { id: "manual_evaluate", status: "MANUAL_EVALUATED" };
+      case "AI_EVALUATED":
+        // After AI evaluation, next step is manual evaluation
+        return { id: "manual_evaluate", status: "MANUAL_EVALUATED" };
+      case "MANUAL_EVALUATED":
         return { id: "hire_reject", status: "HIRE" }; // Show hire option
       default:
         return null;
@@ -332,8 +339,8 @@ const CandidateDetails = () => {
     if (action === "schedule_interview") {
       setSelectedAction("schedule_interview");
       setShowStatusModal(true);
-    } else if (action === "evaluate") {
-      setSelectedAction("evaluate");
+    } else if (action === "manual_evaluate") {
+      setSelectedAction("manual_evaluate");
       setShowStatusModal(true);
     } else if (action === "hire_reject") {
       setSelectedAction("hire_reject");
@@ -691,10 +698,10 @@ const CandidateDetails = () => {
             <div className="evaluation-info">
               {interviews
                 .filter((i) => i.ai_result)
-                .map((interview) => (
+              .map((interview) => (
                   <div key={interview.id} className="evaluation-item">
-                    <div className="evaluation-header">
-                      <h4>Talaro Interview Results</h4>
+                  <div className="evaluation-header">
+                      <h4>AI Evaluation Results</h4>
                       <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
                         {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
                       </span>
@@ -869,69 +876,69 @@ const CandidateDetails = () => {
                       {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
                     </span>
                   ))}
-              </div>
+                  </div>
               {interviews
                 .filter((i) => i.evaluation)
                 .map((interview) => (
                   <div key={interview.id}>
-                    
-                    {/* Score as simple text */}
-                    <div className="evaluation-score-simple">
-                      <p><strong>Score:</strong> <span className="score-number">{interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10</span></p>
+                  
+                  {/* Score as simple text */}
+                  <div className="evaluation-score-simple">
+                    <p><strong>Score:</strong> <span className="score-number">{interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10</span></p>
+                  </div>
+                  
+                  {interview.evaluation.traits && (
+                    <div className="traits">
+                      <strong>Key Traits:</strong>
+                      <p>{interview.evaluation.traits}</p>
                     </div>
-                    
-                    {interview.evaluation.traits && (
-                      <div className="traits">
-                        <strong>Key Traits:</strong>
-                        <p>{interview.evaluation.traits}</p>
-                      </div>
-                    )}
-                    
-                    {interview.evaluation.suggestions && (
-                      <div className="suggestions">
-                        <strong>Suggestions:</strong>
-                        <p>{interview.evaluation.suggestions}</p>
-                      </div>
-                    )}
-                    
-                    <div className="evaluation-metadata">
-                      <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleDateString() + ' ' + new Date(interview.evaluation.created_at).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}</p>
+                  )}
+                  
+                  {interview.evaluation.suggestions && (
+                    <div className="suggestions">
+                      <strong>Suggestions:</strong>
+                      <p>{interview.evaluation.suggestions}</p>
                     </div>
-                    
-                    {/* Evaluation Action Buttons */}
+                  )}
+                  
+                  <div className="evaluation-metadata">
+                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleDateString() + ' ' + new Date(interview.evaluation.created_at).toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</p>
+                  </div>
+                  
+                  {/* Evaluation Action Buttons */}
                     <div className="evaluation-actions-container" style={{ marginTop: '-10px' }}>
-                      <div className="evaluation-actions">
-                        <button 
-                          className="edit-evaluation-btn" 
-                          onClick={() => handleEditEvaluation(interview.evaluation)}
-                          title="Edit Evaluation"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                          </svg>
-                          Edit
-                        </button>
-                        <button 
-                          className="delete-evaluation-btn" 
-                          onClick={() => handleDeleteEvaluation(interview.evaluation)}
-                          title="Delete Evaluation"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3,6 5,6 21,6"></polyline>
-                            <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                          </svg>
-                          Delete
-                        </button>
-                      </div>
+                    <div className="evaluation-actions">
+                      <button 
+                        className="edit-evaluation-btn" 
+                        onClick={() => handleEditEvaluation(interview.evaluation)}
+                        title="Edit Evaluation"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Edit
+                      </button>
+                      <button 
+                        className="delete-evaluation-btn" 
+                        onClick={() => handleDeleteEvaluation(interview.evaluation)}
+                        title="Delete Evaluation"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3,6 5,6 21,6"></polyline>
+                          <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Delete
+                      </button>
                     </div>
                   </div>
+                </div>
                 ))}
             </div>
           )}
@@ -958,11 +965,13 @@ const CandidateDetails = () => {
 
           <div className="status-progress-bar">
             {(() => {
+              // Always show both evaluation steps in sequence
               const statusStages = [
                 "NEW",
                 "INTERVIEW_SCHEDULED",
                 "INTERVIEW_COMPLETED",
-                "EVALUATED",
+                "AI_EVALUATED",
+                "MANUAL_EVALUATED",
                 "HIRE",
               ];
 
@@ -970,7 +979,8 @@ const CandidateDetails = () => {
                 "New",
                 "Schedule Interview",
                 "Interview Completed",
-                "Evaluate",
+                "AI Evaluated",
+                "Manual Evaluated",
                 "Hire",
               ];
 
@@ -1007,7 +1017,25 @@ const CandidateDetails = () => {
                   isCompleted = index < currentIndex;
                   isCurrent = index === currentIndex;
                   isNextAction = nextAction && statusStages[index] === nextAction.status;
-                  isClickable = isNextAction || isCompleted;
+                  
+                  // Special handling for AI_EVALUATED - make it non-clickable when completed
+                  if (stage === "AI_EVALUATED") {
+                    const hasAIEvaluation = interviews.some((i) => i.ai_result);
+                    if (hasAIEvaluation) {
+                      isCompleted = true;
+                      isClickable = false; // AI evaluation is not clickable
+                      isCurrent = false; // Never current, always completed
+                    } else {
+                      isClickable = false; // AI evaluation is never clickable
+                      isCompleted = false; // Show as incomplete if no AI results
+                    }
+                  } else if (stage === "MANUAL_EVALUATED") {
+                    // Manual evaluation is always clickable as next action, even if AI evaluation is not complete
+                    isClickable = isNextAction || isCompleted;
+                  } else {
+                    isClickable = isNextAction || isCompleted;
+                  }
+                  
                   isRecommended = isNextAction;
                 }
 
@@ -1034,8 +1062,11 @@ const CandidateDetails = () => {
                         handleStatusUpdate("schedule_interview");
                       } else if (stage === "INTERVIEW_COMPLETED") {
                         handleStatusUpdate("complete_interview");
-                      } else if (stage === "EVALUATED") {
-                        handleStatusUpdate("evaluate");
+                      } else if (stage === "AI_EVALUATED") {
+                        // AI evaluation is not clickable - handled automatically
+                        return;
+                      } else if (stage === "MANUAL_EVALUATED") {
+                        handleStatusUpdate("manual_evaluate");
                       } else if (stage === "HIRE") {
                         handleStatusUpdate("hire_reject");
                       } else if (isCompleted) {

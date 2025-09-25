@@ -108,7 +108,7 @@
 .candidate-info,
 .evaluation-scores,
 .session-metrics {
-  background: var(--color-bg-secondary);
+  background: transparent;
   padding: 1.5rem;
   border-radius: 12px;
   border-left: none;

@@ -1125,18 +1125,18 @@
     color: var(--color-text-secondary);
   }
 
-  /* Previous button - darker purple shade */
+  /* Previous button - same purple shade */
   .pagination-button.pagination-arrow:first-of-type {
     background: #8e44ad;
     color: white !important;
     border-color: #8e44ad;
   }
 
-  /* Next button - lighter purple shade */
+  /* Next button - same purple shade */
   .pagination-button.pagination-arrow:last-of-type {
-    background: #bb8fce;
+    background: #8e44ad;
     color: white !important;
-    border-color: #bb8fce;
+    border-color: #8e44ad;
   }
   
   /* Hover states with inverted colors */
@@ -1157,7 +1157,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
-  /* Previous button hover - darker purple shade */
+  /* Previous button hover - same purple shade */
   .pagination-button.pagination-arrow:first-of-type:hover:not(:disabled) {
     background-color: #7d3c98 !important;
     border-color: #7d3c98 !important;
@@ -1166,13 +1166,13 @@
     box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
   }
 
-  /* Next button hover - darker light purple shade */
+  /* Next button hover - same purple shade */
   .pagination-button.pagination-arrow:last-of-type:hover:not(:disabled) {
-    background-color: #a569bd !important;
-    border-color: #a569bd !important;
+    background-color: #7d3c98 !important;
+    border-color: #7d3c98 !important;
     color: white !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(187, 143, 206, 0.3);
+    box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
   }
   
   /* Disabled state */
@@ -1186,7 +1186,7 @@
     box-shadow: none;
   }
 
-  /* Previous button disabled - darker purple shade */
+  /* Previous button disabled - same purple shade */
   .pagination-button.pagination-arrow:first-of-type:disabled {
     background-color: #8e44ad;
     border-color: #8e44ad;
@@ -1194,10 +1194,10 @@
     opacity: 0.4;
   }
 
-  /* Next button disabled - lighter purple shade */
+  /* Next button disabled - same purple shade */
   .pagination-button.pagination-arrow:last-of-type:disabled {
-    background-color: #bb8fce;
-    border-color: #bb8fce;
+    background-color: #8e44ad;
+    border-color: #8e44ad;
     color: white !important;
     opacity: 0.4;
   }
@@ -1213,13 +1213,13 @@
     transform: none;
   }
 
-  /* Next button active - maintain purple color */
+  /* Next button active - same purple color */
   .pagination-button.pagination-arrow:last-of-type.active {
-    background-color: #bb8fce !important;
+    background-color: #8e44ad !important;
     color: white !important;
-    border-color: #bb8fce !important;
+    border-color: #8e44ad !important;
     border-width: 2px;
-    box-shadow: 0 2px 6px rgba(187, 143, 206, 0.3);
+    box-shadow: 0 2px 6px rgba(142, 68, 173, 0.3);
     font-weight: 700;
     transform: none;
   }
@@ -1253,13 +1253,13 @@
     box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
   }
 
-  /* Next button active hover - maintain purple color */
+  /* Next button active hover - same purple color */
   .pagination-button.pagination-arrow:last-of-type.active:hover:not(:disabled) {
-    background-color: #a569bd !important;
+    background-color: #7d3c98 !important;
     color: white !important;
-    border-color: #a569bd !important;
+    border-color: #7d3c98 !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(187, 143, 206, 0.3);
+    box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
   }
   
   /* Refresh Button Styles */
