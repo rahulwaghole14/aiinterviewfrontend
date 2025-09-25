@@ -91,13 +91,8 @@ const Dashboard = () => {
     // Only fetch dashboard data if user is properly authenticated
     const authenticated = isAuthenticated();
     
-    console.log('Dashboard useEffect - User authenticated:', authenticated);
-    
     if (authenticated && dashboardData === null && !loading && !error) {
-      console.log('Dashboard - Fetching dashboard data');
       dispatch(fetchDashboardData());
-    } else if (!authenticated) {
-      console.log('Dashboard - No valid authentication, skipping dashboard data fetch');
     }
   }, [dispatch, dashboardData, loading, error]); // Dependencies to re-run effect
 

@@ -12,11 +12,9 @@ export const fetchInterviewSlots = createAsyncThunk(
       }
 
       const state = getState();
-      console.log('Current Redux state:', state);
       
       // Try both possible paths to user data
       const user = state?.auth?.user || state?.user?.currentUser;
-      console.log('User data from state:', user);
       
       const companyId = user?.company_id || user?.id;
       let url = `${baseURL}/api/interviews/slots/`;
@@ -25,7 +23,6 @@ export const fetchInterviewSlots = createAsyncThunk(
         url += `${url.includes('?') ? '&' : '?'}company_id=${companyId}`;
       }
 
-      console.log('Making request to:', url);
       const response = await fetch(url, {
         headers: {
           'Authorization': `Token ${token}`,
@@ -40,7 +37,6 @@ export const fetchInterviewSlots = createAsyncThunk(
         return rejectWithValue(data.detail || 'Failed to fetch interview slots');
       }
 
-      console.log('API Response:', data);
       return data.results || data || [];
     } catch (error) {
       console.error('Error in fetchInterviewSlots:', error);

@@ -50,12 +50,6 @@ export const fetchCandidates = createAsyncThunk(
 
       // Format the candidates data for consistency with frontend
       const formattedCandidates = fetchedCandidates.map(candidate => {
-        // Debug logging for created_at field
-        console.log(`Candidate ${candidate.id} (${candidate.full_name}):`, {
-          created_at: candidate.created_at,
-          last_updated: candidate.last_updated,
-          type_created_at: typeof candidate.created_at
-        });
         
         return {
         id: candidate.id,
@@ -101,32 +95,19 @@ const candidatesSlice = createSlice({
     },
     updateCandidateStatus: (state, action) => {
       const { id, newStatus, updatedData } = action.payload;
-      console.log("=== REDUX ACTION DEBUG ===");
-      console.log("Action payload:", action.payload);
-      console.log("All candidates before update:", state.allCandidates);
       
       const candidate = (state.allCandidates || []).find(c => c.id === id);
-      console.log("Found candidate:", candidate);
       
       if (candidate) {
-        console.log("Before update - candidate status:", candidate.status);
-        
         // Use the API response data directly instead of manual updates
         if (updatedData) {
-          console.log("Applying API response data:", updatedData);
           // Replace the entire candidate object with the API response
           Object.assign(candidate, updatedData);
-          console.log("After applying API data - candidate status:", candidate.status);
         } else {
           // Fallback to manual update if no API data
           candidate.status = newStatus;
           candidate.last_updated = new Date().toISOString();
-          console.log("After manual update - candidate status:", candidate.status);
         }
-        
-        console.log("Final candidate object:", candidate);
-      } else {
-        console.log("Candidate not found with ID:", id);
       }
     },
     deleteCandidate: (state, action) => {

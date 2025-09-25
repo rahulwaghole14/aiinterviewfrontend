@@ -103,52 +103,6 @@ import PropTypes from "prop-types";
     setEditingRow: externalSetEditingRow,
     setEditingData: externalSetEditingData,
   }) => {
-    // Debug logging for props
-    useEffect(() => {
-      console.log("DataTable - Props:", {
-        title,
-        columns: columns.map((c) => ({
-          Header: c.Header,
-          accessor: c.accessor,
-          hasCell: !!c.Cell,
-        })),
-        dataLength: data?.length || 0,
-        loading,
-        actions,
-      });
-  
-      if (data?.length > 0) {
-        console.log("DataTable - First data item:", {
-          keys: Object.keys(data[0]),
-          values: data[0],
-        });
-      }
-    }, [columns, data, loading, actions]);
-    // Debug: Log the data being rendered
-    useEffect(() => {
-      console.log("--- DataTable Debug ---");
-      console.log("Table Title:", title);
-      console.log("Loading State:", loading);
-      console.log("Data Length:", data?.length || 0);
-  
-      console.log(
-        "Columns:",
-        columns?.map((c) => ({
-          Header: c.Header,
-          accessor: c.accessor,
-          hasCustomCell: !!c.Cell,
-          type: typeof data[0]?.[c.accessor],
-        }))
-      );
-  
-      if (data?.length > 0) {
-        console.log("First 2 data items:", data.slice(0, 2));
-        console.log("Data Keys:", Object.keys(data[0]));
-      } else {
-        console.log("No data available");
-      }
-      console.log("--- End DataTable Debug ---");
-    }, [title, columns, data, loading]);
     
     // Sort configuration state
     const [sortConfig, setSortConfig] = useState({
@@ -158,22 +112,13 @@ import PropTypes from "prop-types";
     
     // Process data for the table
     const processedData = useMemo(() => {
-      console.log("Processing data:", {
-        dataLength: data?.length || 0,
-        firstItem: data?.[0],
-        isArray: Array.isArray(data),
-        sortConfig,
-      });
-  
       if (!data || !Array.isArray(data)) {
-        console.warn("DataTable: Invalid data prop - expected array, got:", data);
         return [];
       }
   
       // Ensure all data items are plain objects
       let processedItems = data.map((item, index) => {
         if (!item || typeof item !== "object") {
-          console.warn(`DataTable: Invalid data item at index ${index}:`, item);
           return {};
         }
         return item;
@@ -212,15 +157,6 @@ import PropTypes from "prop-types";
   
     // Process columns and data for the table
     const processedColumns = useMemo(() => {
-      console.log(
-        "Processing columns:",
-        columns.map((c) => ({
-          Header: c.Header,
-          accessor: c.accessor,
-          hasCell: !!c.Cell,
-        }))
-      );
-  
       return columns.map((column) => {
         const cellRenderer =
           column.Cell ||
@@ -253,17 +189,6 @@ import PropTypes from "prop-types";
     const setEditingRow = externalSetEditingRow || setInternalEditingRow;
     const setEditingData = externalSetEditingData || setInternalEditingData;
   
-    // Debug logging
-    useEffect(() => {
-      console.log("DataTable mounted with props:", {
-        title,
-        columns,
-        dataLength: data?.length,
-        loading,
-        showActions,
-        className,
-      });
-    }, [title, columns, data, loading, showActions, className]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [dtDeleteConfirm, setDtDeleteConfirm] = useState({
       isOpen: false,

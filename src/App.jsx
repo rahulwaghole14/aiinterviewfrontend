@@ -93,19 +93,14 @@ function App() {
   // Effect to initialize authentication state on app load
   useEffect(() => {
     const initializeAuth = () => {
-      console.log('Initializing authentication...');
       const authToken = localStorage.getItem('authToken');
       const storedUserData = localStorage.getItem('userData');
-      
-      console.log('Auth token exists:', !!authToken);
-      console.log('User data exists:', !!storedUserData);
       
       if (authToken && storedUserData) {
         try {
           const user = JSON.parse(storedUserData);
           dispatch(setUser(user));
           setIsLoggedIn(true);
-          console.log('User authenticated:', user.email);
         } catch (error) {
           console.error("Failed to parse user data from localStorage:", error);
           // Clear invalid data and log out if parsing fails
@@ -116,7 +111,6 @@ function App() {
         }
       } else {
         // No valid authentication data
-        console.log('No valid authentication found, showing login');
         dispatch(clearUser());
         setIsLoggedIn(false);
       }
@@ -126,7 +120,6 @@ function App() {
     
     // Listen for authentication errors from API calls
     const handleAuthError = () => {
-      console.log('Auth error event received, logging out user');
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
       dispatch(clearUser());
@@ -166,19 +159,16 @@ function App() {
     }
 
     const currentPath = location.pathname;
-    console.log('Handling routing - isLoggedIn:', isLoggedIn, 'currentPath:', currentPath);
 
     if (isLoggedIn) {
       // Only redirect to dashboard if user is on login/register pages or root
       if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
-        console.log('Redirecting authenticated user to dashboard');
         navigate('/dashboard', { replace: true });
       }
       // For all other authenticated routes, stay on current page
     } else {
       // If not logged in, redirect to login unless already on login/register or public candidate pages
       if (currentPath !== '/login' && currentPath !== '/register' && !currentPath.startsWith('/candidates/')) {
-        console.log('Redirecting unauthenticated user to login');
         navigate('/login', { replace: true });
       }
     }
@@ -244,7 +234,6 @@ function App() {
   };
 
   const handleLoginSuccess = (userData) => {
-    console.log('Login successful, updating state:', userData);
     
     // Update Redux state with user data
     if (userData) {
@@ -259,7 +248,6 @@ function App() {
   };
 
   const handleLogout = () => {
-    console.log('Logging out user');
     
     // Clear local storage
     localStorage.removeItem('authToken');

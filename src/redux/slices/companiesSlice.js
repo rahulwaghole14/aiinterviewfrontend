@@ -8,10 +8,8 @@ export const fetchCompanies = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('authToken');
-      console.log('Fetching companies with token:', token ? 'Token exists' : 'No token');
-      console.log('API URL:', `${baseURL}/api/companies/`);
       
-      const response = await fetch(`${baseURL}/api/companies/`, {
+      const response = await fetch(`${baseURL}/api/companies/?page_size=1000`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -19,8 +17,6 @@ export const fetchCompanies = createAsyncThunk(
         },
       });
 
-      console.log('Companies response status:', response.status);
-      console.log('Companies response ok:', response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -29,11 +25,9 @@ export const fetchCompanies = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log('Companies API response:', data);
       
       // Add a userType field for consistent filtering in HiringAgency.jsx
       const mappedData = data.map(company => ({ ...company, userType: 'Company' }));
-      console.log('Mapped companies data:', mappedData);
       return mappedData;
     } catch (error) {
       console.error('Exception in fetchCompanies:', error);

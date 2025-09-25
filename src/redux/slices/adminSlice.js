@@ -9,8 +9,6 @@ export const fetchAdmins = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('authToken');
-      console.log('Fetching admins with token:', token ? 'Token exists' : 'No token');
-      console.log('API URL:', `${baseURL}/api/auth/admins/`);
       
       const response = await fetch(`${baseURL}/api/auth/admins/`, {
         method: 'GET',
@@ -20,8 +18,6 @@ export const fetchAdmins = createAsyncThunk(
         },
       });
 
-      console.log('Admins response status:', response.status);
-      console.log('Admins response ok:', response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -30,7 +26,6 @@ export const fetchAdmins = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log('Admins API response:', data);
       
       // Transform the data to match the expected format
       const transformedAdmins = (data.admins || []).map(admin => ({
@@ -45,7 +40,6 @@ export const fetchAdmins = createAsyncThunk(
         lastUpdated: new Date().toISOString().split('T')[0] // Current date as placeholder
       }));
       
-      console.log('Transformed admins data:', transformedAdmins);
       return transformedAdmins;
     } catch (error) {
       console.error('Exception in fetchAdmins:', error);

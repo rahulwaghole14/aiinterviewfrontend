@@ -49,9 +49,15 @@ const Modal = ({
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
+    // Only close if clicking directly on the backdrop, not on any child elements
     if (e.target === e.currentTarget && closeOnBackdrop) {
       onClose();
     }
+  };
+
+  const handleContentClick = (e) => {
+    // Prevent event bubbling to backdrop when clicking inside modal content
+    e.stopPropagation();
   };
 
   const modalClasses = [
@@ -76,7 +82,7 @@ const Modal = ({
       style={{ zIndex }}
       {...props}
     >
-      <div className={contentClasses}>
+      <div className={contentClasses} onClick={handleContentClick}>
         {showHeader && (title || showCloseButton) && (
           <div className="common-modal-header">
             {title && <h3 className="common-modal-title">{title}</h3>}
@@ -187,6 +193,10 @@ export const FormModal = ({
         className="common-modal-btn btn-primary"
         type="submit"
         disabled={isSubmitting || submitDisabled}
+        onClick={(e) => {
+          e.preventDefault();
+          onSubmit(e);
+        }}
       >
         {isSubmitting ? 'Processing...' : submitText}
       </button>
@@ -201,8 +211,8 @@ export const FormModal = ({
       variant="form"
       showFooter={true}
       footer={footer}
-      closeOnBackdrop={!isSubmitting}
-      closeOnEscape={!isSubmitting}
+      closeOnBackdrop={false} // Disable backdrop closing for forms
+      closeOnEscape={!isSubmitting} // Only allow escape when not submitting
       {...props}
     >
       <form onSubmit={handleSubmit} className="modal-form">

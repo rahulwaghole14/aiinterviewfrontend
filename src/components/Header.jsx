@@ -1,9 +1,8 @@
 // src/Header.jsx
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiUser, FiMenu, FiChevronLeft, FiX } from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { createSelector } from '@reduxjs/toolkit';
 import { setSearchTerm } from '../redux/slices/searchSlice';
 import { searchService } from '../services/searchService';
 
@@ -45,59 +44,18 @@ const Header = ({
   };
   const reduxSearchTerm = useSelector((state) => state.search?.searchTerm || ''); // Get current Redux search term
   
-  // Get data from Redux stores for search
+  // Use direct selectors with stable fallback references
   const candidates = useSelector((state) => state.candidates?.allCandidates || []);
   const jobs = useSelector((state) => state.jobs?.allJobs || []);
-  // Memoized selectors to prevent unnecessary rerenders
-  const selectDomains = useMemo(() => createSelector(
-    [(state) => state.jobs?.domains],
-    (domains) => domains || []
-  ), []);
-
-  const selectHiringAgencies = useMemo(() => createSelector(
-    [(state) => state.hiringAgencies?.hiringAgencies],
-    (hiringAgencies) => hiringAgencies || []
-  ), []);
-
-  const selectCompanies = useMemo(() => createSelector(
-    [(state) => state.companies?.companies],
-    (companies) => companies || []
-  ), []);
-
-  const selectRecruiters = useMemo(() => createSelector(
-    [(state) => state.recruiters?.recruiters],
-    (recruiters) => recruiters || []
-  ), []);
-
-  const selectInterviewSlots = useMemo(() => createSelector(
-    [(state) => state.interviewSlots?.slots],
-    (slots) => slots || []
-  ), []);
-
-  const selectInterviews = useMemo(() => createSelector(
-    [(state) => state.interviews?.interviews],
-    (interviews) => interviews || []
-  ), []);
-
-  const domains = useSelector(selectDomains);
-  const hiringAgencies = useSelector(selectHiringAgencies);
-  const companies = useSelector(selectCompanies);
-  const recruiters = useSelector(selectRecruiters);
-  const interviewSlots = useSelector(selectInterviewSlots);
-  const interviews = useSelector(selectInterviews);
+  const domains = useSelector((state) => state.jobs?.domains || []);
+  const hiringAgencies = useSelector((state) => state.hiringAgencies?.hiringAgencies || []);
+  const companies = useSelector((state) => state.companies?.companies || []);
+  const recruiters = useSelector((state) => state.recruiters?.recruiters || []);
+  const interviewSlots = useSelector((state) => state.interviewSlots?.slots || []);
+  const interviews = useSelector((state) => state.interviews?.interviews || []);
 
   // Debug data availability
   useEffect(() => {
-    console.log('Search data updated:', {
-      candidates: candidates.length,
-      jobs: jobs.length,
-      domains: domains.length,
-      hiringAgencies: hiringAgencies.length,
-      companies: companies.length,
-      recruiters: recruiters.length,
-      interviewSlots: interviewSlots.length,
-      interviews: interviews.length,
-    });
   }, [candidates, jobs, domains, hiringAgencies, companies, recruiters, interviewSlots, interviews]);
 
   // Update search service with latest data
@@ -153,19 +111,16 @@ const Header = ({
         // Always fetch fresh data for search
         const authToken = localStorage.getItem('authToken');
         if (authToken) {
-          console.log('Fetching fresh data for search...');
           // Force fetch all data types for comprehensive search
           const dataTypes = ['candidates', 'jobs', 'domains', 'hiringAgencies', 'companies', 'recruiters', 'interviewSlots', 'interviews'];
           
           try {
             const fetchPromises = dataTypes.map(async (type) => {
-              console.log(`Fetching ${type}...`);
               return await searchService.fetchDataIfNeeded(type, authToken, true); // Force refresh
             });
             
             // Wait for all fetch operations to complete
             await Promise.all(fetchPromises);
-            console.log('All data fetching complete');
           } catch (fetchError) {
             console.error('Error fetching search data:', fetchError);
           }
@@ -185,8 +140,6 @@ const Header = ({
           return b.relevance - a.relevance;
         });
         
-        console.log('Current tab:', currentTab);
-        console.log('All search results (showing both similar):', sortedResults.map(r => ({ title: r.title, type: r.type })));
         
         setSearchResults(sortedResults.slice(0, 10));
       } catch (error) {
@@ -216,21 +169,16 @@ const Header = ({
   };
 
   const toggleSearchModal = () => {
-    console.log('Search modal toggle clicked, current state:', isSearchModalOpen);
     const newState = !isSearchModalOpen;
-    console.log('Setting search modal to:', newState);
     setIsSearchModalOpen(newState);
     // When opening the modal, set localSearchTerm to the current Redux searchTerm
     if (newState) { // If modal is about to open
-      console.log('Opening search modal, setting local search term to:', reduxSearchTerm);
       setLocalSearchTerm(reduxSearchTerm);
       // Focus the input when modal opens
       setTimeout(() => {
         searchModalInputRef.current?.focus();
-        console.log('Search modal input focused');
       }, 100);
     } else { // If modal is about to close
-      console.log('Closing search modal');
       // Only clear local state, keep Redux search term for component filtering
       setLocalSearchTerm('');
       setSearchResults([]);
@@ -239,8 +187,6 @@ const Header = ({
   };
 
   const handleSearchResultClick = (result) => {
-    console.log('Search result clicked:', result);
-    console.log('Navigating to:', result.detailPath && result.type === 'Candidates' ? result.detailPath : result.path);
     
     // Keep the original search term for component sorting, don't change it to result title
     // setLocalSearchTerm(result.title);        // Don't change local search term
@@ -306,12 +252,10 @@ const Header = ({
       </div>
 
       <div className="header-right">
-        {console.log('isMobile:', isMobile)}
         {isMobile ? (
           <div 
             className="mobile-search-icon" 
             onClick={(e) => {
-              console.log('Search icon clicked!', e);
               e.preventDefault();
               e.stopPropagation();
               toggleSearchModal();
@@ -378,7 +322,6 @@ const Header = ({
           </div>
         )}
 
-        {console.log('Rendering search modal, isSearchModalOpen:', isSearchModalOpen)}
         {isSearchModalOpen && (
           <div className="search-modal-overlay" onClick={toggleSearchModal}>
             <div className="search-modal" onClick={(e) => e.stopPropagation()}>

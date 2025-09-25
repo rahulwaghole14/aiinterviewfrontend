@@ -8,10 +8,9 @@ export const fetchRecruiters = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('authToken');
-      console.log('Fetching recruiters with token:', token ? 'Token exists' : 'No token');
-      console.log('API URL:', `${baseURL}/api/companies/recruiters/`);
       
-      const response = await fetch(`${baseURL}/api/companies/recruiters/`, {
+      // Try to fetch all records by setting a large page size or using a different endpoint
+      const response = await fetch(`${baseURL}/api/companies/recruiters/?page_size=1000`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -19,8 +18,6 @@ export const fetchRecruiters = createAsyncThunk(
         },
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -29,11 +26,19 @@ export const fetchRecruiters = createAsyncThunk(
       }
 
       const data = await response.json();
-      console.log('Recruiters API response:', data);
+      
+      // Handle both paginated and non-paginated responses
+      let recruiters = data;
+      if (data.results) {
+        // Paginated response
+        recruiters = data.results;
+      } else if (Array.isArray(data)) {
+        // Non-paginated response
+        recruiters = data;
+      }
       
       // Add a userType field for consistent filtering in HiringAgency.jsx
-      const mappedData = data.map(recruiter => ({ ...recruiter, userType: 'Recruiter' }));
-      console.log('Mapped recruiters data:', mappedData);
+      const mappedData = recruiters.map(recruiter => ({ ...recruiter, userType: 'Recruiter' }));
       return mappedData;
     } catch (error) {
       console.error('Exception in fetchRecruiters:', error);

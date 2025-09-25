@@ -24,7 +24,6 @@ export const fetchDashboardData = createAsyncThunk(
       if (!response.ok) {
         // Handle authentication errors specifically
         if (response.status === 401) {
-          console.log('Dashboard API - Authentication failed (401), triggering auth error');
           handleAuthError();
           throw new Error('Authentication failed. Please log in again.');
         }

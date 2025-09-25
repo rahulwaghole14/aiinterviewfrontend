@@ -95,29 +95,29 @@ const buttonContainerStyle = {
 const HiringAgencies = () => {
   const dispatch = useDispatch();
   const notify = useNotification();
-  const searchTerm = useSelector((state) => state.search.searchTerm);
+  const searchTerm = useSelector((state) => state.search?.searchTerm || '');
   
-  const user = useSelector((state) => state.user.user); // Get the full user object
+  const user = useSelector((state) => state.user?.user || null); // Get the full user object
   const userRole = user?.role; // Access the user's role from the Redux store
   const userCompany = user?.company_name; // Get the logged-in user's company name
 
-  // Data from Redux slices
-  const companies = useSelector((state) => state.companies.companies);
+  // Data from Redux slices with fallbacks to prevent selector warnings
+  const companies = useSelector((state) => state.companies?.companies || []);
   const hiringAgencies = useSelector(
-    (state) => state.hiringAgencies.hiringAgencies
+    (state) => state.hiringAgencies?.hiringAgencies || []
   );
-  const recruiters = useSelector((state) => state.recruiters.recruiters);
-  const admins = useSelector((state) => state.admin.admins); // Get admin dummy data
+  const recruiters = useSelector((state) => state.recruiters?.recruiters || []);
+  const admins = useSelector((state) => state.admin?.admins || []); // Get admin dummy data
 
   // Debug data to see what fields are available
 
   // Loading and error states (can be combined for a single loading indicator if preferred)
-  const companiesStatus = useSelector((state) => state.companies.status);
+  const companiesStatus = useSelector((state) => state.companies?.status || 'idle');
   const hiringAgenciesStatus = useSelector(
-    (state) => state.hiringAgencies.status
+    (state) => state.hiringAgencies?.status || 'idle'
   );
-  const recruitersStatus = useSelector((state) => state.recruiters.status);
-  const adminStatus = useSelector((state) => state.admin.status);
+  const recruitersStatus = useSelector((state) => state.recruiters?.status || 'idle');
+  const adminStatus = useSelector((state) => state.admin?.status || 'idle');
 
   const [activeTab, setActiveTab] = useState("Recruiter"); // Default to 'Recruiter' tab
   const [formData, setFormData] = useState({
@@ -141,18 +141,26 @@ const HiringAgencies = () => {
     company_name: userRole === "COMPANY" ? userCompany : "",
     
     // Recruiter specific
-    company_id: "",
+    company_id: userRole === "COMPANY" ? (user?.id || "") : "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
+  
+  // Track modal state changes
+  useEffect(() => {
+    // console.log("🔄 Modal state changed:", showAddModal);
+  }, [showAddModal]);
+  
+  // Track form data changes
+  useEffect(() => {
+    // console.log("📝 Form data changed:", formData);
+  }, [formData]);
   const [editingUserId, setEditingUserId] = useState(null);
   const [editedUserData, setEditedUserData] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage, setRecordsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
+  // Pagination is now handled by DataTable component
   const [permissionError, setPermissionError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -181,12 +189,12 @@ const HiringAgencies = () => {
       return [
         { value: "ADMIN", label: "Admin" },
         { value: "COMPANY", label: "Company" },
-        { value: "HIRING_AGENCY", label: "Hiring Agency" },
+        { value: "Hiring Agency", label: "Hiring Agency" },
         { value: "RECRUITER", label: "Recruiter" },
       ];
     } else if (normalizedRole === "COMPANY") {
       return [
-        { value: "HIRING_AGENCY", label: "Hiring Agency" },
+        { value: "Hiring Agency", label: "Hiring Agency" },
         { value: "RECRUITER", label: "Recruiter" },
       ];
     } else if (normalizedRole === "HIRING_AGENCY") {
@@ -204,7 +212,7 @@ const HiringAgencies = () => {
     }
   }, [userRole, availableTabs, activeTab]);
 
-  // Reset form data when tab changes
+  // Reset form data when tab changes (only when activeTab actually changes)
   useEffect(() => {
     setFormData({
       username: "",
@@ -220,9 +228,9 @@ const HiringAgencies = () => {
       phone_number: "",
       linkedin_url: "",
       company_name: userRole === "COMPANY" ? userCompany : "",
-      company_id: "",
+      company_id: userRole === "COMPANY" ? (user?.id || "") : "",
     });
-  }, [activeTab, userRole, userCompany]);
+  }, [activeTab]); // Only depend on activeTab, not userRole or userCompany
 
 
   // Handle search navigation to specific tab
@@ -538,6 +546,7 @@ const HiringAgencies = () => {
   const currentTableData = getCurrentTableData();
 
   // Apply only company filter, not search term filter (search should sort, not filter)
+  
   const filteredByCompany = currentTableData.filter((item) => {
     // Apply company name filter if logged-in user is a COMPANY
     const matchesCompany =
@@ -545,8 +554,11 @@ const HiringAgencies = () => {
         ? item.company_name?.toLowerCase() === userCompany?.toLowerCase()
         : true; // No company filter for ADMIN or other roles
 
+    if (!matchesCompany) {
+    }
     return matchesCompany;
   });
+  
 
   const sortedUsers = [...filteredByCompany].sort((a, b) => {
     // First priority: search term relevance (if search term exists)
@@ -624,32 +636,6 @@ const HiringAgencies = () => {
     return 0;
   });
 
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = sortedUsers.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
-  );
-
-  const handleRecordsPerPageChange = (e) => {
-    const newRecordsPerPage = Number(e.target.value);
-    setRecordsPerPage(newRecordsPerPage);
-    setCurrentPage(1); // Reset to first page when changing records per page
-  };
-
-  useEffect(() => {
-    setTotalPages(Math.ceil(sortedUsers.length / recordsPerPage));
-    // Reset to first page if current page is out of bounds
-    if (currentPage > Math.ceil(sortedUsers.length / recordsPerPage)) {
-      setCurrentPage(1);
-    }
-  }, [sortedUsers, recordsPerPage, currentPage]);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  useEffect(() => {
-    setCurrentPage(1); // Reset pagination when search term or sort changes
-  }, [searchTerm, sortColumn, sortDirection, activeTab]); // Also reset on tab change
 
   // Effect to add/remove 'show' class for modal animations
   useEffect(() => {
@@ -677,17 +663,36 @@ const HiringAgencies = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    
+    // Prevent event bubbling to avoid any potential modal closing
+    e.stopPropagation();
+    
+    setFormData((prevData) => {
+      // Only update if the value actually changed
+      if (prevData[name] === value) {
+        return prevData;
+      }
+      
+      const newData = {
+        ...prevData,
+        [name]: value,
+      };
+      return newData;
+    });
+  };
+
+  // Helper function to add event protection to form elements
+  const addEventProtection = (e) => {
+    e.stopPropagation();
   };
 
   const handleAddUser = async (e) => {
+    
     // Prevent default form submission if event exists
     if (e && e.preventDefault) {
       e.preventDefault();
     }
+    
     
     let endpoint = "";
     let payload = {};
@@ -715,7 +720,7 @@ const HiringAgencies = () => {
           email: formData.email,
           phone_number: formData.phone_number,
           linkedin_url: formData.linkedin_url,
-          role: "HIRING_AGENCY",
+          role: "Hiring Agency",
           company_name: formData.company_name,
         };
         requiredFields = ["first_name", "last_name", "email", "phone_number"];
@@ -730,7 +735,7 @@ const HiringAgencies = () => {
           password: formData.password,
           company_id: formData.company_id,
         };
-        requiredFields = ["full_name", "email", "password"];
+        requiredFields = ["full_name", "email", "password", "company_id"];
         break;
         
       case "Admin":
@@ -746,17 +751,21 @@ const HiringAgencies = () => {
         break;
         
       default:
+        console.error("❌ Invalid tab selected:", activeTab);
         notify.error("Invalid tab selected.");
         return;
     }
+
 
     // Validate required fields
     const missingFields = requiredFields.filter(field => !formData[field]);
     
     if (missingFields.length > 0) {
+      console.error("❌ Missing required fields:", missingFields);
       notify.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
+
 
     try {
       const token = localStorage.getItem("authToken");
@@ -770,8 +779,10 @@ const HiringAgencies = () => {
         body: JSON.stringify(payload),
       });
 
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("❌ API Error Response:", errorData);
         throw new Error(errorData.message || errorData.detail || "Failed to add user.");
       }
 
@@ -779,13 +790,14 @@ const HiringAgencies = () => {
       
       const successMessage = activeTab === "Company" 
         ? `Company ${result.name} added successfully!`
-        : `User ${result.full_name || result.name} added successfully!`;
+        : `User ${result.full_name || result.name || `${result.first_name || ''} ${result.last_name || ''}`.trim() || 'Unknown'} added successfully!`;
       
       notify.success(successMessage);
+      
       setShowAddModal(false);
       
       // Reset form data
-      setFormData({
+      const resetFormData = {
         username: "",
         full_name: "",
         email: "",
@@ -800,7 +812,8 @@ const HiringAgencies = () => {
         linkedin_url: "",
         company_name: userRole === "COMPANY" ? userCompany : "",
         company_id: "",
-      });
+      };
+      setFormData(resetFormData);
       
       // Re-fetch data for the active tab to update the table
       if (activeTab === "Recruiter") {
@@ -812,7 +825,14 @@ const HiringAgencies = () => {
       } else if (activeTab === "Admin") {
         dispatch(fetchAdmins());
       }
+      
     } catch (error) {
+      console.error("💥 Error in handleAddUser:", error);
+      console.error("📝 Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       notify.error(error.message || "Failed to add user");
     }
   };
@@ -1258,6 +1278,9 @@ const HiringAgencies = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 required
                 placeholder="Enter company name"
               />
@@ -1271,6 +1294,9 @@ const HiringAgencies = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 required
                 placeholder="Enter company email"
               />
@@ -1283,6 +1309,9 @@ const HiringAgencies = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 placeholder="Enter company description"
                 rows="3"
               />
@@ -1382,17 +1411,20 @@ const HiringAgencies = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="company_name">Company Name</label>
-              <input
-                type="text"
-                id="company_name"
-                name="company_name"
-                value={formData.company_name}
-                onChange={handleInputChange}
-                placeholder="Enter company name"
-              />
-            </div>
+            {/* Company Name field - only show for non-company users */}
+            {userRole !== "COMPANY" && (
+              <div className="form-group">
+                <label htmlFor="company_name">Company Name</label>
+                <input
+                  type="text"
+                  id="company_name"
+                  name="company_name"
+                  value={formData.company_name}
+                  onChange={handleInputChange}
+                  placeholder="Enter company name"
+                />
+              </div>
+            )}
           </>
         );
 
@@ -1407,6 +1439,9 @@ const HiringAgencies = () => {
                 name="full_name"
                 value={formData.full_name}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 required
                 placeholder="Enter full name"
               />
@@ -1420,6 +1455,9 @@ const HiringAgencies = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 required
                 placeholder="Enter email address"
               />
@@ -1433,6 +1471,9 @@ const HiringAgencies = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 required
                 placeholder="Enter password"
               />
@@ -1446,26 +1487,35 @@ const HiringAgencies = () => {
                 name="username"
                 value={formData.username}
                 onChange={handleInputChange}
+                onClick={addEventProtection}
+                onFocus={addEventProtection}
+                onMouseDown={addEventProtection}
                 placeholder="Enter username (optional, defaults to email)"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="company_id">Company</label>
-              <select
-                id="company_id"
-                name="company_id"
-                value={formData.company_id}
-                onChange={handleInputChange}
-              >
-                <option value="">Select a company</option>
-                {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
-                    {company.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Company field - only show for non-company users */}
+            {userRole !== "COMPANY" && (
+              <div className="form-group">
+                <label htmlFor="company_id">Company</label>
+                <select
+                  id="company_id"
+                  name="company_id"
+                  value={formData.company_id}
+                  onChange={handleInputChange}
+                  onClick={addEventProtection}
+                  onFocus={addEventProtection}
+                  onMouseDown={addEventProtection}
+                >
+                  <option value="">Select a company</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </>
         );
 
@@ -1930,7 +1980,9 @@ const HiringAgencies = () => {
           {["ADMIN", "COMPANY"].includes(userRole) && (
             <button
               className="add-agency-btn"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 setShowAddModal(true);
               }}
               disabled={isLoading}
@@ -1952,7 +2004,7 @@ const HiringAgencies = () => {
             : "Admins"
         }
         columns={getTableColumns()}
-        data={currentRecords || []}
+        data={sortedUsers || []}
         loading={isLoading}
         actions={["edit", "delete"]}
         onEdit={handleUpdateUser}
@@ -1979,9 +2031,9 @@ const HiringAgencies = () => {
           }
         }}
         showActions={true}
-        defaultPageSize={recordsPerPage}
+        defaultPageSize={10}
         pageSizeOptions={[10, 25, 50, 100]}
-        editingRow={editingUserId !== null ? currentRecords.findIndex(item => item.id === editingUserId) : null}
+        editingRow={editingUserId !== null ? sortedUsers.findIndex(item => item.id === editingUserId) : null}
         editingData={editedUserData}
         setEditingRow={(rowIndex) => {
           if (rowIndex === null) {
@@ -2004,7 +2056,9 @@ const HiringAgencies = () => {
       {/* Modals outside the main container to avoid blur effect */}
       <FormModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+        }}
         onSubmit={(e) => {
           handleAddUser(e);
         }}

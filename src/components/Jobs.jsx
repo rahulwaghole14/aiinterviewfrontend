@@ -32,7 +32,6 @@ const Jobs = () => {
   
   // Debug search term
   useEffect(() => {
-    console.log('Jobs component received search term:', searchTerm);
   }, [searchTerm]);
 
   // Get user details from Redux store (userSlice)
@@ -48,13 +47,6 @@ const Jobs = () => {
 
   // Log user details for debugging
   useEffect(() => {
-    if (user) {
-      console.log("Jobs Component - Logged-in user details:", user);
-      console.log("Jobs Component - User role:", userRole);
-      console.log("Jobs Component - User company name:", userCompanyName);
-    } else {
-      console.log("Jobs Component - No user logged in.");
-    }
   }, [user, userRole, userCompanyName]);
 
   // Use useMemo to filter jobs based on user role and company name
@@ -279,7 +271,6 @@ const Jobs = () => {
   const sortedJobs = [...jobsForUser].sort((a, b) => {
     // First priority: search term relevance (if search term exists)
     if (searchTerm) {
-      console.log('Jobs sorting with search term:', searchTerm);
       const searchLower = searchTerm.toLowerCase();
       
       // Calculate relevance scores for both jobs - search ALL fields
@@ -466,17 +457,12 @@ const Jobs = () => {
     
     try {
       const authToken = localStorage.getItem("authToken");
-      console.log("Auth token:", authToken ? "Present" : "Missing");
-      console.log("Is editing:", isEditing);
-      console.log("Editing job ID:", editingJobId);
       
       const url = isEditing 
         ? `${baseURL}/api/jobs/${editingJobId}/`
         : `${baseURL}/api/jobs/`;
       const method = isEditing ? "PUT" : "POST";
       
-      console.log("Request URL:", url);
-      console.log("Request method:", method);
 
       const response = await fetch(url, {
         method: method,
@@ -499,12 +485,9 @@ const Jobs = () => {
         }),
       });
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
       
       if (!response.ok) {
         const responseText = await response.text();
-        console.log("Error response text:", responseText);
         
         try {
           const errorData = JSON.parse(responseText);
@@ -519,12 +502,10 @@ const Jobs = () => {
       const jobData = await response.json();
       
       if (isEditing) {
-        console.log("Job successfully updated:", jobData);
         dispatch(updateJob({ id: jobData.id, updatedData: jobData })); // Dispatch to Redux store
         setShowMessage(true);
         setEditingJobId(null); // Exit edit mode
       } else {
-        console.log("Job successfully added:", jobData);
         dispatch(addJob(jobData)); // Dispatch to Redux store
         setShowMessage(true);
       }
@@ -635,7 +616,6 @@ const Jobs = () => {
         }
 
         const updatedJob = await response.json();
-        console.log("Job successfully updated:", updatedJob);
 
         dispatch(updateJob({ id: updatedJob.id, updatedData: updatedJob })); // Dispatch to Redux store
 
@@ -659,16 +639,12 @@ const Jobs = () => {
 
   const handleViewJob = (job) => {
     // For now, just log the job details
-    console.log("Viewing job:", job);
     // You can implement a modal or navigation to show job details
     alert(`Viewing job: ${job.job_title} at ${job.company_name}`);
   };
 
   const handleEditJob = (job) => {
     // Populate the form with job data for editing
-    console.log("Editing job:", job);
-    console.log("Job description value:", job.job_description);
-    console.log("Job description type:", typeof job.job_description);
     setFormData({
       job_title: job.job_title || "",
       company_name: job.company_name || "",
@@ -721,7 +697,6 @@ const Jobs = () => {
           );
         }
 
-        console.log("Job successfully deleted:", jobIdToDelete);
         dispatch(deleteJob(jobIdToDelete)); // Dispatch to Redux store
 
         setShowDeleteConfirm(false);
@@ -767,7 +742,6 @@ const Jobs = () => {
         );
       }
 
-      console.log("Job successfully deleted:", jobId);
       dispatch(deleteJob(jobId)); // Dispatch to Redux store
     } catch (error) {
       console.error("Error deleting job:", error);
@@ -820,7 +794,6 @@ const Jobs = () => {
       }
 
       const updatedJob = await response.json();
-      console.log("Job successfully updated:", updatedJob);
 
       dispatch(updateJob({ id: updatedJob.id, updatedData: updatedJob })); // Dispatch to Redux store
     } catch (error) {
@@ -913,10 +886,8 @@ const Jobs = () => {
               type="button"
               className="domain-btn create-domain-btn"
               onClick={() => {
-                console.log("Add New Domain button clicked");
                 setDomainFormData({ name: "", description: "" }); // Reset form data when opening
                 setShowCreateDomainModal(true);
-                console.log("showCreateDomainModal set to true");
               }}
               disabled={isAnyDomainOperationInProgress}
             >

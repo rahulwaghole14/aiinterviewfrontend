@@ -30,9 +30,6 @@ const Login = ({ onLogin }) => {
 
     try {
       // Step 1: Call the login API
-      console.log('=== LOGIN URL BEING USED ===');
-      console.log('URL:', `${baseURL}/api/auth/login/`);
-      console.log('=== END URL LOG ===');
       
       const loginResponse = await fetch(`${baseURL}/api/auth/login/`, {
         method: 'POST',
@@ -47,7 +44,6 @@ const Login = ({ onLogin }) => {
         localStorage.setItem('authToken', loginData.token);
         localStorage.setItem('userData', JSON.stringify(loginData.user));
 
-        console.log("Login.jsx - User data from API:", loginData.user);
 
         dispatch(setUser(loginData.user));
         dispatch(fetchJobs());

@@ -10,16 +10,12 @@ export const fetchHiringAgencies = createAsyncThunk(
       const token = localStorage.getItem('authToken');
       const userData = JSON.parse(localStorage.getItem('userData') || '{}');
       
-      console.log('Current user data:', userData);
-      console.log('Auth token exists:', !!token);
-      console.log('Fetching hiring agencies from:', `${baseURL}/api/hiring_agency/`);
-      
       if (!token) {
         console.error('No authentication token found');
         return rejectWithValue('Authentication required');
       }
 
-      const response = await fetch(`${baseURL}/api/hiring_agency/`, {  
+      const response = await fetch(`${baseURL}/api/hiring_agency/?page_size=1000`, {  
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -27,8 +23,6 @@ export const fetchHiringAgencies = createAsyncThunk(
         },
       });
 
-      console.log('Hiring agencies response status:', response.status);
-      console.log('Hiring agencies response ok:', response.ok);
 
       const responseData = await response.json().catch(() => ({}));
       
@@ -42,11 +36,9 @@ export const fetchHiringAgencies = createAsyncThunk(
         return rejectWithValue(responseData.detail || 'Failed to fetch hiring agencies');
       }
 
-      console.log('Successfully fetched hiring agencies:', responseData);
       const mappedData = Array.isArray(responseData) 
         ? responseData.map(agency => ({ ...agency, userType: 'Hiring Agency' })) 
         : [];
-      console.log('Mapped hiring agencies data:', mappedData);
       return mappedData;
     } catch (error) {
       console.error('Exception in fetchHiringAgencies:', error);
