@@ -768,15 +768,7 @@ const AddCandidates = () => {
             <table className="candidate-table">
               <thead>
                 <tr>
-                  <th>Filename</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Experience (Years)</th>
-                  <th>Domain</th> {/* Added Domain header */}
-                  <th>Job Role</th> {/* Added Job Role header */}
-                  <th>Match %</th> {/* Added Matching Percentage header */}
-                  <th>Actions</th>
+                  <th>Filename</th><th>Name</th><th>Email</th><th>Phone</th><th>Experience (Years)</th><th>Domain</th><th>Job Role</th><th>Match %</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -948,6 +940,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
         title="Success!"
         size="small"
         showFooter={true}
+        className="success-modal"
         footer={
           <div className="modal-confirm-actions">
             <button className="common-modal-btn btn-primary" onClick={closeSuccessModal}>

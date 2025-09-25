@@ -1124,6 +1124,20 @@
     background: var(--color-bg-secondary);
     color: var(--color-text-secondary);
   }
+
+  /* Previous button - darker purple shade */
+  .pagination-button.pagination-arrow:first-of-type {
+    background: #8e44ad;
+    color: white !important;
+    border-color: #8e44ad;
+  }
+
+  /* Next button - lighter purple shade */
+  .pagination-button.pagination-arrow:last-of-type {
+    background: #bb8fce;
+    color: white !important;
+    border-color: #bb8fce;
+  }
   
   /* Hover states with inverted colors */
   .pagination-button:hover:not(:disabled) {
@@ -1142,6 +1156,24 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
+
+  /* Previous button hover - darker purple shade */
+  .pagination-button.pagination-arrow:first-of-type:hover:not(:disabled) {
+    background-color: #7d3c98 !important;
+    border-color: #7d3c98 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+  }
+
+  /* Next button hover - darker light purple shade */
+  .pagination-button.pagination-arrow:last-of-type:hover:not(:disabled) {
+    background-color: #a569bd !important;
+    border-color: #a569bd !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(187, 143, 206, 0.3);
+  }
   
   /* Disabled state */
   .pagination-button:disabled {
@@ -1153,7 +1185,45 @@
     transform: none;
     box-shadow: none;
   }
+
+  /* Previous button disabled - darker purple shade */
+  .pagination-button.pagination-arrow:first-of-type:disabled {
+    background-color: #8e44ad;
+    border-color: #8e44ad;
+    color: white !important;
+    opacity: 0.4;
+  }
+
+  /* Next button disabled - lighter purple shade */
+  .pagination-button.pagination-arrow:last-of-type:disabled {
+    background-color: #bb8fce;
+    border-color: #bb8fce;
+    color: white !important;
+    opacity: 0.4;
+  }
   
+  /* Previous button active - maintain purple color */
+  .pagination-button.pagination-arrow:first-of-type.active {
+    background-color: #8e44ad !important;
+    color: white !important;
+    border-color: #8e44ad !important;
+    border-width: 2px;
+    box-shadow: 0 2px 6px rgba(142, 68, 173, 0.3);
+    font-weight: 700;
+    transform: none;
+  }
+
+  /* Next button active - maintain purple color */
+  .pagination-button.pagination-arrow:last-of-type.active {
+    background-color: #bb8fce !important;
+    color: white !important;
+    border-color: #bb8fce !important;
+    border-width: 2px;
+    box-shadow: 0 2px 6px rgba(187, 143, 206, 0.3);
+    font-weight: 700;
+    transform: none;
+  }
+
   /* Active/current page button - inverted colors by default */
   .pagination-button.active {
     background-color: white !important;
@@ -1172,6 +1242,24 @@
     border-color: var(--color-primary) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(var(--color-primary-rgb), 0.2);
+  }
+
+  /* Previous button active hover - maintain purple color */
+  .pagination-button.pagination-arrow:first-of-type.active:hover:not(:disabled) {
+    background-color: #7d3c98 !important;
+    color: white !important;
+    border-color: #7d3c98 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+  }
+
+  /* Next button active hover - maintain purple color */
+  .pagination-button.pagination-arrow:last-of-type.active:hover:not(:disabled) {
+    background-color: #a569bd !important;
+    color: white !important;
+    border-color: #a569bd !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(187, 143, 206, 0.3);
   }
   
   /* Refresh Button Styles */

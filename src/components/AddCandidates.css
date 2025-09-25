@@ -736,23 +736,59 @@
   transform: translateY(-2px);
 }
 
-/* NEW: Success Modal Specific Styles */
-.success-modal h3 {
+/* Success Modal Specific Styles - Theme Consistent */
+.success-modal .common-modal-content h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-success); /* Use success color for heading */
+  color: var(--color-primary); /* Use primary theme color for heading */
   margin-bottom: 1rem;
 }
 
-.success-modal p {
+.success-modal .common-modal-content p {
   font-size: 1.1rem;
   color: var(--color-text);
   margin-bottom: 1.5rem;
 }
 
-.success-modal svg {
-  color: var(--color-success); /* Use success color for SVG */
+.success-modal .common-modal-content svg {
+  color: var(--color-primary); /* Use primary theme color for SVG */
   margin-bottom: 1rem;
+}
+
+/* Success Modal Button Styling */
+.success-modal .common-modal-btn.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-button);
+}
+
+.success-modal .common-modal-btn.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+/* Success Modal Content Styling */
+.success-modal .common-modal-content {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-medium);
+}
+
+.success-modal .common-modal-header {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.success-modal .common-modal-title {
+  color: var(--color-text-primary);
 }
 
 
@@ -1353,7 +1389,7 @@
 }
 
 .submit-candidates-btn {
-  background-color: var(--color-success);
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -1363,17 +1399,20 @@
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 180px;
+  box-shadow: var(--shadow-button);
 }
 
 .submit-candidates-btn:hover {
-  background-color: var(--color-success-dark);
+  background-color: var(--color-primary-dark);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
 }
 
 .submit-candidates-btn:disabled {
   background-color: var(--color-muted);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 .resume-upload-label .resume-upload-text {
   text-align: center;

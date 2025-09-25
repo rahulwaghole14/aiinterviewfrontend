@@ -1,6 +1,7 @@
 // src/components/HiringAgencies.jsx
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import "./HiringAgency.css";
 import { baseURL } from "../data";
 import { API_ENDPOINTS } from "../config/api";
@@ -119,7 +120,21 @@ const HiringAgencies = () => {
   const recruitersStatus = useSelector((state) => state.recruiters?.status || 'idle');
   const adminStatus = useSelector((state) => state.admin?.status || 'idle');
 
-  const [activeTab, setActiveTab] = useState("Recruiter"); // Default to 'Recruiter' tab
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => {
+    // Try to get tab from URL parameters first
+    const urlTab = searchParams.get('tab');
+    if (urlTab) {
+      return urlTab;
+    }
+    // Fall back to localStorage
+    const savedTab = localStorage.getItem('hiringAgencyActiveTab');
+    if (savedTab) {
+      return savedTab;
+    }
+    // Default to 'Recruiter' tab
+    return "Recruiter";
+  });
   const [formData, setFormData] = useState({
     // Common fields
     username: "",
@@ -205,10 +220,20 @@ const HiringAgencies = () => {
 
   const roleOptions = getRoleOptions(userRole);
 
+  // Function to handle tab changes with URL and localStorage persistence
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+    // Update URL parameters
+    setSearchParams({ tab: newTab });
+    // Update localStorage
+    localStorage.setItem('hiringAgencyActiveTab', newTab);
+  };
+
   // Set default tab based on available tabs
   useEffect(() => {
     if (availableTabs.length > 0 && !availableTabs.includes(activeTab)) {
-      setActiveTab(availableTabs[0]);
+      const defaultTab = availableTabs[0];
+      handleTabChange(defaultTab);
     }
   }, [userRole, availableTabs, activeTab]);
 
@@ -241,7 +266,7 @@ const HiringAgencies = () => {
         const parsed = JSON.parse(highlightData);
         if (parsed.type === 'Hiring Agencies' || parsed.type === 'Companies') {
         if (parsed.tab && availableTabs.includes(parsed.tab)) {
-          setActiveTab(parsed.tab);
+          handleTabChange(parsed.tab);
         }
           // Clear the highlight data after using it
           localStorage.removeItem('searchHighlight');
@@ -1606,34 +1631,20 @@ const HiringAgencies = () => {
     if (activeTab === "Company") {
       return (
         <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Status</th>
-          <th className="text-center">Actions</th>
+          <th>Name</th><th>Description</th><th>Status</th><th className="text-center">Actions</th>
         </tr>
       );
     } else if (activeTab === "Hiring Agency") {
       return (
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Company Name</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Permission Granted</th>
-          <th className="text-center">Actions</th>
+          <th>Name</th><th>Email</th><th>Phone</th><th>Company Name</th><th>Role</th><th>Status</th><th>Permission Granted</th><th className="text-center">Actions</th>
         </tr>
       );
     } else {
       // Default for Recruiter and Admin
       return (
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Role</th>
-          <th className="text-center">Actions</th>
+          <th>Name</th><th>Email</th><th>Status</th><th>Role</th><th className="text-center">Actions</th>
         </tr>
       );
     }
@@ -1952,7 +1963,7 @@ const HiringAgencies = () => {
                 className={`hiring-agency-tab ${
                   activeTab === tab ? "active" : ""
                 }`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
                 disabled={isLoading}
               >
                 {tab}
@@ -1964,7 +1975,7 @@ const HiringAgencies = () => {
           <div className="mobile-tab-selector">
             <select
               value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value)}
+              onChange={(e) => handleTabChange(e.target.value)}
               disabled={isLoading}
               className="tab-dropdown"
             >
