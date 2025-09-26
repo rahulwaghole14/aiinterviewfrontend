@@ -160,7 +160,7 @@
   border-radius: var(--radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
-  z-index: 1000;
+  z-index: 9999;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -222,7 +222,7 @@
   
   .theme-dropdown-menu {
     min-width: 8rem;
-    z-index: 2147483647; /* Maximum z-index value on mobile too */
+    z-index: 9999; /* High z-index for mobile */
   }
 
   .theme-option {
