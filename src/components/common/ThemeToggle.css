@@ -113,6 +113,7 @@
 .theme-dropdown {
   position: relative;
   display: inline-block;
+  z-index: 100000;
 }
 
 .theme-dropdown-trigger {
@@ -160,7 +161,7 @@
   border-radius: var(--radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
-  z-index: 9999;
+  z-index: 99999 !important;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -222,7 +223,7 @@
   
   .theme-dropdown-menu {
     min-width: 8rem;
-    z-index: 9999; /* High z-index for mobile */
+    z-index: 99999 !important; /* Maximum z-index for mobile */
   }
 
   .theme-option {
