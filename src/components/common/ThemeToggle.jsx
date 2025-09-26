@@ -15,10 +15,22 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
   const calculatePosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 2, // Reduced gap to 2px
-        right: window.innerWidth - rect.right - window.scrollX
-      });
+      const dropdownWidth = 128; // min-width from CSS
+      const viewportWidth = window.innerWidth;
+      
+      // Calculate if dropdown would go off-screen to the right
+      const wouldOverflowRight = rect.right - dropdownWidth < 0;
+      
+      const position = {
+        top: rect.bottom + 2,
+        ...(wouldOverflowRight 
+          ? { left: rect.left } // Use left positioning if right would overflow
+          : { right: viewportWidth - rect.right } // Use right positioning normally
+        )
+      };
+      
+      console.log('Dropdown position calculated:', position, 'Trigger rect:', rect, 'Would overflow right:', wouldOverflowRight);
+      setDropdownPosition(position);
     }
   };
 
@@ -42,7 +54,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
     };
   }, [isOpen]);
 
-  // Recalculate position on window resize
+  // Recalculate position on window resize and scroll
   useEffect(() => {
     const handleResize = () => {
       if (isOpen) {
@@ -50,8 +62,18 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
       }
     };
 
+    const handleScroll = () => {
+      if (isOpen) {
+        calculatePosition();
+      }
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, true); // Use capture to catch all scroll events
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [isOpen]);
 
   const handleThemeSelect = (themeFunction) => {
