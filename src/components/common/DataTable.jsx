@@ -18,7 +18,8 @@ import React, {
     FiKey,
     FiArrowUp,
     FiArrowDown,
-    FiArrowUpDown,
+    FiChevronUp,
+    FiChevronDown,
   } from "react-icons/fi";
 import LoadingSpinner from "./LoadingSpinner";
 import TimePicker12 from "./TimePicker12";
@@ -247,7 +248,7 @@ import PropTypes from "prop-types";
 
     // Get sort icon for column
     const getSortIcon = useCallback((field) => {
-      if (!field || field === 'actions') return <FiArrowUpDown className="sort-icon" />;
+      if (!field || field === 'actions') return <FiChevronUp className="sort-icon" />;
       
       if (sortConfig.field === field) {
         if (sortConfig.direction === 'asc') {
@@ -256,7 +257,7 @@ import PropTypes from "prop-types";
           return <FiArrowDown className="sort-icon active" />;
         }
       }
-      return <FiArrowUpDown className="sort-icon" />;
+      return <FiChevronUp className="sort-icon" />;
     }, [sortConfig]);
 
     // Enhanced menu and context menu handling
