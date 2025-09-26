@@ -177,6 +177,16 @@
   pointer-events: auto;
 }
 
+/* Portal version - rendered in document.body */
+.theme-dropdown-portal {
+  position: fixed !important;
+  z-index: 999999 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+  pointer-events: auto !important;
+}
+
 .theme-option {
   display: flex;
   align-items: center;
