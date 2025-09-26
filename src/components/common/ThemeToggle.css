@@ -113,6 +113,7 @@
 .theme-dropdown {
   position: relative;
   display: inline-block;
+  z-index: 1; /* Low z-index for container */
 }
 
 .theme-dropdown-trigger {
@@ -161,7 +162,7 @@
   border-radius: var(--radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
-  z-index: 99999;
+  z-index: 2147483647; /* Maximum z-index value */
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -175,6 +176,13 @@
   visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
+}
+
+/* Ensure dropdown appears above everything */
+.theme-dropdown-menu,
+.theme-dropdown-menu * {
+  z-index: 2147483647 !important;
+  position: relative;
 }
 
 .theme-option {
@@ -223,7 +231,7 @@
   
   .theme-dropdown-menu {
     min-width: 8rem;
-    z-index: 100000; /* Even higher z-index on mobile */
+    z-index: 2147483647; /* Maximum z-index value on mobile too */
   }
 
   .theme-option {

@@ -15,7 +15,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 8,
+        top: rect.bottom + window.scrollY + 2, // Reduced gap to 2px
         right: window.innerWidth - rect.right - window.scrollX
       });
     }
