@@ -6,7 +6,20 @@ import './ThemeToggle.css';
 const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) => {
   const { theme, isSystemTheme, toggleTheme, setSystemTheme, setLightTheme, setDarkTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+
+  // Calculate dropdown position
+  const calculatePosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        right: window.innerWidth - rect.right - window.scrollX
+      });
+    }
+  };
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -17,6 +30,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
     };
 
     if (isOpen) {
+      calculatePosition();
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('touchstart', handleClickOutside);
     }
@@ -27,6 +41,18 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
     };
   }, [isOpen]);
 
+  // Recalculate position on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (isOpen) {
+        calculatePosition();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isOpen]);
+
   const handleThemeSelect = (themeFunction) => {
     themeFunction();
     setIsOpen(false);
@@ -34,40 +60,52 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
 
   if (variant === 'dropdown') {
     return (
-      <div className={`theme-dropdown ${isOpen ? 'open' : ''} ${className}`} ref={dropdownRef}>
-        <div 
-          className="theme-dropdown-trigger"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <span className="theme-icon">
-            {isSystemTheme ? <FaDesktop /> : theme === 'dark' ? <FaMoon /> : <FaSun />}
-          </span>
-          {showLabels && <span className="theme-label">Theme</span>}
+      <>
+        <div className={`theme-dropdown ${className}`}>
+          <div 
+            ref={triggerRef}
+            className="theme-dropdown-trigger"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <span className="theme-icon">
+              {isSystemTheme ? <FaDesktop /> : theme === 'dark' ? <FaMoon /> : <FaSun />}
+            </span>
+            {showLabels && <span className="theme-label">Theme</span>}
+          </div>
         </div>
-        <div className="theme-dropdown-menu">
-          <button
-            className={`theme-option ${theme === 'light' && !isSystemTheme ? 'active' : ''}`}
-            onClick={() => handleThemeSelect(setLightTheme)}
+        {isOpen && (
+          <div 
+            ref={dropdownRef}
+            className="theme-dropdown-menu"
+            style={{
+              top: `${dropdownPosition.top}px`,
+              right: `${dropdownPosition.right}px`
+            }}
           >
-            <FaSun className="theme-option-icon" />
-            <span>Light</span>
-          </button>
-          <button
-            className={`theme-option ${theme === 'dark' && !isSystemTheme ? 'active' : ''}`}
-            onClick={() => handleThemeSelect(setDarkTheme)}
-          >
-            <FaMoon className="theme-option-icon" />
-            <span>Dark</span>
-          </button>
-          <button
-            className={`theme-option ${isSystemTheme ? 'active' : ''}`}
-            onClick={() => handleThemeSelect(setSystemTheme)}
-          >
-            <FaDesktop className="theme-option-icon" />
-            <span>System</span>
-          </button>
-        </div>
-      </div>
+            <button
+              className={`theme-option ${theme === 'light' && !isSystemTheme ? 'active' : ''}`}
+              onClick={() => handleThemeSelect(setLightTheme)}
+            >
+              <FaSun className="theme-option-icon" />
+              <span>Light</span>
+            </button>
+            <button
+              className={`theme-option ${theme === 'dark' && !isSystemTheme ? 'active' : ''}`}
+              onClick={() => handleThemeSelect(setDarkTheme)}
+            >
+              <FaMoon className="theme-option-icon" />
+              <span>Dark</span>
+            </button>
+            <button
+              className={`theme-option ${isSystemTheme ? 'active' : ''}`}
+              onClick={() => handleThemeSelect(setSystemTheme)}
+            >
+              <FaDesktop className="theme-option-icon" />
+              <span>System</span>
+            </button>
+          </div>
+        )}
+      </>
     );
   }
 

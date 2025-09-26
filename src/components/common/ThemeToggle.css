@@ -152,15 +152,16 @@
 }
 
 .theme-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  position: fixed;
+  top: auto;
+  right: auto;
+  left: auto;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
-  z-index: 9999;
+  z-index: 99999;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -169,7 +170,7 @@
   overflow: hidden;
 }
 
-.theme-dropdown.open .theme-dropdown-menu {
+.theme-dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -221,9 +222,8 @@
   }
   
   .theme-dropdown-menu {
-    right: 0;
     min-width: 8rem;
-    z-index: 10000; /* Even higher z-index on mobile */
+    z-index: 100000; /* Even higher z-index on mobile */
   }
 
   .theme-option {
