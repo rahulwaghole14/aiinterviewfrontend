@@ -163,20 +163,13 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
   z-index: 2147483647; /* Maximum z-index value */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: var(--transition);
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.theme-dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
+  overflow: hidden;
 }
+
 
 /* Ensure dropdown appears above everything */
 .theme-dropdown-menu,

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FaSun, FaMoon, FaDesktop } from 'react-icons/fa';
 import './ThemeToggle.css';
@@ -73,7 +74,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
             {showLabels && <span className="theme-label">Theme</span>}
           </div>
         </div>
-        {isOpen && (
+        {isOpen && createPortal(
           <div 
             ref={dropdownRef}
             className="theme-dropdown-menu"
@@ -103,7 +104,8 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
               <FaDesktop className="theme-option-icon" />
               <span>System</span>
             </button>
-          </div>
+          </div>,
+          document.body
         )}
       </>
     );
