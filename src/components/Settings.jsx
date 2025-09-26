@@ -54,14 +54,7 @@ const Settings = ({ onTitleChange }) => {
 
   const handleSaveChanges = () => {
     // In a real application, you would send these settings to a backend API
-    console.log('Saving settings:', {
-      theme,
-      emailNotifications,
-      smsNotifications,
-      dataExportFormat,
-      defaultJobStatus,
-      autoArchiveJobs,
-    });
+    // Save settings
 
     // Show success notification
     notify.success('Settings saved successfully!');

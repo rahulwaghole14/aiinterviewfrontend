@@ -1,5 +1,5 @@
 // src/components/Dashboard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux'; // Import useSelector and useDispatch
 import './Dashboard.css';
 import { fetchDashboardData } from '../redux/slices/dashboardSlice'; // Import the async thunk
@@ -10,7 +10,7 @@ import { useNotification } from '../hooks/useNotification';
 // LoadingSpinner not needed - DataTable handles its own loading state
 
 // Reusable BarChart Component (custom implementation)
-const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
+const BarChart = React.memo(({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
   if (!data || data.length === 0) {
     return <div className="chart-container no-data">No data available for {title}.</div>;
   }
@@ -20,10 +20,10 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) 
 
   return (
     <div className="chart-container card">
-      <h3 className="chart-title">{title}</h3>
+      <h3 className="chart-title h4">{title}</h3>
       <div className="chart-content">
         <div className="chart-bars-wrapper">
-          <div className="y-axis-label">{yLabel}</div>
+          <div className="y-axis-label text-sm font-medium">{yLabel}</div>
           <div className="chart-bars">
             {data.map((item, index) => (
               <div
@@ -46,7 +46,7 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) 
           {data.map(item => (
             <span 
               key={item[dataKey]} 
-              className="x-axis-label"
+              className="x-axis-label text-xs font-medium"
               title={item[dataKey]} // Native tooltip for mobile
               onTouchStart={(e) => {
                 // Mobile touch interaction
@@ -77,7 +77,7 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) 
       </div>
     </div>
   );
-};
+});
 
 
 const Dashboard = () => {
@@ -256,7 +256,6 @@ const Dashboard = () => {
                 await dispatch(fetchDashboardData()).unwrap();
                 notify.success("Dashboard data refreshed successfully!");
               } catch (error) {
-                console.error("Error refreshing dashboard:", error);
                 notify.error("Failed to refresh dashboard data. Please try again.");
               }
             }}
@@ -270,4 +269,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default React.memo(Dashboard);

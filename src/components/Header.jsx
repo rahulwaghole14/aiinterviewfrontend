@@ -122,7 +122,7 @@ const Header = ({
             // Wait for all fetch operations to complete
             await Promise.all(fetchPromises);
           } catch (fetchError) {
-            console.error('Error fetching search data:', fetchError);
+            // Handle search error silently
           }
         }
         
@@ -143,7 +143,6 @@ const Header = ({
         
         setSearchResults(sortedResults.slice(0, 10));
       } catch (error) {
-        console.error('Search error:', error);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -248,7 +247,7 @@ const Header = ({
             : (isSidebarExpanded ? <FiChevronLeft size={20} /> : <FiMenu size={20} />)
           }
         </div>
-        <h1 className="header-title">{headerTitle || 'Dashboard'}</h1> {/* Use headerTitle prop */}
+        <h1 className="header-title h2">{headerTitle || 'Dashboard'}</h1> {/* Use headerTitle prop */}
       </div>
 
       <div className="header-right">

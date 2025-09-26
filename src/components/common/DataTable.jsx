@@ -371,7 +371,6 @@ import PropTypes from "prop-types";
       (rowData, rowIndex) => {
         try {
           if (!rowData) {
-            console.error("Cannot edit: rowData is null or undefined");
             return false;
           }
   
@@ -401,7 +400,7 @@ import PropTypes from "prop-types";
             onAction("edit", initialData, rowIndex);
           }
         } catch (error) {
-          console.error("Error editing row:", error);
+          // Handle edit error silently
         }
       },
       [processedColumns, onAction, onEdit]
@@ -411,27 +410,18 @@ import PropTypes from "prop-types";
       if (editingRow === null) return;
   
       try {
-        console.log("Saving data from DataTable:", editingData);
-  
         // Call the onEdit prop if provided, otherwise use onAction
         if (onEdit) {
-          console.log("Calling onEdit with data:", editingData);
           await onEdit(editingData);
         } else if (onAction) {
-          console.log("Calling onAction with save action and data:", editingData);
           await onAction("save", editingData, editingRow);
-        } else {
-          console.warn(
-            "No save handler provided. Provide either onEdit or onAction prop."
-          );
         }
   
         // Reset editing state
         setEditingRow(null);
         setEditingData({});
       } catch (error) {
-        console.error("Error saving row:", error);
-        // You might want to show an error message to the user here
+        // Handle save error silently
       }
     }, [editingRow, editingData, onAction, onEdit]);
   
@@ -441,7 +431,6 @@ import PropTypes from "prop-types";
     }, []);
   
     const handleInputChange = (field, value) => {
-      console.log(`Input changed - Field: ${field}, Value:`, value);
       setEditingData((prev) => {
         // Create a new object to avoid mutating the previous state
         const newData = { ...prev };
@@ -475,7 +464,6 @@ import PropTypes from "prop-types";
           newData[field] = value;
         }
   
-        console.log("Updated editingData:", newData);
         return newData;
       });
     };
@@ -515,7 +503,6 @@ import PropTypes from "prop-types";
           setDtDeleteConfirm({ isOpen: false, row: null, rowIndex: null });
         } catch (error) {
           // Keep the modal open if there was an error
-          console.error("Delete failed:", error);
         }
       } else {
         setDtDeleteConfirm({ isOpen: false, row: null, rowIndex: null });
@@ -534,10 +521,7 @@ import PropTypes from "prop-types";
       event.preventDefault();
       event.stopPropagation();
   
-      console.log("Context menu clicked with rowData:", rowData);
-  
       if (!rowData) {
-        console.error("No row data provided to context menu");
         return;
       }
   
@@ -580,10 +564,7 @@ import PropTypes from "prop-types";
     const handleContextMenuActionClick = (action, row, rowIndex) => {
       setContextMenu((prev) => ({ ...prev, visible: false }));
   
-      console.log(`Context menu action: ${action}`, { row, rowIndex });
-  
       if (!row) {
-        console.error("No row data provided for action:", action);
         return;
       }
   
@@ -855,10 +836,6 @@ import PropTypes from "prop-types";
                         className="action-button save"
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log(
-                            "Save button clicked with editingData:",
-                            editingData
-                          );
                           handleSaveClick();
                         }}
                         title="Save"
@@ -1226,10 +1203,19 @@ import PropTypes from "prop-types";
           </div>
   
           <div className="table-responsive" ref={tableRef}>
-            <table className="data-table">
+            <table className="data-table" role="table" aria-label={title || "Data table"}>
               <thead>
                 <tr>
-                  {enableRowSelection && <th className="selection-header"></th>}
+                  {enableRowSelection && (
+                    <th className="selection-header" scope="col" aria-label="Select row">
+                      <input
+                        type="checkbox"
+                        checked={selectedRows.length === displayedData.length && displayedData.length > 0}
+                        onChange={handleSelectAll}
+                        aria-label="Select all rows"
+                      />
+                    </th>
+                  )}
                   {tableColumns.map((column, index) => (
                     <th
                       key={column.key || column.field || index}
@@ -1240,11 +1226,18 @@ import PropTypes from "prop-types";
                         ...(column.style || {}),
                       }}
                       onClick={() => handleSort(column.field)}
+                      scope="col"
+                      aria-sort={
+                        column.field && column.field !== 'actions' && sortConfig.field === column.field
+                          ? sortConfig.direction === 'asc' ? 'ascending' : 'descending'
+                          : 'none'
+                      }
+                      aria-label={`${column.header || column.title}${column.field && column.field !== 'actions' ? ', click to sort' : ''}`}
                     >
                       <div className="header-content">
                         <span className="header-text">{column.header || column.title}</span>
                         {column.field && column.field !== 'actions' && (
-                          <span className="sort-icon-container">
+                          <span className="sort-icon-container" aria-hidden="true">
                             {getSortIcon(column.field)}
                           </span>
                         )}
@@ -1258,7 +1251,7 @@ import PropTypes from "prop-types";
           </div>
         </div>
   
-        <div className="pagination">
+        <div className="pagination" role="navigation" aria-label="Table pagination">
           <div className="records-per-page">
             <span>Show</span>
             <select
@@ -1266,6 +1259,7 @@ import PropTypes from "prop-types";
               value={pageSize}
               onChange={handlePageSizeChange}
               disabled={loading}
+              aria-label="Number of entries per page"
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size}>
@@ -1288,6 +1282,7 @@ import PropTypes from "prop-types";
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || loading}
               title="Previous page"
+              aria-label="Go to previous page"
             >
               ‹
             </button>
@@ -1299,6 +1294,7 @@ import PropTypes from "prop-types";
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages || loading}
               title="Next page"
+              aria-label="Go to next page"
             >
               ›
             </button>
@@ -1349,4 +1345,4 @@ import PropTypes from "prop-types";
   setEditingData: PropTypes.func,
 };
 
-export default DataTable;
+export default React.memo(DataTable);

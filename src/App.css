@@ -1,4 +1,20 @@
 /* App.css */
+/* Import Typography System */
+@import './styles/typography.css';
+
+/* Screen reader only content - visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 :root {
   /* Light Theme Variables - Talaro Professional Color Scheme */
   --color-bg: #faf9ff;
@@ -54,18 +70,18 @@
   --color-warning-rgb: 245, 158, 11;
   --color-info-rgb: 139, 92, 246;
 
-  /* Global Font Family */
-  --font-family-base: 'Roboto', sans-serif;
+  /* Global Font Family - Updated to use typography system */
+  --font-family-base: var(--font-primary);
 
-  /* Table Heading Variables */
-  --table-heading-font-size: 0.9rem;
+  /* Table Heading Variables - Updated to use typography system */
+  --table-heading-font-size: var(--text-xs);
   --table-heading-color: var(--color-text-primary);
-  --table-heading-font-weight: 600;
+  --table-heading-font-weight: var(--font-semibold);
 
-  /* Table Data Variables */
-  --table-data-font-size: 0.85rem;
+  /* Table Data Variables - Updated to use typography system */
+  --table-data-font-size: var(--text-sm);
   --table-data-color: var(--color-text);
-  --table-data-font-weight: 400;
+  --table-data-font-weight: var(--font-normal);
 
   /* Button Accent Color */
   --color-button-accent: var(--color-primary);
@@ -384,7 +400,7 @@ body, html {
 
 .sidebar-item.active {
   background-color: var(--color-primary);
-  font-weight: 600;
+  font-weight: 500;
   color: white;
   box-shadow: var(--shadow-button);
 }

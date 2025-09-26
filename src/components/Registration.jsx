@@ -48,7 +48,6 @@ const Register = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Registration successful:', data);
         notify.success('Registration successful! You can now log in.', 'Welcome to Talaro', 3000);
         setUsername('');
         setEmail('');
@@ -65,7 +64,6 @@ const Register = () => {
         notify.error(errorData.detail || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      console.error('Registration API error:', err);
       notify.error('An error occurred during registration. Please try again later.');
     }
   };

@@ -34,9 +34,9 @@ const AiInterviewScheduler = ({
   const notify = useNotification();
   const searchTerm = useSelector((state) => state.search?.searchTerm || '');
   
-  // Debug search term
+  // Search term handling
   useEffect(() => {
-    console.log('AiInterviewScheduler received search term:', searchTerm);
+    // Handle search term changes
   }, [searchTerm]);
   const {
     slots,
@@ -51,7 +51,6 @@ const AiInterviewScheduler = ({
   const user = useSelector(
     (state) => state?.user?.user || state?.user?.currentUser || {}
   );
-  console.log("User data in AiInterviewScheduler:", user);
 
   const [initialLoading, setInitialLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
@@ -67,13 +66,10 @@ const AiInterviewScheduler = ({
 
   // Sort slots based on search term for better user experience
   const sortedSlots = useMemo(() => {
-    console.log('AiInterviewScheduler useMemo triggered - slots:', slots?.length, 'searchTerm:', searchTerm);
-    
     if (!slots || slots.length === 0) return [];
     
     // If no search term, return all slots sorted by date (most recent first)
     if (!searchTerm) {
-      console.log('No search term, returning all slots sorted by date');
       return [...slots].sort((a, b) => {
         if (a.interview_date && b.interview_date) {
           return new Date(b.interview_date) - new Date(a.interview_date);
@@ -83,7 +79,6 @@ const AiInterviewScheduler = ({
     }
     
     const searchLower = searchTerm.toLowerCase();
-    console.log('AI Interview Scheduler sorting with search term:', searchTerm);
     
     return [...slots].sort((a, b) => {
       // Calculate relevance scores for both slots - search ALL fields
@@ -124,9 +119,7 @@ const AiInterviewScheduler = ({
         
         searchAllFields(slot);
         
-        if (score > 0) {
-          console.log(`Slot ${slot.job_title || 'Unknown'} has relevance score:`, score);
-        }
+        // Calculate relevance score for search
         
         return score;
       };
@@ -146,16 +139,16 @@ const AiInterviewScheduler = ({
     });
   }, [slots, searchTerm]);
 
-  // Initialize form with safe defaults and user data
+  // Initialize form with empty values and placeholders
   const [slotForm, setSlotForm] = useState(() => ({
-    ai_interview_type: "technical",
-    difficulty_level: "intermediate",
-    question_count: 10,
-    time_limit: 60,
-    topics: "algorithms, data_structures",
-    max_candidates: 1,
+    ai_interview_type: "",
+    difficulty_level: "",
+    question_count: "",
+    time_limit: "",
+    topics: "",
+    max_candidates: "",
     job: "",
-    company: user?.company_name || user?.company || "",
+    company: "",
   }));
 
   // Reset form function - defined before any handlers that use it
@@ -163,20 +156,19 @@ const AiInterviewScheduler = ({
     setSelectedDate(new Date());
     setSelectedTimes([]);
     setSlotForm({
-      ai_interview_type: "technical",
-      difficulty_level: "intermediate",
-      question_count: 10,
-      time_limit: 60,
-      topics: "algorithms, data_structures",
-      max_candidates: 1,
+      ai_interview_type: "",
+      difficulty_level: "",
+      question_count: "",
+      time_limit: "",
+      topics: "",
+      max_candidates: "",
       job: "",
-      company: user?.company_name || user?.company || "",
+      company: "",
     });
-  }, [user]);
+  }, []);
 
   // Initialize data with better error handling
   const initializeData = useCallback(async () => {
-    console.log("Initializing interview slots data...");
     setInitialLoading(true);
     try {
       const token = localStorage.getItem("authToken");
@@ -184,20 +176,16 @@ const AiInterviewScheduler = ({
         throw new Error("No authentication token found");
       }
 
-      console.log("Dispatching fetchInterviewSlots...");
       const resultAction = await dispatch(fetchInterviewSlots());
 
       if (fetchInterviewSlots.fulfilled.match(resultAction)) {
-        console.log("Slots loaded successfully:", resultAction.payload);
-        // Don't show notification for empty slots - let DataTable handle empty state
+        // Slots loaded successfully
       } else {
-        console.error("Failed to load slots:", resultAction.error);
         notify.error(
           resultAction.error.message || "Failed to load interview slots"
         );
       }
     } catch (error) {
-      console.error("Error in initializeData:", error);
       notify.error(error.message || "An error occurred while loading slots");
     } finally {
       setInitialLoading(false);
@@ -205,12 +193,9 @@ const AiInterviewScheduler = ({
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("Current user data:", user);
     if (user && Object.keys(user).length > 0) {
-      console.log("User authenticated, initializing data...");
       initializeData();
     } else {
-      console.warn("No user data found. User might not be authenticated.");
       notify.error("Please log in to access interview scheduling.");
     }
   }, [user, initializeData]);
@@ -225,12 +210,10 @@ const AiInterviewScheduler = ({
   const fetchSlots = useCallback(
     async (force = false) => {
       if ((slotsLoading || isSubmitting) && !force) {
-        console.log("Skipping fetch - already loading or submitting");
         return;
       }
 
       try {
-        console.log("Starting fetchSlots...");
         const authToken = localStorage.getItem("authToken");
         if (!authToken) {
           throw new Error("Authentication token not found");
@@ -238,13 +221,11 @@ const AiInterviewScheduler = ({
 
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const companyId = userData?.company_id || userData?.id;
-        console.log("Company ID:", companyId);
 
         let url = `${baseURL}/api/interviews/slots/`;
         if (companyId) {
           url += `${url.includes("?") ? "&" : "?"}company_id=${companyId}`;
         }
-        console.log("Fetching from URL:", url);
 
         const response = await fetch(url, {
           headers: {
@@ -253,22 +234,16 @@ const AiInterviewScheduler = ({
           },
         });
 
-        console.log("Response status:", response.status);
-
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("Error response:", errorText);
           throw new Error(
             `Failed to fetch slots: ${response.status} ${response.statusText}`
           );
         }
 
         const data = await response.json();
-        console.log("Response data:", data);
-
         // Handle both array and object with results property
         const slotsData = data.results || data;
-        console.log("Extracted slots:", slotsData);
 
         // Update Redux state with the fetched slots
         const validSlots = Array.isArray(slotsData) ? slotsData : [];
@@ -284,7 +259,6 @@ const AiInterviewScheduler = ({
         
         return validSlots;
       } catch (error) {
-        console.error("Error in fetchSlots:", error);
         notify.error(error.message || "Failed to fetch slots");
         throw error;
       }
@@ -343,35 +317,20 @@ const AiInterviewScheduler = ({
             overallEndTime = addMinutesToTime(lastTime, 30, selectedDate);
           }
 
-          console.log(
-            "Creating single slot from:",
-            overallStartTime,
-            "to:",
-            overallEndTime
-          );
-          console.log("Selected times:", selectedTimes);
-          console.log("Formatted date:", formattedDate);
-          console.log(
-            "Final start_time:",
-            overallStartTime
-          );
-          console.log(
-            "Final end_time:",
-            overallEndTime
-          );
+          // Create single slot with calculated times
 
           const slotData = {
             date: formattedDate,
             start_time: overallStartTime,
             end_time: overallEndTime,
-            ai_interview_type: slotForm.ai_interview_type,
+            ai_interview_type: slotForm.ai_interview_type || "technical",
             ai_configuration: {
-              difficulty_level: slotForm.difficulty_level,
-              question_count: parseInt(slotForm.question_count),
-              time_limit: parseInt(slotForm.time_limit),
-              topics: slotForm.topics.split(",").map((t) => t.trim()),
+              difficulty_level: slotForm.difficulty_level || "intermediate",
+              question_count: parseInt(slotForm.question_count) || 10,
+              time_limit: parseInt(slotForm.time_limit) || 60,
+              topics: slotForm.topics ? slotForm.topics.split(",").map((t) => t.trim()) : ["algorithms", "data_structures"],
             },
-            max_candidates: parseInt(slotForm.max_candidates),
+            max_candidates: parseInt(slotForm.max_candidates) || 1,
             status: slotForm.status || "available",
             job: slotForm.job || null,
             company: user?.company_id || user?.id || null,
@@ -402,7 +361,6 @@ const AiInterviewScheduler = ({
           notify.success("Interview slot created successfully!");
         }
       } catch (error) {
-        console.error("Error creating slot:", error);
         notify.error(error.message || "Failed to create slot");
       } finally {
         setIsSubmitting(false);
@@ -444,9 +402,9 @@ const AiInterviewScheduler = ({
           date: formattedDate,
           start_time: slotForm.start_time,
           end_time: slotForm.end_time,
-          ai_interview_type: slotForm.ai_interview_type,
+          ai_interview_type: slotForm.ai_interview_type || "technical",
           ai_configuration: {
-            difficulty_level: slotForm.difficulty_level,
+            difficulty_level: slotForm.difficulty_level || "intermediate",
             question_count: parseInt(slotForm.question_count) || 10,
             time_limit:
               calculatedTimeLimit > 0
@@ -488,7 +446,6 @@ const AiInterviewScheduler = ({
         setEditingSlot(null);
         notify.success("Interview slot updated successfully!");
       } catch (error) {
-        console.error("Error updating slot:", error);
         notify.error(error.message || "Failed to update slot");
       } finally {
         setIsSubmitting(false);
@@ -527,7 +484,6 @@ const AiInterviewScheduler = ({
         await fetchSlots();
         notify.success("Interview slot deleted successfully!");
       } catch (error) {
-        console.error("Error deleting slot:", error);
         notify.error(error.message || "Failed to delete slot");
       } finally {
         setIsSubmitting(false);
@@ -555,7 +511,6 @@ const AiInterviewScheduler = ({
 
         await fetchSlots();
       } catch (error) {
-        console.error("Error deleting slot:", error);
         throw error; // Re-throw so DataTable can handle the error
       }
     },
@@ -572,7 +527,7 @@ const AiInterviewScheduler = ({
         // Process the simplified data structure
         let processedData = { ...editedData };
         
-        console.log('Edited data with new structure:', editedData);
+        // Process edited data
         
         // Helper function to convert 12-hour to 24-hour format
         function convertTo24Hour(time12) {
@@ -598,7 +553,6 @@ const AiInterviewScheduler = ({
             const minutes24 = minutes.toString().padStart(2, '0');
             return `${hours24}:${minutes24}:00`;
           } catch (error) {
-            console.error('Error converting time:', error);
             return time12; // Return original if conversion fails
           }
         }
@@ -607,13 +561,11 @@ const AiInterviewScheduler = ({
         if (processedData.start_time && processedData.start_time.includes('M')) {
           // This is 12-hour format, convert it
           processedData.start_time = convertTo24Hour(processedData.start_time);
-          console.log('Converted start_time:', processedData.start_time);
         }
         
         if (processedData.end_time && processedData.end_time.includes('M')) {
           // This is 12-hour format, convert it
           processedData.end_time = convertTo24Hour(processedData.end_time);
-          console.log('Converted end_time:', processedData.end_time);
         }
         
         // Validate times (now with 24-hour format)
@@ -657,7 +609,6 @@ const AiInterviewScheduler = ({
               );
             }
           } catch (parseError) {
-            console.error('Error parsing time for validation:', parseError);
             throw new Error('Invalid time format. Please use format like "9:30 AM" or "2:15 PM"');
           }
         }
@@ -679,7 +630,7 @@ const AiInterviewScheduler = ({
           recurring_pattern: processedData.recurring_pattern,
         };
         
-        console.log('Slot data being sent to API:', slotData);
+        // Send slot data to API
 
         const response = await fetch(
           `${baseURL}/api/interviews/slots/${editedData.id}/`,
@@ -695,9 +646,6 @@ const AiInterviewScheduler = ({
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('API Error Response:', errorData);
-          console.error('Response status:', response.status);
-          console.error('Response statusText:', response.statusText);
           
           throw new Error(
             errorData.detail || errorData.message || JSON.stringify(errorData) || `HTTP error! status: ${response.status}`
@@ -710,10 +658,9 @@ const AiInterviewScheduler = ({
         
         // Add a small delay to ensure state updates are processed
         setTimeout(() => {
-          console.log("Data refresh completed");
+          // Data refresh completed
         }, 100);
       } catch (error) {
-        console.error("Error updating slot:", error);
         throw error; // Re-throw so DataTable can handle the error
       }
     },
@@ -849,10 +796,10 @@ const AiInterviewScheduler = ({
               setIsBooking={setIsSubmitting}
               aiInterviewType={slotForm.ai_interview_type}
               onAvailableSlotsChange={(slots) => {
-                console.log("Available slots updated:", slots);
+                // Available slots updated
               }}
               onAllSlotsChange={(slots) => {
-                console.log("All slots updated:", slots);
+                // All slots updated
               }}
             />
           )}
@@ -1254,7 +1201,6 @@ const AiInterviewScheduler = ({
                 await fetchSlots(true);
                 setRefreshKey(prev => prev + 1);
               } catch (error) {
-                console.error("Error refreshing slots:", error);
                 notify.error("Failed to refresh interview slots. Please try again.");
               }
             }}
@@ -1368,6 +1314,7 @@ const AiInterviewScheduler = ({
                   })
                 }
               >
+                <option value="">Select interview type</option>
                 <option value="technical">Technical</option>
                 <option value="behavioral">Behavioral</option>
                 <option value="system-design">System Design</option>
@@ -1385,6 +1332,7 @@ const AiInterviewScheduler = ({
                   })
                 }
               >
+                <option value="">Select difficulty level</option>
                 <option value="easy">Easy</option>
                 <option value="intermediate">Intermediate</option>
                 <option value="hard">Hard</option>
@@ -1398,6 +1346,7 @@ const AiInterviewScheduler = ({
                 min="1"
                 max="20"
                 value={slotForm.question_count}
+                placeholder="Enter number of questions (1-20)"
                 onChange={(e) =>
                   setSlotForm({
                     ...slotForm,
@@ -1425,6 +1374,7 @@ const AiInterviewScheduler = ({
                 type="number"
                 min="1"
                 value={slotForm.max_candidates}
+                placeholder="Enter maximum number of candidates"
                 onChange={(e) =>
                   setSlotForm({
                     ...slotForm,
@@ -1621,7 +1571,6 @@ const AiInterviewScheduler = ({
               await fetchSlots(true);
               setRefreshKey(prev => prev + 1);
             } catch (error) {
-              console.error("Error refreshing slots:", error);
               notify.error("Failed to refresh interview slots. Please try again.");
             }
           }}

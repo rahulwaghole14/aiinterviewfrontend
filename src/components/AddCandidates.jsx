@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import "./AddCandidates.css";
@@ -57,12 +57,22 @@ const AddCandidates = () => {
   const [deleteTempId, setDeleteTempId] = useState(null); // Use temp ID for delete
   const [showDeleteModalOverlay, setShowDeleteModalOverlay] = useState(false);
 
-  // New state for extraction summary cards
-  const [extractionSummary, setExtractionSummary] = useState({
-    total_files: 0,
-    successful_extractions: 0,
-    failed_extractions: 0,
-  });
+  // Memoized extraction summary calculation
+  const extractionSummary = useMemo(() => {
+    const total = parsedResumeData.length;
+    const successful = parsedResumeData.filter(candidate => 
+      candidate.extracted_data && 
+      candidate.extracted_data.name && 
+      candidate.extracted_data.email
+    ).length;
+    const failed = total - successful;
+    
+    return {
+      total_files: total,
+      successful_extractions: successful,
+      failed_extractions: failed,
+    };
+  }, [parsedResumeData]);
 
   // NEW: State for success modal
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -71,9 +81,6 @@ const AddCandidates = () => {
   const [isMobileView, setIsMobileView] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null); // null, 'files', 'successful', 'failed', 'add'
-
-  // State for filtered jobs based on selected domain
-  const [filteredJobsByDomain, setFilteredJobsByDomain] = useState([]);
 
   // Effect to detect mobile screen size
   useEffect(() => {
@@ -87,29 +94,30 @@ const AddCandidates = () => {
     return () => window.removeEventListener('resize', checkMobileView);
   }, []);
 
-  // Effect to update filteredJobsByDomain when domain or allJobs changes
-  useEffect(() => {
+  // Memoized filtered jobs based on selected domain
+  const filteredJobsByDomain = useMemo(() => {
     if (formData.domain && allJobs.length > 0) {
       const selectedDomainId = parseInt(formData.domain, 10);
-      const jobsInSelectedDomain = allJobs.filter(job => job.domain === selectedDomainId);
-      setFilteredJobsByDomain(jobsInSelectedDomain);
-    } else {
-      setFilteredJobsByDomain([]);
+      return allJobs.filter(job => job.domain === selectedDomainId);
     }
-    // Reset job title when domain changes
-    setFormData(prev => ({ ...prev, job_title: "" }));
+    return [];
   }, [formData.domain, allJobs]);
 
+  // Effect to reset job title when domain changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, job_title: "" }));
+  }, [formData.domain]);
 
-  const handleChange = (e) => {
+
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
-  const handleResumeChange = (e) => {
+  const handleResumeChange = useCallback((e) => {
     const files = Array.from(e.target.files).slice(0, 10); // Changed to 10 files max
     setFormData((prev) => ({ ...prev, resumes: files }));
-  };
+  }, []);
 
   const validateForm = () => {
     if (!formData.domain) {
@@ -190,7 +198,6 @@ const AddCandidates = () => {
         }
       );
 
-      console.log("Bulk upload and extract response:", response.data);
       // Set parsed resume data and extraction summary
       // Add a temporary unique ID to each parsed candidate for client-side operations
       const parsedDataWithTempId = (response.data.extracted_candidates || []).map(candidate => ({
@@ -198,11 +205,9 @@ const AddCandidates = () => {
         tempId: crypto.randomUUID() // Generate a unique ID for client-side use
       }));
       setParsedResumeData(parsedDataWithTempId);
-      setExtractionSummary(response.data.summary || { total_files: 0, successful_extractions: 0, failed_extractions: 0 });
 
       notify.success("Resumes uploaded and parsed successfully! Review the extracted data below.");
     } catch (error) {
-      console.error("Bulk upload and extract error:", error.response?.data || error.message);
       notify.error(error.response?.data?.message || "Failed to upload and parse resumes. Please try again.");
       if (error.response?.status === 401) {
         navigate('/login');
@@ -287,7 +292,7 @@ const AddCandidates = () => {
         }
       );
 
-      console.log("Bulk candidates submission response:", response.data);
+      // Candidates submitted successfully
 
       // Display success message if any candidates were successfully created
       if (response.data.summary.successful_creations > 0) {
@@ -295,7 +300,6 @@ const AddCandidates = () => {
         setShowSuccessModal(true); // Show the new success modal
         // Clear parsed data after successful submission
         setParsedResumeData([]);
-        setExtractionSummary({ total_files: 0, successful_extractions: 0, failed_extractions: 0 });
         // Reset form fields
         setFormData({
           domain: "",
@@ -310,7 +314,6 @@ const AddCandidates = () => {
 
       // No need for setTimeout here, modal will be closed by user
     } catch (error) {
-      console.error("Submit candidates error:", error.response?.data || error.message);
       notify.error(error.response?.data?.message || "Failed to submit candidates. Please try again.");
       if (error.response?.status === 401) {
         navigate('/login');
@@ -349,7 +352,7 @@ const AddCandidates = () => {
   };
 
   // Modified handleEditClick to work with parsedResumeData (client-side)
-  const handleEditClick = (candidate) => {
+  const handleEditClick = useCallback((candidate) => {
     setEditingCandidateTempId(candidate.tempId);
     // Ensure all fields are present in editedCandidateData, even if empty
     setEditedCandidateData({
@@ -357,19 +360,19 @@ const AddCandidates = () => {
       filename: candidate.filename, // Keep filename for reference
       tempId: candidate.tempId // Keep tempId for identification
     });
-  };
+  }, []);
 
   // Modified handleEditCellChange to update editedCandidateData
-  const handleEditCellChange = (e, field) => {
+  const handleEditCellChange = useCallback((e, field) => {
     const newValue = e.target.value;
     setEditedCandidateData(prev => ({
       ...prev,
       [field]: newValue
     }));
-  };
+  }, []);
 
   // Modified handleSaveClick to update parsedResumeData (client-side)
-  const handleSaveClick = () => {
+  const handleSaveClick = useCallback(() => {
     if (!editedCandidateData || !editingCandidateTempId) return;
 
     setParsedResumeData(prev =>
@@ -393,36 +396,33 @@ const AddCandidates = () => {
     );
     setEditingCandidateTempId(null);
     setEditedCandidateData(null);
-  };
+  }, [editedCandidateData, editingCandidateTempId]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingCandidateTempId(null);
     setEditedCandidateData(null);
-  };
+  }, []);
 
-  // Helper function to get domain name by ID
-  const getDomainName = (domainId) => {
+  // Memoized helper functions
+  const getDomainName = useCallback((domainId) => {
     const domain = domains.find(d => d.id === domainId);
     return domain ? domain.name : `Domain ${domainId}`;
-  };
+  }, [domains]);
 
-  // Helper function to get job title by ID
-  const getJobTitle = (jobId) => {
+  const getJobTitle = useCallback((jobId) => {
     const job = allJobs.find(j => j.id === jobId);
     return job ? job.job_title : `Job ${jobId}`;
-  };
+  }, [allJobs]);
 
-  // Helper function to get domain ID by name (not used in this version for editing)
-  const getDomainId = (domainName) => {
+  const getDomainId = useCallback((domainName) => {
     const domain = domains.find(d => d.name === domainName);
     return domain ? domain.id : '';
-  };
+  }, [domains]);
 
-  // Helper function to get job ID by title (not used in this version for editing)
-  const getJobId = (jobTitle) => {
+  const getJobId = useCallback((jobTitle) => {
     const job = allJobs.find(j => j.job_title === jobTitle);
     return job ? job.id : '';
-  };
+  }, [allJobs]);
 
   // Function to handle card/button clicks on mobile
   const handleCardClick = (cardType) => {
@@ -673,10 +673,17 @@ const AddCandidates = () => {
       <div className={`add-candidates-main-content fixed-grid ${isMobileView && !isExpanded ? 'mobile-collapsed' : ''}`}>
         <div className="add-candidates-form card">
           <h2 className="form-title">Add New Candidate</h2>
-          <form id="candidateForm" onSubmit={handleBulkResumeUpload}>
+          <form 
+            id="candidateForm" 
+            onSubmit={handleBulkResumeUpload}
+            role="form"
+            aria-label="Add new candidate form"
+          >
             <div className="form-box">
               <div className="form-group">
-                <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
+                <label htmlFor="domainSelect">
+                  Domain <span className="required-field" aria-label="required">*</span>
+                </label>
                 <select
                   id="domainSelect"
                   name="domain"
@@ -685,6 +692,7 @@ const AddCandidates = () => {
                   className="add-candidates-select"
                   required
                   disabled={domainsStatus === 'loading'}
+                  aria-label="Select domain for candidate"
                 >
                   <option value="">Select Domain</option>
                   {domains.map((domain) => (
@@ -696,7 +704,9 @@ const AddCandidates = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="jobTitleSelect">Job Title <span className="required-field">*</span></label>
+                <label htmlFor="jobTitleSelect">
+                  Job Title <span className="required-field" aria-label="required">*</span>
+                </label>
                 <select
                   id="jobTitleSelect"
                   name="job_title"
@@ -705,6 +715,7 @@ const AddCandidates = () => {
                   className="add-candidates-select"
                   required
                   disabled={!formData.domain || jobsStatus === 'loading'}
+                  aria-label="Select job title for candidate"
                 >
                   <option value="">Select Job Title</option>
                   {filteredJobsByDomain.map((job) => (
@@ -716,7 +727,9 @@ const AddCandidates = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="pocEmail">POC Email <span className="required-field">*</span></label>
+                <label htmlFor="pocEmail">
+                  POC Email <span className="required-field" aria-label="required">*</span>
+                </label>
                 <input
                   type="email"
                   id="pocEmail"
@@ -727,13 +740,16 @@ const AddCandidates = () => {
                   className="add-candidates-input"
                   required
                   readOnly={userRole === 'RECRUITER' || userRole === 'HIRING_AGENCY'}
+                  aria-label="Point of contact email address"
                 />
               </div>
 
               <div className="form-group resume-upload">
                 <label htmlFor="resumeUploadInput" className="resume-upload-label">
-                  <p className="resume-upload-text">Upload Resumes (Max 10) <span className="required-field">*</span></p>
-                  <div className="upload-icon-container">
+                  <p className="resume-upload-text">
+                    Upload Resumes (Max 10) <span className="required-field" aria-label="required">*</span>
+                  </p>
+                  <div className="upload-icon-container" aria-hidden="true">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
                         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -743,7 +759,7 @@ const AddCandidates = () => {
                     </svg>
                   </div>
                   {formData.resumes.length > 0 ? (
-                    <p className="selected-files-text resume-upload-text">
+                    <p className="selected-files-text resume-upload-text" aria-live="polite">
                       Selected: {formData.resumes.map((file) => file.name).join(", ")}
                     </p>
                   ) : (
@@ -759,6 +775,7 @@ const AddCandidates = () => {
                   onChange={handleResumeChange}
                   style={{ display: "none" }}
                   required
+                  aria-label="Upload resume files (PDF, DOC, DOCX format, maximum 10 files)"
                 />
               </div>
 
@@ -768,6 +785,7 @@ const AddCandidates = () => {
                 className="submit-btn"
                 type="submit"
                 disabled={isUploading}
+                aria-label={isUploading ? 'Uploading and parsing resumes, please wait' : 'Upload and parse resume files'}
               >
                 {isUploading ? 'Uploading & Parsing...' : 'Upload & Parse Resumes'}
               </button>
@@ -782,10 +800,18 @@ const AddCandidates = () => {
           </div>
           <div className="table-box">
             {/* Removed the inline success message div here */}
-            <table className="candidate-table">
+            <table className="candidate-table" role="table" aria-label="Parsed resume data table">
               <thead>
                 <tr>
-                  <th>Filename</th><th>Name</th><th>Email</th><th>Phone</th><th>Experience (Years)</th><th>Domain</th><th>Job Role</th><th>Match %</th><th>Actions</th>
+                  <th scope="col">Filename</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">Experience (Years)</th>
+                  <th scope="col">Domain</th>
+                  <th scope="col">Job Role</th>
+                  <th scope="col">Match %</th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -874,15 +900,25 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
                       <td className="actions-cell">
                         {editingCandidateTempId === candidate.tempId ? (
                           <div className="action-buttons-group">
-                            <button onClick={handleSaveClick} className="save-btn" title="Save">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <button 
+                              onClick={handleSaveClick} 
+                              className="save-btn" 
+                              title="Save changes"
+                              aria-label="Save changes to candidate data"
+                            >
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                   <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H12L21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                   <path d="M17 21V13H7V21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                   <path d="M7 3V8H15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </button>
-                            <button onClick={handleCancelEdit} className="cancel-btn" title="Cancel">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <button 
+                              onClick={handleCancelEdit} 
+                              className="cancel-btn" 
+                              title="Cancel editing"
+                              aria-label="Cancel editing and discard changes"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                     <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </button>
@@ -892,16 +928,18 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
                             <button
                               onClick={() => handleEditClick(candidate)}
                               className="edit-btn"
-                              title="Edit"
+                              title="Edit candidate data"
+                              aria-label={`Edit data for ${candidate.extracted_data.name || 'candidate'}`}
                             >
-                              <FaEdit />
+                              <FaEdit aria-hidden="true" />
                             </button>
                             <button
                               onClick={() => handleDeleteClick(candidate.tempId)}
                               className="delete-btn"
-                              title="Delete"
+                              title="Delete candidate"
+                              aria-label={`Delete ${candidate.extracted_data.name || 'candidate'} from list`}
                             >
-                              <FaTrash />
+                              <FaTrash aria-hidden="true" />
                             </button>
                           </div>
                         )}
@@ -933,6 +971,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
                 className="submit-candidates-btn"
                 onClick={handleSubmitCandidates}
                 disabled={isSubmittingCandidates}
+                aria-label={isSubmittingCandidates ? 'Submitting candidates, please wait' : 'Submit all candidates to the system'}
               >
                 {isSubmittingCandidates ? 'Submitting Candidates...' : 'Submit All Candidates'}
               </button>
@@ -952,6 +991,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
         confirmText="Delete"
         cancelText="Cancel"
         confirmButtonClass="btn-danger"
+        aria-label="Confirm candidate deletion"
       />
 
       <Modal
@@ -980,4 +1020,4 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
   );
 };
 
-export default AddCandidates;
+export default React.memo(AddCandidates);

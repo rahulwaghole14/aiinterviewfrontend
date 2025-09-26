@@ -1,4 +1,18 @@
 /* AddCandidates Page Styles */
+
+/* Screen reader only content - visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .add-candidates-container {
   display: flex;
   flex-direction: column;
@@ -80,21 +94,26 @@
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
-  padding: 2rem; /* Consistent padding with form */
+  padding: 20px; /* Match DataTable padding */
   display: flex; /* Use flexbox for internal layout */
   flex-direction: column; /* Stack title and table */
   flex-grow: 1; /* Allows table section to grow within its grid cell */
   min-height: 0; /* Allow the section to shrink if content is small */
-  overflow-y: auto; /* Enable vertical scrolling for table content */
-  overflow-x: auto; /* Enable horizontal scrolling for table if needed */
+  overflow: hidden; /* Match DataTable overflow */
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
 }
 
 .table-header-with-button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  padding: 0 0 16px 0; /* Match DataTable header padding */
+  background: var(--color-card);
+  margin: 0;
+  min-width: 100%;
+  box-sizing: border-box;
   flex-wrap: wrap; /* Allow wrapping on smaller screens */
   gap: 1rem; /* Space between title and button */
 }
@@ -113,8 +132,7 @@
   padding: 0.6rem 1.2rem;
   border: none;
   border-radius: var(--radius);
-  font-size: 0.9rem;
-  font-weight: 600;
+  /* Typography handled by table-header class */
   cursor: pointer;
   box-shadow: var(--shadow-soft);
   transition: background-color 0.2s ease, transform 0.2s ease;
@@ -128,11 +146,16 @@
 
 
 .table-box {
-  overflow-x: auto; /* Enable horizontal scrolling for table if needed */
-  flex-grow: 1;  /* Enable vertical scrolling if content overflows */
-  /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox *//* Allows table container to grow and take available height */
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-card);
+  /* Hide scrollbars */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  min-height: 590px;
 }
 
 .table-box::-webkit-scrollbar {
@@ -140,19 +163,42 @@
 }
 
 .candidate-table {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
-  margin-top: 0rem;
-  min-width: 600px; /* Ensure table doesn't shrink too much for horizontal scroll */
+  min-width: 100%;
+  table-layout: auto;
+  white-space: nowrap;
+  position: relative; /* Ensure proper containment */
+  height: 100%;
+  min-height: 100%;
+  max-height: 600px; /* Increased height to get closer to pagination */
 }
 
 .candidate-table th,
 .candidate-table td {
+  padding: 12px 8px;
   text-align: left;
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--color-border-light);
-  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
+  width: auto;
+  min-width: fit-content;
+  position: relative; /* Ensure proper containment */
+}
+
+.candidate-table th:first-child,
+.candidate-table td:first-child {
+  border-left: none;
+  padding-left: 16px;
+}
+
+.candidate-table th:last-child,
+.candidate-table td:last-child {
+  padding-left: 4px;
+  padding-right: 4px;
+  width: 1%;
+  min-width: 50px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* Center content in empty table message cell */
@@ -162,14 +208,28 @@
 
 .candidate-table th {
   background-color: var(--color-bg-secondary);
-  color: var(--color-text-primary);
   font-weight: 600;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  cursor: pointer;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10; /* Higher z-index than action menus */
 }
 
 .candidate-table th:hover {
+  background-color: var(--color-hover);
+}
+
+/* Sortable header styles */
+.candidate-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.candidate-table th.sortable:hover {
   background-color: var(--color-hover);
 }
 
@@ -1227,7 +1287,7 @@
   }
 
   .table-title, .form-title {
-    font-size: 1.1rem;
+    /* Typography handled by h3/h4 classes */
     margin-bottom: 1rem;
   }
 
@@ -1368,7 +1428,7 @@
   }
 
   .table-title, .form-title {
-    font-size: 1rem;
+    /* Typography handled by h3/h4 classes */
     margin-bottom: 0.8rem;
   }
 

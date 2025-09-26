@@ -162,12 +162,12 @@ const HiringAgencies = () => {
   
   // Track modal state changes
   useEffect(() => {
-    // console.log("🔄 Modal state changed:", showAddModal);
+    // Modal state changed
   }, [showAddModal]);
   
   // Track form data changes
   useEffect(() => {
-    // console.log("📝 Form data changed:", formData);
+    // Form data changed
   }, [formData]);
   const [editingUserId, setEditingUserId] = useState(null);
   const [editedUserData, setEditedUserData] = useState(null);
@@ -801,7 +801,6 @@ const HiringAgencies = () => {
         break;
         
       default:
-        console.error("❌ Invalid tab selected:", activeTab);
         notify.error("Invalid tab selected.");
         return;
     }
@@ -812,7 +811,6 @@ const HiringAgencies = () => {
     const missingFields = requiredFields.filter(field => !formData[field]);
     
     if (missingFields.length > 0) {
-      console.error("❌ Missing required fields:", missingFields);
       notify.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
@@ -838,7 +836,6 @@ const HiringAgencies = () => {
         let errorData;
         try {
           errorData = JSON.parse(responseText);
-          console.error("❌ API Error Response:", errorData);
           
           // Handle validation errors with detailed messages
           const errorMessages = [];
@@ -921,12 +918,7 @@ const HiringAgencies = () => {
       }
       
     } catch (error) {
-      console.error("💥 Error in handleAddUser:", error);
-      console.error("📝 Error details:", {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
+      // Handle error silently
       notify.error(error.message || "Failed to add user");
     }
   };
@@ -1132,7 +1124,6 @@ const HiringAgencies = () => {
 
       notify.success("User deleted successfully!");
     } catch (error) {
-      console.error("Error in confirmDelete:", error);
       notify.error(error.message || "Failed to delete user");
     } finally {
       setIsDeleting(false);
@@ -1259,7 +1250,6 @@ const HiringAgencies = () => {
 
       notify.success("User updated successfully!");
     } catch (error) {
-      console.error("Error updating user:", error);
       notify.error(error.message || "Failed to update user");
       throw error; // Re-throw so DataTable can handle the error
     }
@@ -1323,7 +1313,6 @@ const HiringAgencies = () => {
 
       notify.success("User deleted successfully!");
     } catch (error) {
-      console.error("Error in handleDeleteUser:", error);
       notify.error(error.message || "Failed to delete user");
       throw error; // Re-throw so DataTable can handle the error
     }
@@ -2121,7 +2110,6 @@ const HiringAgencies = () => {
             
             notify.success("Data refreshed successfully!");
           } catch (error) {
-            console.error("Error refreshing data:", error);
             notify.error("Failed to refresh data. Please try again.");
           } finally {
             setIsLoading(false);

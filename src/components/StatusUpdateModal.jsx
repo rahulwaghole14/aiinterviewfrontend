@@ -52,11 +52,7 @@ const StatusUpdateModal = ({
 
   // Initialize form for edit mode
   useEffect(() => {
-    console.log("=== FORM INITIALIZATION EFFECT ===");
-    console.log("isEditMode:", isEditMode);
-    console.log("editingInterview:", editingInterview);
-    console.log("editingEvaluation:", editingEvaluation);
-    console.log("action:", action);
+    // Form initialization effect
     
     if (isEditMode && editingInterview) {
       const interviewDate = new Date(editingInterview.started_at);
@@ -69,11 +65,7 @@ const StatusUpdateModal = ({
         feedback: editingInterview.feedback || "",
       });
     } else if (isEditMode && editingEvaluation && action === "evaluate") {
-      console.log("=== EDIT EVALUATION MODE ===");
-      console.log("editingEvaluation data:", editingEvaluation);
-      console.log("editingEvaluation.overall_score:", editingEvaluation.overall_score);
-      console.log("editingEvaluation.traits:", editingEvaluation.traits);
-      console.log("editingEvaluation.suggestions:", editingEvaluation.suggestions);
+      // Edit evaluation mode
       
       const formData = {
         overall_score: editingEvaluation.overall_score?.toString() || "",
@@ -81,7 +73,6 @@ const StatusUpdateModal = ({
         suggestions: editingEvaluation.suggestions || "",
       };
       
-      console.log("Setting evaluation form with:", formData);
       setEvaluationForm(formData);
     } else {
       setScheduleForm({
@@ -100,8 +91,6 @@ const StatusUpdateModal = ({
   // Additional effect to ensure form is updated when editingEvaluation changes
   useEffect(() => {
     if (isEditMode && editingEvaluation && action === "evaluate") {
-      console.log("=== UPDATING EVALUATION FORM ===");
-      console.log("Current editingEvaluation:", editingEvaluation);
       setEvaluationForm({
         overall_score: editingEvaluation.overall_score?.toString() || "",
         traits: editingEvaluation.traits || "",
@@ -113,36 +102,20 @@ const StatusUpdateModal = ({
   // Force form update when modal opens in edit mode
   useEffect(() => {
     if (isOpen && isEditMode && editingEvaluation && action === "evaluate") {
-      console.log("=== MODAL OPENED - FORCING FORM UPDATE ===");
-      console.log("isOpen:", isOpen);
-      console.log("isEditMode:", isEditMode);
-      console.log("editingEvaluation:", editingEvaluation);
-      console.log("action:", action);
-      console.log("editingEvaluation.overall_score:", editingEvaluation.overall_score);
-      console.log("editingEvaluation.traits:", editingEvaluation.traits);
-      console.log("editingEvaluation.suggestions:", editingEvaluation.suggestions);
-      
       const formData = {
         overall_score: editingEvaluation.overall_score?.toString() || "",
         traits: editingEvaluation.traits || "",
         suggestions: editingEvaluation.suggestions || "",
       };
       
-      console.log("Setting form data:", formData);
       setEvaluationForm(formData);
-      
-      // Also log the current form state after setting
-      setTimeout(() => {
-        console.log("Form state after setting:", evaluationForm);
-      }, 100);
     }
   }, [isOpen, isEditMode, editingEvaluation, action]);
 
   // Additional effect to reset form when editingEvaluation changes (only once)
   useEffect(() => {
     if (editingEvaluation && isEditMode && action === "evaluate") {
-      console.log("=== EDITING EVALUATION CHANGED - INITIALIZING FORM ===");
-      console.log("New editingEvaluation:", editingEvaluation);
+      // Initialize form with new evaluation data
       
       setEvaluationForm({
         overall_score: editingEvaluation.overall_score?.toString() || "",
@@ -189,10 +162,7 @@ const StatusUpdateModal = ({
   }, [isOpen, action]);
 
   const handleScheduleInterview = async () => {
-    console.log("=== HANDLE SCHEDULE INTERVIEW ===");
-    console.log("isEditMode:", isEditMode);
-    console.log("editingInterview:", editingInterview);
-    console.log("action:", action);
+    // Handle schedule interview
     
     if (!authToken) {
       notify.error("Authentication token not found. Please log in again.");
@@ -237,13 +207,7 @@ const StatusUpdateModal = ({
       startedAt = `${selectedDate}T${startTime}:00`;
       endedAt = `${selectedDate}T${endTime}:00`;
       
-      console.log("=== TIME CALCULATION DEBUG ===");
-      console.log("Selected times:", scheduleForm.selectedTimes);
-      console.log("Parsed startTime:", startTime);
-      console.log("Parsed endTime:", endTime);
-      console.log("Selected date:", selectedDate);
-      console.log("Final startedAt:", startedAt);
-      console.log("Final endedAt:", endedAt);
+      // Calculate interview times
     }
 
     // Validate that we have valid start and end times
@@ -257,9 +221,7 @@ const StatusUpdateModal = ({
     try {
       // First, find the matching slot to get the slot ID
       const formattedDate = scheduleForm.selectedDate.toISOString().split("T")[0];
-      console.log("=== FETCHING AVAILABLE SLOTS ===");
-      console.log("Date:", formattedDate);
-      console.log("API URL:", `${baseURL}/api/interviews/slots/?date=${formattedDate}&status=available`);
+      // Fetch available slots
       
       const slotsResponse = await fetch(
         `${baseURL}/api/interviews/slots/?date=${formattedDate}&status=available`,
@@ -275,14 +237,9 @@ const StatusUpdateModal = ({
       const slotsData = await slotsResponse.json();
       const availableSlots = slotsData.results || slotsData || [];
 
-      console.log("=== AVAILABLE SLOTS RESPONSE ===");
-      console.log("Raw slots data:", slotsData);
-      console.log("Available slots count:", availableSlots.length);
-      console.log("Available slots:", availableSlots);
+      // Process available slots
 
       // Find the matching slot
-      console.log("=== SLOT MATCHING DEBUG ===");
-      console.log("Selected times:", scheduleForm.selectedTimes);
       
       const matchingSlot = availableSlots.find(slot => {
         let slotStartTime, slotEndTime;
@@ -299,44 +256,24 @@ const StatusUpdateModal = ({
           }
         } else {
           // Handle other formats (shouldn't happen with current API)
-          console.warn("Unexpected slot time format:", typeof slot.start_time, slot.start_time);
           return false;
         }
         
         const slotTimeRange = `${slotStartTime}-${slotEndTime}`;
-        console.log(`=== SLOT MATCHING DEBUG ===`);
-        console.log(`Slot ${slot.id}: ${slotTimeRange}`);
-        console.log(`Selected times: ${JSON.stringify(scheduleForm.selectedTimes)}`);
-        console.log(`Slot start_time: "${slot.start_time}" -> "${slotStartTime}"`);
-        console.log(`Slot end_time: "${slot.end_time}" -> "${slotEndTime}"`);
-        console.log(`Looking for: "${slotTimeRange}" in [${scheduleForm.selectedTimes.join(', ')}]`);
-        
         const isMatch = scheduleForm.selectedTimes.includes(slotTimeRange);
-        console.log(`Match found: ${isMatch}`);
-        if (isMatch) {
-          console.log(`✅ MATCH FOUND! Slot ${slot.id} matches selected time ${slotTimeRange}`);
-        }
         return isMatch;
       });
 
-      console.log("=== SLOT MATCHING RESULT ===");
-      console.log("Matching slot found:", !!matchingSlot);
-      
       if (matchingSlot) {
-        console.log("Found matching slot:", matchingSlot);
+        // Found matching slot
         
         // Handle slot changes for edit mode
         if (isEditMode && editingInterview) {
-          console.log("=== EDIT MODE - CHECKING FOR SLOT CHANGES ===");
           const oldSlotId = editingInterview.slot || editingInterview.slot_details?.id;
           const newSlotId = matchingSlot.id;
           
-          console.log("Old slot ID:", oldSlotId);
-          console.log("New slot ID:", newSlotId);
-          
           // If slot has changed, release the old slot
           if (oldSlotId && oldSlotId !== newSlotId) {
-            console.log("=== SLOT CHANGED - RELEASING OLD SLOT ===");
             try {
               const releaseResponse = await fetch(`${baseURL}/api/interviews/slots/${oldSlotId}/release_slot/`, {
                 method: "POST",
@@ -344,23 +281,19 @@ const StatusUpdateModal = ({
               });
               
               if (releaseResponse.ok) {
-                console.log("✅ Old slot released successfully");
+                // Old slot released successfully
               } else {
-                console.warn("⚠️ Failed to release old slot, but continuing with new slot booking");
+                // Failed to release old slot, but continuing with new slot booking
               }
             } catch (error) {
-              console.warn("⚠️ Error releasing old slot:", error);
-              // Continue with new slot booking even if old slot release fails
+              // Error releasing old slot, but continuing with new slot booking
             }
           } else if (oldSlotId === newSlotId) {
-            console.log("✅ Same slot selected, no slot change needed");
+            // Same slot selected, no slot change needed
           }
         }
         
         // Check if candidate already has an interview for this slot (excluding current interview in edit mode)
-        console.log("=== CHECKING FOR DUPLICATE SLOT BOOKING ===");
-        console.log("Matching slot found:", matchingSlot);
-        console.log("Candidate ID:", candidate.id);
         
         // Check if this candidate already has an interview for this specific slot
         const existingInterviewForSlot = interviews.find(interview => {
@@ -373,13 +306,9 @@ const StatusUpdateModal = ({
         });
         
         if (existingInterviewForSlot) {
-          console.log("❌ DUPLICATE SLOT BOOKING DETECTED!");
-          console.log("Existing interview for this slot:", existingInterviewForSlot);
           notify.error("This candidate already has an interview scheduled for this time slot. Please select a different time slot.");
           return;
         }
-        
-        console.log("✅ No duplicate slot booking found, proceeding with booking");
         
         // Use the ACTUAL slot times instead of parsed selected times
         const slotStartTime = matchingSlot.start_time.substring(0, 5); // "09:00:00" -> "09:00"
@@ -389,14 +318,9 @@ const StatusUpdateModal = ({
         startedAt = `${selectedDate}T${slotStartTime}:00`;
         endedAt = `${selectedDate}T${slotEndTime}:00`;
         
-        console.log("=== USING ACTUAL SLOT TIMES ===");
-        console.log("Slot start_time:", matchingSlot.start_time, "->", slotStartTime);
-        console.log("Slot end_time:", matchingSlot.end_time, "->", slotEndTime);
-        console.log("Updated startedAt:", startedAt);
-        console.log("Updated endedAt:", endedAt);
+        // Use actual slot times for consistency
       } else {
-        console.log("No matching slot found, using parsed selected times");
-        console.log("This might cause time display issues in Candidate Details");
+        // No matching slot found, using parsed selected times
       }
 
       const interviewData = {
@@ -408,12 +332,7 @@ const StatusUpdateModal = ({
         feedback: scheduleForm.feedback || "",
       };
 
-      // Debug logging (can be removed in production)
-      console.log("=== INTERVIEW DATA DEBUG ===");
-      console.log("isEditMode:", isEditMode);
-      console.log("editingInterview:", editingInterview);
-      console.log("scheduleForm:", scheduleForm);
-      console.log("Sending interview data:", interviewData);
+      // Send interview data
 
       // Step 1: Create or update the interview
       const url = isEditMode ? `${baseURL}/api/interviews/${editingInterview.id}/` : `${baseURL}/api/interviews/`;
@@ -427,14 +346,8 @@ const StatusUpdateModal = ({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error("Interview creation failed:", errorData);
-        console.error("Response status:", response.status);
-        console.error("Response headers:", response.headers);
         
-        // Log the full error object
-        if (typeof errorData === 'object') {
-          console.error("Error details:", JSON.stringify(errorData, null, 2));
-        }
+        // Handle error data
         
         throw new Error(errorData.detail || errorData.message || JSON.stringify(errorData) || "Failed to create interview");
       }
@@ -444,8 +357,7 @@ const StatusUpdateModal = ({
 
       // Step 2: Update the slot booking (only if we found a matching slot)
       if (matchingSlot) {
-        console.log("=== SLOT BOOKING PROCESS ===");
-        console.log("Using matching slot:", matchingSlot);
+        // Slot booking process
         
         // Update slot booking based on current bookings
         const currentBookings = matchingSlot.current_bookings || 0;

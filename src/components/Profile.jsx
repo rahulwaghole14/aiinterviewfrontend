@@ -72,7 +72,6 @@ const Profile = ({ onTitleChange }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // In a real application, you would send formData to your backend API
-    console.log('Updating profile:', formData);
     setUser(formData); // Update local state with new data
     setIsEditing(false);
     notify.success('Profile updated successfully!');

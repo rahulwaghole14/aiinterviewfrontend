@@ -63,7 +63,6 @@ const Login = ({ onLogin }) => {
         notify.error(errorData.detail || 'Invalid email or password. Please try again.');
       }
     } catch (err) {
-      console.error('API error:', err);
       notify.error('An error occurred. Please try again later.');
     } finally {
       setLoading(false);
@@ -74,7 +73,7 @@ const Login = ({ onLogin }) => {
     <div className="login-container">
       <div className="login-card">
         <h2 className="login-title">Login to Talaro</h2>
-        <form onSubmit={handleLogin} className="login-form">
+        <form onSubmit={handleLogin} className="login-form" role="form" aria-label="Login form">
           <div className="login-form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -85,7 +84,10 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your email"
               required
               disabled={loading}
+              aria-label="Email address"
+              aria-describedby="email-help"
             />
+            <div id="email-help" className="sr-only">Enter your registered email address</div>
           </div>
           <div className="login-form-group">
             <label htmlFor="password">Password</label>
@@ -99,6 +101,8 @@ const Login = ({ onLogin }) => {
                 required
                 disabled={loading}
                 className="password-input"
+                aria-label="Password"
+                aria-describedby="password-help"
               />
               <button
                 type="button"
@@ -106,16 +110,24 @@ const Login = ({ onLogin }) => {
                 onClick={togglePasswordVisibility}
                 disabled={loading}
                 tabIndex={-1}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
               >
-                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                {showPassword ? <FiEyeOff size={20} aria-hidden="true" /> : <FiEye size={20} aria-hidden="true" />}
               </button>
             </div>
+            <div id="password-help" className="sr-only">Enter your password</div>
           </div>
-          <button type="submit" className="login-button" disabled={loading}>
+          <button 
+            type="submit" 
+            className="login-button" 
+            disabled={loading}
+            aria-label={loading ? "Logging in, please wait" : "Login to your account"}
+          >
             {loading ? (
               <>
                 Logging in
-                <span className="loading-dots">
+                <span className="loading-dots" aria-hidden="true">
                   <span>.</span><span>.</span><span>.</span>
                 </span>
               </>

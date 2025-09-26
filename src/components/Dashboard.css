@@ -27,7 +27,7 @@
   --color-bg-secondary: #ecf0f1; /* Secondary background, e.g., for table headers */
   --color-hover: #f0f2f5; /* Light hover state for rows */
 
-  --font-family-base: 'Inter', sans-serif;
+  --font-family-base: var(--font-primary);
   --radius: 8px;
   --radius-small: 4px;
   --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -104,7 +104,7 @@
 .dashboard-card p {
   margin: 0;
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-primary-dark);
 }
 
@@ -167,8 +167,7 @@
 }
 
 .chart-title {
-  font-size: 1.2rem;
-  font-weight: 600;
+  /* Typography handled by h4 class */
   color: var(--color-primary);
   margin-bottom: 1rem;
   text-align: center;
@@ -189,7 +188,7 @@
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: left center;
-  font-size: 0.8rem;
+  /* Typography handled by text-sm font-medium classes */
   color: var(--color-muted);
   white-space: nowrap;
   z-index: 1;
@@ -250,7 +249,7 @@
 }
 
 .x-axis-label {
-  font-size: 0.8rem;
+  /* Typography handled by text-xs font-medium classes */
   color: var(--color-muted);
   flex: 1;
   text-align: center;
@@ -317,7 +316,7 @@
 
 /* Old table styles removed - DataTable handles all styling internally */
   color: var(--color-text-primary);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.9rem;
   white-space: nowrap;
 }
@@ -341,7 +340,7 @@
   padding: 0.3em 0.6em;
   border-radius: var(--radius-small);
   font-size: 0.8em;
-  font-weight: 600;
+  font-weight: 500;
   color: white; /* White text for badges */
   text-transform: capitalize;
   white-space: nowrap;

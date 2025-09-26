@@ -58,7 +58,7 @@
 .jobs-card p {
   margin: 0;
   font-size: 1.8rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text);
 }
 
@@ -264,7 +264,7 @@ input[type="checkbox"]:checked {
 
 .form-title {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-primary);
   margin-bottom: 1.5rem;
 }
@@ -286,7 +286,7 @@ input[type="checkbox"]:checked {
 
 .form-box label {
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--color-muted);
   margin-bottom: 0.5rem;
 }
@@ -379,7 +379,7 @@ input[type="checkbox"]:checked {
   border: none;
   border-radius: var(--radius);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   box-shadow: var(--shadow-soft);
   transition: background-color 0.2s ease, transform 0.2s ease;

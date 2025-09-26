@@ -56,7 +56,7 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
           alt="Logo"
           className="logo"
         />
-        {isExpanded && <h2 className="brand-name">Talaro</h2>}
+        {isExpanded && <h2 className="brand-name h3">Talaro</h2>}
       </Link>
 
       <ul className="sidebar-menu">

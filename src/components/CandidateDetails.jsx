@@ -24,7 +24,6 @@ const parseJsonField = (field) => {
     try {
       return JSON.parse(field);
     } catch (e) {
-      console.warn('Failed to parse JSON field:', field);
       return [];
     }
   }
@@ -56,8 +55,7 @@ const CandidateDetails = () => {
     if (token) {
       setAuthToken(token);
     } else {
-      console.error("Authentication token not found. Please log in again.");
-      // Optionally redirect to login
+      // Authentication token not found
       // navigate('/login');
     }
   }, []);
@@ -133,7 +131,6 @@ const CandidateDetails = () => {
       );
 
       if (!evaluationsResponse.ok) {
-        console.error("Failed to fetch evaluations");
         // Don't throw error here as evaluations might be optional
       }
 
@@ -142,8 +139,7 @@ const CandidateDetails = () => {
         ? await evaluationsResponse.json()
         : [];
 
-      console.log("Fetched interviews data:", interviewsData);
-      console.log("Fetched evaluations data:", evaluationsData);
+      // Process fetched data
       
       // Process interviews and evaluations
       const candidateInterviews = (
@@ -158,15 +154,15 @@ const CandidateDetails = () => {
               interview.candidate_object.id === candidate.id)
         );
 
-      console.log("Candidate interviews:", candidateInterviews);
+      // Process candidate interviews
 
       // For each interview, fetch the associated slot details directly from slots API (same as AI Interview Scheduler)
       const interviewsWithSlots = await Promise.all(candidateInterviews.map(async (interview) => {
-        console.log(`Processing interview ${interview.id} with slot:`, interview.slot);
+        // Process interview slot
         
         if (interview.slot) {
           try {
-            console.log(`Fetching slot details for slot ID: ${interview.slot}`);
+            // Fetch slot details
             const slotResponse = await fetch(`${baseURL}/api/interviews/slots/${interview.slot}/`, {
               method: "GET",
               headers: {
@@ -179,10 +175,7 @@ const CandidateDetails = () => {
 
             if (slotResponse.ok) {
               const slotData = await slotResponse.json();
-              console.log(`=== SLOT DATA COMPARISON ===`);
-              console.log(`Fetched slot data for interview ${interview.id}:`, slotData);
-              console.log(`Raw start_time: "${slotData.start_time}" (type: ${typeof slotData.start_time})`);
-              console.log(`Raw end_time: "${slotData.end_time}" (type: ${typeof slotData.end_time})`);
+              // Process slot data
               
               // Create slot_details object with the same structure as AI Interview Scheduler
               const slotDetails = {

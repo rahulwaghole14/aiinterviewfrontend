@@ -175,7 +175,6 @@ const Jobs = () => {
       setDomainFormData({ name: "", description: "" });
       notify.success("Domain created successfully!");
     } catch (error) {
-      console.error("Error creating domain:", error);
       notify.error(error.message || "Failed to create domain.");
     } finally {
       setIsCreatingDomain(false);
@@ -214,7 +213,6 @@ const Jobs = () => {
       setEditingDomain(null);
       notify.success("Domain updated successfully!");
     } catch (error) {
-      console.error("Error updating domain:", error);
       notify.error(error.message || "Failed to update domain.");
     } finally {
       setUpdatingDomainId(null);
@@ -249,7 +247,6 @@ const Jobs = () => {
       dispatch(deleteDomain(domainId)); // Dispatch to Redux store
       notify.success("Domain deleted successfully!");
     } catch (error) {
-      console.error("Error deleting domain:", error);
       notify.error(error.message || "Failed to delete domain.");
     } finally {
       setDeletingDomainId(null);
@@ -516,7 +513,6 @@ const Jobs = () => {
         setShowMessage(false);
       }, 2000);
     } catch (error) {
-      console.error(isEditing ? "Error updating job:" : "Error adding job:", error);
       setErrorMessage(error.message || (isEditing ? "Failed to update job. Please try again." : "Failed to add job. Please try again."));
       setShowMessage(false); // Hide success message in case of error
     } finally {
@@ -609,7 +605,6 @@ const Jobs = () => {
         setEditingJobId(null);
         setEditedJobData(null);
       } catch (error) {
-        console.error("Error updating job:", error);
         setErrorMessage(
           error.message || "Failed to update job. Please try again."
         );
@@ -689,7 +684,6 @@ const Jobs = () => {
         setShowDeleteConfirm(false);
         setJobIdToDelete(null);
       } catch (error) {
-        console.error("Error deleting job:", error);
         setErrorMessage(
           error.message || "Failed to delete job. Please try again."
         );
@@ -731,7 +725,6 @@ const Jobs = () => {
 
       dispatch(deleteJob(jobId)); // Dispatch to Redux store
     } catch (error) {
-      console.error("Error deleting job:", error);
       setErrorMessage(
         error.message || "Failed to delete job. Please try again."
       );
@@ -784,8 +777,7 @@ const Jobs = () => {
 
       dispatch(updateJob({ id: updatedJob.id, updatedData: updatedJob })); // Dispatch to Redux store
     } catch (error) {
-      console.error("Error updating job:", error);
-      setErrorMessage(
+        setErrorMessage(
         error.message || "Failed to update job. Please try again."
       );
       throw error; // Re-throw so DataTable can handle the error
@@ -1282,7 +1274,6 @@ const Jobs = () => {
                 await dispatch(fetchJobs()).unwrap();
                 notify.success("Jobs data refreshed successfully!");
               } catch (error) {
-                console.error("Error refreshing jobs:", error);
                 notify.error("Failed to refresh jobs data. Please try again.");
               }
             }}

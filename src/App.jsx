@@ -1,27 +1,33 @@
 // App.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { useLocation, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from './redux/actions/searchActions';
 import { setUser, clearUser } from './redux/slices/userSlice'; // Import setUser and clearUser
 
-import SideBar from './components/SideBar';
-import Header from './components/Header';
-import Dashboard from './components/Dashboard';
-import AddCandidates from './components/AddCandidates';
-import Candidates from './components/Candidates';
-import CandidateDetails from './components/CandidateDetails'; // Import the new CandidateDetails component
-import Jobs from './components/Jobs';
-import Settings from './components/Settings';
-import Login from './components/Login';
-import Register from './components/Registration';
-import Profile from './components/Profile';
-import HiringAgencies from './components/HiringAgency';
-import AiInterviewScheduler from './components/AiInterviewScheduler'; // Import the new AiInterviewScheduler component
-import InterviewPortal from './components/InterviewPortal'; // Import the new InterviewPortal component
-import InterviewResults from './components/InterviewResults'; // Import the new InterviewResults component
-import InterviewResultsList from './components/InterviewResultsList'; // Import the new InterviewResultsList component
-import NotificationToast from './components/common/NotificationToast'; // Import the notification toast
+// Lazy load components for better performance
+const SideBar = lazy(() => import('./components/SideBar'));
+const Header = lazy(() => import('./components/Header'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const AddCandidates = lazy(() => import('./components/AddCandidates'));
+const Candidates = lazy(() => import('./components/Candidates'));
+const CandidateDetails = lazy(() => import('./components/CandidateDetails'));
+const Jobs = lazy(() => import('./components/Jobs'));
+const Settings = lazy(() => import('./components/Settings'));
+const Login = lazy(() => import('./components/Login'));
+const Register = lazy(() => import('./components/Registration'));
+const Profile = lazy(() => import('./components/Profile'));
+const HiringAgencies = lazy(() => import('./components/HiringAgency'));
+const AiInterviewScheduler = lazy(() => import('./components/AiInterviewScheduler'));
+const InterviewPortal = lazy(() => import('./components/InterviewPortal'));
+const InterviewResults = lazy(() => import('./components/InterviewResults'));
+const InterviewResultsList = lazy(() => import('./components/InterviewResultsList'));
+
+// Keep these as regular imports since they're used frequently
+import NotificationToast from './components/common/NotificationToast';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import SectionErrorBoundary from './components/common/SectionErrorBoundary';
+import LoadingSpinner from './components/common/LoadingSpinner';
 import "./App.css";
 
 const initialTheme = localStorage.getItem('theme') || 'light';
@@ -309,33 +315,93 @@ function App() {
             onProfileMenuItemClick={handleProfileMenuItemClick}
           />
           <div className="content-area">
-            <Routes key={isLoggedIn ? "logged-in" : "logged-out"}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/add-candidates" element={<AddCandidates />} />
-              <Route path="/candidates" element={<Candidates />} />
-              <Route path="/candidates/:id" element={<CandidateDetails onTitleChange={updateHeaderTitle} />} /> {/* Use new component */}
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/settings" element={<Settings onTitleChange={updateHeaderTitle} />} />
-              <Route path="/profile" element={<Profile onTitleChange={updateHeaderTitle} />} />
-              <Route path="/hiring-agencies" element={<HiringAgencies />} />
-              <Route 
-                path="/ai-interview-scheduler" 
-                element={<AiInterviewScheduler onTitleChange={updateHeaderTitle} />} 
-              />
-              <Route 
-                path="/interview/:sessionKey" 
-                element={<InterviewPortal />} 
-              />
-              <Route 
-                path="/interview-results" 
-                element={<InterviewResultsList />} 
-              />
-              <Route 
-                path="/interview-results/:sessionId" 
-                element={<InterviewResults />} 
-              />
-            </Routes>
+            <ErrorBoundary
+              title="Application Error"
+              message="Something went wrong while loading the application. Please try refreshing the page."
+              showDetails={process.env.NODE_ENV === 'development'}
+            >
+              <Suspense fallback={<LoadingSpinner message="Loading page..." />}>
+                <Routes key={isLoggedIn ? "logged-in" : "logged-out"}>
+                <Route path="/" element={
+                  <SectionErrorBoundary sectionName="Dashboard">
+                    <Dashboard />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/dashboard" element={
+                  <SectionErrorBoundary sectionName="Dashboard">
+                    <Dashboard />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/add-candidates" element={
+                  <SectionErrorBoundary sectionName="Add Candidates">
+                    <AddCandidates />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/candidates" element={
+                  <SectionErrorBoundary sectionName="Candidates">
+                    <Candidates />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/candidates/:id" element={
+                  <SectionErrorBoundary sectionName="Candidate Details">
+                    <CandidateDetails onTitleChange={updateHeaderTitle} />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/jobs" element={
+                  <SectionErrorBoundary sectionName="Jobs">
+                    <Jobs />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/settings" element={
+                  <SectionErrorBoundary sectionName="Settings">
+                    <Settings onTitleChange={updateHeaderTitle} />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/profile" element={
+                  <SectionErrorBoundary sectionName="Profile">
+                    <Profile onTitleChange={updateHeaderTitle} />
+                  </SectionErrorBoundary>
+                } />
+                <Route path="/hiring-agencies" element={
+                  <SectionErrorBoundary sectionName="Hiring Agencies">
+                    <HiringAgencies />
+                  </SectionErrorBoundary>
+                } />
+                <Route 
+                  path="/ai-interview-scheduler" 
+                  element={
+                    <SectionErrorBoundary sectionName="AI Interview Scheduler">
+                      <AiInterviewScheduler onTitleChange={updateHeaderTitle} />
+                    </SectionErrorBoundary>
+                  } 
+                />
+                <Route 
+                  path="/interview/:sessionKey" 
+                  element={
+                    <SectionErrorBoundary sectionName="Interview Portal">
+                      <InterviewPortal />
+                    </SectionErrorBoundary>
+                  } 
+                />
+                <Route 
+                  path="/interview-results" 
+                  element={
+                    <SectionErrorBoundary sectionName="Interview Results">
+                      <InterviewResultsList />
+                    </SectionErrorBoundary>
+                  } 
+                />
+                <Route 
+                  path="/interview-results/:sessionId" 
+                  element={
+                    <SectionErrorBoundary sectionName="Interview Results">
+                      <InterviewResults />
+                    </SectionErrorBoundary>
+                  } 
+                />
+              </Routes>
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </div>
         {/* Global Notification Toast */}
@@ -343,12 +409,36 @@ function App() {
       </div>
     ) : (
       <div>
-        <Routes key={isLoggedIn ? "logged-in" : "logged-out"}>
-          <Route path="/" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
-          <Route path="/login" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
-          <Route path="/register" element={<Register autoFocusUsername={true} />} />
-          <Route path="*" element={<Login onLogin={handleLoginSuccess} autoFocusEmail={true} />} />
-        </Routes>
+        <ErrorBoundary
+          title="Authentication Error"
+          message="Something went wrong while loading the authentication page. Please try refreshing the page."
+          showDetails={process.env.NODE_ENV === 'development'}
+        >
+          <Suspense fallback={<LoadingSpinner message="Loading page..." />}>
+            <Routes key={isLoggedIn ? "logged-in" : "logged-out"}>
+            <Route path="/" element={
+              <SectionErrorBoundary sectionName="Login">
+                <Login onLogin={handleLoginSuccess} autoFocusEmail={true} />
+              </SectionErrorBoundary>
+            } />
+            <Route path="/login" element={
+              <SectionErrorBoundary sectionName="Login">
+                <Login onLogin={handleLoginSuccess} autoFocusEmail={true} />
+              </SectionErrorBoundary>
+            } />
+            <Route path="/register" element={
+              <SectionErrorBoundary sectionName="Registration">
+                <Register autoFocusUsername={true} />
+              </SectionErrorBoundary>
+            } />
+            <Route path="*" element={
+              <SectionErrorBoundary sectionName="Login">
+                <Login onLogin={handleLoginSuccess} autoFocusEmail={true} />
+              </SectionErrorBoundary>
+            } />
+          </Routes>
+          </Suspense>
+        </ErrorBoundary>
         {/* Global Notification Toast for unauthenticated users */}
         <NotificationToast />
       </div>
