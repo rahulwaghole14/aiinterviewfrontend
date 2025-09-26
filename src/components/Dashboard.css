@@ -178,8 +178,17 @@
   min-width: 500px; /* Minimum width to enable horizontal scrolling on all screens */
 }
 
-.chart-bar {
+.chart-bar-item {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   flex: 1;
+  min-width: 0;
+  position: relative;
+}
+
+.chart-bar {
+  width: 100%;
   background-color: var(--color-primary); /* Default bar color */
   border-radius: var(--radius-small);
   transition: background-color 0.3s ease, transform 0.2s ease;
@@ -223,6 +232,7 @@
   align-items: center;
   flex: 1;
   min-width: 0;
+  position: relative;
 }
 
 .x-axis-label {
@@ -426,6 +436,11 @@
   .chart-bars {
     padding-left: 25px;
   }
+  
+  .chart-bar-item {
+    flex: 1;
+    min-width: 0;
+  }
 
   .chart-x-axis {
     width: 100%; /* Full width to match chart-bars */
@@ -492,6 +507,11 @@
   .chart-bars {
     padding-left: 20px;
   }
+  
+  .chart-bar-item {
+    flex: 1;
+    min-width: 0;
+  }
 
   .chart-x-axis {
     width: 100%; /* Full width to match chart-bars */
@@ -552,6 +572,11 @@
 
   .chart-bars {
     padding-left: 15px;
+  }
+  
+  .chart-bar-item {
+    flex: 1;
+    min-width: 0;
   }
   
   .chart-x-axis {

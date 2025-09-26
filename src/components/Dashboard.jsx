@@ -57,28 +57,29 @@ const BarChart = React.memo(({ data, title, xLabel, yLabel, tooltipLabelPrefix, 
               const isHovered = hoveredBar?.index === index;
               
               return (
-                <div
-                  key={item[dataKey]}
-                  className={`chart-bar ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''}`}
-                  style={{ height: `${height}%` }}
-                  onMouseEnter={() => setHoveredBar({ ...item, index })}
-                  onMouseLeave={() => setHoveredBar(null)}
-                  onClick={() => handleBarClick(item, index)}
-                >
-                  {(isHovered || isSelected) && (
-                    <div className="chart-tooltip">
-                      <div className="tooltip-title">{item[dataKey]}</div>
-                      <div className="tooltip-content">
-                        <div>Count: {item.count}</div>
-                        <div>Percentage: {percentage}%</div>
+                <div key={item[dataKey]} className="chart-bar-item">
+                  <div
+                    className={`chart-bar ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''}`}
+                    style={{ height: `${height}%` }}
+                    onMouseEnter={() => setHoveredBar({ ...item, index })}
+                    onMouseLeave={() => setHoveredBar(null)}
+                    onClick={() => handleBarClick(item, index)}
+                  >
+                    {(isHovered || isSelected) && (
+                      <div className="chart-tooltip">
+                        <div className="tooltip-title">{item[dataKey]}</div>
+                        <div className="tooltip-content">
+                          <div>Count: {item.count}</div>
+                          <div>Percentage: {percentage}%</div>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {isSelected && (
-                    <div className="chart-bar-value">
-                      {showPercentage ? `${percentage}%` : item.count}
-                    </div>
-                  )}
+                    )}
+                    {isSelected && (
+                      <div className="chart-bar-value">
+                        {showPercentage ? `${percentage}%` : item.count}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}
