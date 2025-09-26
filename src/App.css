@@ -716,15 +716,93 @@ body, html {
     position: relative; /* Back to relative positioning */
     transform: translateX(0); /* Ensure it's not off-screen */
     width: var(--sidebar-collapsed-width); /* Fixed width for collapsed state */
-    padding: 2rem 0.5rem; /* Padding for collapsed state */
+    padding: 1.5rem 0.5rem; /* Reduced padding for mobile */
   }
 
   .sidebar .logo-link {
     justify-content: center; /* Center logo */
+    padding: 0.75rem 0.5rem; /* Better touch target */
+  }
+
+  /* Enhanced mobile header */
+  .header {
+    padding: 1rem 0.75rem; /* Reduced padding for mobile */
+    min-height: 60px; /* Consistent header height */
+  }
+
+  .header-title {
+    font-size: 1.25rem; /* Smaller title on mobile */
+  }
+
+  /* Better mobile content area */
+  .content-area {
+    padding: 1rem 0.75rem; /* Reduced padding for mobile */
+    overflow-x: hidden; /* Prevent horizontal scroll */
+  }
+
+  /* Enhanced mobile cards */
+  .card {
+    padding: 1rem; /* Reduced padding for mobile */
+    margin-bottom: 1rem;
+  }
+
+  /* Better mobile forms */
+  input, textarea, select {
+    min-height: 44px; /* Better touch target */
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  /* Enhanced mobile buttons */
+  .btn, button {
+    min-height: 44px; /* Better touch target */
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
   }
 
   .sidebar .brand-name {
     display: none; /* Hide brand name */
+  }
+
+  /* Enhanced mobile sidebar items */
+  .sidebar-item {
+    padding: 0.75rem 0.5rem; /* Better touch target */
+    margin-bottom: 0.25rem;
+  }
+
+  /* Mobile-optimized tables */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+
+  /* Mobile-optimized modals */
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  /* Mobile-optimized search */
+  .header-search {
+    display: none; /* Hide desktop search on mobile */
+  }
+
+  .mobile-search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .mobile-search-icon:hover {
+    background: var(--color-hover);
+    border-color: var(--color-primary);
   }
 
   .sidebar .sidebar-item {
