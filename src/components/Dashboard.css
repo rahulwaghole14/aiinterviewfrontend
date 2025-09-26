@@ -214,6 +214,7 @@
   margin-top: 0.5rem;
   padding-left: 30px; /* Match chart-bars padding for Y-axis label */
   padding-right: 0.5rem; /* Match chart-bars right padding */
+  gap: 0.5rem; /* Match chart-bars gap */
 }
 
 .x-axis-item {
@@ -431,6 +432,7 @@
     min-width: 350px; /* Match chart-bars min-width */
     padding-left: 25px; /* Match chart-bars padding for Y-axis label */
     padding-right: 0.5rem; /* Match chart-bars right padding */
+    gap: 0.5rem; /* Match chart-bars gap */
   }
   
   .x-axis-item {
@@ -496,6 +498,7 @@
     min-width: 300px; /* Match chart-bars min-width */
     padding-left: 20px; /* Match chart-bars padding for Y-axis label */
     padding-right: 0.5rem; /* Match chart-bars right padding */
+    gap: 0.5rem; /* Match chart-bars gap */
   }
   
   .x-axis-item {

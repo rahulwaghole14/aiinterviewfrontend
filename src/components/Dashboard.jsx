@@ -89,7 +89,6 @@ const BarChart = React.memo(({ data, title, xLabel, yLabel, tooltipLabelPrefix, 
             <div 
               key={item[dataKey]} 
               className="x-axis-item"
-              style={{ flex: 1 }}
             >
               <span 
                 className="x-axis-label text-xs font-medium"
