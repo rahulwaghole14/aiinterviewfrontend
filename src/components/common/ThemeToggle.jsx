@@ -15,23 +15,19 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
   const calculatePosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      const dropdownWidth = 128; // min-width from CSS
-      const viewportWidth = window.innerWidth;
-      
-      // Center the dropdown under the trigger button
-      const triggerCenter = rect.left + (rect.width / 2);
-      const dropdownLeft = triggerCenter - (dropdownWidth / 2);
-      
-      // Ensure dropdown doesn't go off-screen
-      const adjustedLeft = Math.max(8, Math.min(dropdownLeft, viewportWidth - dropdownWidth - 8));
+      console.log('Trigger element found:', triggerRef.current);
+      console.log('Trigger rect:', rect);
       
       const position = {
-        top: rect.bottom + 2,
-        left: adjustedLeft
+        top: rect.bottom + 5, // Slightly more gap for visibility
+        left: rect.left, // Align left edge with trigger left edge
+        right: 'auto' // Clear any right positioning
       };
       
-      console.log('Dropdown position calculated:', position, 'Trigger rect:', rect, 'Trigger center:', triggerCenter, 'Adjusted left:', adjustedLeft);
+      console.log('Dropdown position calculated:', position);
       setDropdownPosition(position);
+    } else {
+      console.log('Trigger element not found!');
     }
   };
 
@@ -82,6 +78,11 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
     setIsOpen(false);
   };
 
+  const handleToggle = () => {
+    console.log('Theme toggle clicked, current isOpen:', isOpen);
+    setIsOpen(!isOpen);
+  };
+
   if (variant === 'dropdown') {
     return (
       <>
@@ -89,7 +90,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
           <div 
             ref={triggerRef}
             className="theme-dropdown-trigger"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleToggle}
           >
             <span className="theme-icon">
               {isSystemTheme ? <FaDesktop /> : theme === 'dark' ? <FaMoon /> : <FaSun />}
@@ -97,13 +98,14 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
             {showLabels && <span className="theme-label">Theme</span>}
           </div>
         </div>
-        {isOpen && createPortal(
+        {isOpen && console.log('Rendering dropdown with position:', dropdownPosition) && createPortal(
           <div 
             ref={dropdownRef}
             className="theme-dropdown-menu"
             style={{
               top: `${dropdownPosition.top}px`,
-              right: `${dropdownPosition.right}px`
+              left: `${dropdownPosition.left}px`,
+              right: dropdownPosition.right === 'auto' ? 'auto' : `${dropdownPosition.right}px`
             }}
           >
             <button
