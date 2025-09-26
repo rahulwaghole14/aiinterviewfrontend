@@ -1,38 +1,6 @@
 /* src/components/Dashboard.css */
 
-/* Define CSS Variables for theming */
-:root {
-  --color-bg: #f5f7fa; /* Light background for the dashboard */
-  --color-card: #ffffff; /* White background for cards and charts */
-  --color-card-dark: #333333; /* Darker background for tooltips/hover states */
-  --color-text: #4a4a4a; /* Main text color */
-  --color-text-primary: #2c3e50; /* Primary text for titles/headings */
-  --color-text-secondary: #7f8c8d; /* Secondary text for labels/muted info */
-  --color-text-light: #ecf0f1; /* Light text for dark backgrounds */
-  --color-primary: #3498db; /* Blue for primary elements */
-  --color-primary-dark: #2980b9; /* Darker blue */
-  --color-secondary: #9b59b6; /* Purple for secondary elements */
-  --color-secondary-dark: #8e44ad; /* Darker purple */
-  --color-success: #2ecc71; /* Green for success */
-  --color-success-dark: #27ae60; /* Darker green */
-  --color-warning: #f1c40f; /* Yellow for warnings */
-  --color-warning-dark: #f39c12; /* Darker yellow */
-  --color-danger: #e74c3c; /* Red for errors/danger */
-  --color-danger-dark: #c0392b; /* Darker red */
-  --color-info: #3498db; /* Blue for info */
-  --color-info-dark: #2980b9; /* Darker blue */
-  --color-gray: #bdc3c7; /* Gray for general use */
-  --color-muted: #95a5a6; /* Muted gray for less important text */
-  --color-border-light: #ecf0f1; /* Light border color */
-  --color-bg-secondary: #ecf0f1; /* Secondary background, e.g., for table headers */
-  --color-hover: #f0f2f5; /* Light hover state for rows */
-
-  --font-family-base: var(--font-primary);
-  --radius: 8px;
-  --radius-small: 4px;
-  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
+/* Dashboard-specific styles - using global theme variables from App.css */
 
 .dashboard-container {
   display: flex;
