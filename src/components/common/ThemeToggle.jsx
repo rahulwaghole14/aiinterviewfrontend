@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FaSun, FaMoon, FaDesktop } from 'react-icons/fa';
 import './ThemeToggle.css';
@@ -7,40 +6,19 @@ import './ThemeToggle.css';
 const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) => {
   const { theme, isSystemTheme, toggleTheme, setSystemTheme, setLightTheme, setDarkTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
-
-  // Calculate dropdown position
-  const calculatePosition = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      console.log('Trigger element found:', triggerRef.current);
-      console.log('Trigger rect:', rect);
-      
-      const position = {
-        top: rect.bottom + 5, // Slightly more gap for visibility
-        left: rect.left, // Align left edge with trigger left edge
-        right: 'auto' // Clear any right positioning
-      };
-      
-      console.log('Dropdown position calculated:', position);
-      setDropdownPosition(position);
-    } else {
-      console.log('Trigger element not found!');
-    }
-  };
 
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && 
+          triggerRef.current && !triggerRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
 
     if (isOpen) {
-      calculatePosition();
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('touchstart', handleClickOutside);
     }
@@ -51,63 +29,27 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
     };
   }, [isOpen]);
 
-  // Recalculate position on window resize and scroll
-  useEffect(() => {
-    const handleResize = () => {
-      if (isOpen) {
-        calculatePosition();
-      }
-    };
-
-    const handleScroll = () => {
-      if (isOpen) {
-        calculatePosition();
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll, true); // Use capture to catch all scroll events
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll, true);
-    };
-  }, [isOpen]);
-
   const handleThemeSelect = (themeFunction) => {
     themeFunction();
     setIsOpen(false);
   };
 
-  const handleToggle = () => {
-    console.log('Theme toggle clicked, current isOpen:', isOpen);
-    setIsOpen(!isOpen);
-  };
-
   if (variant === 'dropdown') {
     return (
-      <>
-        <div className={`theme-dropdown ${className}`}>
-          <div 
-            ref={triggerRef}
-            className="theme-dropdown-trigger"
-            onClick={handleToggle}
-          >
-            <span className="theme-icon">
-              {isSystemTheme ? <FaDesktop /> : theme === 'dark' ? <FaMoon /> : <FaSun />}
-            </span>
-            {showLabels && <span className="theme-label">Theme</span>}
-          </div>
+      <div className={`theme-dropdown ${isOpen ? 'open' : ''} ${className}`}>
+        <div 
+          ref={triggerRef}
+          className="theme-dropdown-trigger"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <span className="theme-icon">
+            {isSystemTheme ? <FaDesktop /> : theme === 'dark' ? <FaMoon /> : <FaSun />}
+          </span>
+          {showLabels && <span className="theme-label">Theme</span>}
         </div>
-        {isOpen && console.log('Rendering dropdown with position:', dropdownPosition) && createPortal(
-          <div 
-            ref={dropdownRef}
-            className="theme-dropdown-menu"
-            style={{
-              top: `${dropdownPosition.top}px`,
-              left: `${dropdownPosition.left}px`,
-              right: dropdownPosition.right === 'auto' ? 'auto' : `${dropdownPosition.right}px`
-            }}
-          >
+        
+        {isOpen && (
+          <div ref={dropdownRef} className="theme-dropdown-menu">
             <button
               className={`theme-option ${theme === 'light' && !isSystemTheme ? 'active' : ''}`}
               onClick={() => handleThemeSelect(setLightTheme)}
@@ -129,10 +71,9 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
               <FaDesktop className="theme-option-icon" />
               <span>System</span>
             </button>
-          </div>,
-          document.body
+          </div>
         )}
-      </>
+      </div>
     );
   }
 

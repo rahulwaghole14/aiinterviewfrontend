@@ -113,7 +113,6 @@
 .theme-dropdown {
   position: relative;
   display: inline-block;
-  z-index: 1; /* Low z-index for container */
 }
 
 .theme-dropdown-trigger {
@@ -129,8 +128,6 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-text);
-  position: relative;
-  z-index: 1001;
 }
 
 .theme-dropdown-trigger:hover {
@@ -153,30 +150,30 @@
 }
 
 .theme-dropdown-menu {
-  position: fixed;
-  top: auto;
-  right: auto;
-  left: auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
-  width: 8rem; /* Fixed width for consistent centering */
-  z-index: 2147483647; /* Maximum z-index value */
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: var(--transition);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.theme-dropdown.open .theme-dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   pointer-events: auto;
-  overflow: hidden;
-}
-
-
-/* Ensure dropdown appears above everything */
-.theme-dropdown-menu,
-.theme-dropdown-menu * {
-  z-index: 2147483647 !important;
-  position: relative;
 }
 
 .theme-option {
