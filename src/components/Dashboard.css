@@ -172,8 +172,9 @@
   display: flex;
   flex-grow: 1;
   height: 100%;
-  gap: 0.5rem;
+  gap: 0.25rem;
   align-items: flex-end;
+  justify-content: flex-start;
   padding-left: 30px; /* Space for Y-axis label */
   min-width: 500px; /* Minimum width to enable horizontal scrolling on all screens */
 }
@@ -182,10 +183,10 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
   position: relative;
-  width: 100%;
+  width: 60px;
   height: 100%;
 }
 
@@ -226,16 +227,18 @@
   margin-top: 0.5rem;
   padding-left: 30px; /* Match chart-bars padding for Y-axis label */
   padding-right: 0.5rem; /* Match chart-bars right padding */
-  gap: 0.5rem; /* Match chart-bars gap */
+  gap: 0.25rem; /* Match chart-bars gap */
+  justify-content: flex-start;
 }
 
 .x-axis-item {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
   position: relative;
+  width: 60px;
 }
 
 .x-axis-label {
@@ -438,12 +441,14 @@
 
   .chart-bars {
     padding-left: 25px;
+    gap: 0.2rem;
   }
   
   .chart-bar-item {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
     height: 100%;
+    width: 50px;
   }
 
   .chart-x-axis {
@@ -451,12 +456,14 @@
     min-width: 350px; /* Match chart-bars min-width */
     padding-left: 25px; /* Match chart-bars padding for Y-axis label */
     padding-right: 0.5rem; /* Match chart-bars right padding */
-    gap: 0.5rem; /* Match chart-bars gap */
+    gap: 0.2rem; /* Match chart-bars gap */
+    justify-content: flex-start;
   }
   
   .x-axis-item {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
+    width: 50px;
   }
 
   .x-axis-label {
@@ -510,12 +517,14 @@
 
   .chart-bars {
     padding-left: 20px;
+    gap: 0.15rem;
   }
   
   .chart-bar-item {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
     height: 100%;
+    width: 40px;
   }
 
   .chart-x-axis {
@@ -523,12 +532,14 @@
     min-width: 300px; /* Match chart-bars min-width */
     padding-left: 20px; /* Match chart-bars padding for Y-axis label */
     padding-right: 0.5rem; /* Match chart-bars right padding */
-    gap: 0.5rem; /* Match chart-bars gap */
+    gap: 0.15rem; /* Match chart-bars gap */
+    justify-content: flex-start;
   }
   
   .x-axis-item {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
+    width: 40px;
   }
 
   .chart-tooltip {
@@ -577,16 +588,26 @@
 
   .chart-bars {
     padding-left: 15px;
+    gap: 0.1rem;
   }
   
   .chart-bar-item {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
     height: 100%;
+    width: 35px;
   }
   
   .chart-x-axis {
     width: calc(100% - 15px);
+    gap: 0.1rem;
+    justify-content: flex-start;
+  }
+  
+  .x-axis-item {
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 35px;
   }
   
   .activity-table th,
