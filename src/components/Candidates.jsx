@@ -410,7 +410,7 @@ const CandidatePage = () => {
       </div>
 
       <div className="candidates-main-content fixed-grid">
-        <div className={`filter-sidebar-section card ${showMobileFilter ? 'mobile-filter-visible' : 'mobile-filter-hidden'}`}>
+        <div className={`filter-sidebar-section card slide-in-left ${showMobileFilter ? 'mobile-filter-visible' : 'mobile-filter-hidden'}`}>
           <div className="filter-header">
             <h3>Filters</h3>
             <button className="clear-filters" onClick={handleClearFilters}>Clear Filters</button>
@@ -507,7 +507,7 @@ const CandidatePage = () => {
           </div>
         </div>
 
-        <div className="candidate-details-section card">
+        <div className="candidate-details-section card slide-in-right">
           <div className="candidate-status-tabs-container desktop-only">
             {candidateTabsStatusList.map((tab) => (
               <div

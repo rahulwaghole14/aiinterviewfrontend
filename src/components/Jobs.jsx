@@ -918,7 +918,7 @@ const Jobs = () => {
         >
           {/* Left Column: Create New Job Form */}
           {userRole === "ADMIN" || userRole === "COMPANY" ? (
-            <div className={`jobs-form card ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
+            <div className={`jobs-form card slide-in-left ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
               <h2 className="form-title">
                 {editingJobId ? "Edit Job" : "Create New Job"}
               </h2>
@@ -1118,7 +1118,8 @@ const Jobs = () => {
           ) : null}
 
           {/* Job Listings Table */}
-          <DataTable
+          <div className="slide-in-right">
+            <DataTable
             title="Job Listings"
             columns={[
               {
@@ -1281,8 +1282,7 @@ const Jobs = () => {
             defaultPageSize={50}
             pageSizeOptions={[10, 20, 50, 100, 200, 500]}
           />
-
-                    </div>
+          </div>
 
       </div>
 

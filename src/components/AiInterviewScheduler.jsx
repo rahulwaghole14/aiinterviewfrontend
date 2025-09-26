@@ -1276,7 +1276,7 @@ const AiInterviewScheduler = ({
             </div>
 
       {/* Left Side - Form */}
-      <div className={`ai-int-form-container ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
+      <div className={`ai-int-form-container slide-in-left ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
           <div className="ai-int-form">
           <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
@@ -1415,7 +1415,7 @@ const AiInterviewScheduler = ({
       </div>
 
       {/* Interview Slots Table */}
-      <div className="ai-int-table-container">
+      <div className="ai-int-table-container slide-in-right">
         <DataTable
           key={`slots-table-${refreshKey}`}
           title="Interview Slots"
