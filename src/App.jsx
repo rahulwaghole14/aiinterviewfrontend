@@ -1,6 +1,6 @@
 // App.jsx
 import { useState, useEffect, useRef, Suspense, lazy } from 'react';
-import { useLocation, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
+import { useLocation, Route, Routes, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from './redux/actions/searchActions';
 import { setUser, clearUser } from './redux/slices/userSlice'; // Import setUser and clearUser

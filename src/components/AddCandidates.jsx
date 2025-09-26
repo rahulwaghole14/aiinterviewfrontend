@@ -13,11 +13,9 @@ const AddCandidates = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const notify = useNotification();
-  const searchTerm = useSelector((state) => state.search.searchTerm);
   const loggedInUser = useSelector((state) => state.user.user);
   const userRole = loggedInUser?.role;
   const userEmail = loggedInUser?.email;
-  const userCompany = loggedInUser?.company_name;
 
   // Get jobs and domains from Redux store
   const allJobs = useSelector((state) => state.jobs.allJobs || []);
@@ -414,15 +412,6 @@ const AddCandidates = () => {
     return job ? job.job_title : `Job ${jobId}`;
   }, [allJobs]);
 
-  const getDomainId = useCallback((domainName) => {
-    const domain = domains.find(d => d.name === domainName);
-    return domain ? domain.id : '';
-  }, [domains]);
-
-  const getJobId = useCallback((jobTitle) => {
-    const job = allJobs.find(j => j.job_title === jobTitle);
-    return job ? job.id : '';
-  }, [allJobs]);
 
   // Function to handle card/button clicks on mobile
   const handleCardClick = (cardType) => {
