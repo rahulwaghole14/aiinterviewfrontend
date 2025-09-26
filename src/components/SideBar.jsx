@@ -7,7 +7,7 @@ import {
   FiUsers,
   FiBriefcase,
   FiSettings,
-  FiBuilding, // Import new icon for Hiring Agencies
+  FiUserCheck, // Use FiUserCheck for Hiring Agencies
   FiCalendar, // Import new icon for AI Interview Scheduler
   FiBarChart, // Import new icon for Interview Results
   FiDatabase, // Import new icon for Data Listing
@@ -25,7 +25,7 @@ const SideBar = ({ isExpanded, onToggleSidebar, onMenuItemClick }) => {
     { name: 'Add Candidates', path: 'add-candidates', icon: <FiUserPlus size={20} /> },
     { name: 'Candidates', path: 'candidates', icon: <FiUsers size={20} /> },
     { name: 'Jobs', path: 'jobs', icon: <FiBriefcase size={20} /> },
-    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <FiBuilding size={20} />, restrictedRoles: ['recruiter', 'hiring_agency'] },
+    { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <FiUserCheck size={20} />, restrictedRoles: ['recruiter', 'hiring_agency'] },
     { name: 'Talaro Interview Scheduler', path: 'ai-interview-scheduler', icon: <FiCalendar size={20} />, allowedRoles: ['company', 'admin'] },
     // { name: 'Interview Results', path: 'interview-results', icon: <FiBarChart size={20} />, allowedRoles: ['company', 'admin'] },
     { name: 'Settings', path: 'settings', icon: <FiSettings size={20} /> },
