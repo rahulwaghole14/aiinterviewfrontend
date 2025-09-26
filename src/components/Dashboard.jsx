@@ -7,6 +7,7 @@ import { baseURL } from '../data';
 import { isAuthenticated } from '../utils/authUtils';
 import DataTable from './common/DataTable';
 import { useNotification } from '../hooks/useNotification';
+import { SkeletonCard, SkeletonChart } from './common/SkeletonLoader';
 // LoadingSpinner not needed - DataTable handles its own loading state
 
 // Reusable BarChart Component (custom implementation)
@@ -157,71 +158,93 @@ const Dashboard = () => {
       <main className="dashboard-main-content">
         <section className="dashboard-section card-section">
           <div className="dashboard-cards-container stagger-animation">
-            <div className="dashboard-card hover-lift">
-              <h3>Total Resumes Uploaded</h3>
-              <p>{dashboardData.resume_stats.total_uploads}</p>
-            </div>
-            <div className="dashboard-card hover-lift">
-              <h3>Total Candidates</h3>
-              <p>{dashboardData.candidate_stats.total_candidates}</p>
-            </div>
-            <div className="dashboard-card hover-lift">
-              <h3>Total Jobs</h3>
-              <p>{dashboardData.job_stats.total_jobs}</p>
-            </div>
-            <div className="dashboard-card hover-lift">
-              <h3>Total Interviews</h3>
-              <p>{dashboardData.interview_stats.total_interviews}</p>
-            </div>
+            {loading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : (
+              <>
+                <div className="dashboard-card hover-lift">
+                  <h3>Total Resumes Uploaded</h3>
+                  <p>{dashboardData.resume_stats.total_uploads}</p>
+                </div>
+                <div className="dashboard-card hover-lift">
+                  <h3>Total Candidates</h3>
+                  <p>{dashboardData.candidate_stats.total_candidates}</p>
+                </div>
+                <div className="dashboard-card hover-lift">
+                  <h3>Total Jobs</h3>
+                  <p>{dashboardData.job_stats.total_jobs}</p>
+                </div>
+                <div className="dashboard-card hover-lift">
+                  <h3>Total Interviews</h3>
+                  <p>{dashboardData.interview_stats.total_interviews}</p>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
         <section className="dashboard-section dashboard-graphs-container stagger-animation">
-          <div className="hover-lift">
-            <BarChart
-              data={dashboardData.candidate_stats.domain_distribution}
-              title="Candidate Domain Distribution"
-              xLabel="Domain"
-              yLabel="Candidates"
-              tooltipLabelPrefix="Candidates"
-              dataKey="domain"
-            />
-          </div>
-          {dashboardData.resume_stats.daily_trend.length > 0 && (
-            <div className="hover-lift">
-              <BarChart
-                data={dashboardData.resume_stats.daily_trend}
-                title="Resume Uploads Daily Trend"
-                xLabel="Date"
-                yLabel="Uploads"
-                tooltipLabelPrefix="Uploads"
-                dataKey="date"
-              />
-            </div>
-          )}
-          {dashboardData.job_stats.level_distribution.length > 0 && (
-            <div className="hover-lift">
-              <BarChart
-                data={dashboardData.job_stats.level_distribution}
-                title="Job Level Distribution"
-                xLabel="Level"
-                yLabel="Jobs"
-                tooltipLabelPrefix="Jobs"
-                dataKey="position_level"
-              />
-            </div>
-          )}
-          {dashboardData.interview_stats.daily_trend.length > 0 && (
-            <div className="hover-lift">
-              <BarChart
-                data={dashboardData.interview_stats.daily_trend}
-                title="Interview Daily Trend"
-                xLabel="Date"
-                yLabel="Interviews"
-                tooltipLabelPrefix="Interviews"
-                dataKey="date"
-              />
-            </div>
+          {loading ? (
+            <>
+              <SkeletonChart />
+              <SkeletonChart />
+              <SkeletonChart />
+              <SkeletonChart />
+            </>
+          ) : (
+            <>
+              <div className="hover-lift">
+                <BarChart
+                  data={dashboardData.candidate_stats.domain_distribution}
+                  title="Candidate Domain Distribution"
+                  xLabel="Domain"
+                  yLabel="Candidates"
+                  tooltipLabelPrefix="Candidates"
+                  dataKey="domain"
+                />
+              </div>
+              {dashboardData.resume_stats.daily_trend.length > 0 && (
+                <div className="hover-lift">
+                  <BarChart
+                    data={dashboardData.resume_stats.daily_trend}
+                    title="Resume Uploads Daily Trend"
+                    xLabel="Date"
+                    yLabel="Uploads"
+                    tooltipLabelPrefix="Uploads"
+                    dataKey="date"
+                  />
+                </div>
+              )}
+              {dashboardData.job_stats.level_distribution.length > 0 && (
+                <div className="hover-lift">
+                  <BarChart
+                    data={dashboardData.job_stats.level_distribution}
+                    title="Job Level Distribution"
+                    xLabel="Level"
+                    yLabel="Jobs"
+                    tooltipLabelPrefix="Jobs"
+                    dataKey="position_level"
+                  />
+                </div>
+              )}
+              {dashboardData.interview_stats.daily_trend.length > 0 && (
+                <div className="hover-lift">
+                  <BarChart
+                    data={dashboardData.interview_stats.daily_trend}
+                    title="Interview Daily Trend"
+                    xLabel="Date"
+                    yLabel="Interviews"
+                    tooltipLabelPrefix="Interviews"
+                    dataKey="date"
+                  />
+                </div>
+              )}
+            </>
           )}
         </section>
 

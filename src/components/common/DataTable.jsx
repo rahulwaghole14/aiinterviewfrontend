@@ -23,6 +23,7 @@ import React, {
 import LoadingSpinner from "./LoadingSpinner";
 import TimePicker12 from "./TimePicker12";
 import { ConfirmModal } from "./Modal";
+import { SkeletonTable } from "./SkeletonLoader";
 import "./DataTable.css";
 import PropTypes from "prop-types";
   
@@ -1091,18 +1092,7 @@ import PropTypes from "prop-types";
   
     const renderTableBody = () => {
       if (loading) {
-        return (
-          <tr>
-            <td
-              colSpan={tableColumns.length + (enableRowSelection ? 1 : 0)}
-              className="loading-cell"
-            >
-              <div className="loading-container">
-                <LoadingSpinner message="Loading data..." />
-              </div>
-            </td>
-          </tr>
-        );
+        return null; // Skeleton will be rendered outside the table
       }
   
       if (!displayedData.length) {
@@ -1204,51 +1194,55 @@ import PropTypes from "prop-types";
           </div>
   
           <div className="table-responsive" ref={tableRef}>
-            <table className="data-table" role="table" aria-label={title || "Data table"}>
-              <thead>
-                <tr>
-                  {enableRowSelection && (
-                    <th className="selection-header" scope="col" aria-label="Select row">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.length === displayedData.length && displayedData.length > 0}
-                        onChange={handleSelectAll}
-                        aria-label="Select all rows"
-                      />
-                    </th>
-                  )}
-                  {tableColumns.map((column, index) => (
-                    <th
-                      key={column.key || column.field || index}
-                      className={`${column.className || ""} ${column.field && column.field !== 'actions' ? 'sortable' : ''}`}
-                      style={{
-                        ...(column.width && { width: column.width }),
-                        ...(column.align && { textAlign: column.align }),
-                        ...(column.style || {}),
-                      }}
-                      onClick={() => handleSort(column.field)}
-                      scope="col"
-                      aria-sort={
-                        column.field && column.field !== 'actions' && sortConfig.field === column.field
-                          ? sortConfig.direction === 'asc' ? 'ascending' : 'descending'
-                          : 'none'
-                      }
-                      aria-label={`${column.header || column.title}${column.field && column.field !== 'actions' ? ', click to sort' : ''}`}
-                    >
-                      <div className="header-content">
-                        <span className="header-text">{column.header || column.title}</span>
-                        {column.field && column.field !== 'actions' && (
-                          <span className="sort-icon-container" aria-hidden="true">
-                            {getSortIcon(column.field)}
-                          </span>
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>{renderTableBody()}</tbody>
-            </table>
+            {loading ? (
+              <SkeletonTable />
+            ) : (
+              <table className="data-table" role="table" aria-label={title || "Data table"}>
+                <thead>
+                  <tr>
+                    {enableRowSelection && (
+                      <th className="selection-header" scope="col" aria-label="Select row">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.length === displayedData.length && displayedData.length > 0}
+                          onChange={handleSelectAll}
+                          aria-label="Select all rows"
+                        />
+                      </th>
+                    )}
+                    {tableColumns.map((column, index) => (
+                      <th
+                        key={column.key || column.field || index}
+                        className={`${column.className || ""} ${column.field && column.field !== 'actions' ? 'sortable' : ''}`}
+                        style={{
+                          ...(column.width && { width: column.width }),
+                          ...(column.align && { textAlign: column.align }),
+                          ...(column.style || {}),
+                        }}
+                        onClick={() => handleSort(column.field)}
+                        scope="col"
+                        aria-sort={
+                          column.field && column.field !== 'actions' && sortConfig.field === column.field
+                            ? sortConfig.direction === 'asc' ? 'ascending' : 'descending'
+                            : 'none'
+                        }
+                        aria-label={`${column.header || column.title}${column.field && column.field !== 'actions' ? ', click to sort' : ''}`}
+                      >
+                        <div className="header-content">
+                          <span className="header-text">{column.header || column.title}</span>
+                          {column.field && column.field !== 'actions' && (
+                            <span className="sort-icon-container" aria-hidden="true">
+                              {getSortIcon(column.field)}
+                            </span>
+                          )}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>{renderTableBody()}</tbody>
+              </table>
+            )}
           </div>
         </div>
   
