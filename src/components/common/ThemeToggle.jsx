@@ -18,18 +18,19 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
       const dropdownWidth = 128; // min-width from CSS
       const viewportWidth = window.innerWidth;
       
-      // Calculate if dropdown would go off-screen to the right
-      const wouldOverflowRight = rect.right - dropdownWidth < 0;
+      // Center the dropdown under the trigger button
+      const triggerCenter = rect.left + (rect.width / 2);
+      const dropdownLeft = triggerCenter - (dropdownWidth / 2);
+      
+      // Ensure dropdown doesn't go off-screen
+      const adjustedLeft = Math.max(8, Math.min(dropdownLeft, viewportWidth - dropdownWidth - 8));
       
       const position = {
         top: rect.bottom + 2,
-        ...(wouldOverflowRight 
-          ? { left: rect.left } // Use left positioning if right would overflow
-          : { right: viewportWidth - rect.right } // Use right positioning normally
-        )
+        left: adjustedLeft
       };
       
-      console.log('Dropdown position calculated:', position, 'Trigger rect:', rect, 'Would overflow right:', wouldOverflowRight);
+      console.log('Dropdown position calculated:', position, 'Trigger rect:', rect, 'Trigger center:', triggerCenter, 'Adjusted left:', adjustedLeft);
       setDropdownPosition(position);
     }
   };

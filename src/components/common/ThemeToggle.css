@@ -162,6 +162,7 @@
   border-radius: var(--radius);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 8rem;
+  width: 8rem; /* Fixed width for consistent centering */
   z-index: 2147483647; /* Maximum z-index value */
   opacity: 1;
   visibility: visible;
