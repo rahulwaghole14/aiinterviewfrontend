@@ -10,72 +10,113 @@ import { useNotification } from '../hooks/useNotification';
 import { SkeletonCard, SkeletonChart } from './common/SkeletonLoader';
 // LoadingSpinner not needed - DataTable handles its own loading state
 
-// Reusable BarChart Component (custom implementation)
-const BarChart = React.memo(({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) => {
+// Enhanced Interactive BarChart Component
+const BarChart = React.memo(({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey, chartType = 'bar' }) => {
   if (!data || data.length === 0) {
     return <div className="chart-container no-data">No data available for {title}.</div>;
   }
 
   const maxCount = Math.max(...data.map(item => item.count));
   const [hoveredBar, setHoveredBar] = useState(null);
+  const [selectedBar, setSelectedBar] = useState(null);
+  const [showPercentage, setShowPercentage] = useState(false);
+  const totalCount = data.reduce((sum, item) => sum + item.count, 0);
+
+  const handleBarClick = (item, index) => {
+    setSelectedBar(selectedBar?.index === index ? null : { ...item, index });
+  };
+
+  const togglePercentage = () => {
+    setShowPercentage(!showPercentage);
+  };
 
   return (
-    <div className="chart-container card">
-      <h3 className="chart-title h4">{title}</h3>
+    <div className="chart-container card interactive-chart">
+      <div className="chart-header">
+        <h3 className="chart-title h4">{title}</h3>
+        <div className="chart-controls">
+          <button 
+            className={`chart-toggle-btn ${showPercentage ? 'active' : ''}`}
+            onClick={togglePercentage}
+            title="Toggle between count and percentage view"
+          >
+            {showPercentage ? '%' : '#'}
+          </button>
+        </div>
+      </div>
       <div className="chart-content">
         <div className="chart-bars-wrapper">
           <div className="y-axis-label text-sm font-medium">{yLabel}</div>
           <div className="chart-bars">
-            {data.map((item, index) => (
-              <div
-                key={item[dataKey]}
-                className="chart-bar"
-                style={{ height: `${(item.count / maxCount) * 100}%` }}
-                onMouseEnter={() => setHoveredBar({ ...item, index })}
-                onMouseLeave={() => setHoveredBar(null)}
-              >
-                {hoveredBar && hoveredBar.index === index && (
-                  <div className="chart-tooltip">
-                    {tooltipLabelPrefix}: {item.count}
-                  </div>
-                )}
-              </div>
-            ))}
+            {data.map((item, index) => {
+              const height = showPercentage 
+                ? (item.count / totalCount) * 100 
+                : (item.count / maxCount) * 100;
+              const percentage = ((item.count / totalCount) * 100).toFixed(1);
+              const isSelected = selectedBar?.index === index;
+              const isHovered = hoveredBar?.index === index;
+              
+              return (
+                <div
+                  key={item[dataKey]}
+                  className={`chart-bar ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''}`}
+                  style={{ height: `${height}%` }}
+                  onMouseEnter={() => setHoveredBar({ ...item, index })}
+                  onMouseLeave={() => setHoveredBar(null)}
+                  onClick={() => handleBarClick(item, index)}
+                >
+                  {(isHovered || isSelected) && (
+                    <div className="chart-tooltip">
+                      <div className="tooltip-title">{item[dataKey]}</div>
+                      <div className="tooltip-content">
+                        <div>Count: {item.count}</div>
+                        <div>Percentage: {percentage}%</div>
+                      </div>
+                    </div>
+                  )}
+                  {isSelected && (
+                    <div className="chart-bar-value">
+                      {showPercentage ? `${percentage}%` : item.count}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
         <div className="chart-x-axis">
-          {data.map(item => (
-            <span 
+          {data.map((item, index) => (
+            <div 
               key={item[dataKey]} 
-              className="x-axis-label text-xs font-medium"
-              title={item[dataKey]} // Native tooltip for mobile
-              onTouchStart={(e) => {
-                // Mobile touch interaction
-                e.preventDefault();
-                const tooltip = e.target.querySelector('.x-axis-label-tooltip');
-                if (tooltip) {
-                  tooltip.style.opacity = '1';
-                  tooltip.style.visibility = 'visible';
-                }
-              }}
-              onTouchEnd={(e) => {
-                // Hide tooltip on touch end
-                const tooltip = e.target.querySelector('.x-axis-label-tooltip');
-                if (tooltip) {
-                  tooltip.style.opacity = '0';
-                  tooltip.style.visibility = 'hidden';
-                }
-              }}
+              className="x-axis-item"
+              style={{ flex: 1 }}
             >
-              {item[dataKey]}
-              <div className="x-axis-label-tooltip">
-                {item[dataKey]}
-              </div>
-            </span>
+              <span 
+                className="x-axis-label text-xs font-medium"
+                title={item[dataKey]}
+              >
+                {item[dataKey].length > 10 ? `${item[dataKey].substring(0, 10)}...` : item[dataKey]}
+              </span>
+            </div>
           ))}
         </div>
-        <div className="x-x-axis-title">{xLabel}</div>
+        <div className="x-axis-title">{xLabel}</div>
       </div>
+      {selectedBar && (
+        <div className="chart-details">
+          <h4>Details for {selectedBar[dataKey]}</h4>
+          <div className="detail-stats">
+            <div className="stat-item">
+              <span className="stat-label">Count:</span>
+              <span className="stat-value">{selectedBar.count}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Percentage:</span>
+              <span className="stat-value">{((selectedBar.count / totalCount) * 100).toFixed(1)}%</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });
@@ -198,51 +239,43 @@ const Dashboard = () => {
             </>
           ) : (
             <>
-              <div className="hover-lift">
-                <BarChart
-                  data={dashboardData.candidate_stats.domain_distribution}
-                  title="Candidate Domain Distribution"
-                  xLabel="Domain"
-                  yLabel="Candidates"
-                  tooltipLabelPrefix="Candidates"
-                  dataKey="domain"
-                />
-              </div>
+              <BarChart
+                data={dashboardData.candidate_stats.domain_distribution}
+                title="Candidate Domain Distribution"
+                xLabel="Domain"
+                yLabel="Candidates"
+                tooltipLabelPrefix="Candidates"
+                dataKey="domain"
+              />
               {dashboardData.resume_stats.daily_trend.length > 0 && (
-                <div className="hover-lift">
-                  <BarChart
-                    data={dashboardData.resume_stats.daily_trend}
-                    title="Resume Uploads Daily Trend"
-                    xLabel="Date"
-                    yLabel="Uploads"
-                    tooltipLabelPrefix="Uploads"
-                    dataKey="date"
-                  />
-                </div>
+                <BarChart
+                  data={dashboardData.resume_stats.daily_trend}
+                  title="Resume Uploads Daily Trend"
+                  xLabel="Date"
+                  yLabel="Uploads"
+                  tooltipLabelPrefix="Uploads"
+                  dataKey="date"
+                />
               )}
               {dashboardData.job_stats.level_distribution.length > 0 && (
-                <div className="hover-lift">
-                  <BarChart
-                    data={dashboardData.job_stats.level_distribution}
-                    title="Job Level Distribution"
-                    xLabel="Level"
-                    yLabel="Jobs"
-                    tooltipLabelPrefix="Jobs"
-                    dataKey="position_level"
-                  />
-                </div>
+                <BarChart
+                  data={dashboardData.job_stats.level_distribution}
+                  title="Job Level Distribution"
+                  xLabel="Level"
+                  yLabel="Jobs"
+                  tooltipLabelPrefix="Jobs"
+                  dataKey="position_level"
+                />
               )}
               {dashboardData.interview_stats.daily_trend.length > 0 && (
-                <div className="hover-lift">
-                  <BarChart
-                    data={dashboardData.interview_stats.daily_trend}
-                    title="Interview Daily Trend"
-                    xLabel="Date"
-                    yLabel="Interviews"
-                    tooltipLabelPrefix="Interviews"
-                    dataKey="date"
-                  />
-                </div>
+                <BarChart
+                  data={dashboardData.interview_stats.daily_trend}
+                  title="Interview Daily Trend"
+                  xLabel="Date"
+                  yLabel="Interviews"
+                  tooltipLabelPrefix="Interviews"
+                  dataKey="date"
+                />
               )}
             </>
           )}
