@@ -94,7 +94,7 @@ const BarChart = React.memo(({ data, title, xLabel, yLabel, tooltipLabelPrefix, 
                 className="x-axis-label text-xs font-medium"
                 title={item[dataKey]}
               >
-                {item[dataKey].length > 10 ? `${item[dataKey].substring(0, 10)}...` : item[dataKey]}
+                {item[dataKey].length > 6 ? `${item[dataKey].substring(0, 6)}...` : item[dataKey]}
               </span>
             </div>
           ))}
