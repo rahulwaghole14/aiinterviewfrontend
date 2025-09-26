@@ -94,21 +94,35 @@
   margin-bottom: 1.5rem;
 }
 
-.candidate-header-container {
+.back-button-container {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: center;
   margin-bottom: 1rem;
+}
+
+.candidate-main-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.candidate-info-section {
+  flex: 1;
+  min-width: 0;
+  max-width: calc(100% - 350px);
+  overflow: hidden;
 }
 
 .candidate-name-display {
   font-size: 2.25rem;
   font-weight: 700;
   color: var(--color-text);
-  margin: 0;
+  margin: 0 0 1.5rem 0;
   line-height: 1.2;
-  flex: 1;
-  margin-bottom: 0.5rem;
 }
 
 .candidate-status-badge {
@@ -137,6 +151,8 @@
   grid-template-columns: 1fr;
   gap: 0.75rem;
   margin-bottom: 0.5rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .detail-row {
@@ -859,6 +875,29 @@
     font-size: 1.5rem;
   }
 
+  .candidate-main-layout {
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow: visible;
+  }
+
+  .candidate-info-section {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .hire-recommendation-section {
+    width: 100%;
+    min-width: auto;
+    max-width: none;
+  }
+
+  .test-scores-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
   .details-grid {
     grid-template-columns: 1fr;
   }
@@ -900,6 +939,24 @@
 
   .candidate-name-display {
     font-size: 1.2rem;
+  }
+
+  .test-scores-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .test-score-item {
+    padding: 0.4rem;
+  }
+
+  .test-score-label {
+    font-size: 0.7rem;
+  }
+
+  .test-score-value {
+    font-size: 0.8rem;
+    min-width: 50px;
   }
 
   .section-title {
@@ -1842,4 +1899,180 @@
 .score-value .score.low-score {
   color: var(--color-danger);
   border-color: var(--color-danger);
+}
+
+/* Hire Recommendation Card Styles */
+.hire-recommendation-card {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow-soft);
+  min-width: 280px;
+}
+
+.hire-recommendation-card .hire-recommendation {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.hire-recommendation-card .hire-recommendation strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.hire-recommendation-card .recommendation {
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.hire-recommendation-card .recommendation.recommended {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.hire-recommendation-card .recommendation.not-recommended {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Test Scores Styles */
+.test-scores h4 {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.test-scores-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.test-score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+  transition: all 0.2s ease;
+}
+
+.test-score-item:hover {
+  background-color: var(--color-bg);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.test-score-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.test-score-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  text-align: center;
+  min-width: 60px;
+}
+
+.test-score-value.high-score {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.test-score-value.medium-score {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.test-score-value.low-score {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+/* Hire Recommendation Section - Right side */
+.hire-recommendation-section {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
+  flex-shrink: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+.hire-recommendation-section .hire-recommendation {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--color-border-light);
+}
+
+.hire-recommendation-section .hire-recommendation strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.hire-recommendation-section .recommendation {
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.hire-recommendation-section .recommendation.recommended {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.hire-recommendation-section .recommendation.not-recommended {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Status Indicators */
+.status-indicator {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-small);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator.evaluated {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-indicator.pending {
+  background-color: #fef3c7;
+  color: #92400e;
 }

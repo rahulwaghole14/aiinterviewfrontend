@@ -628,60 +628,168 @@ const CandidateDetails = () => {
       <div className={`candidate-details-layout ${showStatusModal ? 'blur-background' : ''}`}>
       <div className="candidate-details-left-panel" style={{ paddingBottom: '50px' }}>
         <div className="candidate-details-content card">
-          <div className="back-button-container">
-            <button className="back-button" onClick={() => navigate(-1)}>
-              <FiChevronLeft size={24} /> Back
-            </button>
+          <div className="candidate-main-layout">
+            <div className="candidate-info-section">
+              <div className="back-button-container">
+                <button className="back-button" onClick={() => navigate(-1)}>
+                  <FiChevronLeft size={24} /> Back
+                </button>
+              </div>
+              
+              <h1 className="candidate-name-display">
+                {candidate.name || "N/A"}
+              </h1>
+              
+              <div className="details-grid">
+                <div className="detail-row">
+                  <span className="detail-label">Email:</span>
+                  <span className="detail-value">{candidate.email}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Phone:</span>
+                  <span className="detail-value">{candidate.phone}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Experience:</span>
+                  <span className="detail-value">
+                    {candidate.workExperience} years
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Domain:</span>
+                  <span className="detail-value">
+                    {getDomainName(candidate.domain)}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Job Title:</span>
+                  <span className="detail-value">
+                    {getJobTitle(candidate.jobRole)}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Applied On:</span>
+                  <span className="detail-value">
+                    {candidate.applicationDate
+                      ? (() => {
+                          try {
+                            const date = new Date(candidate.applicationDate);
+                            return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
+                          } catch (error) {
+                            console.error("Error parsing application date:", error);
+                            return "N/A";
+                          }
+                        })()
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Status:</span>
+                  <span className="detail-value">
+                    <span className={`status-badge ${currentStatus.toLowerCase()}`}>
+                      {currentStatus.replace(/_/g, " ")}
+                    </span>
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Last Updated:</span>
+                  <span className="detail-value">
+                    {candidate.last_updated
+                      ? (() => {
+                          try {
+                            const date = new Date(candidate.last_updated);
+                            return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            });
+                          } catch (error) {
+                            console.error("Error parsing last updated date:", error);
+                            return "N/A";
+                          }
+                        })()
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Interview Count:</span>
+                  <span className="detail-value">
+                    {interviews.length} interview{interviews.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">AI Evaluated:</span>
+                  <span className="detail-value">
+                    {interviews.some((i) => i.ai_result) ? (
+                      <span className="status-indicator evaluated">Yes</span>
+                    ) : (
+                      <span className="status-indicator pending">No</span>
+                    )}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Manual Evaluated:</span>
+                  <span className="detail-value">
+                    {interviews.some((i) => i.evaluation) ? (
+                      <span className="status-indicator evaluated">Yes</span>
+                    ) : (
+                      <span className="status-indicator pending">No</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Hire Recommendation and Test Scores - Right side */}
+            {interviews.some((i) => i.ai_result) && (
+              <div className="hire-recommendation-section">
+                <div className="hire-recommendation">
+                  <strong>Hire Recommendation:</strong>{" "}
+                  <span className={`recommendation ${interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
+                    {interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
+                  </span>
+                </div>
+                <div className="test-scores">
+                  <h4>Test Scores</h4>
+                  <div className="test-scores-grid">
+                    {interviews.find(i => i.ai_result)?.ai_result.total_score !== undefined && (
+                      <div className="test-score-item">
+                        <span className="test-score-label">Total Score</span>
+                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.total_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
+                          {interviews.find(i => i.ai_result)?.ai_result.total_score?.toFixed(1) || "N/A"}/100
+                        </span>
+                      </div>
+                    )}
+                    {interviews.find(i => i.ai_result)?.ai_result.technical_score !== undefined && (
+                      <div className="test-score-item">
+                        <span className="test-score-label">Technical</span>
+                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.technical_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
+                          {interviews.find(i => i.ai_result)?.ai_result.technical_score?.toFixed(1) || "N/A"}/100
+                        </span>
+                      </div>
+                    )}
+                    {interviews.find(i => i.ai_result)?.ai_result.behavioral_score !== undefined && (
+                      <div className="test-score-item">
+                        <span className="test-score-label">Behavioral</span>
+                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.behavioral_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
+                          {interviews.find(i => i.ai_result)?.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
+                        </span>
+                      </div>
+                    )}
+                    {interviews.find(i => i.ai_result)?.ai_result.coding_score !== undefined && (
+                      <div className="test-score-item">
+                        <span className="test-score-label">Coding</span>
+                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.coding_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
+                          {interviews.find(i => i.ai_result)?.ai_result.coding_score?.toFixed(1) || "N/A"}/100
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="candidate-header-container">
-            <h1 className="candidate-name-display">
-              {candidate.name || "N/A"}
-            </h1>
-          </div>
-          <div className="details-grid">
-            <div className="detail-row">
-              <span className="detail-label">Email:</span>
-              <span className="detail-value">{candidate.email}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Phone:</span>
-              <span className="detail-value">{candidate.phone}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Experience:</span>
-              <span className="detail-value">
-                {candidate.workExperience} years
-              </span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Domain:</span>
-              <span className="detail-value">
-                {getDomainName(candidate.domain)}
-              </span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Job Title:</span>
-              <span className="detail-value">
-                {getJobTitle(candidate.jobRole)}
-              </span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Applied On:</span>
-              <span className="detail-value">
-                {candidate.applicationDate
-                  ? (() => {
-                      try {
-                        const date = new Date(candidate.applicationDate);
-                        return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
-                      } catch (error) {
-                        console.error("Error parsing application date:", error);
-                        return "N/A";
-                      }
-                    })()
-                  : "N/A"}
-              </span>
-            </div>
-          </div>
+
           <hr className="details-divider" />
           <h3>POC Details</h3>
           <div className="poc-details-section">
@@ -707,41 +815,6 @@ const CandidateDetails = () => {
                       </span>
                     </div>
                     
-                    <div className="score-breakdown">
-                      <div className="score-item">
-                        <strong>Total Score:</strong>{" "}
-                        <span className={`score ${interview.ai_result.total_score >= 80 ? "high-score" : interview.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interview.ai_result.total_score?.toFixed(1) || "N/A"}/100
-                        </span>
-                      </div>
-                      
-                      {interview.ai_result.technical_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Technical Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.technical_score >= 80 ? "high-score" : interview.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.technical_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                      
-                      {interview.ai_result.behavioral_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Behavioral Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.behavioral_score >= 80 ? "high-score" : interview.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                      
-                      {interview.ai_result.coding_score !== undefined && (
-                        <div className="score-item">
-                          <strong>Coding Score:</strong>{" "}
-                          <span className={`score ${interview.ai_result.coding_score >= 80 ? "high-score" : interview.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.coding_score?.toFixed(1) || "N/A"}/100
-                          </span>
-                        </div>
-                      )}
-                    </div>
                     
                     <div className="performance-metrics">
                       <div className="metric-item">
@@ -833,19 +906,6 @@ const CandidateDetails = () => {
                         </div>
                       );
                     })()}
-                    
-                    <div className="hire-recommendation">
-                      <strong>Hire Recommendation:</strong>{" "}
-                      <span className={`recommendation ${interview.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
-                        {interview.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
-                      </span>
-                    </div>
-                    
-                    {interview.ai_result.confidence_level && (
-                      <div className="confidence-level">
-                        <strong>AI Confidence Level:</strong> {interview.ai_result.confidence_level?.toFixed(1)}%
-                      </div>
-                    )}
                     
                     <div className="evaluation-metadata">
                       <p><strong>Evaluated on:</strong> {new Date(interview.created_at).toLocaleDateString() + ' ' + new Date(interview.created_at).toLocaleTimeString('en-US', {

@@ -253,7 +253,7 @@ const HiringAgencies = () => {
       phone_number: "",
       linkedin_url: "",
       company_name: userRole === "COMPANY" ? userCompany : "",
-      company_id: userRole === "COMPANY" ? (user?.id || "") : "",
+      company_id: userRole === "COMPANY" ? (user?.company_id || user?.id || "") : "",
     });
   }, [activeTab]); // Only depend on activeTab, not userRole or userCompany
 
@@ -746,8 +746,16 @@ const HiringAgencies = () => {
           phone_number: formData.phone_number,
           linkedin_url: formData.linkedin_url,
           role: "Hiring Agency",
-          company_name: formData.company_name,
         };
+        
+        // Handle company name based on user role
+        if (userRole === "COMPANY") {
+          // For company users, don't send company_name - it will be set automatically
+        } else {
+          // For admin users, send company_name as input_company_name
+          payload.input_company_name = formData.company_name;
+        }
+        
         requiredFields = ["first_name", "last_name", "email", "phone_number"];
         break;
         
@@ -756,8 +764,9 @@ const HiringAgencies = () => {
         // For company users, we need to get the company_id from the user object
         // For other users, use the selected company_id from the form
         const recruiterCompanyId = userRole === "COMPANY" 
-          ? (user?.company_id || "") 
+          ? (user?.company_id || user?.id || "") 
           : formData.company_id;
+        
         
         payload = {
           username: formData.username || formData.email,
@@ -792,6 +801,7 @@ const HiringAgencies = () => {
     }
 
 
+    
     // Validate required fields
     const missingFields = requiredFields.filter(field => !formData[field]);
     
@@ -805,6 +815,7 @@ const HiringAgencies = () => {
     try {
       const token = localStorage.getItem("authToken");
       
+      
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -816,9 +827,51 @@ const HiringAgencies = () => {
 
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("❌ API Error Response:", errorData);
-        throw new Error(errorData.message || errorData.detail || "Failed to add user.");
+        const responseText = await response.text();
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+          console.error("❌ API Error Response:", errorData);
+          
+          // Handle validation errors with detailed messages
+          const errorMessages = [];
+          
+          // Handle field-specific errors (both direct fields and nested errors)
+          Object.entries(errorData).forEach(([field, messages]) => {
+            // Skip non-error fields
+            if (field === 'message' || field === 'detail') {
+              return;
+            }
+            
+            if (Array.isArray(messages)) {
+              messages.forEach(msg => errorMessages.push(`${field}: ${msg}`));
+            } else {
+              errorMessages.push(`${field}: ${messages}`);
+            }
+          });
+          
+          // Handle non-field errors
+          if (errorData.non_field_errors) {
+            if (Array.isArray(errorData.non_field_errors)) {
+              errorMessages.push(...errorData.non_field_errors);
+            } else {
+              errorMessages.push(errorData.non_field_errors);
+            }
+          }
+          
+          if (errorMessages.length > 0) {
+            throw new Error(errorMessages.join('; '));
+          }
+          
+          throw new Error(errorData.message || errorData.detail || "Failed to add user.");
+        } catch (parseError) {
+          // If it's HTML (like Django error page), try to extract useful info
+          if (responseText.includes('IntegrityError')) {
+            throw new Error("A user with this username or email already exists. Please use different credentials.");
+          }
+          throw new Error(`Server error (status ${response.status}). Please try again.`);
+        }
       }
 
       const result = await response.json();
@@ -846,7 +899,7 @@ const HiringAgencies = () => {
         phone_number: "",
         linkedin_url: "",
         company_name: userRole === "COMPANY" ? userCompany : "",
-        company_id: "",
+        company_id: userRole === "COMPANY" ? (user?.company_id || user?.id || "") : "",
       };
       setFormData(resetFormData);
       
@@ -888,7 +941,7 @@ const HiringAgencies = () => {
     }
 
     // Find the original user data
-    const originalUser = currentRecords.find(
+    const originalUser = sortedUsers.find(
       (user) => user.id === editingUserId
     );
 
@@ -1095,7 +1148,7 @@ const HiringAgencies = () => {
     }
 
     // Find the original user data
-    const originalUser = currentRecords.find(
+    const originalUser = sortedUsers.find(
       (user) => user.id === editedData.id
     );
 
@@ -1674,7 +1727,7 @@ const HiringAgencies = () => {
       );
     }
 
-    if (currentRecords.length === 0) {
+    if (sortedUsers.length === 0) {
       return (
         <tr>
           <td colSpan="100%" className="text-center py-8 text-gray-500">
@@ -1684,7 +1737,7 @@ const HiringAgencies = () => {
       );
     }
 
-    return currentRecords.map((item) => (
+    return sortedUsers.map((item) => (
       <tr key={item.id}>
         {editingUserId === item.id ? (
           // Edit Mode
@@ -2061,7 +2114,7 @@ const HiringAgencies = () => {
             setEditingUserId(null);
             setEditedUserData(null);
           } else {
-            const item = currentRecords[rowIndex];
+            const item = sortedUsers[rowIndex];
             setEditingUserId(item?.id || null);
             setEditedUserData(item ? { ...item } : null);
           }
