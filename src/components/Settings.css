@@ -1,4 +1,18 @@
 /* Settings Page Styles */
+
+/* Theme Settings */
+.theme-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.theme-system-note {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-style: italic;
+}
 .settings-container {
   display: flex;
   flex-direction: column;

@@ -1,13 +1,15 @@
 // src/components/Settings.jsx
 import React, { useState, useEffect } from 'react';
 import { useNotification } from '../hooks/useNotification';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from './common/ThemeToggle';
 import './Settings.css';
 
 const Settings = ({ onTitleChange }) => {
   const notify = useNotification();
+  const { theme, isSystemTheme } = useTheme();
+  
   // State for various settings
-  // Initialize theme from localStorage or default to 'light'
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(false);
   const [dataExportFormat, setDataExportFormat] = useState('csv'); // 'csv', 'json', 'pdf'
@@ -15,22 +17,11 @@ const Settings = ({ onTitleChange }) => {
   const [autoArchiveJobs, setAutoArchiveJobs] = useState(false); // Toggle for auto-archiving
 
   useEffect(() => {
-    // Apply the theme from state to the document body
-    document.body.setAttribute('data-theme', theme);
-    // Persist theme preference to localStorage
-    localStorage.setItem('theme', theme);
-
     // Update the header title when this component mounts
     if (onTitleChange) {
       onTitleChange('Settings');
     }
-  }, [theme, onTitleChange]); // Re-run when theme or onTitleChange prop changes
-
-  const handleThemeChange = (e) => {
-    const newTheme = e.target.value;
-    setTheme(newTheme);
-    // The useEffect above will handle applying and persisting the new theme
-  };
+  }, [onTitleChange]);
 
   const handleEmailNotificationsToggle = () => {
     setEmailNotifications((prev) => !prev);
@@ -67,11 +58,15 @@ const Settings = ({ onTitleChange }) => {
       <div className="settings-section card">
         <h3>General Settings</h3>
         <div className="setting-item">
-          <label htmlFor="theme-select">Application Theme</label>
-          <select id="theme-select" value={theme} onChange={handleThemeChange} className="settings-select">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
+          <label>Application Theme</label>
+          <div className="theme-settings">
+            <ThemeToggle variant="dropdown" showLabels={true} />
+            {isSystemTheme && (
+              <p className="theme-system-note">
+                Currently using system theme preference
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

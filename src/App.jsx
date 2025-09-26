@@ -28,10 +28,8 @@ import NotificationToast from './components/common/NotificationToast';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import SectionErrorBoundary from './components/common/SectionErrorBoundary';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import { ThemeProvider } from './contexts/ThemeContext';
 import "./App.css";
-
-const initialTheme = localStorage.getItem('theme') || 'light';
-document.body.setAttribute('data-theme', initialTheme);
 
 const getInitialHeaderTitle = () => {
   const path = window.location.pathname.split('/')[1];
@@ -294,7 +292,8 @@ function App() {
   }
 
   return (
-    isLoggedIn ? (
+    <ThemeProvider>
+      {isLoggedIn ? (
       <div className={`app-container ${isSidebarExpanded ? 'expanded' : ''} ${sidebarMobileOpen ? 'sidebar-mobile-open' : ''}`}>
         {isMobile && sidebarMobileOpen && <div className="sidebar-mobile-overlay" onClick={handleMobileSidebarToggle}></div>}
         <SideBar
@@ -442,7 +441,8 @@ function App() {
         {/* Global Notification Toast for unauthenticated users */}
         <NotificationToast />
       </div>
-    )
+      )}
+    </ThemeProvider>
   );
 }
 

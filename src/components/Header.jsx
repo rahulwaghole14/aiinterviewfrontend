@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from '../redux/slices/searchSlice';
 import { searchService } from '../services/searchService';
+import ThemeToggle from './common/ThemeToggle';
 
 const Header = ({
   headerTitle, // Changed from 'title' to 'headerTitle' to match prop name in App.jsx
@@ -381,6 +382,8 @@ const Header = ({
             </div>
           </div>
         )}
+
+        <ThemeToggle variant="button" showLabels={false} className="header-theme-toggle" />
 
         <div className="header-profile-wrapper" ref={profileMenuRef}>
           <div className="header-profile" onClick={handleProfileClick} title="Profile">
