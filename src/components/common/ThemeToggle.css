@@ -188,6 +188,13 @@
   transition: none !important;
 }
 
+/* Hidden state when not positioned */
+.theme-dropdown-portal.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 .theme-option {
   display: flex;
   align-items: center;

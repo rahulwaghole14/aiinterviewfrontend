@@ -8,6 +8,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
   const { theme, isSystemTheme, toggleTheme, setSystemTheme, setLightTheme, setDarkTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [isPositioned, setIsPositioned] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
 
@@ -27,6 +28,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
         top: rect.bottom + 5,
         left: adjustedLeft
       });
+      setIsPositioned(true);
     }
   };
 
@@ -36,11 +38,11 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
       if (dropdownRef.current && !dropdownRef.current.contains(event.target) && 
           triggerRef.current && !triggerRef.current.contains(event.target)) {
         setIsOpen(false);
+        setIsPositioned(false);
       }
     };
 
     if (isOpen) {
-      calculatePosition();
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('touchstart', handleClickOutside);
     }
@@ -54,17 +56,24 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
   const handleThemeSelect = (themeFunction) => {
     themeFunction();
     setIsOpen(false);
+    setIsPositioned(false);
   };
 
   if (variant === 'dropdown') {
     return (
       <>
         <div className={`theme-dropdown ${className}`}>
-          <div 
-            ref={triggerRef}
-            className="theme-dropdown-trigger"
-            onClick={() => setIsOpen(!isOpen)}
-          >
+                 <div 
+                   ref={triggerRef}
+                   className="theme-dropdown-trigger"
+                   onClick={() => {
+                     if (!isOpen) {
+                       setIsPositioned(false);
+                       calculatePosition();
+                     }
+                     setIsOpen(!isOpen);
+                   }}
+                 >
             <span className="theme-icon">
               {isSystemTheme ? <FaDesktop /> : theme === 'dark' ? <FaMoon /> : <FaSun />}
             </span>
@@ -72,15 +81,15 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
           </div>
         </div>
         
-        {isOpen && createPortal(
-          <div 
-            ref={dropdownRef} 
-            className="theme-dropdown-menu theme-dropdown-portal"
-            style={{
-              top: `${position.top}px`,
-              left: `${position.left}px`
-            }}
-          >
+               {isOpen && createPortal(
+                 <div 
+                   ref={dropdownRef} 
+                   className={`theme-dropdown-menu theme-dropdown-portal ${!isPositioned ? 'hidden' : ''}`}
+                   style={{
+                     top: `${position.top}px`,
+                     left: `${position.left}px`
+                   }}
+                 >
             <button
               className={`theme-option ${theme === 'light' && !isSystemTheme ? 'active' : ''}`}
               onClick={() => handleThemeSelect(setLightTheme)}
