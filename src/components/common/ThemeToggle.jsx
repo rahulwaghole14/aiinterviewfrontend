@@ -26,7 +26,7 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
       
       setPosition({
         top: rect.bottom - 5,
-        left: adjustedLeft - 10
+        left: adjustedLeft - 20
       });
       setIsPositioned(true);
     }
