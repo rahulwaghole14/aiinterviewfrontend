@@ -1130,7 +1130,7 @@ const Jobs = () => {
                 render: (value) => (
                   <div title={value}>
                     {value}
-              </div>
+                  </div>
                 ),
               },
               {
@@ -1284,7 +1284,7 @@ const Jobs = () => {
           />
           </div>
 
-      </div>
+        </div>
 
       {/* Create Domain Modal - Moved outside main container */}
       <FormModal
