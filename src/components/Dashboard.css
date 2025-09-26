@@ -185,15 +185,17 @@
   flex: 1;
   min-width: 0;
   position: relative;
+  width: 100%;
 }
 
 .chart-bar {
-  width: 100%;
+  flex: 1;
   background-color: var(--color-primary); /* Default bar color */
   border-radius: var(--radius-small);
   transition: background-color 0.3s ease, transform 0.2s ease;
   position: relative;
   cursor: pointer;
+  min-height: 4px; /* Ensure bars are always visible */
 }
 
 .chart-bar:hover {
