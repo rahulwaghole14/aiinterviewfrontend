@@ -1507,21 +1507,7 @@ input:focus, textarea:focus, select:focus {
   position: relative;
 }
 
-.sidebar-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-  transition: var(--transition);
-  border-radius: 0 var(--radius) var(--radius) 0;
-}
-
-.sidebar-item:hover::before {
-  width: 4px;
-}
+/* Left border removed */
 
 .sidebar-item:hover {
   transform: translateX(4px);
@@ -1534,10 +1520,7 @@ input:focus, textarea:focus, select:focus {
   transform: translateX(4px);
 }
 
-.sidebar-item.active::before {
-  width: 4px;
-  background: white;
-}
+/* Active state left border removed */
 
 /* Modal Animations */
 .modal {
