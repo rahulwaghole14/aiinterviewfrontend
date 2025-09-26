@@ -25,8 +25,8 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
       const adjustedLeft = Math.max(8, Math.min(dropdownLeft, viewportWidth - dropdownWidth - 8));
       
       setPosition({
-        top: rect.bottom + 5,
-        left: adjustedLeft
+        top: rect.bottom - 5,
+        left: adjustedLeft - 10
       });
       setIsPositioned(true);
     }
