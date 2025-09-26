@@ -6,20 +6,20 @@ import React, {
     useMemo,
   } from "react";
   import {
-    FaEllipsisV,
-    FaEdit,
-    FaTrash,
-    FaEye,
-    FaDownload,
-    FaCopy,
-    FaShare,
-    FaSave,
-    FaTimes,
-    FaKey,
-    FaSort,
-    FaSortUp,
-    FaSortDown,
-  } from "react-icons/fa";
+    FiMoreVertical,
+    FiEdit2,
+    FiTrash2,
+    FiEye,
+    FiDownload,
+    FiCopy,
+    FiShare2,
+    FiSave,
+    FiX,
+    FiKey,
+    FiArrowUp,
+    FiArrowDown,
+    FiArrowUpDown,
+  } from "react-icons/fi";
 import LoadingSpinner from "./LoadingSpinner";
 import TimePicker12 from "./TimePicker12";
 import { ConfirmModal } from "./Modal";
@@ -74,15 +74,15 @@ import PropTypes from "prop-types";
     pageSizeOptions = [10, 20, 50, 100],
     defaultPageSize = 10,
     actionIcons = {
-      view: <FaEye />,
-      edit: <FaEdit />,
-      delete: <FaTrash />,
-      download: <FaDownload />,
-      copy: <FaCopy />,
-      share: <FaShare />,
-      save: <FaSave />,
-      cancel: <FaTimes />,
-      reset_password: <FaKey />,
+      view: <FiEye />,
+      edit: <FiEdit2 />,
+      delete: <FiTrash2 />,
+      download: <FiDownload />,
+      copy: <FiCopy />,
+      share: <FiShare2 />,
+      save: <FiSave />,
+      cancel: <FiX />,
+      reset_password: <FiKey />,
     },
     actionLabels = {
       view: "View",
@@ -247,16 +247,16 @@ import PropTypes from "prop-types";
 
     // Get sort icon for column
     const getSortIcon = useCallback((field) => {
-      if (!field || field === 'actions') return <FaSort className="sort-icon" />;
+      if (!field || field === 'actions') return <FiArrowUpDown className="sort-icon" />;
       
       if (sortConfig.field === field) {
         if (sortConfig.direction === 'asc') {
-          return <FaSortUp className="sort-icon active" />;
+          return <FiArrowUp className="sort-icon active" />;
         } else if (sortConfig.direction === 'desc') {
-          return <FaSortDown className="sort-icon active" />;
+          return <FiArrowDown className="sort-icon active" />;
         }
       }
-      return <FaSort className="sort-icon" />;
+      return <FiArrowUpDown className="sort-icon" />;
     }, [sortConfig]);
 
     // Enhanced menu and context menu handling
@@ -471,14 +471,14 @@ import PropTypes from "prop-types";
   
     const getActionIcon = (action) => {
       const iconMap = {
-        view: actionIcons?.view || <FaEye />,
-        edit: actionIcons?.edit || <FaEdit />,
-        delete: actionIcons?.delete || <FaTrash />,
-        download: actionIcons?.download || <FaDownload />,
-        copy: actionIcons?.copy || <FaCopy />,
-        share: actionIcons?.share || <FaShare />,
-        save: actionIcons?.save || <FaSave />,
-        cancel: actionIcons?.cancel || <FaTimes />,
+        view: actionIcons?.view || <FiEye />,
+        edit: actionIcons?.edit || <FiEdit2 />,
+        delete: actionIcons?.delete || <FiTrash2 />,
+        download: actionIcons?.download || <FiDownload />,
+        copy: actionIcons?.copy || <FiCopy />,
+        share: actionIcons?.share || <FiShare2 />,
+        save: actionIcons?.save || <FiSave />,
+        cancel: actionIcons?.cancel || <FiX />,
       };
       return iconMap[action] || null;
     };
@@ -638,7 +638,7 @@ import PropTypes from "prop-types";
             aria-haspopup="true"
             aria-expanded={activeMenu === rowIndex}
           >
-            <FaEllipsisV />
+            <FiMoreVertical />
           </button>
   
           {activeMenu === rowIndex && (
@@ -649,7 +649,7 @@ import PropTypes from "prop-types";
               aria-labelledby={`action-button-${rowIndex}`}
             >
               {actions.map((action) => {
-                const Icon = actionIcons[action]?.type || FaEllipsisV;
+                const Icon = actionIcons[action]?.type || FiMoreVertical;
                 return (
                   <button
                     key={action}
@@ -725,7 +725,7 @@ import PropTypes from "prop-types";
                 }}
               >
                 <span className="context-menu-icon">
-                  {actionIcons[action] || <FaEllipsisV />}
+                  {actionIcons[action] || <FiMoreVertical />}
                 </span>
                 <span className="context-menu-text">
                   {actionLabels[action] || action}
@@ -842,7 +842,7 @@ import PropTypes from "prop-types";
                         }}
                         title="Save"
                       >
-                        <FaSave />
+                        <FiSave />
                       </button>
                       <button
                         key={`cancel-${rowIndex}`}
@@ -850,7 +850,7 @@ import PropTypes from "prop-types";
                         onClick={handleCancelEdit}
                         title="Cancel"
                       >
-                        <FaTimes />
+                        <FiX />
                       </button>
                     </div>
                   ) : (
@@ -864,7 +864,7 @@ import PropTypes from "prop-types";
                         }}
                         aria-label="Actions"
                       >
-                        <FaEllipsisV size={14} />
+                        <FiMoreVertical size={14} />
                       </button>
                     </div>
                   )}

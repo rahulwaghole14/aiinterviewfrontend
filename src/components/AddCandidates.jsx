@@ -3,7 +3,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import "./AddCandidates.css";
 import { baseURL } from "../data";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FiTrash2, FiEdit2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import Modal, { ConfirmModal } from './common/Modal';
@@ -920,7 +920,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
                               title="Edit candidate data"
                               aria-label={`Edit data for ${candidate.extracted_data.name || 'candidate'}`}
                             >
-                              <FaEdit aria-hidden="true" />
+                              <FiEdit2 aria-hidden="true" />
                             </button>
                             <button
                               onClick={() => handleDeleteClick(candidate.tempId)}
@@ -928,7 +928,7 @@ Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
                               title="Delete candidate"
                               aria-label={`Delete ${candidate.extracted_data.name || 'candidate'} from list`}
                             >
-                              <FaTrash aria-hidden="true" />
+                              <FiTrash2 aria-hidden="true" />
                             </button>
                           </div>
                         )}
