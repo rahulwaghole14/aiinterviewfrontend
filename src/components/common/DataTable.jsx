@@ -807,9 +807,10 @@ import PropTypes from "prop-types";
       return (
         <tr
           key={rowKey}
-          className={`table-row ${onRowClick ? "clickable" : ""} ${
+          className={`table-row fade-in ${onRowClick ? "clickable" : ""} ${
             selectedRows.some((r) => r.id === rowData.id) ? "selected" : ""
           } ${isEditing ? "editing" : ""}`}
+          style={{ animationDelay: `${rowIndex * 0.1}s` }}
         >
           {enableRowSelection && (
             <td className="selection-cell">

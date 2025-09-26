@@ -660,7 +660,7 @@ const AddCandidates = () => {
       </div>
 
       <div className={`add-candidates-main-content fixed-grid ${isMobileView && !isExpanded ? 'mobile-collapsed' : ''}`}>
-        <div className="add-candidates-form card">
+        <div className="add-candidates-form card slide-in-left">
           <h2 className="form-title">Add New Candidate</h2>
           <form 
             id="candidateForm" 
@@ -783,7 +783,7 @@ const AddCandidates = () => {
         </div>
 
         {/* Parsed Resume Data Table - Always visible */}
-        <div className="preview-section card">
+        <div className="preview-section card slide-in-right">
           <div className="table-header-with-button">
             <h2 className="table-title">Parsed Resume Data</h2>
           </div>
