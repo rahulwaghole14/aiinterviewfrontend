@@ -15,9 +15,17 @@ const ThemeToggle = ({ variant = 'button', showLabels = true, className = '' }) 
   const calculatePosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownWidth = 128; // 8rem = 128px
+      const viewportWidth = window.innerWidth;
+      const triggerCenter = rect.left + (rect.width / 2);
+      const dropdownLeft = triggerCenter - (dropdownWidth / 2);
+      
+      // Ensure dropdown doesn't go off-screen
+      const adjustedLeft = Math.max(8, Math.min(dropdownLeft, viewportWidth - dropdownWidth - 8));
+      
       setPosition({
         top: rect.bottom + 5,
-        left: rect.left
+        left: adjustedLeft
       });
     }
   };

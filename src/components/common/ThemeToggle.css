@@ -183,8 +183,9 @@
   z-index: 999999 !important;
   opacity: 1 !important;
   visibility: visible !important;
-  transform: translateY(0) !important;
+  transform: none !important;
   pointer-events: auto !important;
+  transition: none !important;
 }
 
 .theme-option {
