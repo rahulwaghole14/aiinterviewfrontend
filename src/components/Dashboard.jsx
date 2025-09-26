@@ -6,6 +6,7 @@ import { fetchDashboardData } from '../redux/slices/dashboardSlice'; // Import t
 import { baseURL } from '../data';
 import { isAuthenticated } from '../utils/authUtils';
 import DataTable from './common/DataTable';
+import { useNotification } from '../hooks/useNotification';
 // LoadingSpinner not needed - DataTable handles its own loading state
 
 // Reusable BarChart Component (custom implementation)
@@ -81,6 +82,7 @@ const BarChart = ({ data, title, xLabel, yLabel, tooltipLabelPrefix, dataKey }) 
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const notify = useNotification();
   const dashboardData = useSelector((state) => state.dashboard.dashboardData);
   const loading = useSelector((state) => state.dashboard.status === 'loading');
   const error = useSelector((state) => state.dashboard.error);
@@ -249,7 +251,15 @@ const Dashboard = () => {
             loading={loading}
             actions={[]} // No actions for activities
             showRefresh={true}
-            onRefresh={() => dispatch(fetchDashboardData())}
+            onRefresh={async () => {
+              try {
+                await dispatch(fetchDashboardData()).unwrap();
+                notify.success("Dashboard data refreshed successfully!");
+              } catch (error) {
+                console.error("Error refreshing dashboard:", error);
+                notify.error("Failed to refresh dashboard data. Please try again.");
+              }
+            }}
             showActions={false}
             defaultPageSize={10}
             pageSizeOptions={[10, 20, 50]}

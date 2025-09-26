@@ -831,15 +831,6 @@
     padding: 0 8px;
   }
   
-  /* Action Buttons */
-  .actions-cell {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    padding: 0 8px;
-    min-width: 100px;
-  }
-  
   .action-button {
     display: flex;
     align-items: center;

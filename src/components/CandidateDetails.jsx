@@ -630,59 +630,59 @@ const CandidateDetails = () => {
         <div className="candidate-details-content card">
           <div className="candidate-main-layout">
             <div className="candidate-info-section">
-              <div className="back-button-container">
-                <button className="back-button" onClick={() => navigate(-1)}>
-                  <FiChevronLeft size={24} /> Back
-                </button>
-              </div>
+          <div className="back-button-container">
+            <button className="back-button" onClick={() => navigate(-1)}>
+              <FiChevronLeft size={24} /> Back
+            </button>
+          </div>
               
-              <h1 className="candidate-name-display">
-                {candidate.name || "N/A"}
-              </h1>
+            <h1 className="candidate-name-display">
+              {candidate.name || "N/A"}
+            </h1>
               
-              <div className="details-grid">
-                <div className="detail-row">
-                  <span className="detail-label">Email:</span>
-                  <span className="detail-value">{candidate.email}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Phone:</span>
-                  <span className="detail-value">{candidate.phone}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Experience:</span>
-                  <span className="detail-value">
-                    {candidate.workExperience} years
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Domain:</span>
-                  <span className="detail-value">
-                    {getDomainName(candidate.domain)}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Job Title:</span>
-                  <span className="detail-value">
-                    {getJobTitle(candidate.jobRole)}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Applied On:</span>
-                  <span className="detail-value">
-                    {candidate.applicationDate
-                      ? (() => {
-                          try {
-                            const date = new Date(candidate.applicationDate);
-                            return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
-                          } catch (error) {
-                            console.error("Error parsing application date:", error);
-                            return "N/A";
-                          }
-                        })()
-                      : "N/A"}
-                  </span>
-                </div>
+          <div className="details-grid">
+            <div className="detail-row">
+              <span className="detail-label">Email:</span>
+              <span className="detail-value">{candidate.email}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Phone:</span>
+              <span className="detail-value">{candidate.phone}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Experience:</span>
+              <span className="detail-value">
+                {candidate.workExperience} years
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Domain:</span>
+              <span className="detail-value">
+                {getDomainName(candidate.domain)}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Job Title:</span>
+              <span className="detail-value">
+                {getJobTitle(candidate.jobRole)}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Applied On:</span>
+              <span className="detail-value">
+                {candidate.applicationDate
+                  ? (() => {
+                      try {
+                        const date = new Date(candidate.applicationDate);
+                        return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
+                      } catch (error) {
+                        console.error("Error parsing application date:", error);
+                        return "N/A";
+                      }
+                    })()
+                  : "N/A"}
+              </span>
+            </div>
                 <div className="detail-row">
                   <span className="detail-label">Status:</span>
                   <span className="detail-value">
@@ -690,7 +690,7 @@ const CandidateDetails = () => {
                       {currentStatus.replace(/_/g, " ")}
                     </span>
                   </span>
-                </div>
+          </div>
                 <div className="detail-row">
                   <span className="detail-label">Last Updated:</span>
                   <span className="detail-value">
@@ -740,51 +740,24 @@ const CandidateDetails = () => {
               </div>
             </div>
             
-            {/* Hire Recommendation and Test Scores - Right side */}
+            {/* Hire Recommendation - Right side */}
             {interviews.some((i) => i.ai_result) && (
               <div className="hire-recommendation-section">
-                <div className="hire-recommendation">
-                  <strong>Hire Recommendation:</strong>{" "}
-                  <span className={`recommendation ${interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
-                    {interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "✅ RECOMMENDED" : "❌ NOT RECOMMENDED"}
-                  </span>
-                </div>
-                <div className="test-scores">
-                  <h4>Test Scores</h4>
-                  <div className="test-scores-grid">
-                    {interviews.find(i => i.ai_result)?.ai_result.total_score !== undefined && (
-                      <div className="test-score-item">
-                        <span className="test-score-label">Total Score</span>
-                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.total_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.total_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interviews.find(i => i.ai_result)?.ai_result.total_score?.toFixed(1) || "N/A"}/100
-                        </span>
-                      </div>
-                    )}
-                    {interviews.find(i => i.ai_result)?.ai_result.technical_score !== undefined && (
-                      <div className="test-score-item">
-                        <span className="test-score-label">Technical</span>
-                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.technical_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.technical_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interviews.find(i => i.ai_result)?.ai_result.technical_score?.toFixed(1) || "N/A"}/100
-                        </span>
-                      </div>
-                    )}
-                    {interviews.find(i => i.ai_result)?.ai_result.behavioral_score !== undefined && (
-                      <div className="test-score-item">
-                        <span className="test-score-label">Behavioral</span>
-                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.behavioral_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.behavioral_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interviews.find(i => i.ai_result)?.ai_result.behavioral_score?.toFixed(1) || "N/A"}/100
-                        </span>
-                      </div>
-                    )}
-                    {interviews.find(i => i.ai_result)?.ai_result.coding_score !== undefined && (
-                      <div className="test-score-item">
-                        <span className="test-score-label">Coding</span>
-                        <span className={`test-score-value ${interviews.find(i => i.ai_result)?.ai_result.coding_score >= 80 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.coding_score >= 60 ? "medium-score" : "low-score"}`}>
-                          {interviews.find(i => i.ai_result)?.ai_result.coding_score?.toFixed(1) || "N/A"}/100
-                        </span>
-                      </div>
-                    )}
+                <div className="hire-recommendation-card">
+                  <div className="hire-status-row">
+                    <span className="label">Hire Status:</span>
+                    <span className={`value recommendation ${interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
+                      {interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "RECOMMENDED" : "NOT RECOMMENDED"}
+                    </span>
                   </div>
+                  {interviews.find(i => i.ai_result)?.ai_result.total_score !== undefined && (
+                    <div className="score-row">
+                      <span className="label">Score:</span>
+                      <span className={`value score-value ${interviews.find(i => i.ai_result)?.ai_result.total_score >= 8 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.total_score >= 6 ? "medium-score" : "low-score"}`}>
+                        {interviews.find(i => i.ai_result)?.ai_result.total_score?.toFixed(1) || "N/A"}/10
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -818,6 +791,9 @@ const CandidateDetails = () => {
                     
                     <div className="performance-metrics">
                       <div className="metric-item">
+                        <strong>Total Questions:</strong> {interview.ai_result.questions_attempted || 0}
+                      </div>
+                      <div className="metric-item">
                         <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
                       </div>
                       <div className="metric-item">
@@ -831,6 +807,43 @@ const CandidateDetails = () => {
                       </div>
                       <div className="metric-item">
                         <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
+                      </div>
+                    </div>
+                    
+                    {/* Score Metrics Section */}
+                    <div className="score-metrics">
+                      <h4>Test Scores</h4>
+                      <div className="score-cards-container">
+                        <div className="score-card">
+                          <div className="score-card-label">Technical</div>
+                          <div className={`score-card-value ${interview.ai_result.technical_score >= 8 ? "high-score" : interview.ai_result.technical_score >= 6 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.technical_score?.toFixed(1) || 0}/10
+                          </div>
+                        </div>
+                        <div className="score-card">
+                          <div className="score-card-label">Behavioral</div>
+                          <div className={`score-card-value ${interview.ai_result.behavioral_score >= 8 ? "high-score" : interview.ai_result.behavioral_score >= 6 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.behavioral_score?.toFixed(1) || 0}/10
+                          </div>
+                        </div>
+                        <div className="score-card">
+                          <div className="score-card-label">Coding</div>
+                          <div className={`score-card-value ${interview.ai_result.coding_score >= 8 ? "high-score" : interview.ai_result.coding_score >= 6 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.coding_score?.toFixed(1) || 0}/10
+                          </div>
+                        </div>
+                        <div className="score-card">
+                          <div className="score-card-label">Communication</div>
+                          <div className={`score-card-value ${interview.ai_result.communication_score >= 8 ? "high-score" : interview.ai_result.communication_score >= 6 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.communication_score?.toFixed(1) || 0}/10
+                          </div>
+                        </div>
+                        <div className="score-card">
+                          <div className="score-card-label">Problem Solving</div>
+                          <div className={`score-card-value ${interview.ai_result.problem_solving_score >= 8 ? "high-score" : interview.ai_result.problem_solving_score >= 6 ? "medium-score" : "low-score"}`}>
+                            {interview.ai_result.problem_solving_score?.toFixed(1) || 0}/10
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
@@ -1091,7 +1104,7 @@ const CandidateDetails = () => {
                     }
                   } else if (stage === "MANUAL_EVALUATED") {
                     // Manual evaluation is always clickable as next action, even if AI evaluation is not complete
-                    isClickable = isNextAction || isCompleted;
+                  isClickable = isNextAction || isCompleted;
                   } else {
                     isClickable = isNextAction || isCompleted;
                   }

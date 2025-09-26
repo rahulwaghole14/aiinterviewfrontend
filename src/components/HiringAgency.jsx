@@ -156,7 +156,7 @@ const HiringAgencies = () => {
     company_name: userRole === "COMPANY" ? userCompany : "",
     
     // Recruiter specific
-    company_id: "",
+    company_id: userRole === "COMPANY" ? (user?.company_id || user?.id || "") : "",
   });
   const [showAddModal, setShowAddModal] = useState(false);
   
@@ -255,7 +255,7 @@ const HiringAgencies = () => {
       company_name: userRole === "COMPANY" ? userCompany : "",
       company_id: userRole === "COMPANY" ? (user?.company_id || user?.id || "") : "",
     });
-  }, [activeTab]); // Only depend on activeTab, not userRole or userCompany
+  }, [activeTab, userRole, userCompany, user]); // Include user dependencies to update company_id
 
 
   // Handle search navigation to specific tab
@@ -501,6 +501,11 @@ const HiringAgencies = () => {
           if (adminStatus === "idle") {
             await dispatch(fetchAdmins());
           }
+        } else if (normalizedRole === "company") {
+          // Company users also need companies data to resolve company names for recruiters
+          if (companiesStatus === "idle") {
+            await dispatch(fetchCompanies());
+          }
         }
       } catch (error) {
         setPermissionError("An error occurred while loading data.");
@@ -527,9 +532,10 @@ const HiringAgencies = () => {
       case "Recruiter":
         // Map recruiter data to fit the table structure and resolve company names
         const recruiterData = (recruiters || []).map((recruiter) => {
-          // Find company name by ID
-          const company = companies.find(comp => comp.id === recruiter.company);
+          // Find company name by ID - ensure proper type comparison
+          const company = companies.find(comp => String(comp.id) === String(recruiter.company));
           const companyName = company ? company.name : `Company ID: ${recruiter.company}`;
+          
           
           return {
             id: recruiter.id,
@@ -2092,16 +2098,33 @@ const HiringAgencies = () => {
           }
         }}
         showRefresh={true}
-        onRefresh={() => {
-          // Refresh data based on active tab
-          if (activeTab === "Recruiter") {
-            dispatch(fetchRecruiters());
-          } else if (activeTab === "Hiring Agency") {
-            dispatch(fetchHiringAgencies());
-          } else if (activeTab === "Company") {
-            dispatch(fetchCompanies());
-          } else if (activeTab === "Admin") {
-            dispatch(fetchAdmins());
+        onRefresh={async () => {
+          // Set loading state during refresh
+          setIsLoading(true);
+          
+          try {
+            // Refresh data based on active tab
+            if (activeTab === "Recruiter") {
+              await dispatch(fetchRecruiters()).unwrap();
+            } else if (activeTab === "Hiring Agency") {
+              await dispatch(fetchHiringAgencies()).unwrap();
+            } else if (activeTab === "Company") {
+              await dispatch(fetchCompanies()).unwrap();
+            } else if (activeTab === "Admin") {
+              await dispatch(fetchAdmins()).unwrap();
+            }
+            
+            // Also refresh companies data for company users to ensure company names are resolved
+            if (userRole === "COMPANY" && companiesStatus !== "loading") {
+              await dispatch(fetchCompanies()).unwrap();
+            }
+            
+            notify.success("Data refreshed successfully!");
+          } catch (error) {
+            console.error("Error refreshing data:", error);
+            notify.error("Failed to refresh data. Please try again.");
+          } finally {
+            setIsLoading(false);
           }
         }}
         showActions={true}

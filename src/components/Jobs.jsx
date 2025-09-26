@@ -128,9 +128,7 @@ const Jobs = () => {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = "asc"; // 'asc' or 'desc'
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage, setRecordsPerPage] = useState(10); // Show 10 records per page
+  // Pagination states - removed manual pagination, let DataTable handle it
 
   // Domain management states
   const [showCreateDomainModal, setShowCreateDomainModal] = useState(false);
@@ -351,21 +349,10 @@ const Jobs = () => {
       return 0;
     });
 
-  // Pagination calculations
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = sortedJobs.slice(
-    indexOfFirstRecord,
-    indexOfLastRecord
-  );
-  const totalPages = Math.ceil(sortedJobs.length / recordsPerPage);
+  // Use sortedJobs directly - DataTable will handle pagination
+  const currentRecords = sortedJobs;
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Reset to first page when search term or sorting changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, sortColumn, sortDirection]);
+  // DataTable will handle pagination automatically
 
   // Effect to add/remove 'show' class for modal animations
   useEffect(() => {
@@ -1290,10 +1277,18 @@ const Jobs = () => {
               await handleUpdateJob(editedData);
             }}
             showRefresh={true}
-            onRefresh={() => dispatch(fetchJobs())}
+            onRefresh={async () => {
+              try {
+                await dispatch(fetchJobs()).unwrap();
+                notify.success("Jobs data refreshed successfully!");
+              } catch (error) {
+                console.error("Error refreshing jobs:", error);
+                notify.error("Failed to refresh jobs data. Please try again.");
+              }
+            }}
             showActions={true}
-            defaultPageSize={recordsPerPage}
-            pageSizeOptions={[10, 20, 50, 100]}
+            defaultPageSize={50}
+            pageSizeOptions={[10, 20, 50, 100, 200, 500]}
           />
 
                     </div>

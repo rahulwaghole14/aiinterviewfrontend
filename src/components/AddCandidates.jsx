@@ -235,7 +235,24 @@ const AddCandidates = () => {
     const selectedJobTitle = allJobs.find(job => job.id === parseInt(formData.job_title, 10))?.job_title;
 
 
-    const candidatesToSubmit = parsedResumeData.map(candidate => ({
+    // Filter candidates with >70% matching
+    const eligibleCandidates = parsedResumeData.filter(candidate => {
+      const matchingPercentage = candidate.extracted_data.job_matching?.overall_match || 0;
+      return matchingPercentage >= 70;
+    });
+
+    if (eligibleCandidates.length === 0) {
+      notify.error("No candidates meet the 70% matching threshold. Please review the resume matching scores.");
+      setIsSubmittingCandidates(false);
+      return;
+    }
+
+    if (eligibleCandidates.length < parsedResumeData.length) {
+      const excludedCount = parsedResumeData.length - eligibleCandidates.length;
+      notify.warning(`${excludedCount} candidate(s) were excluded due to low matching scores (<70%). Only ${eligibleCandidates.length} candidate(s) will be added.`);
+    }
+
+    const candidatesToSubmit = eligibleCandidates.map(candidate => ({
       filename: candidate.filename,
       edited_data: {
         // Use the keys expected by the API as per your example payload
@@ -774,7 +791,10 @@ const AddCandidates = () => {
               <tbody>
                 {parsedResumeData.length > 0 ? (
                   parsedResumeData.map((candidate) => (
-                    <tr key={candidate.tempId}>
+                    <tr 
+                      key={candidate.tempId}
+                      className={`candidate-row ${candidate.extracted_data.job_matching?.overall_match >= 70 ? 'row-included' : 'row-excluded'}`}
+                    >
                       <td>{candidate.filename || '-'}</td>
                       <td>
                         {editingCandidateTempId === candidate.tempId ? (
@@ -833,7 +853,7 @@ const AddCandidates = () => {
                         {candidate.extracted_data.job_matching ? (
                           <div className="match-percentage">
                             <span 
-                              className={`match-score ${candidate.extracted_data.job_matching.overall_match >= 80 ? 'high' : candidate.extracted_data.job_matching.overall_match >= 60 ? 'medium' : 'low'}`}
+                              className={`match-score ${candidate.extracted_data.job_matching.overall_match >= 70 ? 'high' : 'low'}`}
                               title={`Overall: ${candidate.extracted_data.job_matching.overall_match}%
 Skills: ${candidate.extracted_data.job_matching.skill_match}%
 Text Similarity: ${candidate.extracted_data.job_matching.text_similarity}%

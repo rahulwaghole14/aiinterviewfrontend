@@ -473,6 +473,69 @@
   display: flex;
   gap: 0.5rem;
   white-space: nowrap;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Action buttons in table cells */
+.candidate-table td .action-buttons-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 48px;
+}
+
+/* Action buttons styling */
+.candidate-table td .action-buttons-group button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+}
+
+.candidate-table td .action-buttons-group .edit-btn {
+  color: var(--color-primary);
+}
+
+.candidate-table td .action-buttons-group .edit-btn:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.candidate-table td .action-buttons-group .delete-btn {
+  color: var(--color-danger);
+}
+
+.candidate-table td .action-buttons-group .delete-btn:hover {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.candidate-table td .action-buttons-group .save-btn {
+  color: var(--color-success);
+  background-color: var(--color-success-light);
+}
+
+.candidate-table td .action-buttons-group .save-btn:hover {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.candidate-table td .action-buttons-group .cancel-btn {
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-secondary);
+}
+
+.candidate-table td .action-buttons-group .cancel-btn:hover {
+  background-color: var(--color-hover);
+  color: var(--color-text-primary);
 }
 
 .edit-btn,
@@ -1443,21 +1506,36 @@
 }
 
 .match-score.high {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.match-score.medium {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: 700;
 }
 
 .match-score.low {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  font-weight: 700;
+}
+
+/* Row Background Colors */
+.candidate-row.row-included {
+  background-color: #f0fdf4;
+  border-left: 4px solid #22c55e;
+}
+
+.candidate-row.row-included:hover {
+  background-color: #dcfce7;
+}
+
+.candidate-row.row-excluded {
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+}
+
+.candidate-row.row-excluded:hover {
+  background-color: #fee2e2;
 }
 
 .match-error {
