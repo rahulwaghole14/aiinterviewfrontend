@@ -64,10 +64,14 @@
 }
 
 .candidate-details-section {
-  background-color: var(--color-card); /* Use theme variable */
-  border: 1px solid var(--color-border); /* Full border including left */
-  border-radius: var(--radius); /* Use theme variable */
-  box-shadow: var(--shadow-soft); /* Use theme variable */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -75,6 +79,68 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: auto;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.candidate-details-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  z-index: 1;
+  border-radius: var(--radius);
+}
+
+.candidate-details-section:hover::before {
+  left: 100%;
+}
+
+body[data-theme='dark'] .candidate-details-section {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme='light'] .candidate-details-section {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.candidate-details-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body[data-theme='dark'] .candidate-details-section:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body[data-theme='light'] .candidate-details-section:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .candidate-details-section::-webkit-scrollbar {
@@ -82,16 +148,82 @@
 }
 
 .filter-sidebar-section {
-  background-color: var(--color-card); /* Use theme variable */
-  border: 1px solid var(--color-border); /* Add border to match other sections */
-  border-radius: var(--radius); /* Use theme variable */
-  box-shadow: var(--shadow-soft); /* Use theme variable */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 2rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
   overflow-y: auto;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.filter-sidebar-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  z-index: 1;
+  border-radius: var(--radius);
+}
+
+.filter-sidebar-section:hover::before {
+  left: 100%;
+}
+
+body[data-theme='dark'] .filter-sidebar-section {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme='light'] .filter-sidebar-section {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.filter-sidebar-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body[data-theme='dark'] .filter-sidebar-section:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body[data-theme='light'] .filter-sidebar-section:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .filter-sidebar-section::-webkit-scrollbar {
@@ -108,24 +240,85 @@
 }
 
 .candidate-card {
-  padding: 1.2rem; /* Reduced padding */
-  border: 1px solid var(--color-border); /* Use theme variable */
-  border-radius: var(--radius); /* Use theme variable */
-  background: var(--color-bg-secondary) !important; /* Use secondary background to match surrounding components */
-  box-shadow: none !important; /* Remove shadow for seamless blending */
-  color: var(--color-text); /* Use theme variable */
-  height: auto; /* Allow height to adjust to content */
-  display: grid; /* Changed to grid for fixed half spaces */
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  gap: 0.8rem; /* Reduced space between grid columns */
-  align-items: flex-start; /* Align items to the top */
-  overflow: hidden; /* Ensure content doesn't spill */
-  transform: scale(1); /* Initial scale for transition */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: var(--color-text);
+  height: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  align-items: flex-start;
+  overflow: hidden;
+  transform: scale(1);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.candidate-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  z-index: 1;
+  border-radius: var(--radius);
+}
+
+.candidate-card:hover::before {
+  left: 100%;
+}
+
+body[data-theme='dark'] .candidate-card {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme='light'] .candidate-card {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .candidate-card:hover {
-  background: var(--color-card) !important; /* Use card color for hover to maintain consistency with surrounding components */
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body[data-theme='dark'] .candidate-card:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body[data-theme='light'] .candidate-card:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Restore left border to candidate cards */
@@ -621,10 +814,15 @@
   justify-content: center;
   align-items: center;
   padding: 16px;
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   margin-top: 0.5rem;
   border-radius: 10px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   gap: 8px;
   font-size: 14px;
   color: var(--color-text-secondary);
@@ -633,6 +831,68 @@
   max-width: 100%;
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary) var(--color-border);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.candidates-pagination-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  z-index: 1;
+  border-radius: 10px;
+}
+
+.candidates-pagination-container:hover::before {
+  left: 100%;
+}
+
+body[data-theme='dark'] .candidates-pagination-container {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme='light'] .candidates-pagination-container {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.candidates-pagination-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body[data-theme='dark'] .candidates-pagination-container:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body[data-theme='light'] .candidates-pagination-container:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -1076,6 +1336,7 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
 
 /* Mobile Controls Row */
 .mobile-controls-row {

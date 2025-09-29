@@ -55,9 +55,13 @@
 }
 
 .add-candidates-card {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border-radius: var(--radius);
   padding: 1rem 1.5rem;
   min-width: 180px; /* Minimum width for cards */
@@ -66,6 +70,27 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Dark theme glassmorphism for cards */
+body[data-theme='dark'] .add-candidates-card {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme glassmorphism for cards */
+body[data-theme='light'] .add-candidates-card {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .add-candidates-card h3 {
@@ -91,9 +116,14 @@
 }
 
 .preview-section {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 20px; /* Match DataTable padding */
   display: flex; /* Use flexbox for internal layout */
   flex-direction: column; /* Stack title and table */
@@ -103,6 +133,81 @@
   box-sizing: border-box;
   max-width: 100%;
   width: 100%;
+  position: relative;
+}
+
+/* Dark theme glassmorphism for preview section */
+body[data-theme='dark'] .preview-section {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme glassmorphism for preview section */
+body[data-theme='light'] .preview-section {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Glassmorphism hover effects */
+.add-candidates-card:hover,
+.add-candidates-form:hover,
+.preview-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body[data-theme='dark'] .add-candidates-card:hover,
+body[data-theme='dark'] .add-candidates-form:hover,
+body[data-theme='dark'] .preview-section:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+body[data-theme='light'] .add-candidates-card:hover,
+body[data-theme='light'] .add-candidates-form:hover,
+body[data-theme='light'] .preview-section:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Glassmorphism shimmer effect */
+.add-candidates-card::before,
+.add-candidates-form::before,
+.preview-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.add-candidates-card:hover::before,
+.add-candidates-form:hover::before,
+.preview-section:hover::before {
+  left: 100%;
 }
 
 .table-header-with-button {
@@ -352,16 +457,39 @@
 
 /* Form section */
 .add-candidates-form {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 2rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
   overflow-y: auto;
+  position: relative;
+}
+
+/* Dark theme glassmorphism for form */
+body[data-theme='dark'] .add-candidates-form {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme glassmorphism for form */
+body[data-theme='light'] .add-candidates-form {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .add-candidates-form::-webkit-scrollbar {

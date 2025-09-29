@@ -8,6 +8,7 @@ import { isAuthenticated } from '../utils/authUtils';
 import DataTable from './common/DataTable';
 import { useNotification } from '../hooks/useNotification';
 import { SkeletonCard, SkeletonChart } from './common/SkeletonLoader';
+import CustomizableDashboard from './dashboard/CustomizableDashboard';
 // LoadingSpinner not needed - DataTable handles its own loading state
 
 // Enhanced Interactive BarChart Component
@@ -128,6 +129,7 @@ const Dashboard = () => {
   const dashboardData = useSelector((state) => state.dashboard.dashboardData);
   const loading = useSelector((state) => state.dashboard.status === 'loading');
   const error = useSelector((state) => state.dashboard.error);
+  const [useCustomizableDashboard, setUseCustomizableDashboard] = useState(true);
 
   // DataTable handles pagination internally, no need for local state
 
@@ -155,6 +157,11 @@ const Dashboard = () => {
 
   if (!dashboardData) {
     return <div className="error-container">No dashboard data available.</div>;
+  }
+
+  // Use the new customizable dashboard
+  if (useCustomizableDashboard) {
+    return <CustomizableDashboard />;
   }
 
   const allRecentActivities = [
@@ -230,55 +237,16 @@ const Dashboard = () => {
         </section>
 
         <section className="dashboard-section dashboard-graphs-container stagger-animation">
-          {loading ? (
-            <>
-              <SkeletonChart />
-              <SkeletonChart />
-              <SkeletonChart />
-              <SkeletonChart />
-            </>
-          ) : (
-            <>
-              <BarChart
-                data={dashboardData.candidate_stats.domain_distribution}
-                title="Candidate Domain Distribution"
-                xLabel="Domain"
-                yLabel="Candidates"
-                tooltipLabelPrefix="Candidates"
-                dataKey="domain"
-              />
-              {dashboardData.resume_stats.daily_trend.length > 0 && (
-                <BarChart
-                  data={dashboardData.resume_stats.daily_trend}
-                  title="Resume Uploads Daily Trend"
-                  xLabel="Date"
-                  yLabel="Uploads"
-                  tooltipLabelPrefix="Uploads"
-                  dataKey="date"
-                />
-              )}
-              {dashboardData.job_stats.level_distribution.length > 0 && (
-                <BarChart
-                  data={dashboardData.job_stats.level_distribution}
-                  title="Job Level Distribution"
-                  xLabel="Level"
-                  yLabel="Jobs"
-                  tooltipLabelPrefix="Jobs"
-                  dataKey="position_level"
-                />
-              )}
-              {dashboardData.interview_stats.daily_trend.length > 0 && (
-                <BarChart
-                  data={dashboardData.interview_stats.daily_trend}
-                  title="Interview Daily Trend"
-                  xLabel="Date"
-                  yLabel="Interviews"
-                  tooltipLabelPrefix="Interviews"
-                  dataKey="date"
-                />
-              )}
-            </>
-          )}
+          <div className="dashboard-placeholder">
+            <h3>Charts and Analytics</h3>
+            <p>Interactive charts and analytics are now available in the customizable dashboard above.</p>
+            <button 
+              className="btn btn-primary"
+              onClick={() => setUseCustomizableDashboard(true)}
+            >
+              View Customizable Dashboard
+            </button>
+          </div>
         </section>
 
         <section className="dashboard-recent-activity">

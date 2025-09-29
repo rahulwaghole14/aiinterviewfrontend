@@ -19,6 +19,8 @@
   /* Light Theme Variables - Professional Color Scheme */
   --color-bg: #faf9ff;
   --color-bg-secondary: #f5f3ff;
+  --color-background: #faf9ff;
+  --color-background-elevated: #ffffff;
   --color-sidebar: #0f172a;
   --color-card: #ffffff;
   --color-card-highlight: #faf9ff;
@@ -96,6 +98,8 @@
 body[data-theme='dark'] {
   --color-bg: #0f0f23;
   --color-bg-secondary: #1e1b2e;
+  --color-background: #0f0f23;
+  --color-background-elevated: #1e1b2e;
   --color-sidebar: #0f0f23;
   --color-card: #1e1b2e;
   --color-card-highlight: #2d2a3e;

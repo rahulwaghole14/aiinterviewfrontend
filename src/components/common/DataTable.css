@@ -2,16 +2,63 @@
 .data-table-container {
     display: flex;
     flex-direction: column;
-    background: var(--color-card);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: var(--radius);
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
     padding: 20px;
     box-sizing: border-box;
     max-width: 100%;
     width: 100%;
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
   }
+
+/* Dark theme glassmorphism for data table */
+body[data-theme='dark'] .data-table-container {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme glassmorphism for data table */
+body[data-theme='light'] .data-table-container {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Glassmorphism shimmer effect for data table */
+.data-table-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.data-table-container:hover::before {
+  left: 100%;
+}
   
   .table-box {
     flex: 1;
@@ -45,14 +92,28 @@
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    background-color: var(--color-card);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     /* Hide scrollbars */
     -ms-overflow-style: none;
     scrollbar-width: none;
     min-height: 590px; /* Reduced by 10px to fit 10 rows without scrolling */
   }
+
+/* Dark theme table responsive */
+body[data-theme='dark'] .table-responsive {
+  background: rgba(30, 27, 46, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Light theme table responsive */
+body[data-theme='light'] .table-responsive {
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
   
   .table-responsive::-webkit-scrollbar {
     display: none;
@@ -1033,11 +1094,34 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px;
-    background-color: var(--color-card);
-    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     margin-top: 0.5rem;
     border-radius: 10px;
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
+
+/* Dark theme pagination glassmorphism */
+body[data-theme='dark'] .pagination {
+  background: rgba(30, 27, 46, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme pagination glassmorphism */
+body[data-theme='light'] .pagination {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
   
   .records-per-page {
     display: flex;
