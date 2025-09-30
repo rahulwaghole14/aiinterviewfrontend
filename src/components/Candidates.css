@@ -21,23 +21,97 @@
 /* New Status Tabs Container */
 .candidate-status-tabs-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px; /* Space between tabs */
+  flex-wrap: nowrap; /* Prevent wrapping to keep tabs in single row */
+  gap: 8px; /* Increased space between tabs for better touch targets */
   margin-bottom: 1rem; /* Reduced space below tabs */
   border-bottom: 1px solid var(--color-border); /* Subtle separator */
-  padding-bottom: 8px; /* Reduced padding below separator */
+  padding-bottom: 12px; /* Increased padding below separator */
+  height: 150px; /* Further increased height to 150px */
+  min-height: 0; /* Allow flex to shrink */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: hidden; /* Disable vertical scrolling */
+  align-items: center; /* Center tabs vertically */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+}
+
+/* Hide scrollbar for status tabs */
+.candidate-status-tabs-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for WebKit browsers */
+}
+
+/* Status tabs header - mobile only */
+.status-tabs-header {
+  display: none; /* Hidden on desktop */
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.status-tabs-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.edit-tabs-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-small);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px; /* Fixed height to match tabs */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-tabs-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* Status tabs list - scrollable container */
+.status-tabs-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.status-tabs-list::-webkit-scrollbar {
+  display: none;
 }
 
 .status-tab {
-  padding: 8px 15px;
+  padding: 0.4rem 0.8rem; /* Reduced padding to fit content */
   border-radius: var(--radius-small);
   background-color: var(--color-bg-secondary);
   color: var(--color-text);
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 400;
+  font-size: 0.85rem;
+  font-weight: 500;
   transition: background-color 0.2s ease, color 0.2s ease;
   white-space: nowrap; /* Prevent text wrapping */
+  min-width: fit-content; /* Ensure tabs don't get too small */
+  flex-shrink: 0; /* Prevent tabs from shrinking */
+  height: auto; /* Auto height to fit content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .status-tab:hover {
@@ -62,88 +136,54 @@
   align-items: start;
   flex-grow: 1;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible; /* Allow content to overflow for scrolling */
+  min-height: 0; /* Allow grid to shrink */
 }
 
 .candidate-details-section {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-card); /* Match form and table background */
+  border: 1px solid var(--color-border); /* Match form and table border */
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  padding: 2rem;
+  box-shadow: var(--shadow-soft); /* Match form shadow */
+  padding: 1.5rem; /* Reduced padding to fit more content */
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: auto;
+  max-height: calc(100vh - 150px); /* Increased height to show more cards */
+  overflow: hidden; /* Prevent scrolling on the container itself */
   position: relative;
   transition: all 0.3s ease;
 }
 
-.candidate-details-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
+/* Removed gradient shimmer effect for cleaner appearance */
+
+/* Candidate details section now uses consistent theme variables - no theme-specific overrides needed */
+
+/* Candidate cards container - scrollable area above pagination */
+.candidate-cards-container {
+  flex: 1; /* Take up available space */
+  overflow-y: auto; /* Enable vertical scrolling for cards only */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding-right: 0.5rem; /* Add space for scrollbar */
+  margin-bottom: 1rem; /* Space between cards and pagination */
+  min-height: 0; /* Allow flex to shrink */
 }
 
-.candidate-details-section:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .candidate-details-section {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme='light'] .candidate-details-section {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+/* Pagination container - fixed at bottom */
+.candidates-pagination-container {
+  flex-shrink: 0; /* Don't shrink the pagination */
+  margin-top: auto; /* Push to bottom */
+  padding-top: 1rem; /* Space above pagination */
+  border-top: 1px solid var(--color-border); /* Visual separator */
 }
 
 .candidate-details-section:hover {
   transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-medium); /* Match form hover shadow */
 }
 
-body[data-theme='dark'] .candidate-details-section:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .candidate-details-section:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
-}
+/* Hover effects now use consistent shadow variables - no theme-specific overrides needed */
 
 .candidate-details-section::-webkit-scrollbar {
   display: none;
@@ -166,27 +206,7 @@ body[data-theme='light'] .candidate-details-section:hover {
   transition: all 0.3s ease;
 }
 
-.filter-sidebar-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
-}
-
-.filter-sidebar-section:hover::before {
-  left: 100%;
-}
+/* Removed gradient shimmer effect from filter sidebar for cleaner appearance */
 
 
 .filter-sidebar-section:hover {
@@ -225,86 +245,35 @@ body[data-theme='light'] .filter-sidebar-section:hover {
 }
 
 .candidate-card {
-  padding: 1.2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.25rem; /* Increased padding for better content spacing */
+  background: var(--color-card); /* Use consistent theme variables */
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft);
   color: var(--color-text);
+  min-height: 180px; /* Increased minimum height to fit all details */
   height: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.8rem;
+  gap: 1rem; /* Increased gap for better spacing */
   align-items: flex-start;
-  overflow: hidden;
+  overflow: visible; /* Allow content to be visible */
   transform: scale(1);
   transition: all 0.3s ease;
   position: relative;
+  margin-bottom: 1rem; /* Increased spacing between cards */
 }
 
-.candidate-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
-}
+/* Removed gradient shimmer effect from candidate cards for cleaner appearance */
 
-.candidate-card:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .candidate-card {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme='light'] .candidate-card {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
+/* Candidate cards now use consistent theme variables - no theme-specific overrides needed */
 
 .candidate-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px); /* Reduced transform for subtle effect */
+  box-shadow: var(--shadow-medium); /* Use consistent shadow variable */
 }
 
-body[data-theme='dark'] .candidate-card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .candidate-card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
-}
+/* Hover effects now use consistent shadow variables - no theme-specific overrides needed */
 
 /* Restore left border to candidate cards */
 .candidate-card {
@@ -329,18 +298,19 @@ body[data-theme='light'] .candidate-card:hover {
 }
 
 .status-badge {
-  padding: 0.2rem 0.6rem; /* Reduced padding */
-  font-size: 0.7rem; /* Reduced font size */
+  padding: 0.3rem 0.7rem; /* Increased padding for better visibility */
+  font-size: 0.75rem; /* Slightly increased font size */
   border-radius: var(--radius-full); /* Full rounded corners using CSS variable */
   border: none; /* Removed border */
   font-weight: 600;
   white-space: normal; /* Allow text wrapping */
   word-break: break-word; /* Force long words to break and wrap strictly */
   display: inline-block; /* Ensure padding and border apply correctly with normal white-space */
-  line-height: 1.2; /* Adjust line height for wrapped text */
+  line-height: 1.3; /* Better line height for wrapped text */
   text-align: left; /* Align text within the badge itself */
   max-width: 100%; /* Ensure it wraps within its container */
   overflow-wrap: break-word; /* Modern property for word breaking */
+  margin-bottom: 0.5rem; /* Add margin below status badge */
 }
 
 /* Specific badge colors */
@@ -369,11 +339,12 @@ body[data-theme='light'] .candidate-card:hover {
 }
 
 .candidate-name {
-  font-size: 1.05rem; /* Slightly reduced font size */
+  font-size: 1.1rem; /* Slightly increased font size for better readability */
   font-weight: bold;
-  margin-bottom: 0.2rem; /* Reduced margin-bottom */
+  margin-bottom: 0.4rem; /* Increased margin for better spacing */
   display: block; /* Ensure it takes full width */
   color: var(--color-primary); /* text-gray-900 */
+  line-height: 1.3; /* Better line height */
 }
 
 .section-title {
@@ -394,10 +365,11 @@ body[data-theme='light'] .candidate-card:hover {
 .candidate-updated,
 .candidate-domain,
 .candidate-match {
-  font-size: 0.8rem; /* Slightly reduced font size */
+  font-size: 0.85rem; /* Slightly increased font size for better readability */
   color: var(--color-muted); /* text-gray-700 / text-gray-500 */
-  margin-bottom: 0.15rem; /* Reduced margin-bottom */
+  margin-bottom: 0.25rem; /* Increased margin for better spacing */
   display: block;
+  line-height: 1.4; /* Better line height for readability */
 }
 
 .candidate-updated {
@@ -447,14 +419,16 @@ body[data-theme='light'] .candidate-card:hover {
 .view-details-btn { /* New button style */
   background-color: var(--color-primary); /* Changed to primary color as requested */
   color: white;
-  padding: 0.4rem 0.8rem; /* Reduced padding */
+  padding: 0.5rem 1rem; /* Increased padding for better touch target */
   border: none;
   border-radius: var(--radius-small); /* rounded-md */
-  font-size: 0.8rem; /* Reduced font size */
+  font-size: 0.85rem; /* Slightly increased font size */
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow-soft); /* shadow-md */
+  min-width: 120px; /* Ensure consistent button width */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .view-details-btn:hover {
@@ -651,11 +625,14 @@ body[data-theme='light'] .candidate-card:hover {
   align-items: center;
   color: var(--color-primary); /* text-blue-600 */
   transition: color 0.2s ease; /* transition duration-200 */
-  background: none;
-  border: none;
+  background: none !important; /* Remove background */
+  border: none !important; /* Remove border */
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
+  padding: 0; /* Remove any default padding */
+  outline: none; /* Remove focus outline */
+  text-decoration: none; /* Remove any text decoration */
 }
 
 .back-button:hover {
@@ -801,16 +778,12 @@ body[data-theme='light'] .candidate-card:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem;
+  background: var(--color-card); /* Use consistent theme variables */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
   margin-top: 0.5rem;
-  border-radius: 10px;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   gap: 8px;
   font-size: 14px;
   color: var(--color-text-secondary);
@@ -821,67 +794,19 @@ body[data-theme='light'] .candidate-card:hover {
   scrollbar-color: var(--color-primary) var(--color-border);
   position: relative;
   transition: all 0.3s ease;
+  flex-shrink: 0; /* Don't shrink the pagination */
 }
 
-.candidates-pagination-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: 10px;
-}
+/* Removed gradient shimmer effect from pagination container for cleaner appearance */
 
-.candidates-pagination-container:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .candidates-pagination-container {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme='light'] .candidates-pagination-container {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
+/* Pagination container now uses consistent theme variables - no theme-specific overrides needed */
 
 .candidates-pagination-container:hover {
-  transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px); /* Reduced transform for subtle effect */
+  box-shadow: var(--shadow-medium); /* Use consistent shadow variable */
 }
 
-body[data-theme='dark'] .candidates-pagination-container:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .candidates-pagination-container:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
-}
+/* Hover effects now use consistent shadow variables - no theme-specific overrides needed */
 
 /* Custom scrollbar for webkit browsers */
 .candidates-pagination-container::-webkit-scrollbar {
@@ -1070,15 +995,49 @@ body[data-theme='light'] .candidates-pagination-container:hover {
   }
 
   .candidate-status-tabs-container {
-    flex-direction: column; /* Stack tabs vertically on small screens */
-    align-items: flex-start;
-    gap: 5px;
+    height: 120px; /* Further increased height on mobile */
+    gap: 6px; /* Reduced gap on mobile */
+    padding-bottom: 8px; /* Reduced padding on mobile */
+  }
+
+  .status-tabs-header {
+    display: flex; /* Show header on mobile */
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .status-tabs-title {
+    font-size: 0.9rem;
+  }
+
+  .edit-tabs-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    height: 36px; /* Slightly smaller on mobile */
+  }
+
+  .status-tabs-list {
+    gap: 6px;
+    padding: 0.25rem 0;
   }
 
   .status-tab {
-    width: 100%; /* Make tabs full width */
-    text-align: center;
-    padding: 10px;
+    padding: 0.3rem 0.6rem; /* Reduced padding to fit content on mobile */
+    font-size: 0.8rem;
+    height: auto; /* Auto height to fit content on mobile */
+  }
+
+  .candidate-card {
+    padding: 0.8rem; /* Reduced padding on mobile */
+    grid-template-columns: 1fr; /* Stack content vertically on mobile */
+    gap: 0.5rem;
+  }
+
+  .card-right-actions {
+    flex-direction: row; /* Horizontal layout on mobile */
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
   }
 
   .candidate-details-section,

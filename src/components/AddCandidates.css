@@ -58,13 +58,9 @@
 }
 
 .add-candidates-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: var(--color-card); /* Match form and table background */
+  border: 1px solid var(--color-border); /* Match form and table border */
+  box-shadow: var(--shadow-soft); /* Match form shadow */
   border-radius: var(--radius);
   padding: 1rem 1.5rem;
   min-width: 180px; /* Minimum width for cards */
@@ -78,23 +74,7 @@
   transition: all 0.3s ease;
 }
 
-/* Dark theme glassmorphism for cards */
-body[data-theme='dark'] .add-candidates-card {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Light theme glassmorphism for cards */
-body[data-theme='light'] .add-candidates-card {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
+/* Cards now use consistent theme variables - no theme-specific overrides needed */
 
 .add-candidates-card h3 {
   margin: 0 0 0.5rem 0;
@@ -122,14 +102,10 @@ body[data-theme='light'] .add-candidates-card {
 }
 
 .preview-section {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-card); /* Match form background */
+  border: 1px solid var(--color-border); /* Match form border */
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft); /* Match form shadow */
   padding: 20px; /* Match DataTable padding */
   display: flex; /* Use flexbox for internal layout */
   flex-direction: column; /* Stack title and table */
@@ -142,52 +118,17 @@ body[data-theme='light'] .add-candidates-card {
   position: relative;
 }
 
-/* Dark theme glassmorphism for preview section */
-body[data-theme='dark'] .preview-section {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
+/* Preview section now matches form styling - no theme-specific overrides needed */
 
-/* Light theme glassmorphism for preview section */
-body[data-theme='light'] .preview-section {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-/* Glassmorphism hover effects */
+/* Hover effects */
 .add-candidates-card:hover,
 .add-candidates-form:hover,
 .preview-section:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-medium); /* Match form hover shadow */
 }
 
-body[data-theme='dark'] .add-candidates-card:hover,
-body[data-theme='dark'] .add-candidates-form:hover,
-body[data-theme='dark'] .preview-section:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .add-candidates-card:hover,
-body[data-theme='light'] .add-candidates-form:hover,
-body[data-theme='light'] .preview-section:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
-}
+/* Hover effects now use consistent shadow variables - no theme-specific overrides needed */
 
 /* Glassmorphism shimmer effect */
 .add-candidates-card::before,
@@ -383,7 +324,7 @@ body[data-theme='light'] .preview-section:hover {
   text-align: center;
   vertical-align: middle;
   width: 100%; /* Take full width of table */
-  padding: 2rem !important; /* Add padding to the cell */
+  padding: 0 !important; /* Remove padding since empty-state has its own */
   border: none !important; /* Remove cell border */
   background-color: transparent !important; /* Make cell background transparent */
 }
@@ -397,7 +338,9 @@ body[data-theme='light'] .preview-section:hover {
   min-height: 200px; /* Increased height for better visibility */
   padding: 2rem 1rem; /* More padding */
   width: 100%; /* Take full width */
-  background-color: transparent; /* Make background transparent */
+  background-color: var(--color-card); /* Match form and table background */
+  border: none; /* Remove border */
+  border-radius: var(--radius); /* Keep border radius for consistency */
 }
 
 .empty-state svg {

@@ -4,13 +4,14 @@
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
-  height: 100%;
+  max-width: 100%;
+  height: 100vh;
   font-family: var(--font-family-base);
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none;
-  overflow-x: hidden; /* ✅ Prevent full-page horizontal scroll */
+  overflow: hidden; /* Hide all overflow */
   transition: filter 0.3s ease;
   min-width: 0; /* Allow container to shrink */
+  box-sizing: border-box;
+  padding: 1rem;
 }
 
 /* Blur effect when modal is open */
@@ -136,170 +137,86 @@ body[data-theme='light'] .jobs-card:hover {
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  height: calc(100vh - 200px);
+  overflow: hidden;
+  flex: 1;
 }
 
 @media (min-width: 768px) {
   .jobs-main-content.fixed-grid {
     display: grid; /* Use grid for larger screens */
-    grid-template-columns: 1fr 3fr; 
-    align-items: flex-start; /* Align grid items to the top */
+    grid-template-columns: 300px 1fr; 
+    align-items: stretch; /* Stretch grid items to full height */
+    max-width: 100%;
+    height: calc(100vh - 200px);
+    overflow: hidden;
+    flex: 1;
     /* Removed flex-direction: row; as grid-template-columns handles layout */
   }
 }
 
 /* Left Column: Create New Job Form */
 .jobs-form.card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 283px);
+  overflow: hidden;
   position: relative;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
-.jobs-form.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
-}
+/* Shimmer effect removed for consistent styling */
 
-.jobs-form.card:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .jobs-form.card {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
+/* Consistent styling for all themes */
+body[data-theme='dark'] .jobs-form.card,
 body[data-theme='light'] .jobs-form.card {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
 }
 
 .jobs-form.card:hover {
   transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-body[data-theme='dark'] .jobs-form.card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .jobs-form.card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-medium);
 }
 
 .job-listings-section.card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  overflow: auto;
+  max-width: 100%;
+  width: 100%;
+  height: calc(100vh - 300px);
+  overflow: hidden;
   position: relative;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
-.job-listings-section.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
-}
+/* Shimmer effect removed for consistent styling */
 
-.job-listings-section.card:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .job-listings-section.card {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
+/* Consistent styling for all themes */
+body[data-theme='dark'] .job-listings-section.card,
 body[data-theme='light'] .job-listings-section.card {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
 }
 
 .job-listings-section.card:hover {
   transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-body[data-theme='dark'] .job-listings-section.card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .job-listings-section.card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-medium);
 }
 
 .job-listings-section {
@@ -467,18 +384,36 @@ input[type="checkbox"]:checked {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
-  padding-right: 5px;
+  overflow-x: hidden;
+  min-width: 0;
+  min-height: 0;
+  max-height: calc(100vh - 400px);
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
 .form-box::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+}
+
+.form-box::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: 3px;
+}
+
+.form-box::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 3px;
+}
+
+.form-box::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
 
 .form-box label {
+  display: block;
   font-size: 0.9rem;
   font-weight: 400;
   color: var(--color-muted);
@@ -488,14 +423,16 @@ input[type="checkbox"]:checked {
 .jobs-input,
 .jobs-select,
 .jobs-textarea {
-  padding: 0.75rem 1rem;
+  padding: 0.8rem;
   border: 1px solid var(--color-muted);
-  border-radius: var(--radius-small);
-  font-size: 0.95rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
   color: var(--color-text);
   background-color: var(--color-bg-secondary);
   transition: all 0.2s ease;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .jobs-input::placeholder,
@@ -509,7 +446,7 @@ input[type="checkbox"]:checked {
 .jobs-textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2);
 }
 
 .jobs-select {
@@ -563,25 +500,48 @@ input[type="checkbox"]:checked {
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
 .submit-btn {
   background-color: var(--color-primary);
   color: white;
-  padding: 0.7rem 1.5rem;
-  border: none;
+  padding: 0.8rem;
+  border: 1px solid var(--color-muted);
   border-radius: var(--radius);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--shadow-soft);
   transition: background-color 0.2s ease, transform 0.2s ease;
-  min-width: 120px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .submit-btn:hover {
   background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background-color: var(--color-muted);
+  color: var(--color-text);
+  padding: 0.8rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cancel-btn:hover {
+  background-color: var(--color-gray-dark);
   transform: translateY(-2px);
 }
 
@@ -731,19 +691,30 @@ input[type="checkbox"]:checked {
   .jobs-main-content.fixed-grid {
     display: flex; /* Revert to flex for stacking */
     flex-direction: column;
-    flex: 1 1 100%; /* Stack them vertically and take full width */
-    max-width: 100%; /* Ensure they don't get restricted by 25% */
+    height: calc(100vh - 200px);
+    overflow: hidden;
+    max-width: 100%;
   }
 
-  .jobs-form.card,
-  .job-listings-section.card {
-    flex: 1 1 100%; /* Ensure both sections take full width when stacked */
+  .jobs-form.card {
+    height: calc(50vh - 33px);
     max-width: 100%;
+    overflow: hidden;
+  }
+
+  .job-listings-section.card {
+    height: calc(50vh - 100px);
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .jobs-list-section,
   .jobs-form-section {
     padding: 1rem;
+  }
+
+  .form-box {
+    max-height: calc(50vh - 150px);
   }
 
   .form-box label {
@@ -855,6 +826,57 @@ input[type="checkbox"]:checked {
   gap: 1rem;
   justify-content: flex-start;
   flex-wrap: wrap;
+}
+
+/* Total Jobs Card */
+.total-jobs-card {
+  display: flex;
+  align-items: center;
+}
+
+.jobs-count-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.jobs-count-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.jobs-count-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.jobs-count-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+/* Theme-specific styling for jobs count card */
+body[data-theme='dark'] .jobs-count-card,
+body[data-theme='light'] .jobs-count-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+}
+
+body[data-theme='dark'] .jobs-count-card:hover,
+body[data-theme='light'] .jobs-count-card:hover {
+  box-shadow: var(--shadow-medium);
 }
 
 
@@ -1252,6 +1274,23 @@ input[type="checkbox"]:checked {
     justify-content: center;
   }
 
+  .total-jobs-card {
+    justify-content: center;
+  }
+
+  .jobs-count-card {
+    min-width: 120px;
+    padding: 0.8rem 1rem;
+  }
+
+  .jobs-count-text {
+    font-size: 0.85rem;
+  }
+
+  .jobs-count-number {
+    font-size: 1.1rem;
+  }
+
 
   .domain-btn {
     width: 100%;
@@ -1448,116 +1487,192 @@ input[type="checkbox"]:checked {
 
 /* Table-specific fixes for Jobs component */
 .jobs-container .data-table-container {
-  min-height: auto !important;
-  height: 100% !important;
-  max-height: 100% !important;
-  flex: 1 !important;
-  background: rgba(255, 255, 255, 0.1) !important; /* Glassmorphism background like other components */
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  padding: 20px !important; /* Restore proper padding like other components */
-  width: 100% !important;
-  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+  height: calc(100vh - 300px);
+  box-shadow: var(--shadow-soft);
+  position: relative;
 }
 
 .jobs-container .table-responsive {
-  height: 100% !important;
-  max-height: 100% !important;
-  flex: 1 !important;
-  background: rgba(255, 255, 255, 0.05) !important; /* Subtle background for table area */
-  border: none !important;
-  border-radius: 6px !important;
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-  width: 100% !important;
+  height: 100%;
+  max-height: 100%;
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  min-height: 0;
+}
+
+/* Custom scrollbar for Jobs table */
+.jobs-container .table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.jobs-container .table-responsive::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+}
+
+.jobs-container .table-responsive::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+.jobs-container .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
 
 .jobs-container .data-table {
-  max-height: none !important;
-  height: auto !important;
-  min-height: auto !important;
-  width: 100% !important;
-  table-layout: fixed !important;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 100%;
+  table-layout: fixed;
+  white-space: nowrap;
+  position: relative;
+  background: white;
 }
 
 /* Fix table column widths to prevent horizontal overflow */
 .jobs-container .data-table th,
 .jobs-container .data-table td {
-  white-space: nowrap !important;
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  width: auto;
+  min-width: fit-content;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.5;
+  background: white;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  max-width: 150px !important;
-  padding: 0.5rem !important;
+  max-width: none !important;
+  min-width: 120px !important;
 }
 
-/* Specific column width adjustments */
+/* Column width distribution */
 .jobs-container .data-table th:nth-child(1),
 .jobs-container .data-table td:nth-child(1) {
-  width: 20% !important; /* Job Title */
+  width: 20%;
 }
 
 .jobs-container .data-table th:nth-child(2),
 .jobs-container .data-table td:nth-child(2) {
-  width: 15% !important; /* Company */
+  width: 15%;
 }
 
 .jobs-container .data-table th:nth-child(3),
 .jobs-container .data-table td:nth-child(3) {
-  width: 12% !important; /* Domain */
+  width: 12%;
 }
 
 .jobs-container .data-table th:nth-child(4),
 .jobs-container .data-table td:nth-child(4) {
-  width: 18% !important; /* SPOC Email */
+  width: 18%;
 }
 
 .jobs-container .data-table th:nth-child(5),
 .jobs-container .data-table td:nth-child(5) {
-  width: 18% !important; /* Hiring Manager Email */
+  width: 18%;
 }
 
 .jobs-container .data-table th:nth-child(6),
 .jobs-container .data-table td:nth-child(6) {
-  width: 10% !important; /* Team Size */
+  width: 10%;
 }
 
 .jobs-container .data-table th:nth-child(7),
 .jobs-container .data-table td:nth-child(7) {
-  width: 7% !important; /* Number to Hire */
+  width: 7%;
 }
 
-/* Theme-specific background colors for DataTable container */
-body[data-theme='dark'] .jobs-container .data-table-container {
-  background: rgba(30, 27, 46, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+.jobs-container .data-table th {
+  background-color: white;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 10px 8px;
 }
 
+/* Auto-sizing columns based on content */
+.jobs-container .data-table th:nth-child(1),
+.jobs-container .data-table td:nth-child(1) {
+  min-width: 200px; /* Job Title - wider for longer titles */
+}
+
+.jobs-container .data-table th:nth-child(2),
+.jobs-container .data-table td:nth-child(2) {
+  min-width: 150px; /* Company */
+}
+
+.jobs-container .data-table th:nth-child(3),
+.jobs-container .data-table td:nth-child(3) {
+  min-width: 120px; /* Domain */
+}
+
+.jobs-container .data-table th:nth-child(4),
+.jobs-container .data-table td:nth-child(4) {
+  min-width: 200px; /* SPOC Email - wider for email addresses */
+}
+
+.jobs-container .data-table th:nth-child(5),
+.jobs-container .data-table td:nth-child(5) {
+  min-width: 200px; /* Hiring Manager Email - wider for email addresses */
+}
+
+.jobs-container .data-table th:nth-child(6),
+.jobs-container .data-table td:nth-child(6) {
+  min-width: 100px; /* Team Size */
+}
+
+.jobs-container .data-table th:nth-child(7),
+.jobs-container .data-table td:nth-child(7) {
+  min-width: 100px; /* Number to Hire */
+}
+
+/* Consistent styling for all themes */
+body[data-theme='dark'] .jobs-container .data-table-container,
 body[data-theme='light'] .jobs-container .data-table-container {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  background: white;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
 }
 
 /* Responsive padding for DataTable container */
 @media (max-width: 768px) {
   .jobs-container .data-table-container {
-    padding: 12px !important;
+    padding: 12px;
+  }
+  
+  .jobs-container .data-table th,
+  .jobs-container .data-table td {
+    padding: 8px 10px;
   }
 }
 
 @media (max-width: 480px) {
   .jobs-container .data-table-container {
-    padding: 8px !important;
+    padding: 8px;
   }
 }
 

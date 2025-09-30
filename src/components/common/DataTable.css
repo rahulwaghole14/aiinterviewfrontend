@@ -2,63 +2,41 @@
 .data-table-container {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: white;
     border-radius: var(--radius);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--color-border);
     overflow: hidden;
     padding: 20px;
     box-sizing: border-box;
     max-width: 100%;
     width: 100%;
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-soft);
     position: relative;
   }
 
-/* Dark theme glassmorphism for data table */
-body[data-theme='dark'] .data-table-container {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Light theme glassmorphism for data table */
+/* Consistent white background for all themes */
+body[data-theme='dark'] .data-table-container,
 body[data-theme='light'] .data-table-container {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: white;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
 }
 
-/* Glassmorphism shimmer effect for data table */
-.data-table-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  pointer-events: none;
+/* Force white background on table elements for all themes */
+body[data-theme='dark'] .data-table,
+body[data-theme='light'] .data-table {
+  background: white !important;
 }
 
-.data-table-container:hover::before {
-  left: 100%;
+body[data-theme='dark'] .data-table th,
+body[data-theme='dark'] .data-table td,
+body[data-theme='light'] .data-table th,
+body[data-theme='light'] .data-table td {
+  background: white !important;
 }
+
+/* Shimmer effect removed for solid white background */
   
   .table-box {
     flex: 1;
@@ -129,17 +107,21 @@ body[data-theme='light'] .table-responsive {
     height: 100%;
     min-height: 100%;
     max-height: 600px; /* Increased height to get closer to pagination */
+    background: white !important;
   }
   
   .data-table th,
   .data-table td {
-    padding: 12px 8px;
+    padding: 10px 8px; /* Slightly increased padding */
     text-align: left;
     border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
     width: auto;
     min-width: fit-content;
     position: relative; /* Ensure proper containment */
+    font-size: 14px; /* Increased font size to match hiring agency */
+    line-height: 1.5; /* Better line height for readability */
+    background: white !important;
   }
   
   .data-table th:first-child,
@@ -160,15 +142,16 @@ body[data-theme='light'] .table-responsive {
   
   
   .data-table th {
-    background-color: var(--color-bg-secondary);
+    background-color: white !important;
     font-weight: 600;
     color: var(--color-text-secondary);
     text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
+    font-size: 12px; /* Increased header font size */
+    letter-spacing: 0.4px; /* Slightly increased letter spacing */
     position: sticky;
     top: 0;
     z-index: 10; /* Higher z-index than action menus */
+    padding: 10px 8px; /* Increased header padding to match cells */
   }
 
   /* Sortable header styles */
@@ -1484,8 +1467,8 @@ body[data-theme='light'] .pagination {
     
     .data-table th,
     .data-table td {
-      padding: 8px 12px;
-      font-size: 13px;
+      padding: 8px 10px; /* Increased padding for mobile */
+      font-size: 13px; /* Increased font size for mobile */
     }
   
     .data-table-title {

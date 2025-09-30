@@ -147,11 +147,19 @@ const CandidatePage = () => {
   });
   const [appliedTab, setAppliedTab] = useState("All");
 
-  const [itemsPerPage] = useState(4);
+  const [itemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Mobile filter and status dropdown states
   const [showMobileFilter, setShowMobileFilter] = useState(false);
+  
+  // Editing state for tabs visibility
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Toggle editing mode
+  const toggleEditing = () => {
+    setIsEditing(!isEditing);
+  };
 
   // Fetch candidates, jobs, and domains on component mount if not already loaded
   useEffect(() => {
@@ -509,38 +517,52 @@ const CandidatePage = () => {
 
         <div className="candidate-details-section card slide-in-right">
           <div className="candidate-status-tabs-container desktop-only">
-            {candidateTabsStatusList.map((tab) => (
-              <div
-                key={tab}
-                className={`status-tab ${activeTab === tab ? "active" : ""}`}
-                onClick={() => handleTabClick(tab)}
+            <div className="status-tabs-header">
+              <h3 className="status-tabs-title">Status Filters</h3>
+              <button 
+                className="edit-tabs-btn"
+                onClick={toggleEditing}
+                title={isEditing ? "Exit Edit Mode" : "Edit Status Tabs"}
               >
-                {tab}
-              </div>
-            ))}
+                {isEditing ? "Done" : "Edit"}
+              </button>
+            </div>
+            <div className="status-tabs-list">
+              {candidateTabsStatusList.map((tab) => (
+                <div
+                  key={tab}
+                  className={`status-tab ${activeTab === tab ? "active" : ""}`}
+                  onClick={() => handleTabClick(tab)}
+                >
+                  {tab}
+                </div>
+              ))}
+            </div>
           </div>
           <h2 className="section-title">Candidate List</h2>
-          <div className="candidate-list">
-            {candidatesStatus === 'loading' || jobsStatus === 'loading' || domainsStatus === 'loading' ? (
-              <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <p>Loading candidates...</p>
-              </div>
-            ) : candidatesError ? (
-              <p>Unable to load candidates. Please refresh the page.</p>
-            ) : currentCandidates.length > 0 ? (
-              currentCandidates.map((candidate) => (
-                <CandidateCard
-                  key={candidate.id}
-                  candidate={candidate}
-                  onViewReport={handleViewDetails}
-                  getDomainName={getDomainName} // Pass helper
-                  getJobTitle={getJobTitle} // Pass helper
-                />
-              ))
-            ) : (
-              <p className="no-results">No Candidates Found Matching Your Filters.</p>
-            )}
+          <div className="candidate-cards-container">
+            <div className="candidate-list">
+              {candidatesStatus === 'loading' || jobsStatus === 'loading' || domainsStatus === 'loading' ? (
+                <div className="loading-container">
+                  <div className="loading-spinner"></div>
+                  <p>Loading candidates...</p>
+                </div>
+              ) : candidatesError ? (
+                <p>Unable to load candidates. Please refresh the page.</p>
+              ) : currentCandidates.length > 0 ? (
+                currentCandidates.map((candidate) => (
+                  <CandidateCard
+                    key={candidate.id}
+                    candidate={candidate}
+                    onViewReport={handleViewDetails}
+                    getDomainName={getDomainName} // Pass helper
+                    getJobTitle={getJobTitle} // Pass helper
+                  />
+                ))
+              ) : (
+                <p className="no-results">No Candidates Found Matching Your Filters.</p>
+              )}
+            </div>
           </div>
 
           {sortedCandidates.length > itemsPerPage && (

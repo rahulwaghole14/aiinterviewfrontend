@@ -883,6 +883,14 @@ const Jobs = () => {
           </div>
         )}
 
+        {/* Total Jobs Card */}
+        <div className="total-jobs-card">
+          <div className="jobs-count-card">
+            <span className="jobs-count-text">Total Jobs: </span>
+            <span className="jobs-count-number">{jobsForUser.length}</span>
+          </div>
+        </div>
+
         </div>
 
         {/* Mobile Toggle Button */}
@@ -899,13 +907,6 @@ const Jobs = () => {
         )}
 
 
-        {/* Top Section: Header Cards - now rendered as button-like status cards */}
-        <div className="candidate-status-cards-container">
-          <div className="status-card">
-            <span className="status-card-count">{jobsForUser.length}</span>
-            <span className="status-card-label">Total Jobs</span>
-          </div>
-        </div>
 
         {/* Main Content Area - Form and Table side-by-side */}
         <div
@@ -956,7 +957,7 @@ const Jobs = () => {
                     name="domain"
                     value={formData.domain}
                     onChange={handleChange}
-                    className="jobs-input"
+                    className="jobs-select"
                     required
                     disabled={isCreatingJob || domainsStatus === "loading"}
                   >
@@ -1073,8 +1074,8 @@ const Jobs = () => {
                     style={{ resize: "vertical", minHeight: "120px" }}
                     disabled={isCreatingJob}
                   />
-                </div>
-                <div className="form-actions">
+
+                  <div className="form-actions">
                   <button
                     className="submit-btn"
                     type="submit"
@@ -1112,6 +1113,7 @@ const Jobs = () => {
                       Cancel
                     </button>
                   )}
+                  </div>
                 </div>
               </form>
             </div>
