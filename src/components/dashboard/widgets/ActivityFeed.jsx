@@ -4,49 +4,59 @@ import { FiUser, FiFileText, FiBriefcase, FiCalendar, FiClock } from 'react-icon
 import './ActivityFeed.css';
 
 const ActivityFeed = ({ config, data }) => {
-  const { limit = 10, showTimestamps = true } = config;
+  const { limit = 10, showTimestamps = true, data: configData } = config;
 
-  // Combine all activity data
-  const allActivities = [
-    ...(data?.resume_stats?.recent_uploads || []).map(item => ({
+  // Use config data if available (from data source change), otherwise use dashboard data
+  const allActivities = configData ? 
+    configData.map(item => ({
       id: item.id,
-      type: 'resume_upload',
-      title: 'Resume Uploaded',
-      description: `New resume: ${item.file.split('/').pop()}`,
-      timestamp: new Date(item.uploaded_at),
-      icon: <FiFileText />,
+      type: item.type,
+      title: item.message.split(':')[0] || 'Activity',
+      description: item.message,
+      timestamp: new Date(item.timestamp),
+      icon: <FiClock />,
       color: 'primary'
-    })),
-    ...(data?.candidate_stats?.recent_candidates || []).map(item => ({
-      id: item.id,
-      type: 'new_candidate',
-      title: 'New Candidate',
-      description: `${item.full_name || 'N/A'} added in ${item.domain} domain`,
-      timestamp: new Date(item.created_at),
-      icon: <FiUser />,
-      color: 'success'
-    })),
-    ...(data?.job_stats?.recent_jobs || []).map(item => ({
-      id: item.id,
-      type: 'job_posted',
-      title: 'Job Posted',
-      description: `${item.job_title} at ${item.company_name}`,
-      timestamp: new Date(item.created_at),
-      icon: <FiBriefcase />,
-      color: 'info'
-    })),
-    ...(data?.activity_data?.recent_activities || []).map(item => ({
-      id: item.id,
-      type: item.type || 'activity',
-      title: item.name || 'Activity',
-      description: item.detail || 'System activity',
-      timestamp: new Date(item.date),
-      icon: <FiCalendar />,
-      color: 'warning'
-    }))
-  ]
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, limit);
+    })) :
+    [
+      ...(data?.resume_stats?.recent_uploads || []).map(item => ({
+        id: item.id,
+        type: 'resume_upload',
+        title: 'Resume Uploaded',
+        description: `New resume: ${item.file.split('/').pop()}`,
+        timestamp: new Date(item.uploaded_at),
+        icon: <FiFileText />,
+        color: 'primary'
+      })),
+      ...(data?.candidate_stats?.recent_candidates || []).map(item => ({
+        id: item.id,
+        type: 'new_candidate',
+        title: 'New Candidate',
+        description: `${item.full_name || 'N/A'} added in ${item.domain} domain`,
+        timestamp: new Date(item.created_at),
+        icon: <FiUser />,
+        color: 'success'
+      })),
+      ...(data?.job_stats?.recent_jobs || []).map(item => ({
+        id: item.id,
+        type: 'job_posted',
+        title: 'Job Posted',
+        description: `${item.job_title} at ${item.company_name}`,
+        timestamp: new Date(item.created_at),
+        icon: <FiBriefcase />,
+        color: 'info'
+      })),
+      ...(data?.activity_data?.recent_activities || []).map(item => ({
+        id: item.id,
+        type: item.type || 'activity',
+        title: item.name || 'Activity',
+        description: item.detail || 'System activity',
+        timestamp: new Date(item.date),
+        icon: <FiCalendar />,
+        color: 'warning'
+      }))
+    ]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, limit);
 
   const getTimeAgo = (timestamp) => {
     const now = new Date();

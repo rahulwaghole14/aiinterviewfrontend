@@ -1,6 +1,7 @@
 // src/components/dashboard/DashboardWidget.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import { FiSettings, FiMaximize2, FiMinimize2, FiX, FiRefreshCw, FiMove } from 'react-icons/fi';
+import { FiMaximize2, FiMinimize2, FiX, FiRefreshCw, FiMove, FiDatabase } from 'react-icons/fi';
+import WidgetDataSettings from './WidgetDataSettings';
 import './DashboardWidget.css';
 
 const DashboardWidget = ({ 
@@ -16,7 +17,7 @@ const DashboardWidget = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showDataSettings, setShowDataSettings] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
   const [dragPreview, setDragPreview] = useState(null);
@@ -33,8 +34,8 @@ const DashboardWidget = ({
     }
   };
 
-  const handleSettings = () => {
-    setShowSettings(!showSettings);
+  const handleDataSettings = () => {
+    setShowDataSettings(!showDataSettings);
   };
 
   const handleRemove = () => {
@@ -43,13 +44,8 @@ const DashboardWidget = ({
     }
   };
 
-  const handleResize = (newSize) => {
-    if (onUpdateWidget) {
-      onUpdateWidget(widget.id, { size: newSize });
-    }
-  };
 
-  const handleMouseDown = (e) => {
+  const handleDragHandleMouseDown = (e) => {
     if (!isEditing) return;
     
     e.preventDefault();
@@ -132,7 +128,23 @@ const DashboardWidget = ({
 
   const widgetContent = (
     <>
-      {isExpanded && <div className="widget-backdrop" onClick={() => setIsExpanded(false)} />}
+      {/* Data Settings Modal - Render outside widget container */}
+      {showDataSettings && isEditing && (
+        <>
+          <div className="widget-backdrop" onClick={() => setShowDataSettings(false)} />
+          <WidgetDataSettings
+            widget={widget}
+            onUpdateWidget={onUpdateWidget}
+            onClose={() => setShowDataSettings(false)}
+          />
+        </>
+      )}
+      
+      {/* Backdrop for expanded widget - positioned behind the widget */}
+      {isExpanded && !showDataSettings && (
+        <div className="widget-backdrop" onClick={() => setIsExpanded(false)} />
+      )}
+      
       <div 
         ref={widgetRef}
         className={`dashboard-widget ${isExpanded ? 'expanded' : ''} ${isEditing ? 'editing' : ''} ${isDragging ? 'dragging' : ''}`}
@@ -153,7 +165,6 @@ const DashboardWidget = ({
             gridRow: 'unset'
           })
         }}
-        onMouseDown={handleMouseDown}
       >
       {/* Widget Header */}
       <div className="widget-header">
@@ -186,17 +197,17 @@ const DashboardWidget = ({
             <>
               <button 
                 className="widget-control-btn drag-handle"
-                onMouseDown={handleMouseDown}
+                onMouseDown={handleDragHandleMouseDown}
                 title="Drag to move widget"
               >
                 <FiMove />
               </button>
               <button 
-                className="widget-control-btn settings"
-                onClick={handleSettings}
-                title="Widget settings"
+                className="widget-control-btn data-settings"
+                onClick={handleDataSettings}
+                title="Data source settings"
               >
-                <FiSettings />
+                <FiDatabase />
               </button>
               <button 
                 className="widget-control-btn remove"
@@ -222,58 +233,7 @@ const DashboardWidget = ({
         )}
       </div>
 
-      {/* Widget Settings Panel */}
-      {showSettings && isEditing && (
-        <div className="widget-settings">
-          <h4>Widget Settings</h4>
-          <div className="settings-group">
-            <label>Size</label>
-            <div className="size-controls">
-              <button 
-                className={`size-btn ${widget.size?.w === 1 ? 'active' : ''}`}
-                onClick={() => handleResize({ ...widget.size, w: 1 })}
-              >
-                Small
-              </button>
-              <button 
-                className={`size-btn ${widget.size?.w === 2 ? 'active' : ''}`}
-                onClick={() => handleResize({ ...widget.size, w: 2 })}
-              >
-                Medium
-              </button>
-              <button 
-                className={`size-btn ${widget.size?.w === 3 ? 'active' : ''}`}
-                onClick={() => handleResize({ ...widget.size, w: 3 })}
-              >
-                Large
-              </button>
-            </div>
-          </div>
-          <div className="settings-group">
-            <label>Height</label>
-            <div className="height-controls">
-              <button 
-                className={`height-btn ${widget.size?.h === 1 ? 'active' : ''}`}
-                onClick={() => handleResize({ ...widget.size, h: 1 })}
-              >
-                Short
-              </button>
-              <button 
-                className={`height-btn ${widget.size?.h === 2 ? 'active' : ''}`}
-                onClick={() => handleResize({ ...widget.size, h: 2 })}
-              >
-                Medium
-              </button>
-              <button 
-                className={`height-btn ${widget.size?.h === 3 ? 'active' : ''}`}
-                onClick={() => handleResize({ ...widget.size, h: 3 })}
-              >
-                Tall
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
       </div>
     </>
   );

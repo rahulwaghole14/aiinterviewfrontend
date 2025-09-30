@@ -4,7 +4,7 @@ import { FiWifi, FiWifiOff, FiRefreshCw, FiClock, FiActivity } from 'react-icons
 import './RealTimeUpdates.css';
 
 const RealTimeUpdates = ({ config }) => {
-  const { refreshInterval = 5000, showLiveIndicator = true } = config;
+  const { refreshInterval = 5000, showLiveIndicator = true, data: configData } = config;
   const [isConnected, setIsConnected] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [updateCount, setUpdateCount] = useState(0);
@@ -115,18 +115,29 @@ const RealTimeUpdates = ({ config }) => {
         <div className="update-feed">
           <h4>Recent Updates</h4>
           <div className="update-list">
-            <div className="update-item">
-              <div className="update-time">{getTimeAgo(lastUpdate)}</div>
-              <div className="update-message">Dashboard data refreshed</div>
-            </div>
-            <div className="update-item">
-              <div className="update-time">{getTimeAgo(new Date(lastUpdate - 30000))}</div>
-              <div className="update-message">New candidate added</div>
-            </div>
-            <div className="update-item">
-              <div className="update-time">{getTimeAgo(new Date(lastUpdate - 60000))}</div>
-              <div className="update-message">Interview completed</div>
-            </div>
+            {configData ? (
+              configData.map((item, index) => (
+                <div key={index} className="update-item">
+                  <div className="update-time">{getTimeAgo(new Date(item.timestamp || lastUpdate))}</div>
+                  <div className="update-message">{item.name}: {item.value}</div>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="update-item">
+                  <div className="update-time">{getTimeAgo(lastUpdate)}</div>
+                  <div className="update-message">Dashboard data refreshed</div>
+                </div>
+                <div className="update-item">
+                  <div className="update-time">{getTimeAgo(new Date(lastUpdate - 30000))}</div>
+                  <div className="update-message">New candidate added</div>
+                </div>
+                <div className="update-item">
+                  <div className="update-time">{getTimeAgo(new Date(lastUpdate - 60000))}</div>
+                  <div className="update-message">Interview completed</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -4,33 +4,43 @@ import { FiTrendingUp, FiTrendingDown, FiCalendar, FiBarChart } from 'react-icon
 import './TrendAnalysis.css';
 
 const TrendAnalysis = ({ config, data }) => {
-  const { period = '30d', metrics = ['candidates', 'interviews', 'jobs'] } = config;
+  const { period = '30d', metrics = ['candidates', 'interviews', 'jobs'], data: configData, chartType } = config;
   const [selectedMetric, setSelectedMetric] = useState(metrics[0]);
   const [trendData, setTrendData] = useState(null);
 
   useEffect(() => {
-    // Simulate trend analysis data
-    const generateTrendData = () => {
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      const data = [];
-      
-      for (let i = days - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
+    // Use config data if available (from data source change), otherwise generate data
+    if (configData) {
+      setTrendData(configData.map(item => ({
+        date: item.name,
+        value: item.value,
+        change: item.value > 50 ? 'up' : 'down',
+        changePercent: Math.floor(Math.random() * 20) + 1
+      })));
+    } else {
+      // Simulate trend analysis data
+      const generateTrendData = () => {
+        const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
+        const data = [];
         
-        data.push({
-          date: date.toISOString().split('T')[0],
-          value: Math.floor(Math.random() * 100) + 20,
-          change: Math.random() > 0.5 ? 'up' : 'down',
-          changePercent: Math.floor(Math.random() * 20) + 1
-        });
-      }
-      
-      return data;
-    };
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          
+          data.push({
+            date: date.toISOString().split('T')[0],
+            value: Math.floor(Math.random() * 100) + 20,
+            change: Math.random() > 0.5 ? 'up' : 'down',
+            changePercent: Math.floor(Math.random() * 20) + 1
+          });
+        }
+        
+        return data;
+      };
 
-    setTrendData(generateTrendData());
-  }, [period, selectedMetric]);
+      setTrendData(generateTrendData());
+    }
+  }, [period, selectedMetric, configData]);
 
   const getTrendIcon = (change) => {
     return change === 'up' ? <FiTrendingUp /> : <FiTrendingDown />;

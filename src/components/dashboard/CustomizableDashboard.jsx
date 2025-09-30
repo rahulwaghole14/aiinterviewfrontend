@@ -303,9 +303,38 @@ const CustomizableDashboard = () => {
 
   // Update widget configuration
   const handleUpdateWidget = (widgetId, updates) => {
-    const updatedWidgets = widgets.map(widget =>
-      widget.id === widgetId ? { ...widget, ...updates } : widget
-    );
+    const updatedWidgets = widgets.map(widget => {
+      if (widget.id === widgetId) {
+        const updatedWidget = { ...widget, ...updates };
+        
+        // If data source changed, completely replace the widget content
+        if (updates.dataSource) {
+          // Update title and subtitle if provided
+          if (updates.title) {
+            updatedWidget.title = updates.title;
+          }
+          if (updates.subtitle) {
+            updatedWidget.subtitle = updates.subtitle;
+          }
+          
+          // Update config based on widget type
+          if (updates.config) {
+            if (widget.type === 'kpi') {
+              updatedWidget.config = updates.config;
+            } else if (widget.type === 'chart') {
+              updatedWidget.config = {
+                ...widget.config,
+                ...updates.config
+              };
+            }
+          }
+        }
+        
+        return updatedWidget;
+      }
+      return widget;
+    });
+    
     setWidgets(updatedWidgets);
     saveWidgets(updatedWidgets);
   };
@@ -360,7 +389,6 @@ const CustomizableDashboard = () => {
       {/* Dashboard Header */}
       <div className="dashboard-header">
         <div className="dashboard-title">
-          <h1>Executive Dashboard</h1>
           <p>Customize your dashboard by dragging and resizing widgets</p>
         </div>
         

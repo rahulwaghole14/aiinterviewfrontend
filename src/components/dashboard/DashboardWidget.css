@@ -146,9 +146,14 @@
   color: var(--color-danger);
 }
 
-.widget-control-btn.settings:hover {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+
+.widget-control-btn.data-settings {
+  color: var(--color-text-secondary);
+}
+
+.widget-control-btn.data-settings:hover {
+  color: var(--color-success);
+  background: var(--color-success-light);
 }
 
 @keyframes spin {
@@ -207,78 +212,10 @@
   margin: 0;
 }
 
-/* Widget Settings Panel */
-.widget-settings {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: var(--color-background-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  padding: 1rem;
-  min-width: 200px;
-  z-index: 10;
-}
-
-.widget-settings h4 {
-  margin: 0 0 1rem 0;
-  font-size: 0.9rem;
-  color: var(--color-text-primary);
-}
-
-.settings-group {
-  margin-bottom: 1rem;
-}
-
-.settings-group label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.size-controls,
-.height-controls {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.size-btn,
-.height-btn {
-  flex: 1;
-  padding: 0.375rem 0.5rem;
-  border: 1px solid var(--color-border);
-  background: var(--color-background);
-  color: var(--color-text-secondary);
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.size-btn:hover,
-.height-btn:hover {
-  background: var(--color-hover);
-  color: var(--color-text-primary);
-}
-
-.size-btn.active,
-.height-btn.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
 
 /* Draggable States */
 .dashboard-widget.editing {
-  cursor: grab;
   user-select: none;
-}
-
-.dashboard-widget.editing:active {
-  cursor: grabbing;
 }
 
 .dashboard-widget.dragging {
@@ -293,10 +230,20 @@
 
 .widget-control-btn.drag-handle {
   cursor: grab;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.widget-control-btn.drag-handle:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.1);
 }
 
 .widget-control-btn.drag-handle:active {
   cursor: grabbing;
+  transform: scale(0.95);
 }
 
 /* Responsive Design */
