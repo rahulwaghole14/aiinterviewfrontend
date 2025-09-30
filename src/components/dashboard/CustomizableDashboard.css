@@ -131,7 +131,7 @@ body[data-theme='dark'] .customizable-dashboard {
 .dashboard-grid-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(6, minmax(220px, auto));
+  grid-template-rows: repeat(20, minmax(220px, auto));
   gap: 1rem;
   min-height: 300px;
   padding: 0.5rem 0;
@@ -141,12 +141,72 @@ body[data-theme='dark'] .customizable-dashboard {
   height: 100%;
   grid-auto-flow: row;
   position: relative;
+  overflow: auto;
+  max-height: calc(100vh - 200px);
 }
 
 .dashboard-grid-container.dragging-over {
   background: rgba(139, 92, 246, 0.05);
   border: 2px dashed var(--color-primary);
   border-radius: var(--radius);
+}
+
+.drag-preview-placeholder {
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px dashed var(--color-primary);
+  border-radius: var(--radius);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.drag-preview-placeholder.active {
+  background: rgba(139, 92, 246, 0.2);
+  border: 2px solid var(--color-primary);
+  animation: pulse 1s infinite;
+}
+
+.drag-preview-placeholder.available {
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px dashed rgba(139, 92, 246, 0.3);
+  opacity: 0.6;
+}
+
+.drag-preview-placeholder.available:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px dashed var(--color-primary);
+  opacity: 1;
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.placeholder-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 /* Responsive Grid */

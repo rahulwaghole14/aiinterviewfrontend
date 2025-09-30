@@ -234,3 +234,4 @@ body[data-theme='dark'] .metric-card:hover {
 .metric-card:hover::before {
   left: 100%;
 }
+

@@ -12,14 +12,14 @@ const DashboardWidget = ({
   onRefreshWidget,
   onMoveWidget,
   onSwapWidget,
+  lastWidgetPosition,
+  onDragStart,
+  isDragging,
   children 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
-  const [dragPreview, setDragPreview] = useState(null);
   const widgetRef = useRef(null);
 
   const handleRefresh = async () => {
@@ -54,81 +54,16 @@ const DashboardWidget = ({
     
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(true);
-    setDragStartPos({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging || !isEditing) return;
     
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Visual feedback during drag
-    if (widgetRef.current) {
-      const deltaX = e.clientX - dragStartPos.x;
-      const deltaY = e.clientY - dragStartPos.y;
-      
-      widgetRef.current.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-      widgetRef.current.style.zIndex = '1000';
-    }
-    
-    // Calculate preview position
-    const gridContainer = document.querySelector('.dashboard-grid-container');
-    if (gridContainer) {
-      const gridRect = gridContainer.getBoundingClientRect();
-      const relativeX = e.clientX - gridRect.left;
-      const relativeY = e.clientY - gridRect.top;
-      
-      const colWidth = gridRect.width / 4;
-      const rowHeight = 220;
-      
-      const newCol = Math.floor(relativeX / colWidth);
-      const newRow = Math.floor(relativeY / rowHeight);
-      
-      const clampedCol = Math.max(0, Math.min(3, newCol));
-      const clampedRow = Math.max(0, newRow);
-      
-      setDragPreview({ x: clampedCol, y: clampedRow });
+    // Use the new drag system
+    if (onDragStart) {
+      onDragStart(widget.id, e);
     }
   };
 
-  const handleMouseUp = (e) => {
-    if (!isDragging || !isEditing) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    setDragPreview(null);
-    
-    // Reset transform
-    if (widgetRef.current) {
-      widgetRef.current.style.transform = '';
-      widgetRef.current.style.zIndex = '';
-    }
-    
-    // Use the preview position if available
-    if (dragPreview) {
-      const currentPos = widget.position || { x: 0, y: 0 };
-      if (currentPos.x !== dragPreview.x || currentPos.y !== dragPreview.y) {
-        if (onMoveWidget) {
-          onMoveWidget(widget.id, { x: dragPreview.x, y: dragPreview.y });
-        }
-      }
-    }
-  };
+  // Remove old drag logic - now handled by the new drag system
 
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, isEditing]);
+  // Remove old drag logic - now handled by the new drag system
 
   const widgetContent = (
     <>

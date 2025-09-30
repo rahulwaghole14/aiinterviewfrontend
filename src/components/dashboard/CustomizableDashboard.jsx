@@ -6,6 +6,7 @@ import DashboardWidget from './DashboardWidget';
 import WidgetLibrary from './WidgetLibrary';
 import { fetchDashboardData } from '../../redux/slices/dashboardSlice';
 import { useNotification } from '../../hooks/useNotification';
+import useSimpleDrag from './SimpleDragSystem';
 import './CustomizableDashboard.css';
 
 // Widget Components
@@ -175,53 +176,132 @@ const CustomizableDashboard = () => {
     setLastSaved(new Date());
   }, []);
 
-  // Handle widget move
-  const handleWidgetMove = (widgetId, newPosition) => {
-    // Find the widget being moved
-    const movingWidget = widgets.find(w => w.id === widgetId);
-    if (!movingWidget) return;
-
-    // Check if the new position is occupied
-    const isOccupied = widgets.some(widget => {
-      if (widget.id === widgetId) return false;
-      return widget.position?.x === newPosition.x && widget.position?.y === newPosition.y;
-    });
-
-    if (isOccupied) {
-      // Find the widget at the target position and swap
-      const targetWidget = widgets.find(w => 
-        w.id !== widgetId && 
-        w.position?.x === newPosition.x && 
-        w.position?.y === newPosition.y
-      );
+  // Handle widget move with insertion behavior
+  const handleWidgetMove = useCallback((widgetId, newPosition, newLayout, isPreview = false) => {
+    if (newLayout) {
+      // Use the provided layout (from the drag system)
+      setWidgets(newLayout);
       
-      if (targetWidget) {
-        // Swap positions
-        const updatedWidgets = widgets.map(widget => {
-          if (widget.id === widgetId) {
-            return { ...widget, position: targetWidget.position };
-          } else if (widget.id === targetWidget.id) {
-            return { ...widget, position: movingWidget.position };
-          }
-          return widget;
-        });
-        
-        setWidgets(updatedWidgets);
-        saveWidgets(updatedWidgets);
+      // Only save if it's not a preview
+      if (!isPreview) {
+        saveWidgets(newLayout);
       }
     } else {
-      // Move to empty position
-      const updatedWidgets = widgets.map(widget => {
-        if (widget.id === widgetId) {
-          return { ...widget, position: newPosition };
-        }
-        return widget;
-      });
+      // Fallback to the old logic
+      const movingWidget = widgets.find(w => w.id === widgetId);
+      if (!movingWidget) return;
+
+      const currentPos = movingWidget.position || { x: 0, y: 0 };
       
-      setWidgets(updatedWidgets);
-      saveWidgets(updatedWidgets);
+      // If moving to the same position, do nothing
+      if (currentPos.x === newPosition.x && currentPos.y === newPosition.y) {
+        return;
+      }
+
+      // Get all widgets except the one being moved
+      const otherWidgets = widgets.filter(w => w.id !== widgetId);
+      
+      // Sort other widgets by their current position
+      const sortedWidgets = otherWidgets.sort((a, b) => {
+        const aY = a.position?.y || 0;
+        const bY = b.position?.y || 0;
+        const aX = a.position?.x || 0;
+        const bX = b.position?.x || 0;
+        
+        if (aY !== bY) return aY - bY;
+        return aX - bX;
+      });
+
+      // Calculate the target index based on the new position
+      const targetIndex = newPosition.y * 4 + newPosition.x;
+      
+      // Create new positions for all widgets
+      const newWidgets = [];
+      let currentIndex = 0;
+      let inserted = false;
+
+      // Insert the moving widget at the calculated position
+      for (let i = 0; i <= sortedWidgets.length; i++) {
+        if (i === targetIndex && !inserted) {
+          // Insert the moving widget here
+          newWidgets.push({
+            ...movingWidget,
+            position: newPosition
+          });
+          inserted = true;
+        }
+        
+        if (i < sortedWidgets.length) {
+          // Calculate new position for this widget
+          const widget = sortedWidgets[i];
+          const newY = Math.floor(currentIndex / 4);
+          const newX = currentIndex % 4;
+          
+          newWidgets.push({
+            ...widget,
+            position: { x: newX, y: newY }
+          });
+          currentIndex++;
+        }
+      }
+
+      // If we haven't inserted yet, add at the end
+      if (!inserted) {
+        newWidgets.push({
+          ...movingWidget,
+          position: newPosition
+        });
+      }
+
+      setWidgets(newWidgets);
+      
+      // Only save if it's not a preview
+      if (!isPreview) {
+        saveWidgets(newWidgets);
+      }
     }
+  }, [widgets, saveWidgets]);
+
+  // New simple drag system
+  const { draggedWidget, isDragging, handleDragStart } = useSimpleDrag(widgets, handleWidgetMove);
+
+  // Calculate insertion index based on position
+  const calculateInsertionIndex = (position) => {
+    const { x, y } = position;
+    const targetIndex = y * 4 + x;
+    
+    // Find widgets that come before this position
+    const widgetsBefore = widgets.filter(widget => {
+      const widgetY = widget.position?.y || 0;
+      const widgetX = widget.position?.x || 0;
+      const widgetIndex = widgetY * 4 + widgetX;
+      return widgetIndex < targetIndex;
+    });
+    
+    return widgetsBefore.length;
   };
+
+  // Get the position of the last widget
+  const getLastWidgetPosition = () => {
+    if (widgets.length === 0) return { x: 0, y: 0 };
+    
+    let maxY = 0;
+    let maxX = 0;
+    
+    widgets.forEach(widget => {
+      const widgetY = widget.position?.y || 0;
+      const widgetX = widget.position?.x || 0;
+      
+      if (widgetY > maxY || (widgetY === maxY && widgetX > maxX)) {
+        maxY = widgetY;
+        maxX = widgetX;
+      }
+    });
+    
+    return { x: maxX, y: maxY };
+  };
+
+  // Drag preview is now handled by the new drag system
 
   // Handle widget swap
   const handleWidgetSwap = (sourceId, targetId) => {
@@ -428,10 +508,14 @@ const CustomizableDashboard = () => {
               onRefreshWidget={handleRefreshWidget}
               onMoveWidget={handleWidgetMove}
               onSwapWidget={handleWidgetSwap}
+              lastWidgetPosition={getLastWidgetPosition()}
+              onDragStart={handleDragStart}
+              isDragging={isDragging}
             >
               {renderWidgetContent(widget)}
             </DashboardWidget>
           ))}
+          
         </div>
       </div>
 

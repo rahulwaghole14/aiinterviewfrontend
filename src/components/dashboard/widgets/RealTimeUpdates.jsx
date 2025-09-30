@@ -142,3 +142,4 @@ const RealTimeUpdates = ({ config }) => {
 };
 
 export default RealTimeUpdates;
+
