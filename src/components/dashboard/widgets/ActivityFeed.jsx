@@ -147,3 +147,4 @@ const ActivityFeed = ({ config, data }) => {
 };
 
 export default ActivityFeed;
+
