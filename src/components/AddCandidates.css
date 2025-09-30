@@ -18,7 +18,7 @@
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
-  height: 100%; /* Ensure container takes full height */
+  height: 100%; /* Set height to 100% to fill available space */
   overflow-y: auto; /* Enable vertical scrolling if content overflows */
   overflow-x: hidden; /* Prevent horizontal scrolling */
   /* Hide scrollbar for Webkit browsers (Chrome, Safari) */
@@ -29,6 +29,7 @@
   font-family: var(--font-family-base); /* Consistent font */
   transition: filter 0.3s ease;
   min-width: 0;
+  padding: 1rem; /* Add padding to prevent content from touching edges */
 }
 
 /* Blur effect when modal is open */
@@ -113,10 +114,11 @@ body[data-theme='light'] .add-candidates-card {
   display: grid;
   grid-template-columns: 1fr 3fr; /* 25% form, 75% table */
   gap: 1.5rem;
-  align-items: start; /* Align grid items to the start of their cells */
+  align-items: stretch; /* Stretch grid items to fill available height */
   flex-grow: 1; /* Allow the main content area to grow */
   min-width: 0;
-  overflow: hidden;
+  overflow: visible; /* Allow content to overflow and be scrollable */
+  height: 100%; /* Take full height of container */
 }
 
 .preview-section {
@@ -219,7 +221,7 @@ body[data-theme='light'] .preview-section:hover {
   justify-content: space-between;
   align-items: center;
   padding: 0 0 16px 0; /* Match DataTable header padding */
-  background: var(--color-card);
+  background: transparent; /* Remove white background */
   margin: 0;
   min-width: 100%;
   box-sizing: border-box;
@@ -257,14 +259,16 @@ body[data-theme='light'] .preview-section:hover {
 .table-box {
   width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border-bottom: 1px solid var(--color-border);
   border-radius: 6px;
-  background-color: var(--color-card);
+  background-color: transparent; /* Make background transparent for consistency */
   /* Hide scrollbars */
   -ms-overflow-style: none;
   scrollbar-width: none;
-  min-height: 590px;
+  flex: 1; /* Take remaining space in flex container */
+  min-height: 0; /* Allow shrinking */
 }
 
 .table-box::-webkit-scrollbar {
@@ -278,9 +282,6 @@ body[data-theme='light'] .preview-section:hover {
   table-layout: auto;
   white-space: nowrap;
   position: relative; /* Ensure proper containment */
-  height: 100%;
-  min-height: 100%;
-  max-height: 600px; /* Increased height to get closer to pagination */
 }
 
 .candidate-table th,
@@ -384,6 +385,7 @@ body[data-theme='light'] .preview-section:hover {
   width: 100%; /* Take full width of table */
   padding: 2rem !important; /* Add padding to the cell */
   border: none !important; /* Remove cell border */
+  background-color: transparent !important; /* Make cell background transparent */
 }
 
 .empty-state {
@@ -395,6 +397,7 @@ body[data-theme='light'] .preview-section:hover {
   min-height: 200px; /* Increased height for better visibility */
   padding: 2rem 1rem; /* More padding */
   width: 100%; /* Take full width */
+  background-color: transparent; /* Make background transparent */
 }
 
 .empty-state svg {
@@ -1088,6 +1091,10 @@ body[data-theme='light'] .preview-section:hover {
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
+  .add-candidates-container {
+    padding: 0.5rem; /* Reduce padding on smaller screens */
+  }
+  
   .add-candidates-top-section {
     flex-direction: column;
     align-items: flex-start;
@@ -1383,6 +1390,11 @@ body[data-theme='light'] .preview-section:hover {
 }
 
 @media (max-width: 768px) {
+  .add-candidates-container {
+    padding: 0.25rem; /* Further reduce padding on mobile */
+    gap: 1rem; /* Reduce gap on mobile */
+  }
+  
   .add-candidates-card {
     width: 100%;
     max-width: none;
