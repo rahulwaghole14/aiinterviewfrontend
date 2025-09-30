@@ -1119,7 +1119,8 @@ const Jobs = () => {
 
           {/* Job Listings Table */}
           <div className="slide-in-right">
-            <DataTable
+            <div className="data-table-wrapper">
+              <DataTable
             title="Job Listings"
             columns={[
               {
@@ -1282,6 +1283,7 @@ const Jobs = () => {
             defaultPageSize={10}
             pageSizeOptions={[10, 20, 50, 100, 200, 500]}
           />
+            </div>
           </div>
 
         </div>

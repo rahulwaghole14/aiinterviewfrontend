@@ -61,6 +61,8 @@
   gap: 1.5rem;
   align-items: start;
   flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .candidate-details-section {
@@ -148,20 +150,18 @@ body[data-theme='light'] .candidate-details-section:hover {
 }
 
 .filter-sidebar-section {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft);
   padding: 2rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   transition: all 0.3s ease;
 }
@@ -188,21 +188,6 @@ body[data-theme='light'] .candidate-details-section:hover {
   left: 100%;
 }
 
-body[data-theme='dark'] .filter-sidebar-section {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme='light'] .filter-sidebar-section {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
 
 .filter-sidebar-section:hover {
   transform: translateY(-3px);
@@ -523,7 +508,9 @@ body[data-theme='light'] .candidate-card:hover {
   gap: 0.5rem; /* Reduced space-y-4 to 0.5rem */
   flex-grow: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 5px;
+  min-width: 0;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -547,15 +534,16 @@ body[data-theme='light'] .candidate-card:hover {
 .add-candidates-select,
 .add-candidates-textarea { /* Added textarea */
   /* Updated padding to match AddCandidates.css form input height for consistency */
-  padding: 0.75rem 1rem;
+  padding: 0.8rem;
   border: 1px solid var(--color-muted);
-  border-radius: var(--radius-small); /* rounded-md */
-  font-size: 0.95rem; /* Adjusted font size for consistency */
+  border-radius: var(--radius); /* rounded-md */
+  font-size: 1rem; /* Adjusted font size for consistency */
   color: var(--color-text); /* Use theme variable */
   background-color: var(--color-bg-secondary); /* Use theme variable */
   transition: all 0.2s ease;
   box-sizing: border-box;
   width: 100%;
+  min-width: 0;
 }
 
 .add-candidates-input::placeholder,
@@ -569,7 +557,7 @@ body[data-theme='light'] .candidate-card:hover {
 .add-candidates-textarea:focus {
   outline: none;
   border-color: var(--color-primary); /* focus:border-blue-500 */
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2); /* focus:ring-blue-500 */
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2); /* focus:ring-blue-500 */
 }
 
 .add-candidates-select {

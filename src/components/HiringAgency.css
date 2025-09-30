@@ -122,7 +122,7 @@
   width: 100%;
 }
 
-.form-group {
+.hiring-agencies-container .form-group {
   /* Removed flex: 1; as it's not relevant when the parent is a column */
   display: flex;
   flex-direction: column;
@@ -130,18 +130,19 @@
   margin-bottom: 1rem; /* Provides vertical spacing between each form field */
 }
 
-.form-group label {
+.hiring-agencies-container .form-group label {
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--color-text-secondary);
+  display: block;
 }
 
-.form-group input,
-.form-group select {
+.hiring-agencies-container .form-group input,
+.hiring-agencies-container .form-group select {
   width: 100%;
   padding: 0.8rem;
   border: 1px solid var(--color-muted);
-  border-radius: var(--radius-small);
+  border-radius: var(--radius);
   font-size: 1rem;
   box-sizing: border-box;
   background-color: var(--color-bg-secondary);
@@ -149,11 +150,11 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.hiring-agencies-container .form-group input:focus,
+.hiring-agencies-container .form-group select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3); /* Slightly larger shadow for emphasis */
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2);
 }
 
 .submit-btn {
@@ -299,34 +300,37 @@
   gap: 1rem;
 }
 
-.modal-form .form-group {
+.hiring-agencies-container .modal-form .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.modal-form .form-group label {
+.hiring-agencies-container .modal-form .form-group label {
   font-weight: 500;
   color: var(--color-text);
   font-size: 0.875rem;
+  display: block;
 }
 
-.modal-form .form-group input,
-.modal-form .form-group select {
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-small);
-  font-size: 0.875rem;
-  background-color: var(--color-card);
+.hiring-agencies-container .modal-form .form-group input,
+.hiring-agencies-container .modal-form .form-group select {
+  padding: 0.8rem;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  background-color: var(--color-bg-secondary);
   color: var(--color-text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.modal-form .form-group input:focus,
-.modal-form .form-group select:focus {
+.hiring-agencies-container .modal-form .form-group input:focus,
+.hiring-agencies-container .modal-form .form-group select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.25);
+  box-shadow: 0 0 0 2px rgba(127, 202, 146, 0.2);
 }
 
 /* API Message Styles */
@@ -620,7 +624,7 @@
     gap: 0.8rem; /* Adjusted for smaller screens, now applies vertically if form-row uses gap */
   }
 
-  .form-group {
+  .hiring-agencies-container .form-group {
     margin-bottom: 0.8rem; /* Adjusted for smaller screens */
   }
 
@@ -634,8 +638,8 @@
 
 @media (max-width: 480px) {
 
-  .form-group input,
-  .form-group select {
+  .hiring-agencies-container .form-group input,
+  .hiring-agencies-container .form-group select {
     font-size: 0.9rem;
     padding: 0.6rem;
   }

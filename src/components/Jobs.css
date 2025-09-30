@@ -10,6 +10,7 @@
   scrollbar-width: none;
   overflow-x: hidden; /* ✅ Prevent full-page horizontal scroll */
   transition: filter 0.3s ease;
+  min-width: 0; /* Allow container to shrink */
 }
 
 /* Blur effect when modal is open */
@@ -1444,5 +1445,120 @@ input[type="checkbox"]:checked {
 /* Remove any remaining borders */
 
 /* Remove left border from the first cell */
+
+/* Table-specific fixes for Jobs component */
+.jobs-container .data-table-container {
+  min-height: auto !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  flex: 1 !important;
+  background: rgba(255, 255, 255, 0.1) !important; /* Glassmorphism background like other components */
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  padding: 20px !important; /* Restore proper padding like other components */
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.jobs-container .table-responsive {
+  height: 100% !important;
+  max-height: 100% !important;
+  flex: 1 !important;
+  background: rgba(255, 255, 255, 0.05) !important; /* Subtle background for table area */
+  border: none !important;
+  border-radius: 6px !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+}
+
+.jobs-container .data-table {
+  max-height: none !important;
+  height: auto !important;
+  min-height: auto !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* Fix table column widths to prevent horizontal overflow */
+.jobs-container .data-table th,
+.jobs-container .data-table td {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 150px !important;
+  padding: 0.5rem !important;
+}
+
+/* Specific column width adjustments */
+.jobs-container .data-table th:nth-child(1),
+.jobs-container .data-table td:nth-child(1) {
+  width: 20% !important; /* Job Title */
+}
+
+.jobs-container .data-table th:nth-child(2),
+.jobs-container .data-table td:nth-child(2) {
+  width: 15% !important; /* Company */
+}
+
+.jobs-container .data-table th:nth-child(3),
+.jobs-container .data-table td:nth-child(3) {
+  width: 12% !important; /* Domain */
+}
+
+.jobs-container .data-table th:nth-child(4),
+.jobs-container .data-table td:nth-child(4) {
+  width: 18% !important; /* SPOC Email */
+}
+
+.jobs-container .data-table th:nth-child(5),
+.jobs-container .data-table td:nth-child(5) {
+  width: 18% !important; /* Hiring Manager Email */
+}
+
+.jobs-container .data-table th:nth-child(6),
+.jobs-container .data-table td:nth-child(6) {
+  width: 10% !important; /* Team Size */
+}
+
+.jobs-container .data-table th:nth-child(7),
+.jobs-container .data-table td:nth-child(7) {
+  width: 7% !important; /* Number to Hire */
+}
+
+/* Theme-specific background colors for DataTable container */
+body[data-theme='dark'] .jobs-container .data-table-container {
+  background: rgba(30, 27, 46, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+body[data-theme='light'] .jobs-container .data-table-container {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Responsive padding for DataTable container */
+@media (max-width: 768px) {
+  .jobs-container .data-table-container {
+    padding: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .jobs-container .data-table-container {
+    padding: 8px !important;
+  }
+}
 
 
