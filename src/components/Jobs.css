@@ -322,40 +322,66 @@ body[data-theme='light'] .job-listings-section.card {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  /* Make entire jobs container use CSS Grid for layout control */
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Jobs container - Full viewport, scrollable */
   .jobs-container {
     padding: 0.5rem !important;
-    overflow-y: auto !important; /* Scrollable */
+    overflow-y: auto !important;
     overflow-x: hidden !important;
-    height: 100vh !important; /* Full viewport height */
+    height: 100vh !important;
     max-height: 100vh !important;
-    display: grid !important;
-    grid-template-columns: 1fr auto !important;
-    grid-template-rows: auto auto 1fr !important;
-    gap: 0.5rem !important;
   }
   
-  /* Domain buttons container - Row 1, spans both columns */
-  .jobs-top-section {
-    grid-column: 1 / -1 !important;
-    grid-row: 1 !important;
-  }
-  
-  /* Total Jobs card - Row 2, Column 1 (left) */
-  .total-jobs-card {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
+  /* Mobile Header Section - Contains all header elements */
+  .mobile-header-section {
     display: flex !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
   }
   
-  .total-jobs-card .jobs-count-card {
+  /* Domain Management Section - Stack buttons vertically */
+  .domain-management-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  
+  .domain-btn {
+    width: 100% !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap;
+  }
+  
+  /* Jobs Header Container - Total Jobs + Create Button side by side */
+  .jobs-header-container {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  
+  /* Total Jobs - Left side */
+  .jobs-header-container .total-jobs-card {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    margin: 0 !important;
+  }
+  
+  .jobs-header-container .total-jobs-card .jobs-count-card {
     padding: 0.4rem 0.7rem !important;
     min-width: auto !important;
     font-size: 0.75rem !important;
     margin: 0 !important;
+    width: 100% !important;
   }
   
   .jobs-count-text {
@@ -368,19 +394,17 @@ body[data-theme='light'] .job-listings-section.card {
     font-weight: 600;
   }
   
-  /* Mobile Create Button - Row 2, Column 2 (right) */
-  .mobile-form-toggle {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
+  /* Create New Job Button - Right side */
+  .jobs-header-container .mobile-form-toggle {
+    flex: 0 0 auto !important;
     display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
     background: transparent !important;
+    position: static !important;
   }
   
-  .mobile-create-job-btn {
+  .jobs-header-container .mobile-create-job-btn {
     padding: 0.4rem 0.7rem !important;
     font-size: 0.75rem !important;
     margin: 0 !important;
@@ -395,14 +419,10 @@ body[data-theme='light'] .job-listings-section.card {
     font-size: 0.95rem !important;
   }
   
-  /* Main content - Row 3, spans both columns */
+  /* Main content area */
   .jobs-main-content.fixed-grid {
-    grid-column: 1 / -1 !important;
-    grid-row: 3 !important;
     gap: 0.5rem !important;
-    min-height: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
+    min-height: auto !important;
   }
   
   /* Table takes available height */
@@ -427,6 +447,17 @@ body[data-theme='light'] .job-listings-section.card {
     height: auto !important;
     min-height: 500px !important;
     max-height: none !important;
+  }
+}
+
+/* Desktop - Show desktop-only, hide mobile */
+@media (min-width: 769px) {
+  .mobile-header-section {
+    display: none !important;
+  }
+  
+  .desktop-only {
+    display: block !important;
   }
 }
 

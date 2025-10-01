@@ -857,54 +857,64 @@ const Jobs = () => {
     <>
       <div className={`jobs-container ${isAnyModalOpen ? 'blur-background' : ''}`}>
         {/* Management Buttons Row */}
-        <div className="management-buttons-row">
-        {/* Domain Management Buttons */}
+        {/* Mobile Header - Domain Buttons */}
         {(userRole === "ADMIN" || userRole === "COMPANY") && (
-          <div className="domain-management-section">
-            <button
-              type="button"
-              className="domain-btn create-domain-btn"
-              onClick={() => {
-                setDomainFormData({ name: "", description: "" }); // Reset form data when opening
-                setShowCreateDomainModal(true);
-              }}
-              disabled={isAnyDomainOperationInProgress}
-            >
+          <div className="mobile-header-section">
+            {/* Domain Management Container */}
+            <div className="domain-management-section">
+              <button
+                type="button"
+                className="domain-btn create-domain-btn"
+                onClick={() => {
+                  setDomainFormData({ name: "", description: "" });
+                  setShowCreateDomainModal(true);
+                }}
+                disabled={isAnyDomainOperationInProgress}
+              >
                 {isCreatingDomain ? "Adding Domain..." : "+ Create New Domain"}
-            </button>
-            <button
-              type="button"
-              className="domain-btn view-domains-btn"
-              onClick={() => setShowViewDomainsModal(true)}
-              disabled={isAnyDomainOperationInProgress}
-            >
-              View All Domains
-            </button>
+              </button>
+              <button
+                type="button"
+                className="domain-btn view-domains-btn"
+                onClick={() => setShowViewDomainsModal(true)}
+                disabled={isAnyDomainOperationInProgress}
+              >
+                View All Domains
+              </button>
+            </div>
+
+            {/* Jobs Header Container - Total Jobs + Create Button */}
+            <div className="jobs-header-container">
+              <div className="total-jobs-card">
+                <div className="jobs-count-card">
+                  <span className="jobs-count-text">Total Jobs: </span>
+                  <span className="jobs-count-number">{jobsForUser.length}</span>
+                </div>
+              </div>
+
+              <div className="mobile-form-toggle">
+                <button
+                  className={`mobile-create-job-btn ${showMobileForm ? 'form-open' : ''}`}
+                  onClick={() => setShowMobileForm(!showMobileForm)}
+                >
+                  <span className="btn-icon">{showMobileForm ? '×' : '+'}</span>
+                  <span className="btn-text">{showMobileForm ? 'Close' : 'Create New Job'}</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Total Jobs Card */}
-        <div className="total-jobs-card">
-          <div className="jobs-count-card">
-            <span className="jobs-count-text">Total Jobs: </span>
-            <span className="jobs-count-number">{jobsForUser.length}</span>
+        {/* Desktop view - keep old structure for desktop */}
+        <div className="management-buttons-row desktop-only">
+          {/* Total Jobs Card */}
+          <div className="total-jobs-card">
+            <div className="jobs-count-card">
+              <span className="jobs-count-text">Total Jobs: </span>
+              <span className="jobs-count-number">{jobsForUser.length}</span>
+            </div>
           </div>
         </div>
-
-        </div>
-
-        {/* Mobile Toggle Button */}
-        {(userRole === "ADMIN" || userRole === "COMPANY") && (
-          <div className="mobile-form-toggle">
-            <button
-              className={`mobile-create-job-btn ${showMobileForm ? 'form-open' : ''}`}
-              onClick={() => setShowMobileForm(!showMobileForm)}
-            >
-              <span className="btn-icon">{showMobileForm ? '×' : '+'}</span>
-              <span className="btn-text">{showMobileForm ? 'Close' : 'Create New Job'}</span>
-            </button>
-          </div>
-        )}
 
 
 
