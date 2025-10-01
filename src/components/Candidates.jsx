@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { useNotification } from "../hooks/useNotification";
@@ -7,6 +7,7 @@ import { candidateStatusList, baseURL } from '../data';
 import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Keep updateCandidateStatus
 import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import fetchCandidates thunk
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice'; // Import job and domain thunks
+import { FiChevronDown } from 'react-icons/fi';
 
 // Status mapping from backend values to frontend display values
 const statusMapping = {
@@ -152,6 +153,8 @@ const CandidatePage = () => {
 
   // Mobile filter and status dropdown states
   const [showMobileFilter, setShowMobileFilter] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const statusDropdownRef = useRef(null);
   
   // Editing state for tabs visibility
   const [isEditing, setIsEditing] = useState(false);
@@ -160,6 +163,18 @@ const CandidatePage = () => {
   const toggleEditing = () => {
     setIsEditing(!isEditing);
   };
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target)) {
+        setShowStatusDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Fetch candidates, jobs, and domains on component mount if not already loaded
   useEffect(() => {
@@ -390,19 +405,32 @@ const CandidatePage = () => {
     <div className="candidate-page-wrapper">
       {/* Mobile Controls Row */}
       <div className="mobile-controls-row">
-        {/* Mobile Status Dropdown */}
-        <div className="mobile-status-dropdown">
-          <select
-            value={activeTab}
-            onChange={(e) => handleTabClick(e.target.value)}
-            className="status-dropdown-select"
+        {/* Custom Mobile Status Dropdown */}
+        <div className="mobile-status-dropdown" ref={statusDropdownRef}>
+          <button
+            className="status-dropdown-button"
+            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
           >
-            {candidateTabsStatusList.map((tab) => (
-              <option key={tab} value={tab}>
-                {tab}
-              </option>
-            ))}
-          </select>
+            <span className="dropdown-selected-text">{activeTab}</span>
+            <FiChevronDown className={`dropdown-icon ${showStatusDropdown ? 'open' : ''}`} />
+          </button>
+          
+          {showStatusDropdown && (
+            <div className="status-dropdown-menu">
+              {candidateTabsStatusList.map((tab) => (
+                <button
+                  key={tab}
+                  className={`status-dropdown-item ${activeTab === tab ? 'active' : ''}`}
+                  onClick={() => {
+                    handleTabClick(tab);
+                    setShowStatusDropdown(false);
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Mobile Filter Toggle Button */}

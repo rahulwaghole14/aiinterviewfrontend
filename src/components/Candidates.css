@@ -1356,41 +1356,99 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   font-size: 0.9rem;
 }
 
-/* Mobile Status Dropdown Styles */
+/* Custom Mobile Status Dropdown */
 .mobile-status-dropdown {
-  display: flex;
+  position: relative;
   flex: 1;
-  margin-right: 0.5rem; /* Reduced gap */
-  /* Force left alignment for container */
-  direction: ltr;
-  align-items: stretch;
+  margin-right: 0.5rem;
 }
 
-.status-dropdown-select {
+.status-dropdown-button {
   width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background-color: var(--color-bg);
+  background-color: var(--color-card);
   color: var(--color-text);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 40px; /* Reduced height to match button */
+  height: 40px;
   box-sizing: border-box;
-  /* Force left alignment */
-  direction: ltr;
-  text-align: left;
-  text-align-last: left;
-  -webkit-text-align-last: left;
-  -moz-text-align-last: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
-.status-dropdown-select:focus {
-  outline: none;
+.status-dropdown-button:hover {
+  background-color: var(--color-hover);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.dropdown-selected-text {
+  flex: 1;
+  text-align: left;
+}
+
+.dropdown-icon {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.status-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-medium);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: dropdownSlideDown 0.2s ease-out;
+}
+
+@keyframes dropdownSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-dropdown-item {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: block;
+}
+
+.status-dropdown-item:hover {
+  background-color: var(--color-hover);
+  color: var(--color-text-primary);
+}
+
+.status-dropdown-item.active {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
 }
 
 /* Mobile responsive styles */
