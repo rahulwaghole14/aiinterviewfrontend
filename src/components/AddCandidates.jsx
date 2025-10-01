@@ -527,8 +527,14 @@ const AddCandidates = () => {
                   <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <div className="button-text">
-                  <span>Add</span>
-                  <span>Candidate</span>
+                  {selectedCard === 'add' ? (
+                    <span>Close</span>
+                  ) : (
+                    <>
+                      <span>Add</span>
+                      <span>Candidate</span>
+                    </>
+                  )}
                 </div>
               </button>
             </div>
