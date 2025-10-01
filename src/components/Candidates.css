@@ -1406,6 +1406,20 @@ body[data-theme='light'] .filter-sidebar-section:hover {
     min-height: 48px; /* Further reduced height */
     margin-bottom: 0; /* Remove bottom margin */
   }
+  
+  /* Make candidate details section scrollable and reduce height */
+  .candidate-details-section {
+    max-height: calc(100vh - 120px) !important; /* Reduced from 150px */
+    overflow-y: auto !important; /* Make it scrollable */
+    overflow-x: hidden !important;
+  }
+  
+  /* Candidate cards container - remove internal scroll */
+  .candidate-cards-container {
+    overflow-y: visible !important; /* No internal scroll */
+    max-height: none !important;
+    margin-bottom: 0.5rem !important;
+  }
 
   /* Reduce gap between mobile controls and content */
   .candidate-page-wrapper {
