@@ -1444,6 +1444,29 @@
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
   }
+  
+  /* Make form show all content without scroll on mobile */
+  .mobile-selected-card {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  
+  .mobile-selected-card .add-candidates-form {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  
+  .mobile-selected-card .form-box {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  
+  /* Ensure form fields are all visible */
+  .add-candidates-form .form-group {
+    margin-bottom: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
