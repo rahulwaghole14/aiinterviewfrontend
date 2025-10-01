@@ -3,6 +3,11 @@
 .custom-dropdown {
   position: relative;
   width: 100%;
+  z-index: 1; /* Ensure dropdown container creates stacking context */
+}
+
+.custom-dropdown.open {
+  z-index: 10000; /* Even higher when dropdown is open */
 }
 
 .custom-dropdown-button {
@@ -75,10 +80,10 @@
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-medium);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15);
   max-height: 300px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 9999; /* Very high z-index to appear above all UI */
   animation: dropdownSlideDown 0.2s ease-out;
 }
 
