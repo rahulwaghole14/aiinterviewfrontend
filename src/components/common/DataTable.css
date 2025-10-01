@@ -546,18 +546,19 @@
   
   .action-menu {
     position: absolute;
-    right: 0;
-    z-index: 5; /* Lower than table header z-index: 10 */
-    margin-top: 8px;
-    min-width: 200px;
+    right: 0; /* Align to right edge of button */
+    top: 100%; /* Position below the button */
+    z-index: 1000; /* High z-index to appear above everything */
+    margin-top: 4px; /* Small gap below button */
+    min-width: 180px;
     border-radius: 6px;
     background-color: var(--color-card);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--color-border);
     padding: 4px 0;
     animation: fadeIn 0.15s ease-out;
     transform-origin: top right;
-    max-height: 200px; /* Prevent overflow */
+    max-height: 300px; /* Increased max height */
     overflow-y: auto; /* Allow scrolling if needed */
   }
   

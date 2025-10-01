@@ -1597,41 +1597,7 @@ body[data-theme='light'] .jobs-count-card:hover {
   color: #991b1b;
 }
 
-/* Actions Cell */
-.actions-cell {
-  text-align: right;
-  padding-right: 1.5rem !important;
-  min-width: 80px;
-  position: relative;
-}
-
-/* Ensure ActionMenu is visible */
-.actions-cell .action-menu {
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Action button styling */
-.actions-cell .action-button {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  border: 1px solid #e5e7eb;
-  background-color: white;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.actions-cell .action-button:hover {
-  background-color: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
-}
+/* Actions Cell - Use default DataTable styles */
 
 /* No Data Message */
 .no-data {
