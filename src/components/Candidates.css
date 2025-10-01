@@ -1420,6 +1420,47 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   .filter-sidebar-section.mobile-filter-visible {
     display: block;
   }
+  
+  /* Fix mobile status dropdown positioning */
+  .mobile-status-dropdown {
+    position: relative !important;
+    z-index: 100 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+  
+  .status-dropdown-select {
+    position: relative !important;
+    z-index: 101 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    /* Ensure dropdown appears in viewport */
+    direction: ltr !important;
+    text-align: left !important;
+  }
+  
+  /* Force dropdown options to appear correctly */
+  .status-dropdown-select option {
+    direction: ltr !important;
+    text-align: left !important;
+  }
+  
+  /* Ensure dropdown options appear below the select */
+  .mobile-controls-row {
+    position: relative !important;
+    z-index: 50 !important;
+    isolation: isolate !important;
+    overflow: visible !important;
+    width: 100% !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Prevent page wrapper from clipping dropdown */
+  .candidate-page-wrapper {
+    overflow: visible !important;
+  }
 }
 
 @media (max-width: 480px) {
