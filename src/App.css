@@ -725,6 +725,13 @@ body, html {
     grid-template-areas:
       "sidebar header"
       "sidebar content";
+    /* Allow dropdowns to overflow properly */
+    overflow: visible !important;
+  }
+  
+  /* Fix main content to allow select dropdowns to display correctly */
+  .main-content {
+    overflow: visible !important;
   }
 
   /* Sidebar will now *always* be collapsed on small screens, so apply collapsed styles */
@@ -1530,10 +1537,17 @@ input, textarea, select {
   border: 2px solid var(--color-border);
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus, textarea:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
   transform: scale(1.02);
+}
+
+/* Select focus without transform - prevents dropdown positioning issues on mobile */
+select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  transform: none; /* No transform to prevent dropdown positioning issues */
 }
 
 /* Table Row Animations */

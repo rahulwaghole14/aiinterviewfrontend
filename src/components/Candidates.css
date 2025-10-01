@@ -12,6 +12,8 @@
   scrollbar-width: none;
   background-color: var(--color-bg); /* Use theme variable */
   color: var(--color-text); /* Use theme variable */
+  /* Prevent transform inheritance that breaks dropdown positioning */
+  transform: none !important;
 }
 
 .candidate-page-wrapper::-webkit-scrollbar {
@@ -1386,8 +1388,7 @@ body[data-theme='light'] .filter-sidebar-section:hover {
     align-items: center;
     gap: 0.5rem; /* Reduced gap */
     padding: 0.25rem 1rem; /* Further reduced padding */
-    position: sticky;
-    top: 0;
+    position: relative !important; /* Changed from sticky to relative for dropdown fix */
     z-index: 10;
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
@@ -1423,21 +1424,28 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   
   /* Fix mobile status dropdown positioning */
   .mobile-status-dropdown {
-    position: relative !important;
+    position: static !important; /* Changed from relative to static */
     z-index: 100 !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow: visible !important;
+    transform: none !important; /* Prevent transform issues */
   }
   
   .status-dropdown-select {
-    position: relative !important;
+    position: static !important; /* Changed from relative to static */
     z-index: 101 !important;
     width: 100% !important;
     max-width: 100% !important;
     /* Ensure dropdown appears in viewport */
     direction: ltr !important;
     text-align: left !important;
+    transform: none !important;
+    /* Reset any inherited positioning */
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
   }
   
   /* Force dropdown options to appear correctly */
@@ -1448,17 +1456,27 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   
   /* Ensure dropdown options appear below the select */
   .mobile-controls-row {
-    position: relative !important;
+    position: static !important; /* Changed from relative to static */
     z-index: 50 !important;
-    isolation: isolate !important;
     overflow: visible !important;
     width: 100% !important;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
+    transform: none !important;
+    /* Create proper stacking without isolation */
+    contain: none !important;
   }
   
   /* Prevent page wrapper from clipping dropdown */
   .candidate-page-wrapper {
+    overflow-y: auto !important;
+    overflow-x: visible !important;
+    transform: none !important;
+  }
+  
+  /* Ensure parent containers don't interfere */
+  .candidates-main-content {
+    transform: none !important;
     overflow: visible !important;
   }
 }
