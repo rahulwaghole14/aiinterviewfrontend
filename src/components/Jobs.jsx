@@ -906,16 +906,41 @@ const Jobs = () => {
           </div>
         )}
 
-        {/* Desktop view - keep old structure for desktop */}
-        <div className="management-buttons-row desktop-only">
-          {/* Total Jobs Card */}
-          <div className="total-jobs-card">
-            <div className="jobs-count-card">
-              <span className="jobs-count-text">Total Jobs: </span>
-              <span className="jobs-count-number">{jobsForUser.length}</span>
+        {/* Desktop view - Domain buttons + Total Jobs */}
+        {(userRole === "ADMIN" || userRole === "COMPANY") && (
+          <div className="desktop-header-section desktop-only">
+            {/* Domain Management Buttons - Left Side */}
+            <div className="domain-management-section">
+              <button
+                type="button"
+                className="domain-btn create-domain-btn"
+                onClick={() => {
+                  setDomainFormData({ name: "", description: "" });
+                  setShowCreateDomainModal(true);
+                }}
+                disabled={isAnyDomainOperationInProgress}
+              >
+                {isCreatingDomain ? "Adding Domain..." : "+ Create New Domain"}
+              </button>
+              <button
+                type="button"
+                className="domain-btn view-domains-btn"
+                onClick={() => setShowViewDomainsModal(true)}
+                disabled={isAnyDomainOperationInProgress}
+              >
+                View All Domains
+              </button>
+            </div>
+
+            {/* Total Jobs Card - Right Side */}
+            <div className="total-jobs-card">
+              <div className="jobs-count-card">
+                <span className="jobs-count-text">Total Jobs: </span>
+                <span className="jobs-count-number">{jobsForUser.length}</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
 
 

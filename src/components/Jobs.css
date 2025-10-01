@@ -319,11 +319,41 @@ body[data-theme='light'] .job-listings-section.card {
 
 /* Hover effects */
 
+/* Desktop Header Section */
+.desktop-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.desktop-header-section .domain-management-section {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.desktop-header-section .total-jobs-card {
+  margin-left: auto; /* Push to right */
+}
+
+/* Hide mobile header on desktop */
+.mobile-header-section {
+  display: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   /* Hide desktop-only elements */
   .desktop-only {
     display: none !important;
+  }
+  
+  /* Show mobile header on mobile */
+  .mobile-header-section {
+    display: flex !important;
   }
   
   /* Jobs container - Full viewport, scrollable */
