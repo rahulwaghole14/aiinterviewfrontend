@@ -1280,13 +1280,7 @@
   transition: all 0.1s ease;
 }
 
-.button-text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.1rem;
-  line-height: 1;
-}
+/* Removed old .button-text styles - now using .btn-text */
 
 .mobile-add-candidate-btn:hover {
   background-color: var(--color-primary-dark);
@@ -1299,7 +1293,8 @@
 }
 
 .mobile-add-candidate-btn.selected {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-disabled);
+  color: var(--color-text-secondary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-button-hover);
 }
