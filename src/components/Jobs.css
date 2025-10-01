@@ -377,14 +377,16 @@ body[data-theme='light'] .job-listings-section.card {
   }
   
   .jobs-header-container .total-jobs-card .jobs-count-card {
-    padding: 0.6rem 0.7rem !important; /* ✅ Increased to match button height */
+    padding: 0.5rem 0.7rem !important;
     min-width: auto !important;
     font-size: 0.75rem !important;
     margin: 0 !important;
-    width: 100% !important;
+    width: 130.6px !important; /* ✅ Fixed width */
+    height: 40px !important; /* ✅ Fixed height */
     display: flex !important;
     align-items: center !important;
-    min-height: 2.5rem !important; /* ✅ Match button height */
+    justify-content: center !important;
+    box-sizing: border-box !important;
   }
   
   .jobs-count-text {
@@ -408,11 +410,15 @@ body[data-theme='light'] .job-listings-section.card {
   }
   
   .jobs-header-container .mobile-create-job-btn {
-    padding: 0.6rem 0.7rem !important; /* ✅ Increased padding */
+    padding: 0.5rem 0.7rem !important;
     font-size: 0.75rem !important;
     margin: 0 !important;
     white-space: nowrap;
-    min-height: 2.5rem !important; /* ✅ Ensure consistent height */
+    height: 40px !important; /* ✅ Fixed height to match Total Jobs */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
   }
   
   .mobile-create-job-btn .btn-text {
