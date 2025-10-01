@@ -1078,8 +1078,10 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   }
 
   .view-details-btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem; /* Reduced padding */
+    font-size: 0.75rem; /* Smaller font */
+    margin: 0.35rem; /* Add margin for spacing from borders */
+    min-width: auto; /* Remove min-width constraint */
   }
 
   .filter-group select,
@@ -1135,20 +1137,27 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   .candidates-pagination-container {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 12px;
+    gap: 6px; /* Reduced gap */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+    justify-content: center !important; /* Force center alignment */
+    overflow-x: visible; /* No horizontal scroll */
+    overflow-y: visible;
+    padding: 10px;
+    /* Hide scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .candidates-pagination-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
   }
 
   .candidates-pagination-button {
-    min-width: 28px;
-    height: 28px;
-    font-size: 13px;
+    min-width: 32px; /* Increased horizontal width */
+    height: 32px; /* Increased height too */
+    font-size: 0.8rem; /* Slightly larger font */
     flex-shrink: 0;
-    padding: 0 6px;
+    padding: 0 8px; /* More horizontal padding */
   }
 
   .candidates-pagination-info {

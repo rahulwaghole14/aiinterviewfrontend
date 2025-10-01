@@ -175,31 +175,31 @@
   margin: 0.25rem;
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid var(--color-border-light);
+  /* Hide scrollbars */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
-/* For chart widgets, allow scrolling */
+.widget-content::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for WebKit */
+}
+
+/* For chart widgets, no scrolling on mobile - show all content */
 .widget-content.chart-widget {
   overflow: auto;
+  /* Hide scrollbars on desktop too */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* Custom scrollbar for widget content */
-.widget-content::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
+.widget-content.chart-widget::-webkit-scrollbar {
+  display: none;
 }
 
-.widget-content::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
-  border-radius: 4px;
-}
-
-.widget-content::-webkit-scrollbar-thumb {
-  background: var(--color-text-secondary);
-  border-radius: 4px;
-}
-
-.widget-content::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
+@media (max-width: 768px) {
+  .widget-content.chart-widget {
+    overflow: visible !important; /* No scrolling on mobile */
+  }
 }
 
 /* Expanded widget content */

@@ -322,7 +322,112 @@ body[data-theme='light'] .job-listings-section.card {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-
+  /* Make entire jobs container use CSS Grid for layout control */
+  .jobs-container {
+    padding: 0.5rem !important;
+    overflow-y: auto !important; /* Scrollable */
+    overflow-x: hidden !important;
+    height: 100vh !important; /* Full viewport height */
+    max-height: 100vh !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    grid-template-rows: auto auto 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Domain buttons container - Row 1, spans both columns */
+  .jobs-top-section {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+  
+  /* Total Jobs card - Row 2, Column 1 (left) */
+  .total-jobs-card {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .total-jobs-card .jobs-count-card {
+    padding: 0.4rem 0.7rem !important;
+    min-width: auto !important;
+    font-size: 0.75rem !important;
+    margin: 0 !important;
+  }
+  
+  .jobs-count-text {
+    font-size: 0.7rem !important;
+    white-space: nowrap;
+  }
+  
+  .jobs-count-number {
+    font-size: 0.95rem !important;
+    font-weight: 600;
+  }
+  
+  /* Mobile Create Button - Row 2, Column 2 (right) */
+  .mobile-form-toggle {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+  
+  .mobile-create-job-btn {
+    padding: 0.4rem 0.7rem !important;
+    font-size: 0.75rem !important;
+    margin: 0 !important;
+    white-space: nowrap;
+  }
+  
+  .mobile-create-job-btn .btn-text {
+    font-size: 0.7rem !important;
+  }
+  
+  .mobile-create-job-btn .btn-icon {
+    font-size: 0.95rem !important;
+  }
+  
+  /* Main content - Row 3, spans both columns */
+  .jobs-main-content.fixed-grid {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    gap: 0.5rem !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Table takes available height */
+  .jobs-container .data-table-container {
+    height: 100% !important;
+    min-height: 500px !important;
+    max-height: none !important;
+  }
+  
+  .jobs-container .table-responsive {
+    max-height: calc(100% - 50px) !important;
+  }
+  
+  /* Form takes auto height */
+  .jobs-form.card {
+    height: auto !important;
+    min-height: 400px !important;
+    max-height: none !important;
+  }
+  
+  .job-listings-section.card {
+    height: auto !important;
+    min-height: 500px !important;
+    max-height: none !important;
+  }
 }
 
 /* Tooltip for status */
