@@ -1409,8 +1409,8 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   
   /* Make candidate details section scrollable and reduce height significantly */
   .candidate-details-section {
-    max-height: calc(100vh - 200px) !important; /* Much smaller - more space for header */
-    min-height: 400px !important; /* Minimum usable height */
+    max-height: calc(100vh - 280px) !important; /* Even smaller - 80px less */
+    min-height: 350px !important; /* Reduced minimum height */
     overflow-y: auto !important; /* Make it scrollable */
     overflow-x: hidden !important;
   }
