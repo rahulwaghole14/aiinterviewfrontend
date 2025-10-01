@@ -1357,6 +1357,9 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   display: flex;
   flex: 1;
   margin-right: 0.5rem; /* Reduced gap */
+  /* Force left alignment for container */
+  direction: ltr;
+  align-items: stretch;
 }
 
 .status-dropdown-select {
@@ -1372,6 +1375,12 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   transition: all 0.2s ease;
   height: 40px; /* Reduced height to match button */
   box-sizing: border-box;
+  /* Force left alignment */
+  direction: ltr;
+  text-align: left;
+  text-align-last: left;
+  -webkit-text-align-last: left;
+  -moz-text-align-last: left;
 }
 
 .status-dropdown-select:focus {
