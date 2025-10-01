@@ -725,13 +725,12 @@ body, html {
     grid-template-areas:
       "sidebar header"
       "sidebar content";
-    /* Allow dropdowns to overflow properly */
-    overflow: visible !important;
+    overflow: hidden; /* Revert to hidden to prevent layout overflow */
   }
   
-  /* Fix main content to allow select dropdowns to display correctly */
+  /* Fix main content overflow */
   .main-content {
-    overflow: visible !important;
+    overflow: hidden; /* Revert to hidden to prevent layout overflow */
   }
 
   /* Sidebar will now *always* be collapsed on small screens, so apply collapsed styles */
