@@ -323,20 +323,34 @@ body[data-theme='light'] .job-listings-section.card {
 .desktop-header-section {
   display: flex;
   align-items: center;
-  gap: 1.5rem; /* Gap between domain buttons and Total Jobs */
+  gap: 2rem; /* Increased gap between sections */
   margin-bottom: 1.5rem;
-  flex-wrap: nowrap; /* Keep in one line */
+  padding: 0 0.5rem; /* Side padding */
+  flex-wrap: wrap; /* Allow wrapping if needed */
 }
 
 .desktop-header-section .domain-management-section {
   display: flex;
   gap: 1rem; /* Gap between domain buttons */
   flex: 0 0 auto;
+  align-items: center;
+}
+
+.desktop-header-section .domain-btn {
+  padding: 0.6rem 1.25rem; /* Better padding */
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .desktop-header-section .total-jobs-card {
   flex: 0 0 auto;
-  /* No margin-left: auto - appears right next to domain buttons */
+  display: flex;
+  align-items: center;
+}
+
+.desktop-header-section .jobs-count-card {
+  padding: 0.6rem 1.25rem; /* Match button padding */
+  min-width: 140px; /* Minimum width for better appearance */
 }
 
 /* Hide mobile header on desktop */
