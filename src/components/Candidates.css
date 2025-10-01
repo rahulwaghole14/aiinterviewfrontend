@@ -265,7 +265,7 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   transform: scale(1);
   transition: all 0.3s ease;
   position: relative;
-  margin-bottom: 1rem; /* Increased spacing between cards */
+  margin-bottom: 0; /* Removed margin-bottom */
 }
 
 /* Removed gradient shimmer effect from candidate cards for cleaner appearance */
