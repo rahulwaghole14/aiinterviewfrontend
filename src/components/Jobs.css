@@ -369,9 +369,9 @@ body[data-theme='light'] .job-listings-section.card {
     width: 100% !important;
   }
   
-  /* Total Jobs - Left side */
+  /* Total Jobs - Left side - takes maximum available space */
   .jobs-header-container .total-jobs-card {
-    flex: 1 1 auto !important;
+    flex: 1 !important; /* ✅ Takes all available space */
     display: flex !important;
     margin: 0 !important;
   }
@@ -381,7 +381,7 @@ body[data-theme='light'] .job-listings-section.card {
     min-width: auto !important;
     font-size: 0.75rem !important;
     margin: 0 !important;
-    width: auto !important; /* ✅ Auto width - expands as needed */
+    width: 100% !important; /* ✅ Full width of parent */
     height: 50px !important;
     display: flex !important;
     align-items: center !important;
