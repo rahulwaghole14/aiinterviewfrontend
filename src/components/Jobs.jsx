@@ -13,6 +13,7 @@ import {
   updateDomain,
   deleteDomain,
 } from "../redux/slices/jobsSlice"; // Import actions and async thunks
+import CustomDropdown from './common/CustomDropdown';
 import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
@@ -962,22 +963,16 @@ const Jobs = () => {
                   />
 
                   <label htmlFor="domain">Domain</label>
-                  <select
-                    id="domain"
-                    name="domain"
+                  <CustomDropdown
                     value={formData.domain}
-                    onChange={handleChange}
-                    className="jobs-select"
-                    required
+                    options={[
+                      { value: '', label: 'Select a domain' },
+                      ...domains.map(domain => ({ value: domain.id, label: domain.name }))
+                    ]}
+                    onChange={(value) => handleChange({ target: { name: 'domain', value } })}
+                    placeholder="Select a domain"
                     disabled={isCreatingJob || domainsStatus === "loading"}
-                  >
-                    <option value="">Select a domain</option>
-                    {domains.map((domain) => (
-                      <option key={domain.id} value={domain.id}>
-                        {domain.name}
-                      </option>
-                    ))}
-                  </select>
+                  />
 
                   <label htmlFor="spoc_email">SPOC Email</label>
                   <input

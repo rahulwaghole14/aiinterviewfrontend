@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import Modal, { ConfirmModal } from './common/Modal';
 import { useNotification } from '../hooks/useNotification';
+import CustomDropdown from './common/CustomDropdown';
 
 const AddCandidates = () => {
   const navigate = useNavigate();
@@ -537,42 +538,30 @@ const AddCandidates = () => {
                     <div className="form-box">
                       <div className="form-group">
                         <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
-                        <select
-                          id="domainSelect"
-                          name="domain"
+                        <CustomDropdown
                           value={formData.domain}
-                          onChange={handleChange}
-                          className="add-candidates-select"
-                          required
+                          options={[
+                            { value: '', label: 'Select Domain' },
+                            ...domains.map(domain => ({ value: domain.id, label: domain.name }))
+                          ]}
+                          onChange={(value) => handleChange({ target: { name: 'domain', value } })}
+                          placeholder="Select Domain"
                           disabled={domainsStatus === 'loading'}
-                        >
-                          <option value="">Select Domain</option>
-                          {domains.map((domain) => (
-                            <option key={domain.id} value={domain.id}>
-                              {domain.name}
-                            </option>
-                          ))}
-                        </select>
+                        />
                       </div>
 
                       <div className="form-group">
                         <label htmlFor="jobTitleSelect">Job Title <span className="required-field">*</span></label>
-                        <select
-                          id="jobTitleSelect"
-                          name="job_title"
+                        <CustomDropdown
                           value={formData.job_title}
-                          onChange={handleChange}
-                          className="add-candidates-select"
-                          required
+                          options={[
+                            { value: '', label: 'Select Job Title' },
+                            ...filteredJobsByDomain.map(job => ({ value: job.id, label: `${job.job_title} (${job.company_name})` }))
+                          ]}
+                          onChange={(value) => handleChange({ target: { name: 'job_title', value } })}
+                          placeholder="Select Job Title"
                           disabled={!formData.domain || jobsStatus === 'loading'}
-                        >
-                          <option value="">Select Job Title</option>
-                          {filteredJobsByDomain.map((job) => (
-                            <option key={job.id} value={job.id}>
-                              {job.job_title} ({job.company_name})
-                            </option>
-                          ))}
-                        </select>
+                        />
                       </div>
 
                       <div className="form-group">

@@ -8,6 +8,7 @@ import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Keep
 import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import fetchCandidates thunk
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice'; // Import job and domain thunks
 import { FiChevronDown } from 'react-icons/fi';
+import CustomDropdown from './common/CustomDropdown';
 
 // Status mapping from backend values to frontend display values
 const statusMapping = {
@@ -454,56 +455,41 @@ const CandidatePage = () => {
           <div className="form-box">
             <div className="filter-group">
               <label htmlFor="domainFilter">Domain</label>
-              <select
-                id="domainFilter"
-                name="domain"
+              <CustomDropdown
                 value={filters.domain}
-                onChange={handleFilterChange}
-                className="add-candidates-select"
+                options={[
+                  { value: '', label: 'All Domains' },
+                  ...uniqueDomains.map(domain => ({ value: domain.id, label: domain.name }))
+                ]}
+                onChange={(value) => handleFilterChange({ target: { name: 'domain', value } })}
+                placeholder="All Domains"
                 disabled={domainsStatus === 'loading'}
-              >
-                <option value="">All Domains</option>
-                {uniqueDomains.map((domain) => (
-                  <option key={domain.id} value={domain.id}>
-                    {domain.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
             <div className="filter-group">
               <label htmlFor="jobRoleFilter">Job Role</label>
-              <select
-                id="jobRoleFilter"
-                name="jobRole"
+              <CustomDropdown
                 value={filters.jobRole}
-                onChange={handleFilterChange}
-                className="add-candidates-select"
+                options={[
+                  { value: '', label: 'All Job Roles' },
+                  ...uniqueJobRoles.map(role => ({ value: role.id, label: role.title }))
+                ]}
+                onChange={(value) => handleFilterChange({ target: { name: 'jobRole', value } })}
+                placeholder="All Job Roles"
                 disabled={jobsStatus === 'loading'}
-              >
-                <option value="">All Job Roles</option>
-                {uniqueJobRoles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.title}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
             <div className="filter-group">
               <label htmlFor="pocFilter">POC</label>
-              <select
-                id="pocFilter"
-                name="poc"
+              <CustomDropdown
                 value={filters.poc}
-                onChange={handleFilterChange}
-                className="add-candidates-select"
-              >
-                <option value="">All POCs</option>
-                {uniquePocs.map((poc) => (
-                  <option key={poc} value={poc}>
-                    {poc}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: '', label: 'All POCs' },
+                  ...uniquePocs.map(poc => ({ value: poc, label: poc }))
+                ]}
+                onChange={(value) => handleFilterChange({ target: { name: 'poc', value } })}
+                placeholder="All POCs"
+              />
             </div>
             <div className="filter-group">
               <label htmlFor="minWorkExperienceFilter">Min. Work Experience (Years)</label>
@@ -520,20 +506,15 @@ const CandidatePage = () => {
             </div>
             <div className="filter-group">
               <label htmlFor="statusFilter">Status</label>
-              <select
-                id="statusFilter"
-                name="status"
+              <CustomDropdown
                 value={filters.status}
-                onChange={handleFilterChange}
-                className="add-candidates-select"
-              >
-                <option value="">All Statuses</option>
-                {uniqueStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: '', label: 'All Statuses' },
+                  ...uniqueStatuses.map(status => ({ value: status, label: status }))
+                ]}
+                onChange={(value) => handleFilterChange({ target: { name: 'status', value } })}
+                placeholder="All Statuses"
+              />
             </div>
           </div>
           <div className="form-actions">
