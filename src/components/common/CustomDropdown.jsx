@@ -37,7 +37,7 @@ const CustomDropdown = ({
   const displayText = selectedOption ? selectedOption.label : placeholder;
 
   return (
-    <div className={`custom-dropdown ${className}`} ref={dropdownRef}>
+    <div className={`custom-dropdown ${className} ${isOpen ? 'open' : ''}`} ref={dropdownRef}>
       <button
         type="button"
         className={`custom-dropdown-button ${isOpen ? 'open' : ''}`}
