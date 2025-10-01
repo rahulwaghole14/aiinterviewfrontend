@@ -1,5 +1,5 @@
 // src/components/HiringAgencies.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import "./HiringAgency.css";
@@ -13,6 +13,7 @@ import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 import { FormModal, ConfirmModal } from "./common/Modal";
+import { FiChevronDown } from 'react-icons/fi';
 import { useNotification } from "../hooks/useNotification";
 
 const formInputStyle = {
@@ -135,6 +136,24 @@ const HiringAgencies = () => {
     // Default to 'Recruiter' tab
     return "Recruiter";
   });
+  const [showMobileDropdown, setShowMobileDropdown] = useState(false);
+  const mobileDropdownRef = useRef(null);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target)) {
+        setShowMobileDropdown(false);
+      }
+    };
+    
+    if (showMobileDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMobileDropdown]);
+  
   const [formData, setFormData] = useState({
     // Common fields
     username: "",
@@ -2029,20 +2048,34 @@ const HiringAgencies = () => {
             ))}
           </div>
           
-          {/* Mobile Dropdown Selector */}
-          <div className="mobile-tab-selector">
-            <select
-              value={activeTab}
-              onChange={(e) => handleTabChange(e.target.value)}
+          {/* Mobile Custom Dropdown Selector */}
+          <div className="mobile-tab-selector" ref={mobileDropdownRef}>
+            <button
+              className={`tab-dropdown-button ${showMobileDropdown ? 'open' : ''}`}
+              onClick={() => !isLoading && setShowMobileDropdown(!showMobileDropdown)}
               disabled={isLoading}
-              className="tab-dropdown"
             >
-              {availableTabs.map((tab) => (
-                <option key={tab} value={tab}>
-                  {tab}
-                </option>
-              ))}
-            </select>
+              <span className="dropdown-selected-text">{activeTab}</span>
+              <FiChevronDown className={`dropdown-icon ${showMobileDropdown ? 'open' : ''}`} />
+            </button>
+            
+            {showMobileDropdown && !isLoading && (
+              <div className="tab-dropdown-menu">
+                {availableTabs.map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    className={`tab-dropdown-item ${activeTab === tab ? 'active' : ''}`}
+                    onClick={() => {
+                      handleTabChange(tab);
+                      setShowMobileDropdown(false);
+                    }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Dynamic "Add New" button visible only for ADMIN or COMPANY */}
