@@ -1407,9 +1407,10 @@ body[data-theme='light'] .filter-sidebar-section:hover {
     margin-bottom: 0; /* Remove bottom margin */
   }
   
-  /* Make candidate details section scrollable and reduce height */
+  /* Make candidate details section scrollable and reduce height significantly */
   .candidate-details-section {
-    max-height: calc(100vh - 120px) !important; /* Reduced from 150px */
+    max-height: calc(100vh - 200px) !important; /* Much smaller - more space for header */
+    min-height: 400px !important; /* Minimum usable height */
     overflow-y: auto !important; /* Make it scrollable */
     overflow-x: hidden !important;
   }
@@ -1419,6 +1420,13 @@ body[data-theme='light'] .filter-sidebar-section:hover {
     overflow-y: visible !important; /* No internal scroll */
     max-height: none !important;
     margin-bottom: 0.5rem !important;
+    flex: 0 1 auto !important; /* Don't force growth */
+  }
+  
+  /* Ensure pagination is always visible */
+  .candidates-pagination-container {
+    flex-shrink: 0 !important;
+    margin-top: 0.5rem !important;
   }
 
   /* Reduce gap between mobile controls and content */
