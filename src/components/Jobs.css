@@ -143,8 +143,7 @@ body[data-theme='light'] .jobs-card:hover {
   /* Prevent container from expanding */
   min-width: 0;
   box-sizing: border-box;
-  /* Additional constraints to prevent expansion */
-  contain: layout;
+  /* Removed contain: layout - was interfering with action menu positioning */
 }
 
 @media (min-width: 768px) {
