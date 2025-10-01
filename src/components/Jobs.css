@@ -322,22 +322,21 @@ body[data-theme='light'] .job-listings-section.card {
 /* Desktop Header Section */
 .desktop-header-section {
   display: flex;
-  justify-content: space-between; /* Space between left and right */
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.5rem; /* Gap between domain buttons and Total Jobs */
   margin-bottom: 1.5rem;
-  width: 100%; /* Full width */
+  flex-wrap: nowrap; /* Keep in one line */
 }
 
 .desktop-header-section .domain-management-section {
   display: flex;
-  gap: 1rem;
-  flex: 0 0 auto; /* Don't grow, stay on left */
+  gap: 1rem; /* Gap between domain buttons */
+  flex: 0 0 auto;
 }
 
 .desktop-header-section .total-jobs-card {
-  flex: 0 0 auto; /* Don't grow */
-  margin-left: auto; /* Push to right side */
+  flex: 0 0 auto;
+  /* No margin-left: auto - appears right next to domain buttons */
 }
 
 /* Hide mobile header on desktop */
