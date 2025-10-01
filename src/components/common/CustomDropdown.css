@@ -87,6 +87,13 @@
   animation: dropdownSlideDown 0.2s ease-out;
 }
 
+/* Portal version - renders in document.body */
+.custom-dropdown-menu.custom-dropdown-portal {
+  position: fixed; /* Fixed positioning relative to viewport */
+  /* top, left, width set via inline styles */
+  z-index: 99999; /* Even higher for portal */
+}
+
 @keyframes dropdownSlideDown {
   from {
     opacity: 0;

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { FiChevronDown } from 'react-icons/fi';
 import './CustomDropdown.css';
 
@@ -11,7 +12,21 @@ const CustomDropdown = ({
   disabled = false 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 0 });
   const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  // Calculate menu position when opening
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  }, [isOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -37,19 +52,30 @@ const CustomDropdown = ({
   const displayText = selectedOption ? selectedOption.label : placeholder;
 
   return (
-    <div className={`custom-dropdown ${className} ${isOpen ? 'open' : ''}`} ref={dropdownRef}>
-      <button
-        type="button"
-        className={`custom-dropdown-button ${isOpen ? 'open' : ''}`}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        disabled={disabled}
-      >
-        <span className="dropdown-selected-text">{displayText}</span>
-        <FiChevronDown className={`dropdown-icon ${isOpen ? 'open' : ''}`} />
-      </button>
+    <>
+      <div className={`custom-dropdown ${className} ${isOpen ? 'open' : ''}`} ref={dropdownRef}>
+        <button
+          ref={buttonRef}
+          type="button"
+          className={`custom-dropdown-button ${isOpen ? 'open' : ''}`}
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          disabled={disabled}
+        >
+          <span className="dropdown-selected-text">{displayText}</span>
+          <FiChevronDown className={`dropdown-icon ${isOpen ? 'open' : ''}`} />
+        </button>
+      </div>
 
-      {isOpen && !disabled && (
-        <div className="custom-dropdown-menu">
+      {isOpen && !disabled && ReactDOM.createPortal(
+        <div 
+          className="custom-dropdown-menu custom-dropdown-portal"
+          style={{
+            position: 'fixed',
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`,
+            width: `${menuPosition.width}px`
+          }}
+        >
           {options.map((option) => (
             <button
               key={option.value}
@@ -60,9 +86,10 @@ const CustomDropdown = ({
               {option.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 };
 
