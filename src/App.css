@@ -636,31 +636,43 @@ body, html {
 
 .search-modal-header input {
   flex-grow: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--color-muted);
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 400;
   color: var(--color-text);
   background-color: var(--color-bg-secondary);
+  height: 42px;
+  box-sizing: border-box;
 }
 
 .close-search-modal {
   cursor: pointer;
   color: var(--color-text-primary);
   background: var(--color-card);
-  border: 1px solid var(--color-muted);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 0.5rem;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  height: calc(0.75rem + 1rem); /* smaller icon + vertical padding */
-  min-width: calc(0.75rem + 1rem); /* smaller icon + horizontal padding */
+  width: 42px;
+  height: 42px;
   transition: all 0.2s ease;
   box-shadow: none;
-  font-weight: 700;
-  font-size: 0.75rem;
+  font-weight: 400;
+  font-size: 0;
+  flex-shrink: 0;
+}
+
+.close-search-modal svg {
+  font-size: 1.1rem; /* Small icon like search */
+  opacity: 0.7; /* Subtle appearance */
+}
+
+.close-search-modal:hover svg {
+  opacity: 1; /* Full opacity on hover */
 }
 
 .close-search-modal:hover {
@@ -927,15 +939,33 @@ body, html {
   }
 
   .search-modal-header input {
-    font-size: 0.9rem;
-    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--color-border);
+    height: 42px;
+    box-sizing: border-box;
   }
   
   .close-search-modal {
-    padding: 0.4rem;
-    font-size: 0.7rem;
-    height: calc(0.7rem + 0.8rem); /* smaller icon + vertical padding */
-    min-width: calc(0.7rem + 0.8rem); /* smaller icon + horizontal padding */
+    padding: 0;
+    font-size: 0;
+    font-weight: 400;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .close-search-modal svg {
+    font-size: 1.1rem; /* Small icon like search */
+    opacity: 0.7; /* Subtle appearance */
+  }
+  
+  .close-search-modal:hover svg {
+    opacity: 1; /* Full opacity on hover */
   }
 
   .search-modal-results li {
@@ -986,22 +1016,42 @@ body, html {
     display: none !important; /* Hide full search bar on small screens */
   }
   
+  /* Unified header icon button styling - match theme button exactly */
   .mobile-search-icon {
-    display: flex !important; /* Ensure search icon is visible and flex-aligned */
+    display: flex !important;
     align-items: center;
+    justify-content: center;
     cursor: pointer;
     position: relative;
-    z-index: 10; /* Higher z-index to ensure clickability */
-    flex-shrink: 0; /* Prevent shrinking */
-    pointer-events: auto; /* Ensure click events work */
-    user-select: none; /* Prevent text selection */
-    padding: 8px; /* Add padding for better click target */
-    border-radius: var(--radius-small); /* Add border radius for better UX */
-    transition: background-color 0.2s ease; /* Smooth transition */
+    flex-shrink: 0;
+    pointer-events: auto;
+    user-select: none;
+    /* Match theme button size exactly: 42x44 */
+    width: 42px !important;
+    height: 44px !important;
+    padding: 0.5rem !important;
+    box-sizing: border-box !important;
+    /* Appearance */
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    /* Transitions */
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-search-icon svg {
+    font-size: 1rem;
   }
   
   .mobile-search-icon:hover {
-    background-color: var(--color-bg-secondary); /* Hover effect */
+    background: var(--color-hover);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-button-hover);
+  }
+  
+  .mobile-search-icon:active {
+    transform: translateY(0);
   }
   
   /* Ensure sidebar toggle doesn't interfere with search */

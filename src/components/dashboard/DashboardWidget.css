@@ -252,7 +252,7 @@
     height: auto !important; /* Auto height to fit content */
     width: 100% !important; /* Full width */
     margin-bottom: 0; /* No margin - using gap */
-    overflow: visible !important; /* Allow expansion */
+    overflow: visible !important; /* Allow content to expand */
   }
   
   .widget-header {
@@ -293,29 +293,38 @@
     padding: 0.75rem;
     height: auto !important; /* Auto height to fit content */
     min-height: auto !important; /* No minimum */
-    max-height: none !important; /* No maximum */
-    overflow: visible !important; /* No scrolling */
+    max-height: 50vh !important; /* Maximum 50vh - scroll if more */
+    overflow-y: auto !important; /* Scroll vertically if exceeds 50vh */
+    overflow-x: visible !important; /* No horizontal scroll */
     flex: 0 0 auto !important; /* Natural size */
+  }
+  
+  /* Custom scrollbar for mobile widgets */
+  .widget-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .widget-content::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+  }
+  
+  .widget-content::-webkit-scrollbar-thumb {
+    background: var(--color-text-secondary);
+    border-radius: 3px;
   }
   
   /* Scale down charts to fit mobile width */
   .widget-content.chart-widget {
     max-width: 100%;
-    overflow: visible !important;
+    max-height: 50vh !important; /* Maximum 50vh */
+    overflow-y: auto !important; /* Scroll if too tall */
+    overflow-x: visible !important;
     height: auto !important;
-    min-height: auto !important;
   }
   
   .widget-content.chart-widget > * {
     max-width: 100% !important;
     height: auto !important;
-    overflow: visible !important;
-  }
-  
-  /* Ensure all nested elements expand naturally */
-  .widget-content * {
-    overflow: visible !important;
-    max-height: none !important;
   }
   
   .widget-control-btn {
@@ -327,15 +336,15 @@
   .dashboard-widget.expanded {
     width: 95vw;
     height: auto; /* Auto height - fit content */
-    max-height: none; /* No max height */
+    max-height: 80vh; /* Maximum 80vh */
     max-width: none;
-    overflow-y: visible; /* No scroll - show all content */
+    overflow-y: auto; /* Scroll if exceeds 80vh */
   }
   
   .dashboard-widget.expanded .widget-content {
-    overflow: visible; /* No scroll */
+    overflow: visible; /* No scroll inside - widget scrolls */
     height: auto; /* Auto height */
-    max-height: none; /* No restrictions */
+    max-height: none; /* No restrictions on content */
   }
 }
 

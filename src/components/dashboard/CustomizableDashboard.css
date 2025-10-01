@@ -143,6 +143,13 @@ body[data-theme='dark'] .customizable-dashboard {
   position: relative;
   overflow: auto;
   max-height: calc(100vh - 200px);
+  /* Hide scrollbars */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.dashboard-grid-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
 .dashboard-grid-container.dragging-over {

@@ -1,6 +1,7 @@
 // src/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiUser, FiMenu, FiChevronLeft, FiX } from 'react-icons/fi';
+import { IoCloseOutline } from 'react-icons/io5';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchTerm } from '../redux/slices/searchSlice';
@@ -334,7 +335,7 @@ const Header = ({
                   autoFocus
                   ref={searchModalInputRef}
                 />
-                <FiX size={24} onClick={toggleSearchModal} className="close-search-modal" />
+                <IoCloseOutline onClick={toggleSearchModal} className="close-search-modal" />
               </div>
               {localSearchTerm && (isSearching || searchResults.length > 0) && (
                 <div className="search-modal-results">
