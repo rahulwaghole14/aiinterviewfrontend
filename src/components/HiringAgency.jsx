@@ -15,6 +15,7 @@ import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 import { FormModal, ConfirmModal } from "./common/Modal";
 import { FiChevronDown } from 'react-icons/fi';
 import { useNotification } from "../hooks/useNotification";
+import CustomDropdown from './common/CustomDropdown';
 
 const formInputStyle = {
   width: "100%",
@@ -1421,15 +1422,15 @@ const HiringAgencies = () => {
 
             <div className="form-group">
               <label htmlFor="is_active">Status</label>
-              <select
-                id="is_active"
-                name="is_active"
+              <CustomDropdown
                 value={formData.is_active ? "true" : "false"}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.value === "true" }))}
-              >
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
+                options={[
+                  { value: 'true', label: 'Active' },
+                  { value: 'false', label: 'Inactive' }
+                ]}
+                onChange={(value) => setFormData(prev => ({ ...prev, is_active: value === "true" }))}
+                placeholder="Select Status"
+              />
             </div>
 
             <div className="form-group">
