@@ -209,22 +209,31 @@ body[data-theme='dark'] .customizable-dashboard {
   }
 }
 
-/* Responsive Grid */
+/* Responsive - Grid columns reduce on smaller screens */
 @media (max-width: 1200px) {
   .dashboard-grid-container {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
   }
 }
 
 @media (max-width: 900px) {
   .dashboard-grid-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .dashboard-grid-container {
-    grid-template-columns: 1fr;
+    display: flex !important; /* Change to flex on mobile */
+    flex-direction: column !important; /* Stack vertically */
+    grid-template-columns: unset !important; /* Remove grid columns */
+    grid-template-rows: unset !important; /* Remove grid rows */
+    gap: 1rem;
+  }
+  
+  .dashboard-grid-container > * {
+    grid-column: unset !important; /* Remove grid positioning */
+    grid-row: unset !important; /* Remove grid positioning */
   }
 }
 
@@ -312,21 +321,56 @@ body[data-theme='dark'] .control-btn:hover {
   }
   
   .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: row; /* Keep horizontal layout */
+    align-items: center; /* Center vertically */
+    justify-content: space-between; /* Title left, controls right */
+    gap: 0.5rem;
     margin-bottom: 1rem;
+    flex-wrap: nowrap; /* Don't wrap */
+  }
+  
+  .dashboard-title {
+    display: none; /* Hide title when editing shows all buttons */
+  }
+  
+  .dashboard-title p {
+    display: none; /* Hide paragraph on mobile */
   }
   
   .dashboard-controls {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    display: flex;
+    gap: 0.4rem; /* Comfortable spacing between buttons */
+    flex-shrink: 0; /* Don't shrink controls */
+    margin-left: auto; /* Push to right when single button */
+    flex-wrap: nowrap; /* Keep buttons in same line */
+    justify-content: center; /* Center all buttons */
+    width: 100%; /* Take full width when multiple buttons */
+  }
+  
+  /* When only Edit Layout button is visible */
+  .dashboard-controls:has(.control-btn:only-of-type) {
+    width: auto; /* Auto width for single button */
+    margin-left: auto; /* Push to right */
+  }
+  
+  .last-saved {
+    display: none; /* Hide "Last saved" on mobile to save space */
   }
   
   .control-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
+    padding: 0.45rem 0.6rem; /* Good balance */
+    font-size: 0.7rem; /* Readable text */
+    white-space: nowrap;
+    gap: 0.3rem; /* Gap between icon and text */
+    min-width: fit-content; /* Fit content width */
+    height: auto; /* Auto height */
+    justify-content: center;
+    flex: 1; /* Equal width for all buttons when multiple */
+    max-width: 33%; /* Each takes max 1/3 width */
+  }
+  
+  .control-btn svg {
+    font-size: 0.8rem; /* Icon size */
   }
   
   .dashboard-grid {
@@ -349,7 +393,7 @@ body[data-theme='dark'] .control-btn:hover {
   }
   
   .dashboard-grid-container {
-    grid-template-columns: repeat(2, 1fr);
+    /* Keep single column for print */
     gap: 1rem;
   }
   

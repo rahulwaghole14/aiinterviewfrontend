@@ -92,9 +92,9 @@ const DashboardWidget = ({
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '85vw',
-            height: '85vh',
+            height: 'auto', // Auto height to fit content
             maxWidth: '1200px',
-            maxHeight: '800px',
+            maxHeight: '90vh', // Maximum height but can be smaller
             zIndex: 1000,
             gridColumn: 'unset',
             gridRow: 'unset'
@@ -130,13 +130,6 @@ const DashboardWidget = ({
           
           {isEditing && (
             <>
-              <button 
-                className="widget-control-btn drag-handle"
-                onMouseDown={handleDragHandleMouseDown}
-                title="Drag to move widget"
-              >
-                <FiMove />
-              </button>
               <button 
                 className="widget-control-btn data-settings"
                 onClick={handleDataSettings}

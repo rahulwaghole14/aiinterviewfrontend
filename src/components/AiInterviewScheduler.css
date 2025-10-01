@@ -23,81 +23,14 @@
 
 /* Card Styles */
 .ai-int-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-card);
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  margin: 0;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.ai-int-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
-}
-
-.ai-int-card:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .ai-int-card {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme='light'] .ai-int-card {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.ai-int-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-body[data-theme='dark'] .ai-int-card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .ai-int-card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
+  margin: 0; /* Remove any default margins */
 }
 
 /* Form Section - 25% width */
@@ -177,78 +110,13 @@ body[data-theme='light'] .ai-int-card:hover {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Add styling to form card */
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-soft);
   border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  margin: 0;
+  border: 1px solid var(--color-border);
+  margin: 0; /* Remove any default margins */
   padding: 1.5rem;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.ai-int-form-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-  z-index: 1;
-  border-radius: var(--radius);
-}
-
-.ai-int-form-card:hover::before {
-  left: 100%;
-}
-
-body[data-theme='dark'] .ai-int-form-card {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body[data-theme='light'] .ai-int-form-card {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.ai-int-form-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-body[data-theme='dark'] .ai-int-form-card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-body[data-theme='light'] .ai-int-form-card:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .ai-int-form-header {
@@ -260,7 +128,7 @@ body[data-theme='light'] .ai-int-form-card:hover {
 .ai-int-form-header h3 {
   margin: 0;
   font-size: 1.25rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-primary);
 }
 
@@ -298,7 +166,7 @@ body[data-theme='light'] .ai-int-form-card:hover {
 
 .ai-int-form-group label {
   margin-bottom: 0.5rem;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
@@ -416,7 +284,7 @@ body[data-theme='light'] .ai-int-form-card:hover {
   border: none;
   border-radius: var(--radius);
   font-size: 0.9rem;
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-soft);
@@ -444,7 +312,7 @@ body[data-theme='light'] .ai-int-form-card:hover {
 
 .mobile-create-slot-btn .btn-icon {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .mobile-create-slot-btn .btn-text {
@@ -543,7 +411,7 @@ body[data-theme='light'] .ai-int-form-card:hover {
   border-radius: var(--radius);
   font-size: 1rem;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   box-shadow: var(--shadow-soft);
   transition: background-color 0.2s ease, transform 0.2s ease;
   min-width: 120px;

@@ -2,41 +2,18 @@
 .data-table-container {
     display: flex;
     flex-direction: column;
-    background: white;
+    background: var(--color-card);
     border-radius: var(--radius);
     border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
     padding: 20px;
     box-sizing: border-box;
-    max-width: 100%;
-    width: 100%;
+    max-width: 100%; /* Container max width */
+    width: 100%; /* Container takes full available width */
+    min-width: 0; /* Allow container to shrink */
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
-    box-shadow: var(--shadow-soft);
-    position: relative;
   }
-
-/* Consistent white background for all themes */
-body[data-theme='dark'] .data-table-container,
-body[data-theme='light'] .data-table-container {
-  background: white;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
-}
-
-/* Force white background on table elements for all themes */
-body[data-theme='dark'] .data-table,
-body[data-theme='light'] .data-table {
-  background: white !important;
-}
-
-body[data-theme='dark'] .data-table th,
-body[data-theme='dark'] .data-table td,
-body[data-theme='light'] .data-table th,
-body[data-theme='light'] .data-table td {
-  background: white !important;
-}
-
-/* Shimmer effect removed for solid white background */
   
   .table-box {
     flex: 1;
@@ -44,6 +21,7 @@ body[data-theme='light'] .data-table td {
     flex-direction: column;
     width: 100%;
     max-width: 100%;
+    min-width: 0; /* Allow shrinking below content size */
     overflow: hidden;
     position: relative; /* Ensure proper containment */
   }
@@ -55,7 +33,8 @@ body[data-theme='light'] .data-table td {
     padding: 0 0 16px 0;
     background: var(--color-card);
     margin: 0;
-    min-width: 100%;
+    min-width: 0; /* Allow shrinking to fit container */
+    width: 100%;
     box-sizing: border-box;
   }
   
@@ -70,58 +49,57 @@ body[data-theme='light'] .data-table td {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    /* Hide scrollbars */
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    box-shadow: var(--shadow-soft);
     min-height: 590px; /* Reduced by 10px to fit 10 rows without scrolling */
   }
-
-/* Dark theme table responsive */
-body[data-theme='dark'] .table-responsive {
-  background: rgba(30, 27, 46, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Light theme table responsive */
-body[data-theme='light'] .table-responsive {
-  background: rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
   
+  /* Custom scrollbar styling for better visibility */
   .table-responsive::-webkit-scrollbar {
-    display: none;
+    height: 8px;
+    width: 8px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+    border-radius: 4px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: var(--color-text-secondary);
+    border-radius: 4px;
+  }
+  
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
   }
   
   .data-table {
-    width: auto;
+    width: auto; /* Table takes natural width based on content */
     border-collapse: collapse;
-    min-width: 100%;
+    min-width: 1400px; /* Fixed minimum width to trigger horizontal scroll */
     table-layout: auto;
     white-space: nowrap;
     position: relative; /* Ensure proper containment */
     height: 100%;
     min-height: 100%;
     max-height: 600px; /* Increased height to get closer to pagination */
-    background: white !important;
   }
   
   .data-table th,
   .data-table td {
-    padding: 10px 8px; /* Slightly increased padding */
+    padding: 12px 8px;
     text-align: left;
     border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
     width: auto;
-    min-width: fit-content;
+    min-width: 120px; /* Minimum width for each column */
+    max-width: 250px; /* Maximum width to prevent overly wide columns */
     position: relative; /* Ensure proper containment */
-    font-size: 14px; /* Increased font size to match hiring agency */
-    line-height: 1.5; /* Better line height for readability */
-    background: white !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .data-table th:first-child,
@@ -142,23 +120,22 @@ body[data-theme='light'] .table-responsive {
   
   
   .data-table th {
-    background-color: white !important;
+    background-color: var(--color-bg-secondary);
     font-weight: 600;
     color: var(--color-text-secondary);
     text-transform: uppercase;
-    font-size: 12px; /* Increased header font size */
-    letter-spacing: 0.4px; /* Slightly increased letter spacing */
+    font-size: 12px;
+    letter-spacing: 0.5px;
     position: sticky;
     top: 0;
     z-index: 10; /* Higher z-index than action menus */
-    padding: 10px 8px; /* Increased header padding to match cells */
   }
 
   /* Sortable header styles */
   .data-table th.sortable {
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.05s ease;
+    transition: background-color 0.2s ease;
   }
 
   .data-table th.sortable:hover {
@@ -180,7 +157,7 @@ body[data-theme='light'] .table-responsive {
     display: flex;
     align-items: center;
     opacity: 0.5;
-    transition: opacity 0.05s ease;
+    transition: opacity 0.2s ease;
   }
 
   .data-table th.sortable:hover .sort-icon-container {
@@ -190,7 +167,7 @@ body[data-theme='light'] .table-responsive {
   .sort-icon {
     font-size: 10px;
     color: var(--color-text-secondary);
-    transition: color 0.05s ease;
+    transition: color 0.2s ease;
   }
 
   .sort-icon.active {
@@ -322,7 +299,7 @@ body[data-theme='light'] .table-responsive {
   }
   
   .table-row {
-    transition: background-color 0.05s ease;
+    transition: background-color 0.2s ease;
   }
   
   .table-row:hover {
@@ -376,7 +353,7 @@ body[data-theme='light'] .table-responsive {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.05s ease;
+    transition: all 0.2s ease;
     font-size: 14px;
     line-height: 1;
   }
@@ -509,7 +486,7 @@ body[data-theme='light'] .table-responsive {
     cursor: pointer;
     color: var(--color-text-primary);
     font-size: 13px;
-    transition: all 0.05s;
+    transition: all 0.2s;
   }
   
   .context-menu-item:hover {
@@ -545,7 +522,7 @@ body[data-theme='light'] .table-responsive {
     align-items: center;
     justify-content: center;
     padding: 4px 8px;
-    transition: all 0.05s ease;
+    transition: all 0.2s ease;
     margin: 0 auto;
     width: 32px;
     height: 32px;
@@ -578,7 +555,7 @@ body[data-theme='light'] .table-responsive {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--color-border);
     padding: 4px 0;
-    animation: fadeIn 0.05s ease-out;
+    animation: fadeIn 0.15s ease-out;
     transform-origin: top right;
     max-height: 200px; /* Prevent overflow */
     overflow-y: auto; /* Allow scrolling if needed */
@@ -601,7 +578,7 @@ body[data-theme='light'] .table-responsive {
     font-size: 14px;
     line-height: 1.5;
     cursor: pointer;
-    transition: all 0.05s ease;
+    transition: all 0.15s ease;
     box-sizing: border-box;
   }
   
@@ -668,7 +645,7 @@ body[data-theme='light'] .table-responsive {
     max-width: 400px;
     box-shadow: var(--shadow-medium);
     overflow: hidden;
-    animation: dtModalFadeIn 0.05s ease-out;
+    animation: dtModalFadeIn 0.2s ease-out;
   }
   
   @keyframes dtModalFadeIn {
@@ -715,7 +692,7 @@ body[data-theme='light'] .table-responsive {
     font-weight: 500;
     cursor: pointer;
     border: 1px solid transparent;
-    transition: all 0.05s ease;
+    transition: all 0.2s ease;
     font-size: 14px;
   }
   
@@ -805,7 +782,7 @@ body[data-theme='light'] .table-responsive {
     border: 1px solid var(--color-border);
     border-radius: 4px;
     font-size: 14px;
-    transition: border-color 0.05s ease-in-out, box-shadow 0.05s ease-in-out;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   }
   
   .table-input:focus {
@@ -823,7 +800,7 @@ body[data-theme='light'] .table-responsive {
     border: 1px solid var(--color-border);
     border-radius: 4px;
     font-size: 14px;
-    transition: border-color 0.05s, box-shadow 0.05s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     background-color: var(--color-card);
   }
   
@@ -873,6 +850,15 @@ body[data-theme='light'] .table-responsive {
     padding: 0 8px;
   }
   
+  /* Action Buttons */
+  .actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    padding: 0 8px;
+    min-width: 100px;
+  }
+  
   .action-button {
     display: flex;
     align-items: center;
@@ -884,7 +870,7 @@ body[data-theme='light'] .table-responsive {
     background: none;
     cursor: pointer;
     color: #6b7280;
-    transition: all 0.05s ease;
+    transition: all 0.2s ease;
     padding: 0;
     opacity: 1;
     pointer-events: auto;
@@ -929,7 +915,7 @@ body[data-theme='light'] .table-responsive {
     background: none;
     cursor: pointer;
     color: #6b7280;
-    transition: all 0.05s ease;
+    transition: all 0.2s ease;
     padding: 0;
     opacity: 1;
     pointer-events: auto;
@@ -1006,7 +992,7 @@ body[data-theme='light'] .table-responsive {
     border: 1px solid #ced4da !important; /* Ensure border is always applied */
     border-radius: 4px;
     font-size: 14px;
-    transition: border-color 0.05s ease-in-out, box-shadow 0.05s ease-in-out;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background-color: var(--color-card);
   }
   
@@ -1077,34 +1063,11 @@ body[data-theme='light'] .table-responsive {
     justify-content: space-between;
     align-items: center;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
     margin-top: 0.5rem;
     border-radius: 10px;
-    box-shadow: 
-      0 4px 16px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
-
-/* Dark theme pagination glassmorphism */
-body[data-theme='dark'] .pagination {
-  background: rgba(30, 27, 46, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Light theme pagination glassmorphism */
-body[data-theme='light'] .pagination {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
   
   .records-per-page {
     display: flex;
@@ -1156,7 +1119,7 @@ body[data-theme='light'] .pagination {
     justify-content: center;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.05s ease;
+    transition: all 0.2s ease;
     margin: 0 2px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
@@ -1330,7 +1293,7 @@ body[data-theme='light'] .pagination {
     border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.05s;
+    transition: background-color 0.2s;
     height: 36px;
   }
   
@@ -1354,7 +1317,7 @@ body[data-theme='light'] .pagination {
   .refresh-button svg {
     width: 16px;
     height: 16px;
-    transition: transform 0.1s ease;
+    transition: transform 0.3s ease;
   }
   
   .refresh-button:not(:disabled):hover svg {
@@ -1467,8 +1430,8 @@ body[data-theme='light'] .pagination {
     
     .data-table th,
     .data-table td {
-      padding: 8px 10px; /* Increased padding for mobile */
-      font-size: 13px; /* Increased font size for mobile */
+      padding: 8px 12px;
+      font-size: 13px;
     }
   
     .data-table-title {

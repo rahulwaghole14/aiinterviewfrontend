@@ -1,7 +1,7 @@
 // src/components/dashboard/CustomizableDashboard.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiPlus, FiSettings, FiSave, FiRotateCcw } from 'react-icons/fi';
+import { FiPlus, FiSettings, FiSave, FiRotateCcw, FiX } from 'react-icons/fi';
 import DashboardWidget from './DashboardWidget';
 import WidgetLibrary from './WidgetLibrary';
 import { fetchDashboardData } from '../../redux/slices/dashboardSlice';
@@ -483,7 +483,7 @@ const CustomizableDashboard = () => {
             className={`control-btn ${isEditing ? 'active' : ''}`}
             onClick={() => setIsEditing(!isEditing)}
           >
-            <FiSettings />
+            {isEditing ? <FiX /> : <FiSettings />}
             {isEditing ? 'Exit Edit' : 'Edit Layout'}
           </button>
           
