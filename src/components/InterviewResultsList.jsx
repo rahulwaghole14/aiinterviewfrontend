@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { BeatLoader } from 'react-spinners';
 import { baseURL } from '../config/constants';
+import CustomDropdown from './common/CustomDropdown';
 import './InterviewResultsList.css';
 
 const InterviewResultsList = () => {
@@ -144,16 +145,17 @@ const InterviewResultsList = () => {
         </div>
         
         <div className="status-filter">
-          <select
+          <CustomDropdown
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="status-select"
-          >
-            <option value="all">All Status</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="completed">Completed</option>
-            <option value="expired">Expired</option>
-          </select>
+            options={[
+              { value: 'all', label: 'All Status' },
+              { value: 'scheduled', label: 'Scheduled' },
+              { value: 'completed', label: 'Completed' },
+              { value: 'expired', label: 'Expired' }
+            ]}
+            onChange={(value) => setStatusFilter(value)}
+            placeholder="All Status"
+          />
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import {
   clearSlotsError,
   setSlots,
 } from "../redux/slices/interviewSlotsSlice";
+import CustomDropdown from './common/CustomDropdown';
 import {
   FiPlus,
   FiEdit,
@@ -806,40 +807,44 @@ const AiInterviewScheduler = ({
         </div>
 
         <div className="ai-int-form-group">
-                                  <label>Talaro Interview Type</label>
-          <select
+          <label>Talaro Interview Type</label>
+          <CustomDropdown
             value={slotForm.ai_interview_type}
-            onChange={(e) =>
+            options={[
+              { value: 'technical', label: 'Technical' },
+              { value: 'behavioral', label: 'Behavioral' },
+              { value: 'coding', label: 'Coding' },
+              { value: 'system_design', label: 'System Design' },
+              { value: 'case_study', label: 'Case Study' }
+            ]}
+            onChange={(value) =>
               setSlotForm((prev) => ({
                 ...prev,
-                ai_interview_type: e.target.value,
+                ai_interview_type: value,
               }))
             }
-          >
-            <option value="technical">Technical</option>
-            <option value="behavioral">Behavioral</option>
-            <option value="coding">Coding</option>
-            <option value="system_design">System Design</option>
-            <option value="case_study">Case Study</option>
-          </select>
+            placeholder="Select Interview Type"
+          />
         </div>
 
         <div className="ai-int-form-group">
           <label>Difficulty Level</label>
-          <select
+          <CustomDropdown
             value={slotForm.difficulty_level}
-            onChange={(e) =>
+            options={[
+              { value: 'beginner', label: 'Beginner' },
+              { value: 'intermediate', label: 'Intermediate' },
+              { value: 'advanced', label: 'Advanced' },
+              { value: 'expert', label: 'Expert' }
+            ]}
+            onChange={(value) =>
               setSlotForm((prev) => ({
                 ...prev,
-                difficulty_level: e.target.value,
+                difficulty_level: value,
               }))
             }
-          >
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-            <option value="expert">Expert</option>
-          </select>
+            placeholder="Select Difficulty"
+          />
         </div>
 
         <div className="ai-int-form-row">
@@ -1305,38 +1310,42 @@ const AiInterviewScheduler = ({
 
             <div className="ai-int-form-group">
               <label>Interview Type</label>
-              <select
+              <CustomDropdown
                 value={slotForm.ai_interview_type}
-                onChange={(e) =>
+                options={[
+                  { value: '', label: 'Select interview type' },
+                  { value: 'technical', label: 'Technical' },
+                  { value: 'behavioral', label: 'Behavioral' },
+                  { value: 'system-design', label: 'System Design' }
+                ]}
+                onChange={(value) =>
                   setSlotForm({
                     ...slotForm,
-                    ai_interview_type: e.target.value,
+                    ai_interview_type: value,
                   })
                 }
-              >
-                <option value="">Select interview type</option>
-                <option value="technical">Technical</option>
-                <option value="behavioral">Behavioral</option>
-                <option value="system-design">System Design</option>
-              </select>
+                placeholder="Select interview type"
+              />
             </div>
 
             <div className="ai-int-form-group">
               <label>Difficulty Level</label>
-              <select
+              <CustomDropdown
                 value={slotForm.difficulty_level}
-                onChange={(e) =>
+                options={[
+                  { value: '', label: 'Select difficulty level' },
+                  { value: 'easy', label: 'Easy' },
+                  { value: 'intermediate', label: 'Intermediate' },
+                  { value: 'hard', label: 'Hard' }
+                ]}
+                onChange={(value) =>
                   setSlotForm({
                     ...slotForm,
-                    difficulty_level: e.target.value,
+                    difficulty_level: value,
                   })
                 }
-              >
-                <option value="">Select difficulty level</option>
-                <option value="easy">Easy</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="hard">Hard</option>
-              </select>
+                placeholder="Select difficulty level"
+              />
             </div>
 
             <div className="ai-int-form-group">

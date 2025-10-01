@@ -1601,22 +1601,15 @@ const HiringAgencies = () => {
             {userRole !== "COMPANY" && (
               <div className="form-group">
                 <label htmlFor="company_id">Company</label>
-                <select
-                  id="company_id"
-                  name="company_id"
+                <CustomDropdown
                   value={formData.company_id}
-                  onChange={handleInputChange}
-                  onClick={addEventProtection}
-                  onFocus={addEventProtection}
-                  onMouseDown={addEventProtection}
-                >
-                  <option value="">Select a company</option>
-                  {companies.map((company) => (
-                    <option key={company.id} value={company.id}>
-                      {company.name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: '', label: 'Select a company' },
+                    ...companies.map(company => ({ value: company.id, label: company.name }))
+                  ]}
+                  onChange={(value) => handleInputChange({ target: { name: 'company_id', value } })}
+                  placeholder="Select a company"
+                />
               </div>
             )}
           </>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNotification } from '../hooks/useNotification';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './common/ThemeToggle';
+import CustomDropdown from './common/CustomDropdown';
 import './Settings.css';
 
 const Settings = ({ onTitleChange }) => {
@@ -92,11 +93,16 @@ const Settings = ({ onTitleChange }) => {
         <h3>Data Management</h3>
         <div className="setting-item">
           <label htmlFor="data-export-format">Default Data Export Format</label>
-          <select id="data-export-format" value={dataExportFormat} onChange={handleDataExportFormatChange} className="settings-select">
-            <option value="csv">CSV</option>
-            <option value="json">JSON</option>
-            <option value="pdf">PDF</option>
-          </select>
+          <CustomDropdown
+            value={dataExportFormat}
+            options={[
+              { value: 'csv', label: 'CSV' },
+              { value: 'json', label: 'JSON' },
+              { value: 'pdf', label: 'PDF' }
+            ]}
+            onChange={(value) => setDataExportFormat(value)}
+            placeholder="Select Format"
+          />
         </div>
         <div className="setting-item action-item">
           <button className="settings-button">Export All Data</button>
@@ -107,11 +113,16 @@ const Settings = ({ onTitleChange }) => {
         <h3>Job Management Defaults</h3>
         <div className="setting-item">
           <label htmlFor="default-job-status">Default New Job Status</label>
-          <select id="default-job-status" value={defaultJobStatus} onChange={handleDefaultJobStatusChange} className="settings-select">
-            <option value="Open">Open</option>
-            <option value="Closed">Closed</option>
-            <option value="On Hold">On Hold</option>
-          </select>
+          <CustomDropdown
+            value={defaultJobStatus}
+            options={[
+              { value: 'Open', label: 'Open' },
+              { value: 'Closed', label: 'Closed' },
+              { value: 'On Hold', label: 'On Hold' }
+            ]}
+            onChange={(value) => setDefaultJobStatus(value)}
+            placeholder="Select Status"
+          />
         </div>
         <div className="setting-item toggle-item">
           <label>Auto-archive Closed Jobs (after 30 days)</label>
