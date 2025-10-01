@@ -381,8 +381,8 @@ body[data-theme='light'] .job-listings-section.card {
     min-width: auto !important;
     font-size: 0.75rem !important;
     margin: 0 !important;
-    width: 130.6px !important; /* ✅ Fixed width */
-    height: 40px !important; /* ✅ Fixed height */
+    width: 150px !important; /* ✅ Increased width */
+    height: 50px !important; /* ✅ Increased height */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -414,7 +414,7 @@ body[data-theme='light'] .job-listings-section.card {
     font-size: 0.75rem !important;
     margin: 0 !important;
     white-space: nowrap;
-    height: 40px !important; /* ✅ Fixed height to match Total Jobs */
+    height: 50px !important; /* ✅ Increased to match Total Jobs */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
