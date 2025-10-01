@@ -833,8 +833,9 @@ body[data-theme='light'] .filter-sidebar-section:hover {
 
 .candidates-pagination-button {
   min-width: 36px;
+  width: 36px; /* Fixed width for square shape */
   height: 36px;
-  padding: 0 8px;
+  padding: 0; /* Removed padding for perfect square */
   border: 1px solid var(--color-primary);
   background: var(--color-primary);
   color: white;
@@ -848,6 +849,7 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   justify-content: center;
   flex-shrink: 0;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 /* Previous button - darker purple shade */
