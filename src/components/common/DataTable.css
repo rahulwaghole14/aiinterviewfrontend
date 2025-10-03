@@ -6,7 +6,7 @@
     border-radius: var(--radius);
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-soft);
-    overflow: hidden;
+    overflow: auto; /* Allow scrolling when content expands */
     padding: 20px;
     box-sizing: border-box;
     max-width: 100%; /* Container max width */
@@ -108,6 +108,20 @@
     position: relative; /* Ensure proper containment */
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  /* When editing, allow cells to expand and push each other */
+  .table-row.editing td {
+    overflow: visible !important;
+    white-space: nowrap !important;
+    min-width: 80px !important;
+    max-width: 300px !important;
+    width: auto !important;
+  }
+
+  /* Make the table flexible when editing */
+  .table-row.editing {
+    display: table-row !important;
   }
   
   .data-table th:first-child,
@@ -263,20 +277,21 @@
   .data-table .edit-input {
     width: auto !important;
     min-width: 80px !important;
-    max-width: 300px !important;
-    padding: 0.75rem 1rem !important;
-    height: 40px !important;
+    max-width: 400px !important;
+    padding: 0.5rem 0.75rem !important;
+    height: 36px !important;
     box-sizing: border-box !important;
     border: 1px solid var(--color-muted) !important;
     border-radius: var(--radius-small) !important;
-    font-size: 0.95rem !important;
+    font-size: 0.9rem !important;
     color: var(--color-text) !important;
     background-color: var(--color-bg-secondary) !important;
     transition: all 0.2s ease !important;
     margin: 0 !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    display: inline-block !important;
   }
   
   .data-table .edit-input:focus {
@@ -290,8 +305,8 @@
   .data-table .edit-input[type="email"],
   .data-table .edit-input[type="url"] {
     width: auto !important;
-    min-width: 100px !important;
-    max-width: 400px !important;
+    min-width: 120px !important;
+    max-width: 500px !important;
   }
   
   .data-table .edit-input::placeholder {
@@ -1030,34 +1045,40 @@
     box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-rgb), 0.25);
   }
   
-  /* Make inputs take only needed space */
+  /* Make inputs expand to fit content while staying in cells */
   .table-row.editing .edit-input {
     opacity: 1 !important;
     pointer-events: auto !important;
-    width: auto;
-    min-width: 80px; /* Minimum width to ensure usability */
-    max-width: 300px; /* Maximum width to prevent overflow */
-    display: inline-block;
+    width: auto !important;
+    min-width: 80px !important;
+    max-width: 400px !important;
+    display: inline-block !important;
     vertical-align: middle;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: unset;
   }
   
   /* For number inputs, ensure they're wide enough */
   .edit-input[type="number"] {
-    width: 80px;
+    width: auto !important;
+    min-width: 80px !important;
+    max-width: 120px !important;
   }
   
   /* For date/datetime inputs */
   .edit-input[type="date"],
   .edit-input[type="datetime-local"] {
-    width: 160px;
+    width: auto !important;
+    min-width: 140px !important;
+    max-width: 180px !important;
   }
   
   /* For select dropdowns */
   .edit-input[type="select"] {
-    min-width: 120px;
+    width: auto !important;
+    min-width: 100px !important;
+    max-width: 200px !important;
   }
   
   /* For checkboxes */

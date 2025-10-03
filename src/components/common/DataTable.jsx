@@ -54,10 +54,23 @@ import PropTypes from "prop-types";
    */
   // Helper function to get nested values from object path
   const getNestedValue = (obj, path) => {
-    if (!path) return "";
-    return path
-      .split(".")
-      .reduce((o, p) => (o && o[p] !== undefined ? o[p] : ""), obj);
+    if (!path || !obj) return "";
+    try {
+      const result = path
+        .split(".")
+        .reduce((o, p) => (o && o[p] !== undefined ? o[p] : ""), obj);
+      // Ensure we return a primitive value
+      if (result === null || result === undefined) return "";
+      if (typeof result === "object") {
+        // Handle objects safely
+        if (Array.isArray(result)) return result.join(", ");
+        return JSON.stringify(result);
+      }
+      return result;
+    } catch (error) {
+      console.warn("Error getting nested value:", error);
+      return "";
+    }
   };
   
   const DataTable = ({
@@ -138,8 +151,8 @@ import PropTypes from "prop-types";
           if (bValue === null || bValue === undefined) return -1;
           
           // Convert to strings for comparison if needed
-          const aStr = String(aValue).toLowerCase();
-          const bStr = String(bValue).toLowerCase();
+          const aStr = (aValue === null || aValue === undefined) ? "" : String(aValue).toLowerCase();
+          const bStr = (bValue === null || bValue === undefined) ? "" : String(bValue).toLowerCase();
           
           // Numeric comparison if both are numbers
           const aNum = Number(aValue);
@@ -165,8 +178,18 @@ import PropTypes from "prop-types";
           column.Cell ||
           (({ value }) => {
             if (value === null || value === undefined) return "";
-            if (typeof value === "object") return JSON.stringify(value);
-            return String(value);
+            if (typeof value === "object") {
+              try {
+                return JSON.stringify(value);
+              } catch (error) {
+                return "[Object]";
+              }
+            }
+            try {
+              return String(value);
+            } catch (error) {
+              return "";
+            }
           });
   
         return {
@@ -939,9 +962,14 @@ import PropTypes from "prop-types";
                     }`}
                     data-status={
                       column.field?.toLowerCase()?.includes("status")
-                        ? String(
-                            getNestedValue(rowData, column.field) || ""
-                          ).toLowerCase()
+                        ? (() => {
+                            try {
+                              const value = getNestedValue(rowData, column.field) || "";
+                              return String(value).toLowerCase();
+                            } catch (error) {
+                              return "";
+                            }
+                          })()
                         : undefined
                     }
                   >
@@ -950,10 +978,16 @@ import PropTypes from "prop-types";
                           getNestedValue(rowData, column.field),
                           rowData
                         )
-                      : getNestedValue(rowData, column.field) !== undefined &&
-                        getNestedValue(rowData, column.field) !== null
-                      ? String(getNestedValue(rowData, column.field))
-                      : ""}
+                      : (() => {
+                          try {
+                            const value = getNestedValue(rowData, column.field);
+                            return value !== undefined && value !== null
+                              ? String(value)
+                              : "";
+                          } catch (error) {
+                            return "";
+                          }
+                        })()}
                   </div>
                 )}
               </td>
