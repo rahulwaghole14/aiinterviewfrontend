@@ -755,24 +755,38 @@ const Jobs = () => {
           body: JSON.stringify({
             job_title: editedData.job_title,
             company_name: editedData.company_name,
-            domain: parseInt(editedData.domain, 10), // Ensure domain is an integer
+            domain: editedData.domain && editedData.domain !== '' ? parseInt(editedData.domain, 10) : null, // Handle null/empty domain
             spoc_email: editedData.spoc_email,
             hiring_manager_email: editedData.hiring_manager_email,
             current_team_size_info: editedData.current_team_size_info,
-            number_to_hire: parseInt(editedData.number_to_hire, 10), // Ensure number
+            number_to_hire: Math.max(1, parseInt(editedData.number_to_hire, 10) || 1), // Ensure number is at least 1
             position_level: editedData.position_level,
             current_process: editedData.current_process,
             tech_stack_details: editedData.tech_stack_details,
             job_description: editedData.job_description || "",
-            is_active: editedData.is_active === "Active" || editedData.is_active === true,
+            // Remove is_active field as it doesn't exist in the Job model
           }),
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Job update error:", errorData);
+        console.error("Request data sent:", {
+          job_title: editedData.job_title,
+          company_name: editedData.company_name,
+          domain: editedData.domain ? parseInt(editedData.domain, 10) : null,
+          spoc_email: editedData.spoc_email,
+          hiring_manager_email: editedData.hiring_manager_email,
+          current_team_size_info: editedData.current_team_size_info,
+          number_to_hire: parseInt(editedData.number_to_hire, 10),
+          position_level: editedData.position_level,
+          current_process: editedData.current_process,
+          tech_stack_details: editedData.tech_stack_details,
+          job_description: editedData.job_description || "",
+        });
         throw new Error(
-          errorData.detail || `HTTP error! status: ${response.status}`
+          errorData.detail || errorData.message || `HTTP error! status: ${response.status}`
         );
       }
 
