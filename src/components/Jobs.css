@@ -13,6 +13,9 @@
   min-width: 0; /* Allow container to shrink */
   box-sizing: border-box;
   padding: 1rem;
+  /* Enhanced scrolling */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 /* Blur effect when modal is open */
@@ -144,7 +147,7 @@ body[data-theme='light'] .jobs-card:hover {
   /* Prevent container from expanding */
   min-width: 0;
   box-sizing: border-box;
-  overflow: hidden; /* Prevent content overflow */
+  overflow: visible; /* Allow content to be visible for scrolling */
   /* Removed contain: layout - was interfering with action menu positioning */
 }
 
@@ -160,7 +163,7 @@ body[data-theme='light'] .jobs-card:hover {
     /* Prevent container from expanding */
     min-width: 0;
     box-sizing: border-box;
-    overflow: hidden; /* Prevent content overflow */
+    overflow: visible; /* Allow content to be visible for scrolling */
     /* Additional constraints to prevent expansion */
     contain: layout;
     /* Removed flex-direction: row; as grid-template-columns handles layout */
@@ -487,22 +490,22 @@ body[data-theme='light'] .job-listings-section.card {
   
   /* Table takes available height */
   .jobs-container .data-table-container {
-    height: 100% !important;
+    height: auto !important;
     min-height: 500px !important;
     max-height: none !important;
     max-width: 100% !important;
     width: 100% !important;
     overflow-x: auto !important;
-    overflow-y: hidden !important;
+    overflow-y: visible !important;
     contain: layout !important;
   }
   
   .jobs-container .table-responsive {
-    max-height: calc(100% - 50px) !important;
+    max-height: none !important;
     max-width: 100% !important;
     width: 100% !important;
     overflow-x: auto !important;
-    overflow-y: auto !important;
+    overflow-y: visible !important;
     contain: layout !important;
   }
   
@@ -552,6 +555,7 @@ body[data-theme='light'] .job-listings-section.card {
     max-width: 100% !important;
     width: 100% !important;
     overflow-x: auto !important;
+    overflow-y: visible !important;
     contain: layout !important;
   }
   
@@ -559,6 +563,7 @@ body[data-theme='light'] .job-listings-section.card {
     max-width: 100% !important;
     width: 100% !important;
     overflow-x: auto !important;
+    overflow-y: visible !important;
     contain: layout !important;
   }
   
