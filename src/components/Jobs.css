@@ -8,7 +8,7 @@
   height: 100vh;
   font-family: var(--font-family-base);
   overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Hide horizontal overflow */
+  overflow-x: visible; /* Allow context menus to show */
   transition: filter 0.3s ease;
   min-width: 0; /* Allow container to shrink */
   box-sizing: border-box;
@@ -1799,12 +1799,32 @@ body[data-theme='light'] .jobs-count-card:hover {
 /* Fix context menu visibility in Jobs component */
 .jobs-container .context-menu {
   z-index: 99999 !important;
-  /* Let DataTable handle positioning with inline styles */
+  position: fixed !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: red !important; /* Debug: Make it visible */
+  border: 2px solid blue !important; /* Debug: Make it visible */
+  min-width: 200px !important;
+  min-height: 100px !important;
+  left: 50px !important; /* Debug: Force position at top-left */
+  top: 50px !important; /* Debug: Force position at top-left */
 }
 
 .jobs-container .action-menu {
   z-index: 99999 !important;
-  /* Let DataTable handle positioning with inline styles */
+  position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: red !important; /* Debug: Make it visible */
+  border: 2px solid blue !important; /* Debug: Make it visible */
+  min-width: 200px !important;
+  min-height: 100px !important;
+  left: 50px !important; /* Debug: Force position at top-left */
+  top: 50px !important; /* Debug: Force position at top-left */
 }
 
 /* Ensure parent containers allow context menu but maintain table scrolling */

@@ -1306,6 +1306,7 @@ const Jobs = () => {
             onAction={(action, rowData, rowIndex) => {
               if (action === "edit") {
                 // For edit, we let DataTable handle inline editing
+                // Just return to let DataTable handle it
                 return;
               } else if (action === "delete") {
                 // Handle delete directly with API call
