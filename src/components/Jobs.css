@@ -265,7 +265,7 @@ body[data-theme='light'] .jobs-form.card {
 
 .job-listings-section.card {
   background: var(--color-card);
-  border: 1px solid var(--color-border);
+  border: none; /* Removed border */
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
   padding: 0; /* Removed padding */
@@ -291,7 +291,7 @@ body[data-theme='light'] .jobs-form.card {
 body[data-theme='dark'] .job-listings-section.card,
 body[data-theme='light'] .job-listings-section.card {
   background: var(--color-card);
-  border: 1px solid var(--color-border);
+  border: none; /* Removed border */
   box-shadow: var(--shadow-soft);
 }
 
