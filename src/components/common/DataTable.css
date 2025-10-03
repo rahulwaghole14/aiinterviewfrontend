@@ -8,6 +8,8 @@
     box-shadow: var(--shadow-soft);
     overflow-x: auto; /* Allow horizontal scrolling when content expands */
     overflow-y: auto; /* Allow vertical scrolling */
+    scrollbar-width: none; /* Firefox - hide scrollbar */
+    -ms-overflow-style: none; /* Internet Explorer 10+ - hide scrollbar */
     padding: 20px;
     box-sizing: border-box;
     max-width: 100%; /* Container max width */
@@ -16,6 +18,15 @@
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
     /* Allow content to expand beyond container when editing */
     contain: none;
+  }
+
+  /* Hide scrollbars for WebKit browsers (Chrome, Safari, Edge) */
+  .data-table-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    display: none;
   }
   
   .table-box {
@@ -58,6 +69,8 @@
     border-radius: 6px;
     box-shadow: var(--shadow-soft);
     min-height: 590px; /* Reduced by 10px to fit 10 rows without scrolling */
+    scrollbar-width: none; /* Firefox - hide scrollbar */
+    -ms-overflow-style: none; /* Internet Explorer 10+ - hide scrollbar */
     max-width: 100%; /* Ensure it doesn't exceed container */
     /* Force scrolling within container */
     contain: layout;
@@ -1407,6 +1420,8 @@
       padding: 12px;
       overflow-x: auto;
       max-width: 100%;
+      scrollbar-width: none; /* Firefox - hide scrollbar */
+      -ms-overflow-style: none; /* Internet Explorer 10+ - hide scrollbar */
     }
     
     .data-table {
@@ -1472,6 +1487,8 @@
       padding: 8px;
       overflow-x: auto;
       max-width: 100%;
+      scrollbar-width: none; /* Firefox - hide scrollbar */
+      -ms-overflow-style: none; /* Internet Explorer 10+ - hide scrollbar */
     }
     
     .data-table {
