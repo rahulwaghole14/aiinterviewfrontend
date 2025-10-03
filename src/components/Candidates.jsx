@@ -456,10 +456,10 @@ const CandidatePage = () => {
             <div className="filter-group">
               <label htmlFor="domainFilter">Domain</label>
               <CustomDropdown
-                value={filters.domain}
+                value={String(filters.domain)}
                 options={[
                   { value: '', label: 'All Domains' },
-                  ...uniqueDomains.map(domain => ({ value: domain.id, label: domain.name }))
+                  ...uniqueDomains.map(domain => ({ value: String(domain.id), label: domain.name }))
                 ]}
                 onChange={(value) => handleFilterChange({ target: { name: 'domain', value } })}
                 placeholder="All Domains"
@@ -469,10 +469,10 @@ const CandidatePage = () => {
             <div className="filter-group">
               <label htmlFor="jobRoleFilter">Job Role</label>
               <CustomDropdown
-                value={filters.jobRole}
+                value={String(filters.jobRole)}
                 options={[
                   { value: '', label: 'All Job Roles' },
-                  ...uniqueJobRoles.map(role => ({ value: role.id, label: role.title }))
+                  ...uniqueJobRoles.map(role => ({ value: String(role.id), label: role.title }))
                 ]}
                 onChange={(value) => handleFilterChange({ target: { name: 'jobRole', value } })}
                 placeholder="All Job Roles"

@@ -41,6 +41,11 @@ const AddCandidates = () => {
     resumes: [],
   });
 
+  // Debug form data changes
+  useEffect(() => {
+    console.log('AddCandidates formData changed:', formData);
+  }, [formData]);
+
   const fileInputRef = useRef(null);
 
   // State for parsed resume data from the 'extract' step
@@ -539,10 +544,10 @@ const AddCandidates = () => {
                       <div className="form-group">
                         <label htmlFor="domainSelect">Domain <span className="required-field">*</span></label>
                         <CustomDropdown
-                          value={formData.domain}
+                          value={String(formData.domain)}
                           options={[
                             { value: '', label: 'Select Domain' },
-                            ...domains.map(domain => ({ value: domain.id, label: domain.name }))
+                            ...domains.map(domain => ({ value: String(domain.id), label: domain.name }))
                           ]}
                           onChange={(value) => handleChange({ target: { name: 'domain', value } })}
                           placeholder="Select Domain"
@@ -657,46 +662,32 @@ const AddCandidates = () => {
                 <label htmlFor="domainSelect">
                   Domain <span className="required-field" aria-label="required">*</span>
                 </label>
-                <select
-                  id="domainSelect"
-                  name="domain"
-                  value={formData.domain}
-                  onChange={handleChange}
-                  className="add-candidates-select"
-                  required
+                <CustomDropdown
+                  value={String(formData.domain)}
+                  options={[
+                    { value: '', label: 'Select Domain' },
+                    ...domains.map(domain => ({ value: String(domain.id), label: domain.name }))
+                  ]}
+                  onChange={(value) => handleChange({ target: { name: 'domain', value } })}
+                  placeholder="Select Domain"
                   disabled={domainsStatus === 'loading'}
-                  aria-label="Select domain for candidate"
-                >
-                  <option value="">Select Domain</option>
-                  {domains.map((domain) => (
-                    <option key={domain.id} value={domain.id}>
-                      {domain.name}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className="form-group">
                 <label htmlFor="jobTitleSelect">
                   Job Title <span className="required-field" aria-label="required">*</span>
                 </label>
-                <select
-                  id="jobTitleSelect"
-                  name="job_title"
-                  value={formData.job_title}
-                  onChange={handleChange}
-                  className="add-candidates-select"
-                  required
+                <CustomDropdown
+                  value={String(formData.job_title)}
+                  options={[
+                    { value: '', label: 'Select Job Title' },
+                    ...filteredJobsByDomain.map(job => ({ value: String(job.id), label: `${job.job_title} (${job.company_name})` }))
+                  ]}
+                  onChange={(value) => handleChange({ target: { name: 'job_title', value } })}
+                  placeholder="Select Job Title"
                   disabled={!formData.domain || jobsStatus === 'loading'}
-                  aria-label="Select job title for candidate"
-                >
-                  <option value="">Select Job Title</option>
-                  {filteredJobsByDomain.map((job) => (
-                    <option key={job.id} value={job.id}>
-                      {job.job_title} ({job.company_name})
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className="form-group">

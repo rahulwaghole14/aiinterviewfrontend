@@ -44,12 +44,24 @@ const CustomDropdown = ({
   }, [isOpen]);
 
   const handleSelect = (optionValue) => {
+    console.log('CustomDropdown handleSelect called with:', optionValue, 'type:', typeof optionValue);
+    console.log('Current value before change:', value, 'type:', typeof value);
     onChange(optionValue);
     setIsOpen(false);
   };
 
   const selectedOption = options.find(opt => opt.value === value);
   const displayText = selectedOption ? selectedOption.label : placeholder;
+  
+  // Debug logging
+  console.log('CustomDropdown render:', {
+    value,
+    valueType: typeof value,
+    options: options.map(opt => ({ value: opt.value, valueType: typeof opt.value, label: opt.label })),
+    selectedOption,
+    displayText
+  });
+  
 
   return (
     <>

@@ -1061,10 +1061,10 @@ const Jobs = () => {
 
                   <label htmlFor="domain">Domain</label>
                   <CustomDropdown
-                    value={formData.domain}
+                    value={String(formData.domain)}
                     options={[
                       { value: '', label: 'Select a domain' },
-                      ...domains.map(domain => ({ value: domain.id, label: domain.name }))
+                      ...domains.map(domain => ({ value: String(domain.id), label: domain.name }))
                     ]}
                     onChange={(value) => handleChange({ target: { name: 'domain', value } })}
                     placeholder="Select a domain"

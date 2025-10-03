@@ -154,14 +154,14 @@ const AiInterviewScheduler = ({
     });
   }, [slots, searchTerm]);
 
-  // Initialize form with empty values and placeholders
+  // Initialize form with default values
   const [slotForm, setSlotForm] = useState(() => ({
-    ai_interview_type: "",
-    difficulty_level: "",
-    question_count: "",
+    ai_interview_type: "technical",
+    difficulty_level: "intermediate",
+    question_count: "10",
     time_limit: "",
     topics: "",
-    max_candidates: "",
+    max_candidates: "1",
     job: "",
     company: "",
   }));
@@ -171,12 +171,12 @@ const AiInterviewScheduler = ({
     setSelectedDate(new Date());
     setSelectedTimes([]);
     setSlotForm({
-      ai_interview_type: "",
-      difficulty_level: "",
-      question_count: "",
+      ai_interview_type: "technical",
+      difficulty_level: "intermediate",
+      question_count: "10",
       time_limit: "",
       topics: "",
-      max_candidates: "",
+      max_candidates: "1",
       job: "",
       company: "",
     });
@@ -1373,10 +1373,10 @@ const AiInterviewScheduler = ({
                   { value: 'system-design', label: 'System Design' }
                 ]}
                 onChange={(value) =>
-                  setSlotForm({
-                    ...slotForm,
+                  setSlotForm((prev) => ({
+                    ...prev,
                     ai_interview_type: value,
-                  })
+                  }))
                 }
                 placeholder="Select interview type"
               />
@@ -1393,10 +1393,10 @@ const AiInterviewScheduler = ({
                   { value: 'hard', label: 'Hard' }
                 ]}
                 onChange={(value) =>
-                  setSlotForm({
-                    ...slotForm,
+                  setSlotForm((prev) => ({
+                    ...prev,
                     difficulty_level: value,
-                  })
+                  }))
                 }
                 placeholder="Select difficulty level"
               />
@@ -1411,10 +1411,10 @@ const AiInterviewScheduler = ({
                 value={slotForm.question_count}
                 placeholder="Enter number of questions (1-20)"
                 onChange={(e) =>
-                  setSlotForm({
-                    ...slotForm,
+                  setSlotForm((prev) => ({
+                    ...prev,
                     question_count: parseInt(e.target.value) || 0,
-                  })
+                  }))
                 }
               />
             </div>
@@ -1425,7 +1425,7 @@ const AiInterviewScheduler = ({
                 type="text"
                 value={slotForm.topics}
                 onChange={(e) =>
-                  setSlotForm({ ...slotForm, topics: e.target.value })
+                  setSlotForm((prev) => ({ ...prev, topics: e.target.value }))
                 }
                 placeholder="e.g., algorithms, data structures, system design"
               />
@@ -1439,10 +1439,10 @@ const AiInterviewScheduler = ({
                 value={slotForm.max_candidates}
                 placeholder="Enter maximum number of candidates"
                 onChange={(e) =>
-                  setSlotForm({
-                    ...slotForm,
+                  setSlotForm((prev) => ({
+                    ...prev,
                     max_candidates: parseInt(e.target.value) || 0,
-                  })
+                  }))
                 }
               />
             </div>
