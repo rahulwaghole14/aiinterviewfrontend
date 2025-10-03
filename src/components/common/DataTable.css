@@ -13,7 +13,8 @@
     width: 100%; /* Container takes full available width */
     min-width: 0; /* Allow container to shrink */
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
-    overflow-x: auto; /* Enable horizontal scrolling on desktop */
+    /* Force container to stay within bounds */
+    contain: layout;
   }
   
   .table-box {
@@ -57,6 +58,8 @@
     box-shadow: var(--shadow-soft);
     min-height: 590px; /* Reduced by 10px to fit 10 rows without scrolling */
     max-width: 100%; /* Ensure it doesn't exceed container */
+    /* Force scrolling within container */
+    contain: layout;
   }
   
   /* Custom scrollbar styling for better visibility */
@@ -89,6 +92,8 @@
     height: 100%;
     min-height: 100%;
     max-height: 600px; /* Increased height to get closer to pagination */
+    /* Force table to respect container boundaries */
+    contain: layout;
   }
   
   .data-table th,

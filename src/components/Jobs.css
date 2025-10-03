@@ -218,6 +218,8 @@ body[data-theme='light'] .jobs-form.card {
   box-sizing: border-box;
   /* Take available space */
   flex: 1;
+  /* Force container to stay within bounds */
+  contain: layout;
 }
 
 /* Shimmer effect removed for consistent styling */
@@ -492,6 +494,7 @@ body[data-theme='light'] .job-listings-section.card {
     width: 100% !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
+    contain: layout !important;
   }
   
   .jobs-container .table-responsive {
@@ -500,6 +503,13 @@ body[data-theme='light'] .job-listings-section.card {
     width: 100% !important;
     overflow-x: auto !important;
     overflow-y: auto !important;
+    contain: layout !important;
+  }
+  
+  .jobs-container .data-table {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    contain: layout !important;
   }
   
   /* Form takes auto height */
@@ -531,12 +541,20 @@ body[data-theme='light'] .job-listings-section.card {
     max-width: 100% !important;
     width: 100% !important;
     overflow-x: auto !important;
+    contain: layout !important;
   }
   
   .jobs-container .table-responsive {
     max-width: 100% !important;
     width: 100% !important;
     overflow-x: auto !important;
+    contain: layout !important;
+  }
+  
+  .jobs-container .data-table {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    contain: layout !important;
   }
 }
 
@@ -1646,6 +1664,17 @@ body[data-theme='light'] .jobs-count-card:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+/* Data table wrapper - ensure it doesn't expand container */
+.data-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Status Cell */
