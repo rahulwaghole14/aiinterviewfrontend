@@ -262,7 +262,8 @@
   /* Edit input styles - matching Jobs form input styles */
   .data-table .edit-input {
     width: auto !important;
-    min-width: fit-content !important;
+    min-width: 80px !important;
+    max-width: 300px !important;
     padding: 0.75rem 1rem !important;
     height: 40px !important;
     box-sizing: border-box !important;
@@ -272,15 +273,25 @@
     color: var(--color-text) !important;
     background-color: var(--color-bg-secondary) !important;
     transition: all 0.2s ease !important;
-    box-sizing: border-box !important;
     margin: 0 !important;
-    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
   
   .data-table .edit-input:focus {
     outline: none !important;
     border-color: var(--color-primary) !important;
     box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2) !important;
+  }
+
+  /* Text inputs should expand to fit content */
+  .data-table .edit-input[type="text"],
+  .data-table .edit-input[type="email"],
+  .data-table .edit-input[type="url"] {
+    width: auto !important;
+    min-width: 100px !important;
+    max-width: 400px !important;
   }
   
   .data-table .edit-input::placeholder {
@@ -1024,9 +1035,13 @@
     opacity: 1 !important;
     pointer-events: auto !important;
     width: auto;
-    min-width: 50px; /* Minimum width to ensure usability */
+    min-width: 80px; /* Minimum width to ensure usability */
+    max-width: 300px; /* Maximum width to prevent overflow */
     display: inline-block;
     vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* For number inputs, ensure they're wide enough */
