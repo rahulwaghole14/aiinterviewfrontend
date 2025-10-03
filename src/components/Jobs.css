@@ -504,36 +504,7 @@ body[data-theme='light'] .job-listings-section.card {
     min-height: auto !important;
   }
   
-  /* Table takes available height */
-  .jobs-container .data-table-container {
-    height: auto !important;
-    min-height: 500px !important;
-    max-height: none !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    contain: layout !important;
-    /* Force table to expand for scrolling */
-    flex: 0 0 auto !important;
-  }
-  
-  .jobs-container .table-responsive {
-    max-height: none !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    contain: layout !important;
-    /* Force table to expand for scrolling */
-    height: auto !important;
-  }
-  
-  .jobs-container .data-table {
-    min-width: 100% !important;
-    max-width: 100% !important;
-    contain: layout !important;
-  }
+  /* Let DataTable handle its own styling - remove Jobs overrides */
   
   /* Fix slide-in-right overflow on mobile */
   .jobs-container .slide-in-right {
@@ -573,28 +544,7 @@ body[data-theme='light'] .job-listings-section.card {
     display: block !important;
   }
   
-  /* Desktop table constraints */
-  .jobs-container .data-table-container {
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    contain: layout !important;
-  }
-  
-  .jobs-container .table-responsive {
-    max-width: 100% !important;
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    contain: layout !important;
-  }
-  
-  .jobs-container .data-table {
-    min-width: 100% !important;
-    max-width: 100% !important;
-    contain: layout !important;
-  }
+  /* Let DataTable handle its own styling - remove Jobs overrides */
   
   /* Fix slide-in-right overflow on desktop */
   .jobs-container .slide-in-right {
