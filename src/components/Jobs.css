@@ -518,6 +518,13 @@ body[data-theme='light'] .job-listings-section.card {
     /* Let DataTable handle its own font styling */
     font-size: inherit !important;
     font-family: inherit !important;
+    /* Hide scrollbars */
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+  }
+  
+  .jobs-container .slide-in-right::-webkit-scrollbar {
+    display: none !important; /* WebKit */
   }
   
   /* Form takes auto height */
@@ -558,6 +565,13 @@ body[data-theme='light'] .job-listings-section.card {
     /* Let DataTable handle its own font styling */
     font-size: inherit !important;
     font-family: inherit !important;
+    /* Hide scrollbars */
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+  }
+  
+  .jobs-container .slide-in-right::-webkit-scrollbar {
+    display: none !important; /* WebKit */
   }
 }
 
@@ -1681,6 +1695,13 @@ body[data-theme='light'] .jobs-count-card:hover {
   /* Let DataTable handle its own font styling */
   font-size: inherit;
   font-family: inherit;
+  /* Hide scrollbars */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.data-table-wrapper::-webkit-scrollbar {
+  display: none; /* WebKit */
 }
 
 /* Fix slide-in-right class that was causing overflow */
@@ -1699,6 +1720,13 @@ body[data-theme='light'] .jobs-count-card:hover {
   /* Let DataTable handle its own font styling */
   font-size: inherit;
   font-family: inherit;
+  /* Hide scrollbars */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.slide-in-right::-webkit-scrollbar {
+  display: none; /* WebKit */
 }
 
 /* Status Cell */
