@@ -18,6 +18,13 @@
   scroll-behavior: smooth;
   /* Force scrolling container */
   position: relative;
+  /* Hide scrollbars */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.jobs-container::-webkit-scrollbar {
+  display: none; /* WebKit */
 }
 
 /* Blur effect when modal is open */
@@ -155,13 +162,13 @@ body[data-theme='light'] .jobs-card:hover {
   /* Removed contain: layout - was interfering with action menu positioning */
 }
 
-/* Desktop - Side by side layout */
+/* Desktop - Grid layout like other components */
 @media (min-width: 1024px) {
   .jobs-main-content.fixed-grid {
-    display: flex; /* Use flex instead of grid for better scrolling */
-    flex-direction: row; /* Side by side layout */
+    display: grid; /* Use grid like other components */
+    grid-template-columns: 1fr 3fr; /* 25% form, 75% table like Candidates/AI Scheduler */
     gap: 1.5rem;
-    align-items: flex-start; /* Align items to start */
+    align-items: start; /* Align items to start */
     width: 100%;
     max-width: 100%; /* Ensure it doesn't exceed container */
     min-height: 0;
@@ -171,19 +178,18 @@ body[data-theme='light'] .jobs-card:hover {
     box-sizing: border-box;
     overflow: visible; /* Allow content to be visible for scrolling */
     height: auto;
-    /* Remove contain: layout to allow proper scrolling */
   }
   
-  /* Form takes 30% width */
+  /* Form takes 25% width (1fr) */
   .jobs-form.card {
-    flex: 0 0 30%; /* 30% width for form */
+    width: 100%;
     height: auto; /* Allow form to expand */
     min-width: 0; /* Allow shrinking if needed */
   }
   
-  /* Table takes 70% width */
+  /* Table takes 75% width (3fr) */
   .slide-in-right {
-    flex: 1; /* Take remaining 70% space */
+    width: 100%;
     min-width: 0; /* Allow shrinking */
     height: auto; /* Allow table to expand */
   }
