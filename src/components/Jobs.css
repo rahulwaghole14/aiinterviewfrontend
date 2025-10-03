@@ -16,6 +16,8 @@
   /* Enhanced scrolling */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  /* Force scrolling container */
+  position: relative;
 }
 
 /* Blur effect when modal is open */
@@ -148,6 +150,8 @@ body[data-theme='light'] .jobs-card:hover {
   min-width: 0;
   box-sizing: border-box;
   overflow: visible; /* Allow content to be visible for scrolling */
+  /* Force content to expand for scrolling */
+  height: auto;
   /* Removed contain: layout - was interfering with action menu positioning */
 }
 
@@ -164,6 +168,8 @@ body[data-theme='light'] .jobs-card:hover {
     min-width: 0;
     box-sizing: border-box;
     overflow: visible; /* Allow content to be visible for scrolling */
+    /* Force content to expand for scrolling */
+    height: auto;
     /* Additional constraints to prevent expansion */
     contain: layout;
     /* Removed flex-direction: row; as grid-template-columns handles layout */
@@ -498,6 +504,8 @@ body[data-theme='light'] .job-listings-section.card {
     overflow-x: auto !important;
     overflow-y: visible !important;
     contain: layout !important;
+    /* Force table to expand for scrolling */
+    flex: 0 0 auto !important;
   }
   
   .jobs-container .table-responsive {
@@ -507,6 +515,8 @@ body[data-theme='light'] .job-listings-section.card {
     overflow-x: auto !important;
     overflow-y: visible !important;
     contain: layout !important;
+    /* Force table to expand for scrolling */
+    height: auto !important;
   }
   
   .jobs-container .data-table {
