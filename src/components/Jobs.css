@@ -525,6 +525,19 @@ body[data-theme='light'] .job-listings-section.card {
   .desktop-only {
     display: block !important;
   }
+  
+  /* Desktop table constraints */
+  .jobs-container .data-table-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+  }
+  
+  .jobs-container .table-responsive {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+  }
 }
 
 /* Tooltip for status */
