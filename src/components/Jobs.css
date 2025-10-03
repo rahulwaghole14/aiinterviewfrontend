@@ -173,15 +173,16 @@ body[data-theme='light'] .jobs-card:hover {
     /* Remove contain: layout to allow proper scrolling */
   }
   
-  /* Form takes fixed width */
+  /* Form takes 30% width */
   .jobs-form.card {
-    flex: 0 0 300px; /* Fixed width for form */
+    flex: 0 0 30%; /* 30% width for form */
     height: auto; /* Allow form to expand */
+    min-width: 0; /* Allow shrinking if needed */
   }
   
-  /* Table takes remaining space */
+  /* Table takes 70% width */
   .slide-in-right {
-    flex: 1; /* Take remaining space */
+    flex: 1; /* Take remaining 70% space */
     min-width: 0; /* Allow shrinking */
     height: auto; /* Allow table to expand */
   }
