@@ -625,6 +625,22 @@ body[data-theme='light'] .job-listings-section.card {
     -ms-overflow-style: none !important; /* Internet Explorer 10+ */
     overflow-x: auto !important; /* Enable horizontal scrolling */
     overflow-y: auto !important; /* Keep vertical scrolling */
+    height: 100% !important; /* Take full height of parent */
+    flex: 1 !important; /* Expand to fill available space */
+  }
+  
+  /* Data table container - take full height */
+  .jobs-container .data-table-container {
+    height: 100% !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  /* Data table - take full height */
+  .jobs-container .data-table {
+    height: 100% !important;
+    flex: 1 !important;
   }
   
   .jobs-container .table-responsive::-webkit-scrollbar {
@@ -1768,6 +1784,7 @@ body[data-theme='light'] .jobs-count-card:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%; /* Take full height of parent */
   /* Let DataTable handle its own font styling */
   font-size: inherit;
   font-family: inherit;
