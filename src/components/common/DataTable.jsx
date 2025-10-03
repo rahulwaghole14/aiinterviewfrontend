@@ -69,6 +69,7 @@ import PropTypes from "prop-types";
     onRowClick,
     actions = [],
     onAction,
+    onContextMenuClick,
     showRefresh = true,
     showActions = true,
     className = "",
@@ -197,17 +198,10 @@ import PropTypes from "prop-types";
       row: null,
       rowIndex: null,
     });
-    const [contextMenu, setContextMenu] = useState({
-      visible: false,
-      x: 0,
-      y: 0,
-      rowIndex: null,
-      rowData: null,
-    });
+    // Context menu state removed - using common ContextMenu component instead
   
     const menuRef = useRef(null);
     const tableRef = useRef(null);
-    const contextMenuRef = useRef(null);
   
     // Calculate pagination
     useEffect(() => {
@@ -266,24 +260,16 @@ import PropTypes from "prop-types";
         if (menuRef.current && !menuRef.current.contains(event.target)) {
           setActiveMenu(null);
         }
-        if (
-          contextMenuRef.current &&
-          !contextMenuRef.current.contains(event.target)
-        ) {
-          setContextMenu((prev) => ({ ...prev, visible: false }));
-        }
       };
   
       const handleEscape = (e) => {
         if (e.key === "Escape") {
           setActiveMenu(null);
-          setContextMenu((prev) => ({ ...prev, visible: false }));
         }
       };
   
       const handleScroll = () => {
         setActiveMenu(null);
-        setContextMenu((prev) => ({ ...prev, visible: false }));
       };
   
       document.addEventListener("mousedown", handleClickOutside);
@@ -299,12 +285,6 @@ import PropTypes from "prop-types";
   
     useEffect(() => {
       const handleClickOutside = (event) => {
-        if (
-          contextMenuRef.current &&
-          !contextMenuRef.current.contains(event.target)
-        ) {
-          setContextMenu((prev) => ({ ...prev, visible: false }));
-        }
       };
   
       document.addEventListener("mousedown", handleClickOutside);
@@ -325,14 +305,11 @@ import PropTypes from "prop-types";
     const handleContextMenu = (event, rowIndex, rowData) => {
       event.preventDefault();
       event.stopPropagation();
-  
-      setContextMenu({
-        visible: true,
-        x: event.clientX,
-        y: event.clientY,
-        rowIndex,
-        rowData,
-      });
+      
+      // Call the parent's context menu handler if provided
+      if (onContextMenuClick) {
+        onContextMenuClick(event, rowData, rowIndex);
+      }
     };
   
     const handleActionButtonClick = (e, rowIndex, row) => {
@@ -395,7 +372,6 @@ import PropTypes from "prop-types";
   
           setEditingRow(rowIndex);
           setEditingData(initialData);
-          setContextMenu((prev) => ({ ...prev, visible: false }));
   
           // Only call onAction for edit start, not onEdit (onEdit is for saving)
           if (onAction) {
@@ -519,69 +495,9 @@ import PropTypes from "prop-types";
     const handleDtConfirmDelete = handleDeleteConfirm;
     const handleDtCancelDelete = handleDeleteCancel;
   
-    const handleContextMenuClick = (event, rowData, rowIndex) => {
-      event.preventDefault();
-      event.stopPropagation();
+    // Context menu click handler removed - using common ContextMenu component instead
   
-      if (!rowData) {
-        return;
-      }
-  
-      // Default context menu dimensions
-      const menuWidth = 180;
-      const menuHeight = actions.length * 40 + 16;
-  
-      // Get viewport dimensions
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-  
-      // Calculate position with boundary checks
-      let x = event.clientX;
-      let y = event.clientY;
-  
-      // Adjust horizontal position if menu would go off-screen to the right
-      if (x + menuWidth > viewportWidth) {
-        x = event.clientX - menuWidth;
-      }
-  
-      // Adjust vertical position if menu would go off-screen at the bottom
-      if (y + menuHeight > viewportHeight) {
-        y = event.clientY - menuHeight;
-      }
-  
-      // Ensure menu doesn't go off-screen to the left or top
-      x = Math.max(0, x);
-      y = Math.max(0, y);
-  
-      setContextMenu({
-        visible: true,
-        x,
-        y,
-        rowIndex,
-        row: rowData,
-        rowData: rowData,
-      });
-    };
-  
-    const handleContextMenuActionClick = (action, row, rowIndex) => {
-      setContextMenu((prev) => ({ ...prev, visible: false }));
-  
-      if (!row) {
-        return;
-      }
-  
-      if (action === "edit") {
-        handleEditClick(row, rowIndex);
-      } else if (action === "delete") {
-        setDtDeleteConfirm({
-          isOpen: true,
-          row: row,
-          rowIndex: rowIndex,
-        });
-      } else if (onAction) {
-        onAction(action, row, rowIndex);
-      }
-    };
+    // Context menu action click handler removed - using common ContextMenu component instead
   
     const renderPageNumbers = () => {
       const pageNumbers = [];
@@ -629,7 +545,7 @@ import PropTypes from "prop-types";
             onClick={(e) => {
               e.stopPropagation();
               setActiveMenu(activeMenu === rowIndex ? null : rowIndex);
-              setContextMenu((prev) => ({ ...prev, visible: false })); // Close context menu if open
+ // Close context menu if open
             }}
             onContextMenu={(e) => {
               e.preventDefault();
@@ -689,53 +605,7 @@ import PropTypes from "prop-types";
       );
     };
   
-    const renderContextMenu = () => {
-      if (!contextMenu.visible) return null;
-  
-      return (
-        <div
-          ref={contextMenuRef}
-          className="context-menu"
-          style={{
-            position: "fixed",
-            left: `${contextMenu.x}px`,
-            top: `${contextMenu.y}px`,
-            zIndex: 1000,
-            minWidth: "160px",
-            backgroundColor: "white",
-            borderRadius: "6px",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-            padding: "4px 0",
-            border: "1px solid #e5e7eb",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {actions
-            .filter((action) => action !== "view") // Filter out 'view' action
-            .map((action) => (
-              <div
-                key={action}
-                className={`context-menu-item ${action}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleContextMenuActionClick(
-                    action,
-                    contextMenu.rowData,
-                    contextMenu.rowIndex
-                  );
-                }}
-              >
-                <span className="context-menu-icon">
-                  {actionIcons[action] || <FiMoreVertical />}
-                </span>
-                <span className="context-menu-text">
-                  {actionLabels[action] || action}
-                </span>
-              </div>
-            ))}
-        </div>
-      );
-    };
+    // Context menu render function removed - using common ContextMenu component instead
   
     // Generate table columns from data if not provided
     const tableColumns = useMemo(() => {
@@ -812,11 +682,7 @@ import PropTypes from "prop-types";
           className={`table-row fade-in ${onRowClick ? "clickable" : ""} ${
             selectedRows.some((r) => r.id === rowData.id) ? "selected" : ""
           } ${isEditing ? "editing" : ""}`}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleContextMenuClick(e, rowData, rowIndex);
-          }}
+          // Context menu removed - using common ContextMenu component instead
         >
           {enableRowSelection && (
             <td className="selection-cell">
@@ -865,7 +731,9 @@ import PropTypes from "prop-types";
                         className="action-menu-button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleContextMenuClick(e, rowData, rowIndex);
+                          if (onContextMenuClick) {
+                            onContextMenuClick(e, rowData, rowIndex);
+                          }
                         }}
                         aria-label="Actions"
                       >
@@ -1301,8 +1169,7 @@ import PropTypes from "prop-types";
           </div>
         </div>
   
-        {/* Context Menu - Using the renderContextMenu function */}
-        {renderContextMenu()}
+        {/* Context Menu removed - using common ContextMenu component instead */}
   
         {/* Delete Confirmation Modal */}
         <ConfirmModal

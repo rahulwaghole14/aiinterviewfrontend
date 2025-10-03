@@ -444,7 +444,7 @@ body[data-theme='light'] .job-listings-section.card {
   .jobs-container {
     padding: 0.5rem !important;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow-x: visible !important; /* Allow context menus to show */
     height: 100vh !important;
     max-height: 100vh !important;
   }
@@ -1796,58 +1796,18 @@ body[data-theme='light'] .jobs-count-card:hover {
   font-size: 14px !important;
 }
 
-/* Context Menu - Force visibility and positioning */
-.jobs-container .context-menu {
-  z-index: 999999 !important;
-  position: fixed !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  left: 1040px !important; /* Force position - will make dynamic later */
-  top: 150px !important; /* Force position - will make dynamic later */
-}
+/* Context Menu - Using common ContextMenu component */
 
-.jobs-container .action-menu {
-  z-index: 999999 !important;
-  position: absolute !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  left: 1040px !important; /* Force position - will make dynamic later */
-  top: 150px !important; /* Force position - will make dynamic later */
-}
-
-/* Ensure parent containers allow context menu positioning for each row */
-.jobs-container .slide-in-right {
-  overflow: visible !important;
-  contain: none !important;
-  position: relative !important;
-}
-
-.jobs-container .data-table-wrapper {
-  overflow: visible !important;
-  contain: none !important;
-  position: relative !important;
-}
-
+/* Container settings to match Hiring Agency */
 .jobs-container .data-table-container {
   overflow: visible !important;
   contain: none !important;
-  position: relative !important;
 }
 
 .jobs-container .table-responsive {
   overflow-x: auto !important; /* Restore horizontal scrolling */
   overflow-y: auto !important; /* Keep vertical scrolling */
   contain: none !important;
-  position: relative !important;
-}
-
-/* Ensure table rows can position context menus correctly */
-.jobs-container .data-table tbody tr {
-  position: relative !important;
 }
 
 .jobs-container .data-table th {

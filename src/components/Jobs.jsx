@@ -18,6 +18,7 @@ import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import Modal, { FormModal, ConfirmModal } from "./common/Modal";
+import ContextMenu from "./common/ContextMenu";
 import { useNotification } from "../hooks/useNotification";
 
 const Jobs = () => {
@@ -142,6 +143,19 @@ const Jobs = () => {
 
   // Mobile form toggle state
   const [showMobileForm, setShowMobileForm] = useState(false);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    rowData: null,
+    rowIndex: null,
+  });
+
+  // DataTable edit state
+  const [editingRow, setEditingRow] = useState(null);
+  const [editingData, setEditingData] = useState(null);
 
   // Function to create a new domain
   const handleCreateDomain = async (e) => {
@@ -353,19 +367,7 @@ const Jobs = () => {
   // DataTable will handle pagination automatically
 
   // Effect to add/remove 'show' class for modal animations
-  useEffect(() => {
-    const deleteModalOverlay = document.querySelector(
-      ".delete-confirm-overlay"
-    );
-
-    if (deleteModalOverlay) {
-      if (showDeleteConfirm) {
-        deleteModalOverlay.classList.add("show");
-      } else {
-        deleteModalOverlay.classList.remove("show");
-      }
-    }
-  }, [showDeleteConfirm]);
+  // Delete confirmation modal is now handled by ConfirmModal component
 
   // Effect for Create Domain Modal animation
   useEffect(() => {
@@ -811,6 +813,42 @@ const Jobs = () => {
     ) : (
       <span title={str}>{str}</span>
     );
+  };
+
+  // Context menu handlers
+  const handleContextMenuClick = (event, rowData, rowIndex) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      rowData,
+      rowIndex,
+    });
+  };
+
+  const handleContextMenuAction = (action, rowData, rowIndex) => {
+    if (action === "edit") {
+      // Trigger DataTable's edit mode by setting editing state
+      setEditingRow(rowIndex);
+      setEditingData({ ...rowData });
+    } else if (action === "delete") {
+      // Trigger delete confirmation modal instead of direct delete
+      setJobIdToDelete(rowData.id);
+      setShowDeleteConfirm(true);
+    }
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu({
+      visible: false,
+      x: 0,
+      y: 0,
+      rowData: null,
+      rowIndex: null,
+    });
   };
 
 
@@ -1313,10 +1351,15 @@ const Jobs = () => {
                 handleDeleteJob(rowData.id);
               }
             }}
+            onContextMenuClick={handleContextMenuClick}
             onEdit={async (editedData) => {
               // Handle save from DataTable inline editing
               await handleUpdateJob(editedData);
             }}
+            editingRow={editingRow}
+            editingData={editingData}
+            setEditingRow={setEditingRow}
+            setEditingData={setEditingData}
             showRefresh={true}
             onRefresh={async () => {
               try {
@@ -1503,6 +1546,30 @@ const Jobs = () => {
                 </div>
               )}
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Delete Job"
+        message="Are you sure you want to delete this job? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={deletingJobId !== null}
+      />
+
+      {/* Context Menu */}
+      <ContextMenu
+        visible={contextMenu.visible}
+        x={contextMenu.x}
+        y={contextMenu.y}
+        actions={["edit", "delete"]}
+        onAction={handleContextMenuAction}
+        onClose={handleContextMenuClose}
+        rowData={contextMenu.rowData}
+        rowIndex={contextMenu.rowIndex}
+      />
     </>
   );
 };

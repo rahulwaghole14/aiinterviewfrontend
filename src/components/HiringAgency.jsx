@@ -11,6 +11,7 @@ import { fetchRecruiters } from "../redux/slices/recruitersSlice";
 import { fetchAdmins } from "../redux/slices/adminSlice"; // Import the dummy fetch for admins
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
+import ContextMenu from "./common/ContextMenu";
 import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 import { FormModal, ConfirmModal } from "./common/Modal";
 import { FiChevronDown } from 'react-icons/fi';
@@ -139,6 +140,18 @@ const HiringAgencies = () => {
   });
   const [showMobileDropdown, setShowMobileDropdown] = useState(false);
   const mobileDropdownRef = useRef(null);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    rowData: null,
+    rowIndex: null,
+  });
+
+  // DataTable edit state (Hiring Agency already has editingUserId and editedUserData)
+  // We'll use the existing state for consistency
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -216,6 +229,42 @@ const HiringAgencies = () => {
   };
 
   const availableTabs = getAvailableTabs(userRole);
+
+  // Context menu handlers
+  const handleContextMenuClick = (event, rowData, rowIndex) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      rowData,
+      rowIndex,
+    });
+  };
+
+  const handleContextMenuAction = (action, rowData, rowIndex) => {
+    if (action === "edit") {
+      // Trigger DataTable's edit mode using existing state
+      setEditingUserId(rowData.id);
+      setEditedUserData({ ...rowData });
+    } else if (action === "delete") {
+      // Trigger delete confirmation modal instead of direct delete
+      setDeleteUserId(rowData.id);
+      setShowDeleteConfirm(true);
+    }
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu({
+      visible: false,
+      x: 0,
+      y: 0,
+      rowData: null,
+      rowIndex: null,
+    });
+  };
 
   // NEW: Define role options for the Add New User form based on user role
   const getRoleOptions = (role) => {
@@ -691,9 +740,6 @@ const HiringAgencies = () => {
   // Effect to add/remove 'show' class for modal animations
   useEffect(() => {
     const addModalOverlay = document.querySelector(".add-agency-modal-overlay");
-    const deleteModalOverlay = document.querySelector(
-      ".delete-confirm-overlay"
-    );
 
     if (addModalOverlay) {
       if (showAddModal) {
@@ -703,14 +749,8 @@ const HiringAgencies = () => {
       }
     }
 
-    if (deleteModalOverlay) {
-      if (showDeleteConfirm) {
-        deleteModalOverlay.classList.add("show");
-      } else {
-        deleteModalOverlay.classList.remove("show");
-      }
-    }
-  }, [showAddModal, showDeleteConfirm]);
+    // Delete confirmation modal is now handled by ConfirmModal component
+  }, [showAddModal]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -2113,6 +2153,20 @@ const HiringAgencies = () => {
             handleDeleteUser(rowData.id);
           }
         }}
+        onContextMenuClick={handleContextMenuClick}
+        editingRow={editingUserId !== null ? sortedUsers.findIndex(item => item.id === editingUserId) : null}
+        editingData={editedUserData}
+        setEditingRow={(rowIndex) => {
+          if (rowIndex === null) {
+            setEditingUserId(null);
+            setEditedUserData(null);
+          } else {
+            const user = sortedUsers[rowIndex];
+            setEditingUserId(user.id);
+            setEditedUserData({ ...user });
+          }
+        }}
+        setEditingData={setEditedUserData}
         showRefresh={true}
         onRefresh={async () => {
           // Set loading state during refresh
@@ -2180,6 +2234,30 @@ const HiringAgencies = () => {
       >
         {renderFormFields()}
       </FormModal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+      />
+
+      {/* Context Menu */}
+      <ContextMenu
+        visible={contextMenu.visible}
+        x={contextMenu.x}
+        y={contextMenu.y}
+        actions={["edit", "delete"]}
+        onAction={handleContextMenuAction}
+        onClose={handleContextMenuClose}
+        rowData={contextMenu.rowData}
+        rowIndex={contextMenu.rowIndex}
+      />
     </>
   );
 };

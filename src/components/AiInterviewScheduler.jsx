@@ -22,6 +22,7 @@ import HorizontalDatePicker from "./HorizontalDatePicker";
 import TimeSlotPicker from "./TimeSlotPicker";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
+import ContextMenu from "./common/ContextMenu";
 import { baseURL } from "../config/constants";
 import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour, formatTimeTo24Hour } from "../utils/timeFormatting";
@@ -64,6 +65,19 @@ const AiInterviewScheduler = ({
   const [refreshKey, setRefreshKey] = useState(0);
   const [showMobileForm, setShowMobileForm] = useState(false);
   const [hasShownError, setHasShownError] = useState(false);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    rowData: null,
+    rowIndex: null,
+  });
+
+  // DataTable edit state
+  const [editingRow, setEditingRow] = useState(null);
+  const [editingData, setEditingData] = useState(null);
 
   // Sort slots based on search term for better user experience
   const sortedSlots = useMemo(() => {
@@ -206,6 +220,41 @@ const AiInterviewScheduler = ({
     setRetryCount(0);
     initializeData();
   }, [initializeData]);
+
+  // Context menu handlers
+  const handleContextMenuClick = (event, rowData, rowIndex) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      rowData,
+      rowIndex,
+    });
+  };
+
+  const handleContextMenuAction = (action, rowData, rowIndex) => {
+    if (action === "edit") {
+      // Trigger DataTable's edit mode by setting editing state
+      setEditingRow(rowIndex);
+      setEditingData({ ...rowData });
+    } else if (action === "delete") {
+      // Use the same delete function that shows confirmation
+      handleDeleteSlot(rowData.id);
+    }
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu({
+      visible: false,
+      x: 0,
+      y: 0,
+      rowData: null,
+      rowIndex: null,
+    });
+  };
 
   // Enhanced fetchSlots with better error handling
   const fetchSlots = useCallback(
@@ -1196,10 +1245,15 @@ const AiInterviewScheduler = ({
                 handleDeleteSlot(rowData.id);
               }
             }}
+            onContextMenuClick={handleContextMenuClick}
             onEdit={async (editedData) => {
               // Handle save from DataTable inline editing
               await handleUpdateSlotAPI(editedData);
             }}
+            editingRow={editingRow}
+            editingData={editingData}
+            setEditingRow={setEditingRow}
+            setEditingData={setEditingData}
             showRefresh={true}
             onRefresh={async () => {
               try {
@@ -1571,9 +1625,14 @@ const AiInterviewScheduler = ({
               handleDeleteSlot(rowData.id);
             }
           }}
+          onContextMenuClick={handleContextMenuClick}
           onEdit={async (editedData) => {
             await handleUpdateSlotAPI(editedData);
           }}
+          editingRow={editingRow}
+          editingData={editingData}
+          setEditingRow={setEditingRow}
+          setEditingData={setEditingData}
           showRefresh={true}
           onRefresh={async () => {
             try {
@@ -1586,6 +1645,18 @@ const AiInterviewScheduler = ({
           showActions={true}
           defaultPageSize={10}
           pageSizeOptions={[10, 20, 50, 100]}
+        />
+
+        {/* Context Menu */}
+        <ContextMenu
+          visible={contextMenu.visible}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          actions={["edit", "delete"]}
+          onAction={handleContextMenuAction}
+          onClose={handleContextMenuClose}
+          rowData={contextMenu.rowData}
+          rowIndex={contextMenu.rowIndex}
         />
       </div>
 
