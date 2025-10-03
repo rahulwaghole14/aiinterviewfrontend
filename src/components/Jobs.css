@@ -180,18 +180,22 @@ body[data-theme='light'] .jobs-card:hover {
     height: auto;
   }
   
-  /* Form takes 25% width (1fr) */
+  /* Form takes 25% width (1fr) and matches table height */
   .jobs-form.card {
     width: 100%;
-    height: auto; /* Allow form to expand */
+    height: 100%; /* Match table container height */
+    min-height: 600px; /* Minimum height to match table */
     min-width: 0; /* Allow shrinking if needed */
+    display: flex;
+    flex-direction: column;
   }
   
   /* Table takes 75% width (3fr) */
   .slide-in-right {
     width: 100%;
     min-width: 0; /* Allow shrinking */
-    height: auto; /* Allow table to expand */
+    height: 100%; /* Full height to match form */
+    min-height: 600px; /* Minimum height */
   }
 }
 
@@ -236,7 +240,7 @@ body[data-theme='light'] .jobs-card:hover {
   display: flex;
   flex-direction: column;
   height: auto; /* Allow form to expand naturally */
-  min-height: 500px; /* Minimum height */
+  min-height: 600px; /* Increased minimum height to match table */
   overflow: visible; /* Allow content to be visible */
   position: relative;
   transition: all 0.3s ease;
@@ -270,7 +274,7 @@ body[data-theme='light'] .jobs-form.card {
   width: 100%;
   max-width: 100%; /* Prevent exceeding parent width */
   height: auto; /* Allow table to expand naturally */
-  min-height: 500px; /* Minimum height */
+  min-height: 600px; /* Increased minimum height to match form */
   overflow: visible; /* Allow content to be visible */
   position: relative;
   transition: all 0.3s ease;
