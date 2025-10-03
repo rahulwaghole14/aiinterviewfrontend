@@ -612,6 +612,23 @@ body[data-theme='light'] .job-listings-section.card {
   .jobs-container .slide-in-right::-webkit-scrollbar {
     display: none !important; /* WebKit */
   }
+  
+  /* Hide table scrollbars */
+  .jobs-container .table-responsive {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+    overflow-x: hidden !important; /* Hide horizontal scrollbar */
+    overflow-y: auto !important; /* Keep vertical scrolling */
+  }
+  
+  .jobs-container .table-responsive::-webkit-scrollbar {
+    display: none !important; /* WebKit */
+  }
+  
+  /* Hide horizontal scrollbar specifically */
+  .jobs-container .table-responsive::-webkit-scrollbar:horizontal {
+    display: none !important;
+  }
 }
 
 /* Tooltip for status */
