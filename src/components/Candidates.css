@@ -10,8 +10,8 @@
   overflow-x: hidden; /* No horizontal scroll */
   font-family: var(--font-family-base); /* Consistent font */
   position: relative;
-  -ms-overflow-style: auto; /* Show scrollbar */
-  scrollbar-width: thin; /* Thin scrollbar */
+  -ms-overflow-style: none; /* Hide scrollbar */
+  scrollbar-width: none; /* Hide scrollbar */
   background-color: var(--color-bg); /* Use theme variable */
   color: var(--color-text); /* Use theme variable */
   /* Prevent transform inheritance that breaks dropdown positioning */
@@ -158,6 +158,12 @@
   overflow: hidden; /* Prevent scrolling on the container itself */
   position: relative;
   transition: all 0.3s ease;
+  /* Ensure proper width and prevent overflow */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* Allow flex to shrink */
+  box-sizing: border-box;
+  contain: layout; /* Prevent content from affecting parent sizing */
 }
 
 /* Removed gradient shimmer effect for cleaner appearance */
@@ -172,6 +178,8 @@
   padding-right: 0.5rem; /* Add space for scrollbar */
   margin-bottom: 1rem; /* Space between cards and pagination */
   min-height: 0; /* Allow flex to shrink */
+  scrollbar-width: none; /* Hide scrollbar */
+  -ms-overflow-style: none; /* Hide scrollbar */
 }
 
 /* Pagination container - fixed at bottom */
@@ -190,6 +198,10 @@
 /* Hover effects now use consistent shadow variables - no theme-specific overrides needed */
 
 .candidate-details-section::-webkit-scrollbar {
+  display: none;
+}
+
+.candidate-cards-container::-webkit-scrollbar {
   display: none;
 }
 
@@ -259,9 +271,13 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   height: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   gap: 1rem; /* Increased gap for better spacing */
   align-items: flex-start;
-  overflow: visible; /* Allow content to be visible */
+  overflow: hidden; /* Prevent content from overflowing */
   transform: scale(1);
   transition: all 0.3s ease;
   position: relative;
@@ -289,6 +305,9 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   flex-direction: column;
   overflow: hidden; /* Ensure content within left column doesn't overflow */
   min-width: 0; /* Prevents content from pushing column wider than its grid track */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card-right-actions {
@@ -299,6 +318,9 @@ body[data-theme='light'] .filter-sidebar-section:hover {
   height: 100%; /* Ensure it takes full height of its grid cell to enable space-between */
   overflow: hidden; /* Ensure content within right column doesn't overflow */
   min-width: 0; /* Prevents content from pushing column wider than its grid track */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .status-badge {
