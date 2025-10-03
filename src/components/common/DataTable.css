@@ -1,5 +1,5 @@
 /* DataTable.css */
-.data-table-container {
+  .data-table-container {
     display: flex;
     flex-direction: column;
     background: var(--color-card);
@@ -13,6 +13,7 @@
     width: 100%; /* Container takes full available width */
     min-width: 0; /* Allow container to shrink */
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
+    overflow-x: auto; /* Enable horizontal scrolling on desktop */
   }
   
   .table-box {
@@ -48,12 +49,14 @@
   .table-responsive {
     width: 100%;
     overflow-x: auto;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     border-radius: 6px;
     box-shadow: var(--shadow-soft);
     min-height: 590px; /* Reduced by 10px to fit 10 rows without scrolling */
+    max-width: 100%; /* Ensure it doesn't exceed container */
   }
   
   /* Custom scrollbar styling for better visibility */
@@ -77,10 +80,10 @@
   }
   
   .data-table {
-    width: auto; /* Table takes natural width based on content */
+    width: 100%; /* Table takes full container width */
     border-collapse: collapse;
-    min-width: 1400px; /* Fixed minimum width to trigger horizontal scroll */
-    table-layout: auto;
+    min-width: 100%; /* Responsive minimum width */
+    table-layout: auto; /* Auto layout for better responsiveness */
     white-space: nowrap;
     position: relative; /* Ensure proper containment */
     height: 100%;
@@ -95,8 +98,8 @@
     border-bottom: 1px solid var(--color-border);
     vertical-align: middle;
     width: auto;
-    min-width: 120px; /* Minimum width for each column */
-    max-width: 250px; /* Maximum width to prevent overly wide columns */
+    min-width: 80px; /* Further reduced minimum width for desktop */
+    max-width: 180px; /* Further reduced maximum width for desktop */
     position: relative; /* Ensure proper containment */
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1360,11 +1363,13 @@
     .data-table-container {
       padding: 12px;
       overflow-x: auto;
+      max-width: 100%;
     }
     
     .data-table {
-      min-width: 600px; /* Ensure table has minimum width for scrolling */
+      min-width: 800px; /* Minimum width for mobile scrolling */
       white-space: nowrap;
+      table-layout: auto; /* Auto layout for mobile */
     }
     
     .data-table-header {
@@ -1423,10 +1428,12 @@
     .data-table-container {
       padding: 8px;
       overflow-x: auto;
+      max-width: 100%;
     }
     
     .data-table {
-      min-width: 500px; /* Smaller minimum width for very small screens */
+      min-width: 700px; /* Minimum width for very small screens */
+      table-layout: auto; /* Auto layout for small screens */
     }
     
     .data-table th,

@@ -484,10 +484,14 @@ body[data-theme='light'] .job-listings-section.card {
     height: 100% !important;
     min-height: 500px !important;
     max-height: none !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
   }
   
   .jobs-container .table-responsive {
     max-height: calc(100% - 50px) !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
   }
   
   /* Form takes auto height */

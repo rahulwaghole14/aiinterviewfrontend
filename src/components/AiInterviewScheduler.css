@@ -55,7 +55,8 @@
   max-height: 100%;
   padding: 0;
   margin: 0;
-  overflow: visible;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: visible;
 }
 
 /* Override DataTable container height for AI Interview Scheduler - Pure content-based sizing with increased height */
@@ -63,6 +64,8 @@
   min-height: auto !important; /* No minimum height - pure content-based */
   height: auto !important; /* Auto height based on content */
   max-height: 800px !important; /* Increased maximum height for more content */
+  max-width: 100% !important; /* Ensure it doesn't exceed container */
+  overflow-x: auto !important; /* Enable horizontal scrolling */
   flex: 1 !important; /* Take available space but don't force expansion */
 }
 
