@@ -619,21 +619,32 @@ body[data-theme='light'] .job-listings-section.card {
     display: none !important; /* WebKit */
   }
   
-  /* Hide table scrollbars */
+  /* Enable table horizontal scrolling */
   .jobs-container .table-responsive {
     scrollbar-width: none !important; /* Firefox */
     -ms-overflow-style: none !important; /* Internet Explorer 10+ */
-    overflow-x: hidden !important; /* Hide horizontal scrollbar */
+    overflow-x: auto !important; /* Enable horizontal scrolling */
     overflow-y: auto !important; /* Keep vertical scrolling */
   }
   
   .jobs-container .table-responsive::-webkit-scrollbar {
-    display: none !important; /* WebKit */
+    display: block !important; /* Show scrollbar for better UX */
+    height: 6px; /* Horizontal scrollbar height */
+    width: 6px; /* Vertical scrollbar width */
   }
   
-  /* Hide horizontal scrollbar specifically */
-  .jobs-container .table-responsive::-webkit-scrollbar:horizontal {
-    display: none !important;
+  .jobs-container .table-responsive::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+    border-radius: 3px;
+  }
+  
+  .jobs-container .table-responsive::-webkit-scrollbar-thumb {
+    background: var(--color-muted);
+    border-radius: 3px;
+  }
+  
+  .jobs-container .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
   }
 }
 
