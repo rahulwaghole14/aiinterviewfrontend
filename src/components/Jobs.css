@@ -245,6 +245,7 @@ body[data-theme='light'] .jobs-card:hover {
   position: relative;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  max-height: 100vh; /* Limit height to viewport */
 }
 
 /* Shimmer effect removed for consistent styling */
@@ -712,12 +713,14 @@ input[type="checkbox"]:checked {
   overflow-x: hidden;
   min-width: 0;
   min-height: 0;
+  max-height: calc(100vh - 200px); /* Allow scrolling within viewport */
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
 .form-box::-webkit-scrollbar {
   width: 6px;
+  display: block; /* Show scrollbar for better UX */
 }
 
 .form-box::-webkit-scrollbar-track {
