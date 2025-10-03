@@ -155,7 +155,8 @@ body[data-theme='light'] .jobs-card:hover {
   /* Removed contain: layout - was interfering with action menu positioning */
 }
 
-@media (min-width: 768px) {
+/* Desktop - Side by side layout */
+@media (min-width: 1024px) {
   .jobs-main-content.fixed-grid {
     display: flex; /* Use flex instead of grid for better scrolling */
     flex-direction: row; /* Side by side layout */
@@ -185,6 +186,37 @@ body[data-theme='light'] .jobs-card:hover {
     flex: 1; /* Take remaining 70% space */
     min-width: 0; /* Allow shrinking */
     height: auto; /* Allow table to expand */
+  }
+}
+
+/* Tablet - Stack vertically */
+@media (max-width: 1023px) and (min-width: 769px) {
+  .jobs-main-content.fixed-grid {
+    display: flex;
+    flex-direction: column; /* Stack vertically on tablet */
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: visible;
+    height: auto;
+  }
+  
+  /* Form takes full width on tablet */
+  .jobs-form.card {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+  
+  /* Table takes full width on tablet */
+  .slide-in-right {
+    flex: 1;
+    width: 100%;
+    height: auto;
   }
 }
 
