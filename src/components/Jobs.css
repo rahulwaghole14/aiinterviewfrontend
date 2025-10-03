@@ -1785,12 +1785,51 @@ body[data-theme='light'] .jobs-count-card:hover {
   display: flex;
   flex-direction: column;
   height: 100%; /* Take full height of parent */
-  /* Let DataTable handle its own font styling */
-  font-size: inherit;
-  font-family: inherit;
   /* Hide scrollbars */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+/* Ensure Jobs table matches other components' DataTable styles */
+.jobs-container .data-table {
+  font-family: var(--font-family-base) !important;
+  font-size: 14px !important;
+}
+
+.jobs-container .data-table th {
+  font-weight: 600 !important;
+  color: var(--color-text-secondary) !important;
+  text-transform: uppercase !important;
+  font-size: 12px !important;
+  letter-spacing: 0.5px !important;
+  background-color: var(--color-bg-secondary) !important;
+}
+
+.jobs-container .data-table td {
+  font-size: 14px !important;
+  color: var(--color-text) !important;
+  text-align: left !important;
+}
+
+.jobs-container .data-table-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: var(--color-primary) !important;
+}
+
+.jobs-container .action-button {
+  font-size: 14px !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.jobs-container .pagination-button {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.jobs-container .pagination-info {
+  font-size: 14px !important;
+  color: var(--color-text) !important;
 }
 
 .data-table-wrapper::-webkit-scrollbar {
