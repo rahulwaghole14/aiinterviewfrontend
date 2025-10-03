@@ -236,12 +236,12 @@ body[data-theme='light'] .jobs-card:hover {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
-  padding: 1.5rem;
+  padding: 1.5rem; /* Restore original padding */
   display: flex;
   flex-direction: column;
-  height: auto; /* Allow form to expand naturally */
+  height: 100%; /* Use full height */
   min-height: 840px; /* Reverted to previous height */
-  overflow: visible; /* Allow content to be visible */
+  overflow: hidden; /* Hide overflow to enable proper scrolling */
   position: relative;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -712,7 +712,6 @@ input[type="checkbox"]:checked {
   overflow-x: hidden;
   min-width: 0;
   min-height: 0;
-  max-height: 600px; /* Increased height for larger form */
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -1041,7 +1040,8 @@ input[type="checkbox"]:checked {
   }
 
   .form-box {
-    max-height: 400px;
+    height: 100%; /* Take full available height on mobile */
+    max-height: 100%; /* Use full height for scrolling on mobile */
   }
 
   .form-box label {
