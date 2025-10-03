@@ -6,15 +6,16 @@
     border-radius: var(--radius);
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-soft);
-    overflow: auto; /* Allow scrolling when content expands */
+    overflow-x: auto; /* Allow horizontal scrolling when content expands */
+    overflow-y: auto; /* Allow vertical scrolling */
     padding: 20px;
     box-sizing: border-box;
     max-width: 100%; /* Container max width */
     width: 100%; /* Container takes full available width */
     min-width: 0; /* Allow container to shrink */
     min-height: 690px; /* Reduced by 10px to fit 10 rows without scrolling */
-    /* Force container to stay within bounds */
-    contain: layout;
+    /* Allow content to expand beyond container when editing */
+    contain: none;
   }
   
   .table-box {
@@ -86,7 +87,7 @@
     width: 100%; /* Table takes full container width */
     border-collapse: collapse;
     min-width: 100%; /* Responsive minimum width */
-    table-layout: fixed; /* Fixed layout for better column control */
+    table-layout: auto; /* Auto layout to accommodate wider edit inputs */
     white-space: nowrap;
     position: relative; /* Ensure proper containment */
     height: 100%;
@@ -114,9 +115,10 @@
   .table-row.editing td {
     overflow: visible !important;
     white-space: nowrap !important;
-    min-width: 80px !important;
-    max-width: 300px !important;
+    min-width: 100px !important;
+    max-width: 500px !important;
     width: auto !important;
+    position: relative !important;
   }
 
   /* Make the table flexible when editing */
@@ -276,8 +278,8 @@
   /* Edit input styles - matching Jobs form input styles */
   .data-table .edit-input {
     width: auto !important;
-    min-width: 80px !important;
-    max-width: 400px !important;
+    min-width: 120px !important;
+    max-width: 600px !important;
     padding: 0.5rem 0.75rem !important;
     height: 36px !important;
     box-sizing: border-box !important;
@@ -305,8 +307,8 @@
   .data-table .edit-input[type="email"],
   .data-table .edit-input[type="url"] {
     width: auto !important;
-    min-width: 120px !important;
-    max-width: 500px !important;
+    min-width: 150px !important;
+    max-width: 600px !important;
   }
   
   .data-table .edit-input::placeholder {
@@ -1050,8 +1052,8 @@
     opacity: 1 !important;
     pointer-events: auto !important;
     width: auto !important;
-    min-width: 80px !important;
-    max-width: 400px !important;
+    min-width: 120px !important;
+    max-width: 600px !important;
     display: inline-block !important;
     vertical-align: middle;
     white-space: nowrap;
@@ -1062,23 +1064,23 @@
   /* For number inputs, ensure they're wide enough */
   .edit-input[type="number"] {
     width: auto !important;
-    min-width: 80px !important;
-    max-width: 120px !important;
+    min-width: 100px !important;
+    max-width: 150px !important;
   }
   
   /* For date/datetime inputs */
   .edit-input[type="date"],
   .edit-input[type="datetime-local"] {
     width: auto !important;
-    min-width: 140px !important;
-    max-width: 180px !important;
+    min-width: 160px !important;
+    max-width: 200px !important;
   }
   
   /* For select dropdowns */
   .edit-input[type="select"] {
     width: auto !important;
-    min-width: 100px !important;
-    max-width: 200px !important;
+    min-width: 120px !important;
+    max-width: 250px !important;
   }
   
   /* For checkboxes */
