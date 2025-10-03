@@ -1158,10 +1158,10 @@ const Jobs = () => {
               {
                 field: "job_title",
                 header: "Job Title",
-                width: "12%",
+                width: "120px",
                 editable: true,
                 render: (value) => (
-                  <div title={value}>
+                  <div title={value} className="text-truncate">
                     {value}
                   </div>
                 ),
@@ -1169,10 +1169,10 @@ const Jobs = () => {
               {
                 field: "company_name",
                 header: "Company",
-                width: "10%",
+                width: "100px",
                 editable: true,
                 render: (value) => (
-                  <div title={value}>
+                  <div title={value} className="text-truncate">
                     {value}
                   </div>
                 ),
@@ -1180,7 +1180,7 @@ const Jobs = () => {
               {
                 field: "domain",
                 header: "Domain", 
-                width: "8%",
+                width: "80px",
                 type: "select",
                 editable: true,
                 options: domains.map(domain => ({
@@ -1189,7 +1189,7 @@ const Jobs = () => {
                 })),
                 placeholder: "Select Domain",
                 render: (value, rowData) => (
-                  <div title={rowData.domain_name || getDomainName(value) || "-"}>
+                  <div title={rowData.domain_name || getDomainName(value) || "-"} className="text-truncate">
                     {rowData.domain_name || getDomainName(value) || "-"}
                   </div>
                 ),
@@ -1197,33 +1197,47 @@ const Jobs = () => {
               {
                 field: "spoc_email",
                 header: "SPOC Email",
-                width: "12%",
+                width: "140px",
                 editable: true,
+                render: (value) => (
+                  <div title={value} className="text-truncate">
+                    {value}
+                  </div>
+                ),
               },
               {
                 field: "hiring_manager_email",
                 header: "Hiring Manager Email",
-                width: "12%",
+                width: "140px",
                 editable: true,
+                render: (value) => (
+                  <div title={value} className="text-truncate">
+                    {value}
+                  </div>
+                ),
               },
               {
                 field: "current_team_size_info",
                 header: "Current Team Size Info",
-                width: "8%",
+                width: "120px",
                 editable: true,
-                render: (value) => value || 'N/A',
+                render: (value) => (
+                  <div title={value} className="text-truncate">
+                    {value || 'N/A'}
+                  </div>
+                ),
               },
               {
                 field: "number_to_hire",
                 header: "Number to Hire",
-                width: "6%",
+                width: "80px",
                 editable: true,
                 type: "number",
               },
               {
                 field: "position_level",
                 header: "Position Level",
-                width: "8%",
+                width: "100px",
                 type: "select",
                 editable: true,
                 options: [
@@ -1234,13 +1248,13 @@ const Jobs = () => {
               {
                 field: "current_process",
                 header: "Current Process",
-                width: "10%",
+                width: "120px",
                 editable: true,
                 render: (value) => {
                   if (!value) return 'N/A';
-                  const truncated = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                  const truncated = value.length > 30 ? value.substring(0, 30) + '...' : value;
                       return (
-                    <div title={value}>
+                    <div title={value} className="text-truncate">
                       {truncated}
                     </div>
                   );
@@ -1249,13 +1263,13 @@ const Jobs = () => {
               {
                 field: "tech_stack_details",
                 header: "Tech Stack Details",
-                width: "10%",
+                width: "120px",
                 editable: true,
                 render: (value) => {
                   if (!value) return 'N/A';
-                  const truncated = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                  const truncated = value.length > 30 ? value.substring(0, 30) + '...' : value;
                   return (
-                    <div title={value}>
+                    <div title={value} className="text-truncate">
                       {truncated}
                     </div>
                   );
@@ -1264,13 +1278,13 @@ const Jobs = () => {
               {
                 field: "job_description",
                 header: "Job Description",
-                width: "12%",
+                width: "150px",
                 editable: true,
                 render: (value) => {
                   if (!value) return 'N/A';
-                  const truncated = value.length > 60 ? value.substring(0, 60) + '...' : value;
+                  const truncated = value.length > 40 ? value.substring(0, 40) + '...' : value;
                   return (
-                    <div title={value}>
+                    <div title={value} className="text-truncate">
                       {truncated}
                     </div>
                   );
@@ -1279,7 +1293,7 @@ const Jobs = () => {
               {
                 field: "created_at",
                 header: "Created",
-                width: "8%",
+                width: "100px",
                 render: (value) => {
                   if (!value) return 'N/A';
                   return new Date(value).toLocaleDateString();

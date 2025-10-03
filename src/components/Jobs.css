@@ -1640,6 +1640,14 @@ body[data-theme='light'] .jobs-count-card:hover {
   max-width: 0;
 }
 
+/* Text truncation utility class */
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
 /* Status Cell */
 .status-cell {
   text-align: center;

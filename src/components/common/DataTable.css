@@ -83,7 +83,7 @@
     width: 100%; /* Table takes full container width */
     border-collapse: collapse;
     min-width: 100%; /* Responsive minimum width */
-    table-layout: auto; /* Auto layout for better responsiveness */
+    table-layout: fixed; /* Fixed layout for better column control */
     white-space: nowrap;
     position: relative; /* Ensure proper containment */
     height: 100%;
