@@ -544,6 +544,9 @@ body[data-theme='light'] .job-listings-section.card {
     padding: 0 !important;
     border: none !important;
     background: transparent !important;
+    /* Let DataTable handle its own font styling */
+    font-size: inherit !important;
+    font-family: inherit !important;
   }
   
   /* Form takes auto height */
@@ -602,6 +605,9 @@ body[data-theme='light'] .job-listings-section.card {
     padding: 0 !important;
     border: none !important;
     background: transparent !important;
+    /* Let DataTable handle its own font styling */
+    font-size: inherit !important;
+    font-family: inherit !important;
   }
 }
 
@@ -1722,6 +1728,9 @@ body[data-theme='light'] .jobs-count-card:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
+  /* Let DataTable handle its own font styling */
+  font-size: inherit;
+  font-family: inherit;
 }
 
 /* Fix slide-in-right class that was causing overflow */
@@ -1737,6 +1746,9 @@ body[data-theme='light'] .jobs-count-card:hover {
   padding: 0;
   border: none;
   background: transparent;
+  /* Let DataTable handle its own font styling */
+  font-size: inherit;
+  font-family: inherit;
 }
 
 /* Status Cell */
