@@ -437,6 +437,17 @@ const Jobs = () => {
       setIsCreatingJob(false); // Reset loading state on validation error
       return;
     }
+
+    // Validate position level
+    const validPositionLevels = ["IC", "Manager"];
+    if (!validPositionLevels.includes(position_level)) {
+      setErrorMessage(
+        `Invalid position level: ${position_level}. Must be one of: ${validPositionLevels.join(", ")}`
+      );
+      setShowMessage(false);
+      setIsCreatingJob(false);
+      return;
+    }
     setErrorMessage("");
 
     // Determine if we're creating or updating
@@ -566,6 +577,16 @@ const Jobs = () => {
       ) {
         setErrorMessage("Please fill all required fields before saving.");
         setUpdatingJobId(null); // Reset loading state on validation error
+        return;
+      }
+
+      // Validate position level
+      const validPositionLevels = ["IC", "Manager"];
+      if (!validPositionLevels.includes(position_level)) {
+        setErrorMessage(
+          `Invalid position level: ${position_level}. Must be one of: ${validPositionLevels.join(", ")}`
+        );
+        setUpdatingJobId(null);
         return;
       }
 
@@ -741,6 +762,12 @@ const Jobs = () => {
     if (!authToken) {
       setErrorMessage("Authentication token not found. Please log in again.");
       throw new Error("Authentication token not found");
+    }
+
+    // Validate position level
+    const validPositionLevels = ["IC", "Manager"];
+    if (editedData.position_level && !validPositionLevels.includes(editedData.position_level)) {
+      throw new Error(`Invalid position level: ${editedData.position_level}. Must be one of: ${validPositionLevels.join(", ")}`);
     }
 
     try {
@@ -1107,17 +1134,19 @@ const Jobs = () => {
                   />
 
                   <label htmlFor="position_level">Position Level</label>
-                  <input
-                    type="text"
+                  <select
                     id="position_level"
                     name="position_level"
-                    placeholder="e.g., IC"
                     value={formData.position_level}
                     onChange={handleChange}
                     className="jobs-input"
                     required
                     disabled={isCreatingJob}
-                  />
+                  >
+                    <option value="">Select Position Level</option>
+                    <option value="IC">IC (Individual Contributor)</option>
+                    <option value="Manager">Manager</option>
+                  </select>
 
                   <label htmlFor="current_process">Current Process</label>
                   <input
