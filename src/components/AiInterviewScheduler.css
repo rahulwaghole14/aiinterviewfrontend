@@ -46,6 +46,35 @@
   /* Removed overflow: hidden to allow context menus to show */
 }
 
+/* Fix context menu visibility in AI Interview Scheduler */
+.ai-interview-scheduler .context-menu {
+  z-index: 999999 !important;
+  position: fixed !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: red !important; /* Debug: Make it visible */
+  border: 3px solid blue !important; /* Debug: Make it visible */
+  width: 200px !important;
+  height: 100px !important;
+  /* Let DataTable handle positioning */
+}
+
+.ai-interview-scheduler .action-menu {
+  z-index: 999999 !important;
+  position: absolute !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: red !important; /* Debug: Make it visible */
+  border: 3px solid blue !important; /* Debug: Make it visible */
+  width: 200px !important;
+  height: 100px !important;
+  /* Let DataTable handle positioning */
+}
+
 /* DataTable Section - 75% width */
 .ai-int-table-container {
   flex: 1;

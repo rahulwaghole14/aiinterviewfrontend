@@ -241,7 +241,7 @@ body[data-theme='light'] .jobs-card:hover {
   flex-direction: column;
   height: 100%; /* Use full height */
   min-height: 770px; /* Reduced by 50px more */
-  overflow: hidden; /* Hide overflow to enable proper scrolling */
+  overflow: visible; /* Allow context menus to show */
   position: relative;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -1779,7 +1779,7 @@ body[data-theme='light'] .jobs-count-card:hover {
 .data-table-wrapper {
   width: 100%;
   max-width: 100%;
-  overflow: hidden; /* Let DataTable handle its own overflow */
+  overflow: visible; /* Allow context menus to show */
   min-width: 0;
   flex: 1;
   display: flex;
@@ -1796,57 +1796,58 @@ body[data-theme='light'] .jobs-count-card:hover {
   font-size: 14px !important;
 }
 
-/* Fix context menu visibility in Jobs component */
+/* Context Menu - Force visibility and positioning */
 .jobs-container .context-menu {
-  z-index: 99999 !important;
+  z-index: 999999 !important;
   position: fixed !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  background: red !important; /* Debug: Make it visible */
-  border: 2px solid blue !important; /* Debug: Make it visible */
-  min-width: 200px !important;
-  min-height: 100px !important;
-  left: 50px !important; /* Debug: Force position at top-left */
-  top: 50px !important; /* Debug: Force position at top-left */
+  left: 1040px !important; /* Force position - will make dynamic later */
+  top: 150px !important; /* Force position - will make dynamic later */
 }
 
 .jobs-container .action-menu {
-  z-index: 99999 !important;
+  z-index: 999999 !important;
   position: absolute !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  background: red !important; /* Debug: Make it visible */
-  border: 2px solid blue !important; /* Debug: Make it visible */
-  min-width: 200px !important;
-  min-height: 100px !important;
-  left: 50px !important; /* Debug: Force position at top-left */
-  top: 50px !important; /* Debug: Force position at top-left */
+  left: 1040px !important; /* Force position - will make dynamic later */
+  top: 150px !important; /* Force position - will make dynamic later */
 }
 
-/* Ensure parent containers allow context menu but maintain table scrolling */
+/* Ensure parent containers allow context menu positioning for each row */
 .jobs-container .slide-in-right {
   overflow: visible !important;
   contain: none !important;
+  position: relative !important;
 }
 
 .jobs-container .data-table-wrapper {
   overflow: visible !important;
   contain: none !important;
+  position: relative !important;
 }
 
 .jobs-container .data-table-container {
   overflow: visible !important;
   contain: none !important;
+  position: relative !important;
 }
 
 .jobs-container .table-responsive {
   overflow-x: auto !important; /* Restore horizontal scrolling */
   overflow-y: auto !important; /* Keep vertical scrolling */
   contain: none !important;
+  position: relative !important;
+}
+
+/* Ensure table rows can position context menus correctly */
+.jobs-container .data-table tbody tr {
+  position: relative !important;
 }
 
 .jobs-container .data-table th {
