@@ -387,18 +387,24 @@ import PropTypes from "prop-types";
     const handleSaveClick = useCallback(async () => {
       if (editingRow === null) return;
   
+      console.log("DataTable handleSaveClick called with editingData:", editingData);
+      
       try {
         // Call the onEdit prop if provided, otherwise use onAction
         if (onEdit) {
+          console.log("Calling onEdit with:", editingData);
           await onEdit(editingData);
         } else if (onAction) {
+          console.log("Calling onAction with save:", editingData);
           await onAction("save", editingData, editingRow);
         }
   
         // Reset editing state
         setEditingRow(null);
         setEditingData({});
+        console.log("Save completed successfully");
       } catch (error) {
+        console.error("Save error in DataTable:", error);
         // Handle save error silently
       }
     }, [editingRow, editingData, onAction, onEdit]);

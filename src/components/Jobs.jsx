@@ -441,6 +441,8 @@ const Jobs = () => {
     // Validate position level
     const validPositionLevels = ["IC", "Manager"];
     if (!validPositionLevels.includes(position_level)) {
+      console.error("Invalid position level in form:", position_level);
+      console.error("Valid options:", validPositionLevels);
       setErrorMessage(
         `Invalid position level: ${position_level}. Must be one of: ${validPositionLevels.join(", ")}`
       );
@@ -583,6 +585,8 @@ const Jobs = () => {
       // Validate position level
       const validPositionLevels = ["IC", "Manager"];
       if (!validPositionLevels.includes(position_level)) {
+        console.error("Invalid position level in edit job:", position_level);
+        console.error("Valid options:", validPositionLevels);
         setErrorMessage(
           `Invalid position level: ${position_level}. Must be one of: ${validPositionLevels.join(", ")}`
         );
@@ -767,7 +771,18 @@ const Jobs = () => {
     // Validate position level
     const validPositionLevels = ["IC", "Manager"];
     if (editedData.position_level && !validPositionLevels.includes(editedData.position_level)) {
-      throw new Error(`Invalid position level: ${editedData.position_level}. Must be one of: ${validPositionLevels.join(", ")}`);
+      console.error("Invalid position level in editedData:", editedData.position_level);
+      console.error("Valid options:", validPositionLevels);
+      // For now, let's map common invalid values to valid ones
+      if (editedData.position_level.toLowerCase().includes("mid") || editedData.position_level.toLowerCase().includes("senior")) {
+        editedData.position_level = "IC";
+        console.log("Mapped invalid position level to IC");
+      } else if (editedData.position_level.toLowerCase().includes("manager") || editedData.position_level.toLowerCase().includes("lead")) {
+        editedData.position_level = "Manager";
+        console.log("Mapped invalid position level to Manager");
+      } else {
+        throw new Error(`Invalid position level: ${editedData.position_level}. Must be one of: ${validPositionLevels.join(", ")}`);
+      }
     }
 
     try {
