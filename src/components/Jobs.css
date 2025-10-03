@@ -138,11 +138,13 @@ body[data-theme='light'] .jobs-card:hover {
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  max-width: 100%; /* Ensure it doesn't exceed container */
   min-height: 0;
   flex: 1;
   /* Prevent container from expanding */
   min-width: 0;
   box-sizing: border-box;
+  overflow: hidden; /* Prevent content overflow */
   /* Removed contain: layout - was interfering with action menu positioning */
 }
 
@@ -152,11 +154,13 @@ body[data-theme='light'] .jobs-card:hover {
     grid-template-columns: 300px 1fr; 
     align-items: start; /* Align items to start for proper height matching */
     width: 100%;
+    max-width: 100%; /* Ensure it doesn't exceed container */
     min-height: 0;
     flex: 1;
     /* Prevent container from expanding */
     min-width: 0;
     box-sizing: border-box;
+    overflow: hidden; /* Prevent content overflow */
     /* Additional constraints to prevent expansion */
     contain: layout;
     /* Removed flex-direction: row; as grid-template-columns handles layout */
@@ -174,7 +178,7 @@ body[data-theme='light'] .jobs-card:hover {
   flex-direction: column;
   height: 736px; /* Increased by 16px (gap reduction) */
   min-height: 736px;
-  overflow: visible; /* Allow content to expand */
+  overflow: hidden; /* Prevent content overflow */
   position: relative;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -485,13 +489,17 @@ body[data-theme='light'] .job-listings-section.card {
     min-height: 500px !important;
     max-height: none !important;
     max-width: 100% !important;
+    width: 100% !important;
     overflow-x: auto !important;
+    overflow-y: hidden !important;
   }
   
   .jobs-container .table-responsive {
     max-height: calc(100% - 50px) !important;
     max-width: 100% !important;
+    width: 100% !important;
     overflow-x: auto !important;
+    overflow-y: auto !important;
   }
   
   /* Form takes auto height */
