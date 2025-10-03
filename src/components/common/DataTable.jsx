@@ -812,6 +812,11 @@ import PropTypes from "prop-types";
           className={`table-row fade-in ${onRowClick ? "clickable" : ""} ${
             selectedRows.some((r) => r.id === rowData.id) ? "selected" : ""
           } ${isEditing ? "editing" : ""}`}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleContextMenuClick(e, rowData, rowIndex);
+          }}
         >
           {enableRowSelection && (
             <td className="selection-cell">

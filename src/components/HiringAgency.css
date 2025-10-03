@@ -16,6 +16,7 @@
   color: var(--color-text);
   font-family: var(--font-family-base); /* Consistent font */
   transition: filter 0.3s ease;
+  position: relative; /* Ensure proper positioning context for context menus */
 }
 
 /* Blur effect when modal is open */
@@ -84,7 +85,7 @@
   background: var(--color-card);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  /* Removed overflow: hidden to allow context menus to show */
 }
 
 /* Status Badges */
@@ -761,5 +762,27 @@ td:last-child {
   text-align: left;
   padding: 0.75rem 1rem !important;
   width: auto;
+}
+
+/* Fix context menu positioning in Hiring Agency */
+.hiring-agencies-container .context-menu {
+  z-index: 99999 !important;
+  /* Let DataTable handle positioning with inline styles */
+}
+
+.hiring-agencies-container .action-menu {
+  z-index: 99999 !important;
+  /* Let DataTable handle positioning with inline styles */
+}
+
+.hiring-agencies-container .data-table-container {
+  overflow: visible !important;
+  contain: none !important;
+}
+
+.hiring-agencies-container .table-responsive {
+  overflow-x: auto !important; /* Restore horizontal scrolling */
+  overflow-y: auto !important; /* Keep vertical scrolling */
+  contain: none !important;
 }
 
