@@ -556,6 +556,14 @@ body[data-theme='light'] .job-listings-section.card {
     max-width: 100% !important;
     contain: layout !important;
   }
+  
+  /* Fix slide-in-right overflow on desktop */
+  .jobs-container .slide-in-right {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    contain: layout !important;
+  }
 }
 
 /* Tooltip for status */
@@ -1675,6 +1683,18 @@ body[data-theme='light'] .jobs-count-card:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* Fix slide-in-right class that was causing overflow */
+.slide-in-right {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  contain: layout;
 }
 
 /* Status Cell */

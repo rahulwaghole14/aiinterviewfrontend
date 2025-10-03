@@ -1150,7 +1150,7 @@ const Jobs = () => {
           ) : null}
 
           {/* Job Listings Table */}
-          <div className="slide-in-right">
+          <div className="job-listings-section card">
             <div className="data-table-wrapper">
               <DataTable
             title="Job Listings"
