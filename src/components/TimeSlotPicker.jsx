@@ -629,6 +629,19 @@ const TimeSlotPicker = ({
   const formatTimeForDisplayInBox = formatTimeRange;
 
   const calculateDuration = (startTime, endTime) => {
+    // Handle time range format (e.g., "09:00-09:30")
+    if (startTime.includes("-")) {
+      const [start, end] = startTime.split("-");
+      const [startHour, startMin] = start.split(":").map(Number);
+      const [endHour, endMin] = end.split(":").map(Number);
+      
+      const startTotalMin = startHour * 60 + startMin;
+      const endTotalMin = endHour * 60 + endMin;
+      
+      return endTotalMin - startTotalMin;
+    }
+    
+    // Handle separate start and end times
     const [startHour, startMin] = startTime.split(":").map(Number);
     const [endHour, endMin] = endTime.split(":").map(Number);
 
@@ -686,9 +699,8 @@ const TimeSlotPicker = ({
     // Calculate duration based on selected times
     let duration = 0;
     if (newSelectedTimes.length > 0) {
-      const startTime = newSelectedTimes[0];
-      const endTime = newSelectedTimes[newSelectedTimes.length - 1];
-      duration = calculateDuration(startTime, endTime) + 30; // Add 30 min for the last slot
+      const timeRange = newSelectedTimes[0]; // This is a time range like "09:00-09:30"
+      duration = calculateDuration(timeRange, null); // Pass the time range directly
     }
 
     console.log("=== CALLING onSelectTimes ===");

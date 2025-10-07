@@ -536,7 +536,7 @@ const CandidateDetails = () => {
         setCandidate(updatedCandidate);
       }
     }
-  }, [allCandidates, candidate?.id, candidate?.status, candidate?.last_updated]);
+  }, [allCandidates, candidate?.id]);
 
   useEffect(() => {
     if (candidate) {

@@ -61,52 +61,59 @@
   overflow-y: visible;
 }
 
-/* Override DataTable container height for AI Interview Scheduler - Pure content-based sizing with increased height */
+/* Override DataTable container height for AI Interview Scheduler - Proper sizing */
 .ai-interview-scheduler .ai-int-slot-management-container .data-table-container {
-  min-height: auto !important; /* No minimum height - pure content-based */
-  height: auto !important; /* Auto height based on content */
-  max-height: 800px !important; /* Increased maximum height for more content */
-  max-width: 100% !important; /* Ensure it doesn't exceed container */
-  overflow-x: auto !important; /* Enable horizontal scrolling */
-  flex: 1 !important; /* Take available space but don't force expansion */
+  min-height: 600px !important;
+  height: 100% !important;
+  max-height: none !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
 }
 
 .ai-interview-scheduler .ai-int-slot-management-container .table-responsive {
-  height: auto !important; /* Auto height based on content */
-  max-height: 800px !important; /* Increased maximum height for more content */
-  flex: 1 !important; /* Take available space but don't force expansion */
+  height: 100% !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
 }
 
 .ai-interview-scheduler .ai-int-slot-management-container .data-table {
-  max-height: 800px !important; /* Increased maximum height for more content */
-  height: auto !important; /* Auto height based on content */
-  min-height: auto !important; /* No minimum height - pure content-based */
+  height: 100% !important;
+  max-height: none !important;
+  min-height: 500px !important;
+  overflow-y: auto !important;
 }
 
 .ai-interview-scheduler .ai-int-slot-management-container .table-box {
-  height: auto !important; /* Auto height based on content */
-  max-height: 800px !important; /* Increased maximum height for more content */
-  flex: 1 !important; /* Take available space but don't force expansion */
+  height: 100% !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
 }
 
 /* Even more specific - target the exact DataTable component */
 .ai-interview-scheduler .data-table-container {
-  min-height: auto !important;
-  height: auto !important;
-  max-height: 800px !important;
+  min-height: 600px !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-y: auto !important;
   flex: 1 !important;
 }
 
 .ai-interview-scheduler .table-responsive {
-  height: auto !important;
-  max-height: 800px !important;
+  height: 100% !important;
+  max-height: none !important;
+  overflow-y: auto !important;
   flex: 1 !important;
 }
 
 .ai-interview-scheduler .data-table {
-  max-height: 800px !important;
-  height: auto !important;
-  min-height: auto !important;
+  height: 100% !important;
+  max-height: none !important;
+  min-height: 500px !important;
+  overflow-y: auto !important;
 }
 
 

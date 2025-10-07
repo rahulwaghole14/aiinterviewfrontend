@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInterviewSlots,
-  clearSlotsError,
   setSlots,
 } from "../redux/slices/interviewSlotsSlice";
 import CustomDropdown from './common/CustomDropdown';
@@ -25,11 +24,10 @@ import LoadingSpinner from "./common/LoadingSpinner";
 import ContextMenu from "./common/ContextMenu";
 import { baseURL } from "../config/constants";
 import { useNotification } from "../hooks/useNotification";
-import { formatTimeTo12Hour, formatTimeTo24Hour } from "../utils/timeFormatting";
+import { formatTimeTo24Hour } from "../utils/timeFormatting";
 import "./AiInterviewScheduler.css";
 
 const AiInterviewScheduler = ({
-  onClose,
   onTitleChange,
 }) => {
   const dispatch = useDispatch();
@@ -55,16 +53,20 @@ const AiInterviewScheduler = ({
   );
 
   const [initialLoading, setInitialLoading] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
+  const [retryCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState(null);
-  const [activeTab, setActiveTab] = useState("slot-management");
   const [editingSlot, setEditingSlot] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTimes, setSelectedTimes] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showMobileForm, setShowMobileForm] = useState(false);
   const [hasShownError, setHasShownError] = useState(false);
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [companiesLoading, setCompaniesLoading] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [jobsLoading, setJobsLoading] = useState(false);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState({
@@ -205,21 +207,105 @@ const AiInterviewScheduler = ({
     } finally {
       setInitialLoading(false);
     }
-  }, [dispatch]);
+  }, [dispatch, notify]);
+
+  // Fetch jobs for a specific company
+  const fetchJobsForCompany = useCallback(async (companyId) => {
+    if (!companyId) {
+      setJobs([]);
+      return;
+    }
+    
+    setJobsLoading(true);
+    try {
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) throw new Error("Authentication token not found");
+
+      const response = await fetch(`${baseURL}/api/jobs/?company_id=${companyId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch jobs: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const jobsData = data.results || data;
+      
+      if (Array.isArray(jobsData) && jobsData.length === 0) {
+        notify.info('No jobs found for this company');
+      }
+      
+      setJobs(Array.isArray(jobsData) ? jobsData : []);
+    } catch {
+      console.error('Error fetching jobs');
+      notify.error('Failed to fetch jobs');
+      setJobs([]);
+    } finally {
+      setJobsLoading(false);
+    }
+  }, [notify]);
+
+  // Fetch companies for admin users
+  const fetchCompanies = useCallback(async () => {
+    if (user?.role?.toLowerCase() !== 'admin') return;
+    
+    setCompaniesLoading(true);
+    try {
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) throw new Error("Authentication token not found");
+
+      const response = await fetch(`${baseURL}/api/companies/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch companies: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const companiesData = data.results || data;
+      setCompanies(Array.isArray(companiesData) ? companiesData : []);
+    } catch {
+      console.error('Error fetching companies');
+      notify.error('Failed to fetch companies');
+    } finally {
+      setCompaniesLoading(false);
+    }
+  }, [user?.role, notify]);
 
   useEffect(() => {
     if (user && Object.keys(user).length > 0) {
       initializeData();
+      fetchCompanies();
+      
+      // Set default company based on user role
+      if (user.role?.toLowerCase() === 'company') {
+        const companyId = user.id || user.company_id;
+        setSelectedCompanyId(companyId);
+        // Fetch jobs for company users immediately
+        fetchJobsForCompany(companyId);
+      }
     } else {
       notify.error("Please log in to access interview scheduling.");
     }
-  }, [user, initializeData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
-  // Add a manual refresh function
-  const handleRefresh = useCallback(() => {
-    setRetryCount(0);
-    initializeData();
-  }, [initializeData]);
+  // Handle company changes for admin users
+  useEffect(() => {
+    if (user?.role?.toLowerCase() === 'admin' && selectedCompanyId) {
+      fetchJobsForCompany(selectedCompanyId);
+      setSelectedJobId(null); // Reset job selection when company changes
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompanyId, user?.role]);
 
   // Context menu handlers
   const handleContextMenuClick = (event, rowData, rowIndex) => {
@@ -256,6 +342,7 @@ const AiInterviewScheduler = ({
     });
   };
 
+
   // Enhanced fetchSlots with better error handling
   const fetchSlots = useCallback(
     async (force = false) => {
@@ -285,7 +372,6 @@ const AiInterviewScheduler = ({
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
           throw new Error(
             `Failed to fetch slots: ${response.status} ${response.statusText}`
           );
@@ -313,7 +399,7 @@ const AiInterviewScheduler = ({
         throw error;
       }
     },
-    [baseURL, slotsLoading, isSubmitting]
+    [slotsLoading, isSubmitting, dispatch, notify]
   );
 
   const handleDateSelect = useCallback((date) => {
@@ -331,6 +417,18 @@ const AiInterviewScheduler = ({
     }
   }, []);
 
+  const addMinutesToTime = useCallback((time, minutes, baseDate) => {
+    if (!time) return "";
+    const [hours, mins] = time.split(":").map(Number);
+    const date = new Date(baseDate);
+    date.setHours(hours, mins + minutes, 0, 0);
+
+    const newHours = String(date.getHours()).padStart(2, "0");
+    const newMins = String(date.getMinutes()).padStart(2, "0");
+
+    return `${newHours}:${newMins}`;
+  }, []);
+
   const handleSlotSubmit = useCallback(
     async (e) => {
       if (e) e.preventDefault();
@@ -340,10 +438,41 @@ const AiInterviewScheduler = ({
         return;
       }
 
+      // Validate required fields
+      if (!slotForm.ai_interview_type) {
+        notify.error("Please select an interview type");
+        return;
+      }
+
+      if (!slotForm.difficulty_level) {
+        notify.error("Please select a difficulty level");
+        return;
+      }
+
+      // Validate company selection for admin users
+      if (user?.role?.toLowerCase() === 'admin' && !selectedCompanyId) {
+        notify.error("Please select a company");
+        return;
+      }
+
+      // Validate job selection
+      if (!selectedJobId) {
+        notify.error("Please select a job");
+        return;
+      }
+
       try {
         setIsSubmitting(true);
         const authToken = localStorage.getItem("authToken");
         if (!authToken) throw new Error("Authentication token not found");
+
+        console.log('👤 User data:', user);
+        console.log('🏢 User company_id:', user?.company_id);
+        console.log('🆔 User id:', user?.id);
+        console.log('🎯 Selected company ID:', selectedCompanyId);
+        console.log('📋 Available companies:', companies);
+        console.log('💼 Selected job ID:', selectedJobId);
+        console.log('📋 Available jobs:', jobs);
 
         const formattedDate = selectedDate.toISOString().split("T")[0];
 
@@ -369,10 +498,22 @@ const AiInterviewScheduler = ({
 
           // Create single slot with calculated times
 
+          // Ensure time format includes seconds (HH:MM:SS)
+          const formatTimeWithSeconds = (time) => {
+            if (!time) return time;
+            if (time.includes(':')) {
+              const parts = time.split(':');
+              if (parts.length === 2) {
+                return `${time}:00`; // Add seconds if missing
+              }
+            }
+            return time;
+          };
+
           const slotData = {
-            date: formattedDate,
-            start_time: overallStartTime,
-            end_time: overallEndTime,
+            interview_date: formattedDate,
+            start_time: formatTimeWithSeconds(overallStartTime),
+            end_time: formatTimeWithSeconds(overallEndTime),
             ai_interview_type: slotForm.ai_interview_type || "technical",
             ai_configuration: {
               difficulty_level: slotForm.difficulty_level || "intermediate",
@@ -382,9 +523,11 @@ const AiInterviewScheduler = ({
             },
             max_candidates: parseInt(slotForm.max_candidates) || 1,
             status: slotForm.status || "available",
-            job: slotForm.job || null,
-            company: user?.company_id || user?.id || null,
+            job: selectedJobId || null,
+            company: selectedCompanyId || null,
           };
+
+          console.log('🚀 Sending slot data:', slotData);
 
           const response = await fetch(`${baseURL}/api/interviews/slots/`, {
             method: "POST",
@@ -397,6 +540,8 @@ const AiInterviewScheduler = ({
 
           if (!response.ok) {
             const errorData = await response.json();
+            console.error('❌ API Error Response:', errorData);
+            console.error('❌ Response Status:', response.status);
             throw new Error(
               `Failed to create slot: ${JSON.stringify(errorData)}`
             );
@@ -410,8 +555,8 @@ const AiInterviewScheduler = ({
           resetSlotForm();
           notify.success("Interview slot created successfully!");
         }
-      } catch (error) {
-        notify.error(error.message || "Failed to create slot");
+      } catch {
+        notify.error("Failed to create slot");
       } finally {
         setIsSubmitting(false);
       }
@@ -421,96 +566,17 @@ const AiInterviewScheduler = ({
       selectedDate,
       slotForm,
       user,
-      baseURL,
       fetchSlots,
       resetSlotForm,
+      addMinutesToTime,
+      notify,
+      companies,
+      selectedCompanyId,
+      selectedJobId,
+      jobs,
     ]
   );
 
-  const handleUpdateSlot = useCallback(
-    async (slotId) => {
-      try {
-        setIsSubmitting(true);
-        const authToken = localStorage.getItem("authToken");
-        if (!authToken) throw new Error("Authentication token not found");
-
-        if (!slotForm.start_time || !slotForm.end_time) {
-          throw new Error("Start time and end time are required");
-        }
-
-        const formattedDate = selectedDate.toISOString().split("T")[0];
-
-        const startMinutes = timeToMinutes(slotForm.start_time);
-        const endMinutes = timeToMinutes(slotForm.end_time);
-        const calculatedTimeLimit = endMinutes - startMinutes;
-
-        if (endMinutes <= startMinutes) {
-          throw new Error("End time must be after start time");
-        }
-
-        const slotData = {
-          date: formattedDate,
-          start_time: slotForm.start_time,
-          end_time: slotForm.end_time,
-          ai_interview_type: slotForm.ai_interview_type || "technical",
-          ai_configuration: {
-            difficulty_level: slotForm.difficulty_level || "intermediate",
-            question_count: parseInt(slotForm.question_count) || 10,
-            time_limit:
-              calculatedTimeLimit > 0
-                ? calculatedTimeLimit
-                : parseInt(slotForm.time_limit) || 60,
-            topics: slotForm.topics
-              ? slotForm.topics
-                  .split(",")
-                  .map((t) => t.trim())
-                  .filter((t) => t)
-              : [],
-          },
-          max_candidates: parseInt(slotForm.max_candidates) || 1,
-          status: slotForm.status || "available",
-          job: slotForm.job || null,
-          company: user?.company_id || user?.id || null,
-        };
-
-        const response = await fetch(
-          `${baseURL}/api/interviews/slots/${slotId}/`,
-          {
-            method: "PUT",
-            headers: {
-              Authorization: `Token ${authToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(slotData),
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            `Failed to update slot: ${JSON.stringify(errorData)}`
-          );
-        }
-
-        await fetchSlots();
-        setEditingSlot(null);
-        notify.success("Interview slot updated successfully!");
-      } catch (error) {
-        notify.error(error.message || "Failed to update slot");
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [
-      slotForm,
-      selectedDate,
-      user,
-      baseURL,
-      fetchSlots,
-      setEditingSlot,
-      setIsSubmitting,
-    ]
-  );
 
   const handleDeleteSlot = useCallback(
     async (slotId) => {
@@ -533,39 +599,15 @@ const AiInterviewScheduler = ({
 
         await fetchSlots();
         notify.success("Interview slot deleted successfully!");
-      } catch (error) {
-        notify.error(error.message || "Failed to delete slot");
+      } catch {
+        notify.error("Failed to delete slot");
       } finally {
         setIsSubmitting(false);
       }
     },
-    [baseURL, fetchSlots, setIsSubmitting]
+    [fetchSlots, notify]
   );
 
-  // New function for DataTable delete integration
-  const handleDeleteSlotAPI = useCallback(
-    async (slotId) => {
-      try {
-        const authToken = localStorage.getItem("authToken");
-        if (!authToken) throw new Error("Authentication token not found");
-
-        const response = await fetch(
-          `${baseURL}/api/interviews/slots/${slotId}/`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Token ${authToken}` },
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to delete slot");
-
-        await fetchSlots();
-      } catch (error) {
-        throw error; // Re-throw so DataTable can handle the error
-      }
-    },
-    [baseURL, fetchSlots]
-  );
 
   // New function for DataTable edit integration
   const handleUpdateSlotAPI = useCallback(
@@ -602,7 +644,7 @@ const AiInterviewScheduler = ({
             const hours24 = hours.toString().padStart(2, '0');
             const minutes24 = minutes.toString().padStart(2, '0');
             return `${hours24}:${minutes24}:00`;
-          } catch (error) {
+          } catch {
             return time12; // Return original if conversion fails
           }
         }
@@ -658,7 +700,7 @@ const AiInterviewScheduler = ({
                 `Interview time (${startTime12} - ${endTime12}) must be between 8:00 AM and 10:00 PM.`
               );
             }
-          } catch (parseError) {
+                 } catch {
             throw new Error('Invalid time format. Please use format like "9:30 AM" or "2:15 PM"');
           }
         }
@@ -710,77 +752,15 @@ const AiInterviewScheduler = ({
         setTimeout(() => {
           // Data refresh completed
         }, 100);
-      } catch (error) {
-        throw error; // Re-throw so DataTable can handle the error
+      } catch {
+        throw new Error('Failed to update slot'); // Re-throw so DataTable can handle the error
       }
     },
-    [baseURL, fetchSlots, setRefreshKey]
+    [fetchSlots]
   );
 
-  const handleEditSlot = useCallback(
-    (slot) => {
-      setEditingSlot(slot);
-      setSelectedDate(new Date(slot.date || slot.start_time?.split("T")[0]));
 
-      let startTime = "";
-      let endTime = "";
 
-      if (slot.start_time) {
-        if (slot.start_time.includes("T")) {
-          startTime = slot.start_time.split("T")[1]?.substring(0, 5) || "";
-        } else {
-          startTime = slot.start_time.substring(0, 5);
-        }
-      }
-
-      if (slot.end_time) {
-        if (slot.end_time.includes("T")) {
-          endTime = slot.end_time.split("T")[1]?.substring(0, 5) || "";
-        } else {
-          endTime = slot.end_time.substring(0, 5);
-        }
-      }
-
-      setSelectedTimes([startTime]);
-      setSlotForm({
-        ai_interview_type: slot.ai_interview_type || "technical",
-        difficulty_level: slot.ai_configuration?.difficulty_level || "medium",
-        question_count: slot.ai_configuration?.question_count || 10,
-        time_limit: slot.ai_configuration?.time_limit || 60,
-        topics: slot.ai_configuration?.topics?.join(", ") || "",
-        max_candidates: slot.max_candidates || 1,
-        job: slot.job || "",
-        company: slot.company || user?.company || "",
-        start_time: startTime,
-        end_time: endTime,
-        status: slot.status || "available",
-      });
-    },
-    [user]
-  );
-
-  const handleCancelEdit = useCallback(() => {
-    setEditingSlot(null);
-    resetSlotForm();
-  }, []);
-
-  const handleSaveEdit = useCallback(async () => {
-    if (!editingSlot) return;
-    await handleUpdateSlot(editingSlot.id);
-    setEditingSlot(null);
-  }, [editingSlot, handleUpdateSlot]);
-
-  const addMinutesToTime = useCallback((time, minutes, baseDate) => {
-    if (!time) return "";
-    const [hours, mins] = time.split(":").map(Number);
-    const date = new Date(baseDate);
-    date.setHours(hours, mins + minutes, 0, 0);
-
-    const newHours = String(date.getHours()).padStart(2, "0");
-    const newMins = String(date.getMinutes()).padStart(2, "0");
-
-    return `${newHours}:${newMins}`;
-  }, []);
 
   const formatTimeTo12Hour = useCallback((time24) => {
     if (!time24) return "";
@@ -791,514 +771,11 @@ const AiInterviewScheduler = ({
     return `${hour12}:${minutes} ${ampm}`;
   }, []);
 
-  const convertTo24Hour = useCallback((time12) => {
-    if (!time12) return "";
-    const [time, ampm] = time12.split(" ");
-    let [hours, minutes] = time.split(":");
-    hours = parseInt(hours, 10);
 
-    if (ampm === "PM" && hours !== 12) {
-      hours += 12;
-    } else if (ampm === "AM" && hours === 12) {
-      hours = 0;
-    }
 
-    return `${String(hours).padStart(2, "0")}:${minutes}`;
-  }, []);
 
-  const convertTo12Hour = useCallback((time24) => {
-    if (!time24) return "";
-    const [hours, minutes] = time24.split(":");
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  }, []);
 
-  const timeToMinutes = useCallback((time) => {
-    if (!time) return 0;
-    const [hours, minutes] = time.split(":").map(Number);
-    return hours * 60 + minutes;
-  }, []);
 
-  const renderSlotForm = useCallback(() => {
-    return (
-      <div className="ai-int-slot-form">
-        <div className="ai-int-form-group">
-          <label>Date</label>
-          <HorizontalDatePicker
-            selectedDate={selectedDate}
-            onSelectDate={handleDateSelect}
-            isDateFullyBooked={() => false}
-          />
-        </div>
-
-        <div className="ai-int-form-group">
-          <label>Time Slots</label>
-          {selectedDate && (
-            <TimeSlotPicker
-              key={`${selectedDate.toISOString().split('T')[0]}-${refreshKey}`}
-              selectedTimes={selectedTimes}
-              onSelectTimes={handleTimeSelect}
-              selectedDate={selectedDate}
-              baseURL={baseURL}
-              isBooking={isSubmitting}
-              setIsBooking={setIsSubmitting}
-              aiInterviewType={slotForm.ai_interview_type}
-              onAvailableSlotsChange={(slots) => {
-                // Available slots updated
-              }}
-              onAllSlotsChange={(slots) => {
-                // All slots updated
-              }}
-            />
-          )}
-        </div>
-
-        <div className="ai-int-form-group">
-          <label>Talaro Interview Type</label>
-          <CustomDropdown
-            value={slotForm.ai_interview_type}
-            options={[
-              { value: 'technical', label: 'Technical' },
-              { value: 'behavioral', label: 'Behavioral' },
-              { value: 'coding', label: 'Coding' },
-              { value: 'system_design', label: 'System Design' },
-              { value: 'case_study', label: 'Case Study' }
-            ]}
-            onChange={(value) =>
-              setSlotForm((prev) => ({
-                ...prev,
-                ai_interview_type: value,
-              }))
-            }
-            placeholder="Select Interview Type"
-          />
-        </div>
-
-        <div className="ai-int-form-group">
-          <label>Difficulty Level</label>
-          <CustomDropdown
-            value={slotForm.difficulty_level}
-            options={[
-              { value: 'beginner', label: 'Beginner' },
-              { value: 'intermediate', label: 'Intermediate' },
-              { value: 'advanced', label: 'Advanced' },
-              { value: 'expert', label: 'Expert' }
-            ]}
-            onChange={(value) =>
-              setSlotForm((prev) => ({
-                ...prev,
-                difficulty_level: value,
-              }))
-            }
-            placeholder="Select Difficulty"
-          />
-        </div>
-
-        <div className="ai-int-form-row">
-          <div className="ai-int-form-group">
-            <label>Question Count</label>
-            <input
-              type="number"
-              min="1"
-              max="20"
-              value={slotForm.question_count}
-              onChange={(e) =>
-                setSlotForm((prev) => ({
-                  ...prev,
-                  question_count: e.target.value,
-                }))
-              }
-            />
-          </div>
-          <div className="ai-int-form-group">
-            <label>Duration (calculated from time slots)</label>
-            <div
-              style={{
-                position: "relative",
-                display: "inline-block",
-                width: "100%",
-              }}
-            >
-              <input
-                type="number"
-                value={slotForm.time_limit}
-                disabled
-                style={{
-                  backgroundColor: "#f5f5f5",
-                  cursor: "not-allowed",
-                  paddingRight: "60px",
-                }}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#666",
-                  fontSize: "0.9em",
-                  pointerEvents: "none",
-                }}
-              >
-                minutes
-              </span>
-            </div>
-            <small style={{ color: "#666", fontSize: "0.85em" }}>
-              Duration is automatically calculated from selected time slots
-            </small>
-          </div>
-        </div>
-
-        <div className="ai-int-form-group">
-          <label>Topics (comma separated)</label>
-          <input
-            type="text"
-            value={slotForm.topics}
-            onChange={(e) =>
-              setSlotForm((prev) => ({
-                ...prev,
-                topics: e.target.value,
-              }))
-            }
-            placeholder="algorithms, data_structures, system_design"
-          />
-        </div>
-
-        <div className="ai-int-form-group">
-          <label>Max Candidates</label>
-          <input
-            type="number"
-            min="1"
-            value={slotForm.max_candidates}
-            onChange={(e) =>
-              setSlotForm((prev) => ({
-                ...prev,
-                max_candidates: e.target.value,
-              }))
-            }
-          />
-        </div>
-
-        <div className="ai-int-form-actions">
-          <button
-            type="button"
-            className="ai-int-create-btn"
-            disabled={isSubmitting}
-            onClick={handleSlotSubmit}
-          >
-            {isSubmitting ? "Creating..." : "Create Slot"}
-          </button>
-        </div>
-      </div>
-    );
-  }, [
-    selectedDate,
-    selectedTimes,
-    slotForm,
-    isSubmitting,
-    handleDateSelect,
-    handleTimeSelect,
-    handleSlotSubmit,
-  ]);
-
-  const renderTabContent = useCallback(() => {
-    switch (activeTab) {
-      case "slot-management":
-        return renderSlotManagement();
-      case "company-updates":
-        return renderCompanyUpdates();
-      case "analytics":
-        return renderAnalytics();
-      default:
-        return renderSlotManagement();
-    }
-  }, [activeTab]);
-
-  const renderSlotManagement = useCallback(
-    () => (
-      <div className="ai-int-content-wrapper">
-        <div className="ai-int-slot-management-container">
-          {/* Left Side - Form */}
-          <div className="ai-int-slot-form-section">
-            <div className="ai-int-form-header">
-              <h4>{editingSlot ? "Edit Slot" : "Create New Slot"}</h4>
-            </div>
-            {renderSlotForm()}
-          </div>
-
-          {/* Interview Slots Table */}
-          <DataTable
-            key={`slots-table-${refreshKey}`}
-            title="Interview Slots"
-            columns={[
-              {
-                field: "interview_date",
-                header: "Date",
-                width: "8%",
-                type: "date",
-                editable: true,
-                render: (value) => {
-                  if (!value) return 'N/A';
-                  return new Date(value).toLocaleDateString();
-                },
-              },
-              {
-                field: "start_time",
-                header: "Start Time",
-                width: "9%",
-                type: "time12",
-                editable: true,
-                render: (value) => {
-                  // Handle null or invalid time values
-                  if (!value || typeof value !== 'string') {
-                    return 'N/A';
-                  }
-                  
-                  // Convert 24-hour time to 12-hour format for display (using shared utility)
-                  return formatTimeTo12Hour(value);
-                },
-                formatForEdit: (value) => {
-                  // Handle null or invalid time values
-                  if (!value || typeof value !== 'string') {
-                    return '';
-                  }
-                  
-                  // Convert 24-hour time (17:45:00) to 12-hour format for editing (5:45 PM)
-                  return formatTimeTo12Hour(value);
-                },
-                parseFromEdit: (editValue, originalRowData) => {
-                  // Convert 12-hour format (5:45 PM) back to 24-hour format (17:45:00) for API
-                  if (!editValue) return '';
-                  
-                  // Use shared utility to convert 12-hour to 24-hour format
-                  const time24 = formatTimeTo24Hour(editValue);
-                  return time24 ? `${time24}:00` : editValue;
-                }
-              },
-              {
-                field: "end_time", 
-                header: "End Time",
-                width: "9%",
-                type: "time12",
-                editable: true,
-                render: (value) => {
-                  // Handle null or invalid time values
-                  if (!value || typeof value !== 'string') {
-                    return 'N/A';
-                  }
-                  
-                  // Convert 24-hour time to 12-hour format for display (using shared utility)
-                  return formatTimeTo12Hour(value);
-                },
-                formatForEdit: (value) => {
-                  // Handle null or invalid time values
-                  if (!value || typeof value !== 'string') {
-                    return '';
-                  }
-                  
-                  // Convert 24-hour time (18:45:00) to 12-hour format for editing (6:45 PM)
-                  return formatTimeTo12Hour(value);
-                },
-                parseFromEdit: (editValue, originalRowData) => {
-                  // Convert 12-hour format (6:45 PM) back to 24-hour format (18:45:00) for API
-                  if (!editValue) return '';
-                  
-                  // Use shared utility to convert 12-hour to 24-hour format
-                  const time24 = formatTimeTo24Hour(editValue);
-                  return time24 ? `${time24}:00` : editValue;
-                }
-              },
-              {
-                field: "duration_minutes",
-                header: "Duration",
-                width: "7%",
-                editable: true,
-                type: "number",
-                render: (value) => value ? `${value}m` : 'N/A',
-              },
-              {
-                field: "ai_interview_type",
-                header: "Type",
-                width: "9%",
-                type: "select",
-                editable: true,
-                options: [
-                  { value: "technical", label: "Technical" },
-                  { value: "behavioral", label: "Behavioral" },
-                  { value: "coding", label: "Coding" },
-                  { value: "system_design", label: "System Design" },
-                  { value: "general", label: "General" },
-                ],
-              },
-              {
-                field: "status",
-                header: "Status",
-                width: "8%",
-                type: "select",
-                editable: true,
-                options: [
-                  { value: "available", label: "Available" },
-                  { value: "booked", label: "Booked" },
-                  { value: "cancelled", label: "Cancelled" },
-                  { value: "completed", label: "Completed" },
-                ],
-                render: (value) => (
-                  <span className="status-cell" data-status={value?.toLowerCase()}>
-                    {value}
-                          </span>
-                ),
-              },
-              {
-                field: "slot_type",
-                header: "Slot Type",
-                width: "8%",
-                type: "select",
-                editable: true,
-                options: [
-                  { value: "fixed", label: "Fixed" },
-                  { value: "flexible", label: "Flexible" },
-                  { value: "recurring", label: "Recurring" },
-                ],
-              },
-              {
-                field: "max_candidates",
-                header: "Max Candidates",
-                width: "8%",
-                editable: true,
-                type: "number",
-              },
-              {
-                field: "current_bookings",
-                header: "Bookings",
-                width: "7%",
-                editable: false,
-                render: (value) => value || 0,
-              },
-              {
-                field: "available_spots",
-                header: "Spots",
-                width: "6%",
-                editable: false,
-                render: (value) => value || 0,
-              },
-              {
-                field: "is_recurring",
-                header: "Recurring",
-                width: "7%",
-                type: "select",
-                editable: true,
-                options: [
-                  { value: true, label: "Yes" },
-                  { value: false, label: "No" },
-                ],
-                render: (value) => value ? "Yes" : "No",
-              },
-              {
-                field: "notes",
-                header: "Notes",
-                width: "10%",
-                editable: true,
-              },
-              {
-                field: "company_name",
-                header: "Company",
-                width: "8%",
-                editable: false,
-              },
-              {
-                field: "job_title",
-                header: "Job",
-                width: "8%",
-                editable: false,
-              },
-              {
-                field: "created_at",
-                header: "Created",
-                width: "8%",
-                editable: false,
-                render: (value) => {
-                  if (!value) return 'N/A';
-                  return new Date(value).toLocaleDateString();
-                },
-              },
-              {
-                field: "updated_at",
-                header: "Updated",
-                width: "8%",
-                editable: false,
-                render: (value) => {
-                  if (!value) return 'N/A';
-                  return new Date(value).toLocaleDateString();
-                },
-              },
-            ]}
-            data={sortedSlots}
-            loading={slotsLoading}
-            actions={["edit", "delete"]}
-            onAction={(action, rowData, rowIndex) => {
-              if (action === "edit") {
-                // For edit, we let DataTable handle inline editing
-                return;
-              } else if (action === "delete") {
-                handleDeleteSlot(rowData.id);
-              }
-            }}
-            onContextMenuClick={handleContextMenuClick}
-            onEdit={async (editedData) => {
-              // Handle save from DataTable inline editing
-              await handleUpdateSlotAPI(editedData);
-            }}
-            editingRow={editingRow}
-            editingData={editingData}
-            setEditingRow={setEditingRow}
-            setEditingData={setEditingData}
-            showRefresh={true}
-            onRefresh={async () => {
-              try {
-                await fetchSlots(true);
-                setRefreshKey(prev => prev + 1);
-              } catch (error) {
-                notify.error("Failed to refresh interview slots. Please try again.");
-              }
-            }}
-            showActions={true}
-            defaultPageSize={10}
-            pageSizeOptions={[10, 20, 50, 100]}
-          />
-        </div>
-      </div>
-    ),
-    [
-      editingSlot,
-      slots,
-      slotsLoading,
-      renderSlotForm,
-      handleEditSlot,
-      handleDeleteSlot,
-    ]
-  );
-
-  const renderCompanyUpdates = useCallback(
-    () => (
-      <div className="ai-int-company-updates-container">
-        <h4>Company Updates</h4>
-        <p>Company management features coming soon...</p>
-      </div>
-    ),
-    []
-  );
-
-  const renderAnalytics = useCallback(
-    () => (
-      <div className="ai-int-analytics-container">
-        <h4>Analytics & Reports</h4>
-        <p>Analytics dashboard coming soon...</p>
-      </div>
-    ),
-    []
-  );
 
   useEffect(() => {
     if (onTitleChange) {
@@ -1336,7 +813,7 @@ const AiInterviewScheduler = ({
 
       {/* Left Side - Form */}
       <div className={`ai-int-form-container slide-in-left ${showMobileForm ? 'mobile-form-visible' : 'mobile-form-hidden'}`}>
-          <div className="ai-int-form">
+          <form className="ai-int-form" onSubmit={handleSlotSubmit}>
           <h3 className="ai-int-form-title">Interview Scheduler</h3>
             <div className="ai-int-form-group">
               <label>Date</label>
@@ -1447,6 +924,53 @@ const AiInterviewScheduler = ({
               />
             </div>
 
+            {/* Company Selection - Only show for admin users */}
+            {user?.role?.toLowerCase() === 'admin' && (
+              <div className="ai-int-form-group">
+                <label>Company</label>
+                <CustomDropdown
+                  value={selectedCompanyId ? String(selectedCompanyId) : ''}
+                  options={[
+                    { value: '', label: 'Select a company' },
+                    ...companies.map(company => ({
+                      value: String(company.id),
+                      label: company.name || company.company_name || `Company ${company.id}`
+                    }))
+                  ]}
+                  onChange={(value) => setSelectedCompanyId(value ? parseInt(value) : null)}
+                  placeholder="Select a company"
+                  disabled={companiesLoading}
+                  searchable={true}
+                  openAbove={true}
+                />
+                {companiesLoading && <small>Loading companies...</small>}
+              </div>
+            )}
+
+            {/* Job Selection - Show for all users */}
+            <div className="ai-int-form-group">
+              <label>Job</label>
+              <CustomDropdown
+                value={selectedJobId ? String(selectedJobId) : ''}
+                options={[
+                  { value: '', label: 'Select a job' },
+                  ...jobs.map(job => ({
+                    value: String(job.id),
+                    label: job.title || job.job_title || `Job ${job.id}`
+                  }))
+                ]}
+                onChange={(value) => setSelectedJobId(value ? parseInt(value) : null)}
+                placeholder="Select a job"
+                disabled={jobsLoading || (user?.role?.toLowerCase() === 'admin' && !selectedCompanyId)}
+                searchable={true}
+                openAbove={true}
+              />
+              {jobsLoading && <small>Loading jobs...</small>}
+              {user?.role?.toLowerCase() === 'admin' && !selectedCompanyId && (
+                <small style={{color: 'var(--color-muted)'}}>Please select a company first</small>
+              )}
+            </div>
+
             <div className="ai-int-form-actions">
               <button
                 type="submit"
@@ -1474,7 +998,7 @@ const AiInterviewScheduler = ({
                 </button>
               )}
             </div>
-          </div>
+          </form>
       </div>
 
       {/* Interview Slots Table */}
@@ -1512,7 +1036,7 @@ const AiInterviewScheduler = ({
                 }
                 return formatTimeTo12Hour(value);
               },
-              parseFromEdit: (editValue, originalRowData) => {
+                       parseFromEdit: (editValue) => {
                 if (!editValue) return '';
                 const time24 = formatTimeTo24Hour(editValue);
                 return time24;
@@ -1536,7 +1060,7 @@ const AiInterviewScheduler = ({
                 }
                 return formatTimeTo12Hour(value);
               },
-              parseFromEdit: (editValue, originalRowData) => {
+                       parseFromEdit: (editValue) => {
                 if (!editValue) return '';
                 const time24 = formatTimeTo24Hour(editValue);
                 return time24;
@@ -1583,12 +1107,6 @@ const AiInterviewScheduler = ({
               render: (value) => value || 1,
             },
             {
-              field: "question_count",
-              header: "Questions",
-              width: "8%",
-              editable: false,
-            },
-            {
               field: "job_title",
               header: "Job",
               width: "8%",
@@ -1618,7 +1136,7 @@ const AiInterviewScheduler = ({
           data={sortedSlots}
           loading={slotsLoading}
           actions={["edit", "delete"]}
-          onAction={(action, rowData, rowIndex) => {
+                 onAction={(action, rowData) => {
             if (action === "edit") {
               return;
             } else if (action === "delete") {
@@ -1638,7 +1156,7 @@ const AiInterviewScheduler = ({
             try {
               await fetchSlots(true);
               setRefreshKey(prev => prev + 1);
-            } catch (error) {
+                   } catch {
               notify.error("Failed to refresh interview slots. Please try again.");
             }
           }}

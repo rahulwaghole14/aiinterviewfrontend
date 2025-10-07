@@ -56,9 +56,6 @@ const Header = ({
   const interviewSlots = useSelector((state) => state.interviewSlots?.slots || []);
   const interviews = useSelector((state) => state.interviews?.interviews || []);
 
-  // Debug data availability
-  useEffect(() => {
-  }, [candidates, jobs, domains, hiringAgencies, companies, recruiters, interviewSlots, interviews]);
 
   // Update search service with latest data
   useEffect(() => {
@@ -70,7 +67,8 @@ const Header = ({
     searchService.updateData('recruiters', recruiters);
     searchService.updateData('interviewSlots', interviewSlots);
     searchService.updateData('interviews', interviews);
-  }, [candidates, jobs, domains, hiringAgencies, companies, recruiters, interviewSlots, interviews]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidates.length, jobs.length, domains.length, hiringAgencies.length, companies.length, recruiters.length, interviewSlots.length, interviews.length]);
 
   // Sync localSearchTerm with Redux searchTerm when Redux searchTerm changes
   useEffect(() => {
