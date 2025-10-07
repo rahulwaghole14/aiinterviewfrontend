@@ -447,12 +447,66 @@ const CandidateDetails = () => {
 
       // First, release the slot if it exists by updating it (decrement bookings)
       const slotId = itemToDelete.slot || itemToDelete.slot_details?.id;
-      if (slotId) {
+      
+      console.log("🔍 Checking for slot to release (DELETE):");
+      console.log("   itemToDelete:", itemToDelete);
+      console.log("   slotId:", slotId);
+      
+      // If no slot ID, try to find it by interview times
+      let actualSlotId = slotId;
+      if (!actualSlotId && itemToDelete.started_at) {
+        // Try to find the slot by matching the interview time
+        const interviewDate = itemToDelete.started_at.split('T')[0];
+        const startTimePart = itemToDelete.started_at.split('T')[1];
+        const endTimePart = itemToDelete.ended_at?.split('T')[1];
+        
+        // Extract time without timezone: "08:10:00+05:30" -> "08:10"
+        const startTime = startTimePart?.split('+')[0]?.split('-')[0]?.substring(0, 5);
+        const endTime = endTimePart?.split('+')[0]?.split('-')[0]?.substring(0, 5);
+        
+        console.log("🔎 Searching for slot by time (DELETE):", {
+          date: interviewDate,
+          start: startTime,
+          end: endTime
+        });
+        
+        // Fetch all slots for that date
+        const searchResponse = await fetch(
+          `${baseURL}/api/interviews/slots/?date=${interviewDate}`,
+          { 
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${authToken}`,
+            }
+          }
+        );
+        
+        if (searchResponse.ok) {
+          const searchData = await searchResponse.json();
+          const allSlots = searchData.results || searchData || [];
+          
+          // Find slot matching the times
+          const matchedSlot = allSlots.find(s => {
+            const slotStart = s.start_time?.substring(0, 5);
+            const slotEnd = s.end_time?.substring(0, 5);
+            return slotStart === startTime && slotEnd === endTime;
+          });
+          
+          if (matchedSlot) {
+            actualSlotId = matchedSlot.id;
+            console.log("✅ Found slot by time matching (DELETE):", actualSlotId);
+          } else {
+            console.warn("⚠️ Could not find slot by time (DELETE)");
+          }
+        }
+      }
+      
+      if (actualSlotId) {
         try {
-          console.log(`🔓 Releasing slot via UPDATE API: ${slotId}`);
+          console.log(`🔓 Releasing slot via UPDATE API: ${actualSlotId}`);
           
           // Fetch current slot data
-          const slotResponse = await fetch(`${baseURL}/api/interviews/slots/${slotId}/`, {
+          const slotResponse = await fetch(`${baseURL}/api/interviews/slots/${actualSlotId}/`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -478,7 +532,7 @@ const CandidateDetails = () => {
             });
             
             // Update the slot with decremented bookings
-            const updateResponse = await fetch(`${baseURL}/api/interviews/slots/${slotId}/`, {
+            const updateResponse = await fetch(`${baseURL}/api/interviews/slots/${actualSlotId}/`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
@@ -521,6 +575,29 @@ const CandidateDetails = () => {
         throw new Error(errorData.detail || `Failed to delete interview: ${response.status}`);
       }
 
+      // Update candidate status back to NEW after deleting interview
+      try {
+        console.log("🔄 Updating candidate status to NEW after interview deletion");
+        const updateStatusResponse = await fetch(`${baseURL}/api/candidates/${candidate.id}/`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${authToken}`,
+          },
+          body: JSON.stringify({
+            status: "NEW"
+          }),
+        });
+        
+        if (updateStatusResponse.ok) {
+          console.log("✅ Candidate status updated to NEW");
+        } else {
+          console.warn("⚠️ Failed to update candidate status to NEW");
+        }
+      } catch (statusError) {
+        console.warn("⚠️ Error updating candidate status:", statusError);
+      }
+      
       notify.success("Interview deleted and slot released successfully!");
       
       // Refresh data
