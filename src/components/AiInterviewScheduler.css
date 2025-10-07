@@ -451,3 +451,35 @@
 .ai-int-btn-secondary:hover {
   background-color: var(--color-hover);
 }
+
+/* DataTable Text Styles - Match HiringAgency table styling */
+.ai-interview-scheduler .data-table-container th {
+  padding: 0.5rem 1rem;
+  text-align: left;
+  background-color: var(--color-bg-secondary);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.ai-interview-scheduler .data-table-container td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+/* Status badge styling */
+.ai-interview-scheduler .status-cell {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
