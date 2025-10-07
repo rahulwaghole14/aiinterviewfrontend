@@ -1489,6 +1489,21 @@ body[data-theme='dark'] .form-control {
   box-shadow: var(--shadow-button-hover);
 }
 
+/* Disable hover animation for password toggle buttons */
+.password-toggle-btn {
+  transition: none !important;
+}
+
+.password-toggle-btn:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  color: var(--color-muted) !important;
+}
+
+.password-toggle-btn:active {
+  transform: translateY(-50%) !important;
+}
+
 .btn:active, button:active {
   transform: translateY(0);
   transition: var(--transition-fast);

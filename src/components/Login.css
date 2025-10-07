@@ -98,12 +98,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color var(--transition);
+  transition: none;
   z-index: 1;
 }
 
 .password-toggle-btn:hover {
-  color: var(--color-text);
+  /* Removed hover animation */
 }
 
 .password-toggle-btn:disabled {

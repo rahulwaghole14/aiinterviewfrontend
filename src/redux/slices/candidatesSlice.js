@@ -9,6 +9,7 @@ export const fetchCandidates = createAsyncThunk(
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
+        console.warn('fetchCandidates: No auth token found in localStorage');
         return rejectWithValue('Authentication token not found. Please log in.');
       }
 
