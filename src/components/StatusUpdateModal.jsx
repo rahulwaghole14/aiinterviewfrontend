@@ -219,9 +219,119 @@ const StatusUpdateModal = ({
     setLoading(true);
 
     try {
-      // First, find the matching slot to get the slot ID
+      // FIRST: If editing, release the old slot by updating it (decrement bookings)
+      if (isEditMode && editingInterview) {
+        const oldSlotId = editingInterview.slot || editingInterview.slot_details?.id;
+        
+        console.log("🔍 Checking for old slot to release:");
+        console.log("   editingInterview:", editingInterview);
+        console.log("   editingInterview.slot:", editingInterview.slot);
+        console.log("   editingInterview.slot_details:", editingInterview.slot_details);
+        console.log("   oldSlotId:", oldSlotId);
+        
+        // If no slot ID, try to find it by interview times
+        let actualOldSlotId = oldSlotId;
+        if (!actualOldSlotId && editingInterview.started_at) {
+          // Try to find the slot by matching the interview time
+          // Handle timezone format: "2025-10-07T08:10:00+05:30"
+          const interviewDate = editingInterview.started_at.split('T')[0];
+          const startTimePart = editingInterview.started_at.split('T')[1];
+          const endTimePart = editingInterview.ended_at?.split('T')[1];
+          
+          // Extract time without timezone: "08:10:00+05:30" -> "08:10"
+          const startTime = startTimePart?.split('+')[0]?.split('-')[0]?.substring(0, 5);
+          const endTime = endTimePart?.split('+')[0]?.split('-')[0]?.substring(0, 5);
+          
+          console.log("🔎 Searching for slot by time:", {
+            date: interviewDate,
+            start: startTime,
+            end: endTime
+          });
+          
+          // Fetch all slots for that date
+          const searchResponse = await fetch(
+            `${baseURL}/api/interviews/slots/?date=${interviewDate}`,
+            { headers: getAuthHeaders() }
+          );
+          
+          if (searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            const allSlots = searchData.results || searchData || [];
+            
+            // Find slot matching the times
+            const matchedSlot = allSlots.find(s => {
+              const slotStart = s.start_time?.substring(0, 5);
+              const slotEnd = s.end_time?.substring(0, 5);
+              return slotStart === startTime && slotEnd === endTime;
+            });
+            
+            if (matchedSlot) {
+              actualOldSlotId = matchedSlot.id;
+              console.log("✅ Found old slot by time matching:", actualOldSlotId);
+            } else {
+              console.warn("⚠️ Could not find old slot by time");
+            }
+          }
+        }
+        
+        if (actualOldSlotId) {
+          try {
+            console.log(`🔓 Releasing old slot via UPDATE API: ${actualOldSlotId}`);
+            
+            // Fetch current slot data
+            const oldSlotResponse = await fetch(`${baseURL}/api/interviews/slots/${actualOldSlotId}/`, {
+              method: "GET",
+              headers: getAuthHeaders(),
+            });
+            
+            if (oldSlotResponse.ok) {
+              const oldSlotData = await oldSlotResponse.json();
+              console.log("📊 Old slot data:", {
+                id: oldSlotData.id,
+                current_bookings: oldSlotData.current_bookings,
+                max_candidates: oldSlotData.max_candidates,
+                status: oldSlotData.status
+              });
+              
+              // Calculate new booking count and status
+              const newBookings = Math.max(0, (oldSlotData.current_bookings || 0) - 1);
+              const newStatus = newBookings < oldSlotData.max_candidates ? "available" : oldSlotData.status;
+              
+              console.log("🔄 Updating old slot to:", {
+                current_bookings: newBookings,
+                status: newStatus
+              });
+              
+            // Update the slot with decremented bookings
+            const updateResponse = await fetch(`${baseURL}/api/interviews/slots/${actualOldSlotId}/`, {
+                method: "PUT",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                  ...oldSlotData,
+                  current_bookings: newBookings,
+                  status: newStatus
+                }),
+              });
+              
+              if (updateResponse.ok) {
+                const updatedSlotData = await updateResponse.json();
+                console.log("✅ Old slot released successfully:", {
+                  id: updatedSlotData.id,
+                  current_bookings: updatedSlotData.current_bookings,
+                  status: updatedSlotData.status
+                });
+              } else {
+                console.warn("⚠️ Failed to update old slot");
+              }
+            }
+          } catch (error) {
+            console.warn("⚠️ Error releasing old slot:", error);
+          }
+        }
+      }
+      
+      // THEN: Fetch available slots (now includes the released slot)
       const formattedDate = scheduleForm.selectedDate.toISOString().split("T")[0];
-      // Fetch available slots
       
       const slotsResponse = await fetch(
         `${baseURL}/api/interviews/slots/?date=${formattedDate}&status=available`,
@@ -267,29 +377,40 @@ const StatusUpdateModal = ({
       if (matchingSlot) {
         // Found matching slot
         
-        // Handle slot changes for edit mode
+        // Check if it's the same slot (already released earlier if different)
         if (isEditMode && editingInterview) {
           const oldSlotId = editingInterview.slot || editingInterview.slot_details?.id;
           const newSlotId = matchingSlot.id;
           
-          // If slot has changed, release the old slot
-          if (oldSlotId && oldSlotId !== newSlotId) {
-            try {
-              const releaseResponse = await fetch(`${baseURL}/api/interviews/slots/${oldSlotId}/release_slot/`, {
-                method: "POST",
-                headers: getAuthHeaders(),
-              });
-              
-              if (releaseResponse.ok) {
-                // Old slot released successfully
-              } else {
-                // Failed to release old slot, but continuing with new slot booking
-              }
-            } catch (error) {
-              // Error releasing old slot, but continuing with new slot booking
+          if (oldSlotId === newSlotId) {
+            // Same slot selected - don't book again (already booked)
+            console.log("📌 Same slot selected, skipping re-booking");
+            // Just update the interview without rebooking the slot
+            const interviewUpdateData = {
+              candidate: candidate.id,
+              job: candidate.job?.id || candidate.job || null,
+              slot: matchingSlot.id,
+              started_at: `${formattedDate}T${matchingSlot.start_time.substring(0, 5)}:00`,
+              ended_at: `${formattedDate}T${matchingSlot.end_time.substring(0, 5)}:00`,
+              feedback: scheduleForm.feedback || "",
+            };
+            
+            const response = await fetch(`${baseURL}/api/interviews/${editingInterview.id}/`, {
+              method: "PATCH",
+              headers: getAuthHeaders(),
+              body: JSON.stringify(interviewUpdateData),
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              throw new Error(errorData.detail || "Failed to update interview");
             }
-          } else if (oldSlotId === newSlotId) {
-            // Same slot selected, no slot change needed
+            
+            notify.success("Interview updated successfully!");
+            if (onInterviewScheduled) onInterviewScheduled();
+            onClose();
+            setLoading(false);
+            return;
           }
         }
         
@@ -437,46 +558,8 @@ const StatusUpdateModal = ({
           }
         }
 
-        // Also create the schedule relationship
-        const bookingData = {
-          interview_id: interviewId,
-          booking_notes: scheduleForm.feedback || ""
-        };
-
-        console.log("=== CREATING SCHEDULE RELATIONSHIP ===");
-        console.log("Sending booking data:", bookingData);
-        console.log("Matching slot details:", {
-          id: matchingSlot.id,
-          status: matchingSlot.status,
-          current_bookings: matchingSlot.current_bookings,
-          max_candidates: matchingSlot.max_candidates
-        });
-        
-        const bookingResponse = await fetch(
-          `${baseURL}/api/interviews/slots/${matchingSlot.id}/book_slot/`,
-          {
-            method: "POST",
-            headers: getAuthHeaders(),
-            body: JSON.stringify(bookingData),
-          }
-        );
-
-        console.log("Schedule creation response status:", bookingResponse.status);
-        console.log("Schedule creation response headers:", Object.fromEntries(bookingResponse.headers.entries()));
-
-        if (!bookingResponse.ok) {
-          const errorData = await bookingResponse.json().catch(() => ({}));
-          console.error("=== SCHEDULE CREATION FAILED ===");
-          console.error("Failed to create schedule relationship:", errorData);
-          console.error("Response status:", bookingResponse.status);
-          console.error("Response headers:", Object.fromEntries(bookingResponse.headers.entries()));
-          console.error("Full error response:", errorData);
-          console.warn("Failed to create schedule relationship, but interview was created");
-        } else {
-          const scheduleResult = await bookingResponse.json();
-          console.log("=== SCHEDULE CREATION SUCCESS ===");
-          console.log("Schedule relationship created:", scheduleResult);
-        }
+        // Slot already updated via PUT, no need to call book_slot API
+        console.log("✅ Slot booking handled via PUT update");
       }
 
       notify.success(isEditMode ? "Interview updated successfully!" : "Interview scheduled successfully!");

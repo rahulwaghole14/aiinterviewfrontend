@@ -445,25 +445,64 @@ const CandidateDetails = () => {
         return;
       }
 
-      // First, release the slot if it exists
+      // First, release the slot if it exists by updating it (decrement bookings)
       const slotId = itemToDelete.slot || itemToDelete.slot_details?.id;
       if (slotId) {
         try {
-          const releaseResponse = await fetch(`${baseURL}/api/interviews/slots/${slotId}/release_slot/`, {
-            method: "POST",
+          console.log(`🔓 Releasing slot via UPDATE API: ${slotId}`);
+          
+          // Fetch current slot data
+          const slotResponse = await fetch(`${baseURL}/api/interviews/slots/${slotId}/`, {
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Token ${authToken}`,
             },
           });
+          
+          if (slotResponse.ok) {
+            const slotData = await slotResponse.json();
+            console.log("📊 Current slot data:", {
+              current_bookings: slotData.current_bookings,
+              max_candidates: slotData.max_candidates,
+              status: slotData.status
+            });
+            
+            // Calculate new booking count and status
+            const newBookings = Math.max(0, (slotData.current_bookings || 0) - 1);
+            const newStatus = newBookings < slotData.max_candidates ? "available" : slotData.status;
+            
+            console.log("🔄 Updating slot to:", {
+              current_bookings: newBookings,
+              status: newStatus
+            });
+            
+            // Update the slot with decremented bookings
+            const updateResponse = await fetch(`${baseURL}/api/interviews/slots/${slotId}/`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${authToken}`,
+              },
+              body: JSON.stringify({
+                ...slotData,
+                current_bookings: newBookings,
+                status: newStatus
+              }),
+            });
 
-          if (releaseResponse.ok) {
-            console.log("Slot released successfully");
-          } else {
-            console.warn("Failed to release slot, but continuing with interview deletion");
+            if (updateResponse.ok) {
+              const updatedSlot = await updateResponse.json();
+              console.log("✅ Slot released successfully:", {
+                current_bookings: updatedSlot.current_bookings,
+                status: updatedSlot.status
+              });
+            } else {
+              console.warn("⚠️ Failed to update slot, but continuing with interview deletion");
+            }
           }
         } catch (slotError) {
-          console.warn("Error releasing slot:", slotError);
+          console.warn("⚠️ Error releasing slot:", slotError);
           // Continue with interview deletion even if slot release fails
         }
       }

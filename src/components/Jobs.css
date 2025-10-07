@@ -300,15 +300,16 @@ body[data-theme='light'] .job-listings-section.card {
   box-shadow: none; /* Remove hover shadow */
 }
 
-.job-listings-section {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 0; /* Removed padding */
-  border: none; /* Removed border */
-  height: 80vh;
-  display: flex;
-  flex-direction: column;
+/* Removed duplicate .job-listings-section styling - using .job-listings-section.card instead */
+
+/* Force remove any padding/border from job listings section */
+.job-listings-section,
+.job-listings-section.card {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Header Styles */
@@ -1831,6 +1832,9 @@ body[data-theme='light'] .jobs-count-card:hover {
   /* Hide scrollbars */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
 }
 
 /* Ensure Jobs table matches other components' DataTable styles */
