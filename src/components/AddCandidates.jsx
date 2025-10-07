@@ -230,12 +230,18 @@ const AddCandidates = () => {
 
   // Function to handle submitting candidates from parsed data
   const handleSubmitCandidates = async () => {
+    console.log('🚀 handleSubmitCandidates called');
+    console.log('📊 Parsed resume data length:', parsedResumeData.length);
+    
     if (parsedResumeData.length === 0) {
       notify.error("No candidate data to submit");
       return;
     }
 
     const authToken = localStorage.getItem('authToken');
+    console.log('🔑 Auth token exists:', !!authToken);
+    console.log('🔑 Auth token preview:', authToken ? authToken.substring(0, 20) + '...' : 'null');
+    
     if (!authToken) {
       notify.error("Please log in to submit candidates.");
       navigate('/login');
@@ -291,6 +297,14 @@ const AddCandidates = () => {
       candidates: candidatesToSubmit,
     };
 
+    console.log('📦 Submission payload:', {
+      domain: selectedDomainName,
+      role: selectedJobTitle,
+      poc_email: formData.poc_email,
+      candidatesCount: candidatesToSubmit.length
+    });
+    console.log('📤 Making POST request to:', `${baseURL}/api/candidates/bulk-create/?step=submit`);
+
     try {
       const response = await axios.post(
         `${baseURL}/api/candidates/bulk-create/?step=submit`, // New API endpoint
@@ -302,13 +316,16 @@ const AddCandidates = () => {
           },
         }
       );
+      
+      console.log('✅ Response received:', response.status);
+      console.log('📄 Response data:', response.data);
 
       // Candidates submitted successfully
 
       // Display success message if any candidates were successfully created
       if (response.data.summary.successful_creations > 0) {
         notify.success("Candidates added successfully!");
-        setShowSuccessModal(true); // Show the new success modal
+        // setShowSuccessModal(true); // Removed - using notification instead
         // Clear parsed data after successful submission
         setParsedResumeData([]);
         // Reset form fields
@@ -325,9 +342,23 @@ const AddCandidates = () => {
 
       // No need for setTimeout here, modal will be closed by user
     } catch (error) {
-      notify.error(error.response?.data?.message || "Failed to submit candidates. Please try again.");
+      console.error('❌ Error submitting candidates:', error);
+      console.error('❌ Error response:', error.response);
+      console.error('❌ Error data:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      
       if (error.response?.status === 401) {
+        console.error('❌ 401 Unauthorized - Auth token invalid or missing');
+        notify.error("Authentication failed. Please log in again.");
         navigate('/login');
+      } else if (error.response?.status === 400) {
+        console.error('❌ 400 Bad Request - Invalid data sent');
+        notify.error(`Bad request: ${error.response?.data?.error || error.response?.data?.message || 'Invalid data'}`);
+      } else if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+        console.error('❌ Network Error - Cannot connect to backend');
+        notify.error("Cannot connect to server. Please make sure the backend is running on port 8000.");
+      } else {
+        notify.error(error.response?.data?.message || "Failed to submit candidates. Please try again.");
       }
     } finally {
       setIsSubmittingCandidates(false);

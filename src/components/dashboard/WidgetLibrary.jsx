@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FiX, FiBarChart, FiTrendingUp, FiUsers, FiActivity, FiTarget, FiClock, FiPieChart } from 'react-icons/fi';
 import './WidgetLibrary.css';
 
-const WidgetLibrary = ({ onAddWidget, onClose }) => {
+const WidgetLibrary = ({ onAddWidget, onClose, currentRowHeight = null }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const widgetTemplates = [
@@ -15,6 +15,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Display key performance indicators with trends',
       icon: <FiTarget />,
       category: 'metrics',
+      defaultSize: { w: 1, h: 1 },
       config: {
         value: 0,
         change: '+0%',
@@ -29,6 +30,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Simple metric display with comparison',
       icon: <FiBarChart />,
       category: 'metrics',
+      defaultSize: { w: 1, h: 1 },
       config: {
         value: 0,
         change: '+0%',
@@ -45,6 +47,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Time series data visualization',
       icon: <FiTrendingUp />,
       category: 'charts',
+      defaultSize: { w: 2, h: 2 },
       config: {
         chartType: 'line',
         data: [],
@@ -58,6 +61,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Comparative data visualization',
       icon: <FiBarChart />,
       category: 'charts',
+      defaultSize: { w: 2, h: 2 },
       config: {
         chartType: 'bar',
         data: [],
@@ -71,6 +75,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Proportional data visualization',
       icon: <FiPieChart />,
       category: 'charts',
+      defaultSize: { w: 2, h: 2 },
       config: {
         chartType: 'doughnut',
         data: [],
@@ -86,6 +91,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Recent system activities and updates',
       icon: <FiActivity />,
       category: 'activity',
+      defaultSize: { w: 2, h: 2 },
       config: {
         limit: 10,
         showTimestamps: true
@@ -98,6 +104,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Latest changes and notifications',
       icon: <FiClock />,
       category: 'activity',
+      defaultSize: { w: 2, h: 2 },
       config: {
         limit: 5,
         showTimestamps: false
@@ -112,6 +119,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Key performance indicators dashboard',
       icon: <FiTarget />,
       category: 'performance',
+      defaultSize: { w: 2, h: 2 },
       config: {
         metrics: [
           { name: 'Success Rate', value: '0%', trend: 'neutral' },
@@ -129,6 +137,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Historical data trends and patterns',
       icon: <FiTrendingUp />,
       category: 'analysis',
+      defaultSize: { w: 2, h: 2 },
       config: {
         period: '30d',
         metrics: ['candidates', 'interviews', 'jobs']
@@ -143,6 +152,7 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       description: 'Live data updates and notifications',
       icon: <FiClock />,
       category: 'realtime',
+      defaultSize: { w: 2, h: 2 },
       config: {
         refreshInterval: 5000,
         showLiveIndicator: true
@@ -160,9 +170,24 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
     { id: 'realtime', name: 'Real-time', count: widgetTemplates.filter(w => w.category === 'realtime').length }
   ];
 
-  const filteredWidgets = selectedCategory === 'all' 
-    ? widgetTemplates 
-    : widgetTemplates.filter(widget => widget.category === selectedCategory);
+  // Filter widgets based on category and current row height
+  const getFilteredWidgets = () => {
+    let filtered = selectedCategory === 'all' 
+      ? widgetTemplates 
+      : widgetTemplates.filter(widget => widget.category === selectedCategory);
+    
+    // If we have a current row height, filter widgets to only show those with matching height
+    if (currentRowHeight) {
+      filtered = filtered.filter(widget => {
+        const widgetHeight = widget.defaultSize?.h || 1;
+        return widgetHeight === currentRowHeight;
+      });
+    }
+    
+    return filtered;
+  };
+
+  const filteredWidgets = getFilteredWidgets();
 
   const handleAddWidget = (template) => {
     onAddWidget(template);
@@ -173,7 +198,12 @@ const WidgetLibrary = ({ onAddWidget, onClose }) => {
       <div className="widget-library">
         <div className="widget-library-header">
           <h2>Widget Library</h2>
-          <p>Choose widgets to add to your dashboard</p>
+          <p>
+            {currentRowHeight 
+              ? `Choose widgets with height ${currentRowHeight} to match your current row`
+              : 'Choose widgets to add to your dashboard'
+            }
+          </p>
           <button className="close-btn" onClick={onClose}>
             <FiX />
           </button>

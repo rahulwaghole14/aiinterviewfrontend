@@ -1,6 +1,8 @@
 /* src/components/dashboard/widgets/ActivityFeed.css */
 .activity-feed {
-  height: 100%;
+  height: fit-content;
+  min-height: 200px;
+  max-height: 400px;
   display: flex;
   flex-direction: column;
 }

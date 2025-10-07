@@ -8,7 +8,7 @@
 .chart-container {
   flex: 1;
   position: relative;
-  min-height: 200px;
+  min-height: 320px;
   padding: 0.5rem;
 }
 

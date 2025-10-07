@@ -29,16 +29,31 @@ const TimeSlotPicker = ({
 
   const user = useSelector((state) => state.user?.user);
 
-  // Generate time slots from 9 AM to 8 PM in 30-minute intervals
+  // Generate time slots from 8 AM to 8 PM in 10-minute intervals
   const generateTimeSlots = () => {
     const slots = [];
-    for (let hour = 9; hour <= 19; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+    for (let hour = 8; hour <= 19; hour++) {
+      // For 8 PM (hour 20), only add slots if we haven't reached it yet
+      const maxMinute = hour === 19 ? 60 : 60; // Allow up to 8:00 PM
+      for (let minute = 0; minute < maxMinute; minute += 10) {
         const startTime = `${String(hour).padStart(2, "0")}:${String(
           minute
         ).padStart(2, "0")}`;
-        const endHour = minute === 30 ? hour + 1 : hour;
-        const endMinute = minute === 30 ? 0 : minute + 30;
+        
+        // Calculate end time (10 minutes later)
+        let endHour = hour;
+        let endMinute = minute + 10;
+        
+        if (endMinute >= 60) {
+          endHour += 1;
+          endMinute -= 60;
+        }
+        
+        // Don't create slots that end after 8:00 PM (20:00)
+        if (endHour > 20 || (endHour === 20 && endMinute > 0)) {
+          break;
+        }
+        
         const endTime = `${String(endHour).padStart(2, "0")}:${String(
           endMinute
         ).padStart(2, "0")}`;
@@ -757,11 +772,16 @@ const TimeSlotPicker = ({
       isClickable = false;
     } else if (isAvailable) {
       slotClass += " available";
+      // In modal mode (booking), available slots are clickable
+      // In scheduler mode (creating), available slots are not clickable
+      if (isModal) {
+        slotClass += " available-clickable"; // Add class for modal mode
+      }
       tooltipText = `Available slot${
         capacityInfo ? ` (${capacityInfo} capacity)` : ""
       }${interviewType ? ` - ${interviewType}` : ""}`;
       statusLabel = "AVAILABLE";
-      isClickable = true;
+      isClickable = isModal; // Only clickable in modal (booking) mode
     } else {
       slotClass += " new-slot";
       tooltipText = isModal

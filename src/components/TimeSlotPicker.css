@@ -138,7 +138,7 @@
   color: var(--color-primary);
 }
 
-/* Available slots styling */
+/* Available slots styling - Already created, not clickable (in scheduler mode) */
 .time-slot.available {
   background: #f8fff9;
   border-color: #4caf50;
@@ -149,6 +149,31 @@
 .time-slot.available:hover {
   transform: none;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Available slots in modal mode (booking) - clickable */
+.time-slot.available.available-clickable {
+  cursor: pointer !important;
+  opacity: 1;
+}
+
+.time-slot.available.available-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+  border-color: #388e3c;
+}
+
+/* Selected available slot in modal mode */
+.time-slot.available.available-clickable.selected {
+  background: #4caf50;
+  color: white;
+  border-color: #2e7d32;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
+}
+
+.time-slot.available.available-clickable.selected .slot-status-main {
+  color: white;
 }
 
 /* Booked slots styling */
@@ -417,38 +442,14 @@
   line-height: 1.4;
 }
 
+/* Disabled slots */
 .time-slot.disabled {
   cursor: not-allowed;
   opacity: 0.7;
   pointer-events: none;
 }
 
-.time-slot.available {
-  background-color: #e8f5e9;
-  border: 1px solid #81c784;
-  color: var(--color-success);
-}
-
-.time-slot.booked {
-  background-color: #ffebee;
-  border: 1px solid #e57373;
-  color: var(--color-danger);
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.time-slot.new-slot {
-  background-color: #e3f2fd;
-  border: 1px solid #64b5f6;
-  color: var(--color-primary);
-}
-
-.time-slot.selected {
-  background-color: #bbdefb;
-  font-weight: bold;
-  box-shadow: 0 0 0 2px #2196f3;
-}
-
+/* Hover states for interactive slots */
 .time-slot:not(.disabled):not(.booked):hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -458,4 +459,5 @@
 .time-slot.booked:hover {
   transform: none;
   box-shadow: none;
+  cursor: not-allowed;
 }
