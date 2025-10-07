@@ -1495,7 +1495,7 @@ body[data-theme='dark'] .form-control {
 }
 
 .password-toggle-btn:hover {
-  transform: none !important;
+  transform: translateY(-50%) !important;
   box-shadow: none !important;
   color: var(--color-muted) !important;
 }
