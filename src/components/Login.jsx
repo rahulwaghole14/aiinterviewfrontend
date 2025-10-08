@@ -89,10 +89,7 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your email"
               required
               disabled={loading}
-              aria-label="Email address"
-              aria-describedby="email-help"
             />
-            <div id="email-help" className="sr-only">Enter your registered email address</div>
           </div>
           <div className="login-form-group">
             <label htmlFor="password">Password</label>
@@ -106,8 +103,6 @@ const Login = ({ onLogin }) => {
                 required
                 disabled={loading}
                 className="password-input"
-                aria-label="Password"
-                aria-describedby="password-help"
               />
               <button
                 type="button"
@@ -116,12 +111,10 @@ const Login = ({ onLogin }) => {
                 disabled={loading}
                 tabIndex={-1}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                aria-pressed={showPassword}
               >
-                {showPassword ? <FiEyeOff size={20} aria-hidden="true" /> : <FiEye size={20} aria-hidden="true" />}
+                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
             </div>
-            <div id="password-help" className="sr-only">Enter your password</div>
           </div>
           <button 
             type="submit" 
