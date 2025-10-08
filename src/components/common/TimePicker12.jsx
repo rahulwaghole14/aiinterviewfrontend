@@ -47,7 +47,7 @@ const TimePicker12 = ({ value, onChange, placeholder = "Select time" }) => {
           setAmpm(parsedAmpm);
         }
       } catch (error) {
-        console.error('Error parsing time value:', error);
+        // Silently handle parsing errors
       }
     }
   }, [value]);

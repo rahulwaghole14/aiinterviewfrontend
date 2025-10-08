@@ -68,7 +68,6 @@ import PropTypes from "prop-types";
       }
       return result;
     } catch (error) {
-      console.warn("Error getting nested value:", error);
       return "";
     }
   };
