@@ -1,6 +1,6 @@
 // components/Login.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/slices/userSlice';
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
@@ -15,7 +15,6 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const notify = useNotification();
   
