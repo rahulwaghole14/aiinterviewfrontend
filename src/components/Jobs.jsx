@@ -1127,19 +1127,18 @@ const Jobs = () => {
                   />
 
                   <label htmlFor="position_level">Position Level</label>
-                  <select
-                    id="position_level"
-                    name="position_level"
+                  <CustomDropdown
                     value={formData.position_level}
-                    onChange={handleChange}
-                    className="jobs-input"
-                    required
+                    options={[
+                      { value: '', label: 'Select Position Level' },
+                      { value: 'IC', label: 'IC (Individual Contributor)' },
+                      { value: 'Manager', label: 'Manager' }
+                    ]}
+                    onChange={(value) => setFormData((prev) => ({ ...prev, position_level: value }))}
+                    placeholder="Select Position Level"
                     disabled={isCreatingJob}
-                  >
-                    <option value="">Select Position Level</option>
-                    <option value="IC">IC (Individual Contributor)</option>
-                    <option value="Manager">Manager</option>
-                  </select>
+                    required
+                  />
 
                   <label htmlFor="current_process">Current Process</label>
                   <input

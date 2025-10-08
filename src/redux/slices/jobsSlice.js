@@ -9,7 +9,6 @@ export const fetchJobs = createAsyncThunk(
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
-        console.warn('fetchJobs: No auth token found in localStorage');
         return rejectWithValue('Authentication token not found.');
       }
 
