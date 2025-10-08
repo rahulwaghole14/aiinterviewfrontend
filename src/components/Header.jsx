@@ -24,6 +24,7 @@ const Header = ({
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const profileMenuRef = useRef(null);
+  const user = useSelector((state) => state.user?.user);
   const searchInputRef = useRef(null); // Ref for desktop search input
   const searchModalInputRef = useRef(null); // Ref for mobile search modal input
 
@@ -32,17 +33,18 @@ const Header = ({
   const dispatch = useDispatch();
   
   // Get current tab from URL path
+  const tabMapping = {
+    'candidates': 'Candidates',
+    'jobs': 'Jobs',
+    'hiring-agencies': 'Hiring Agencies',
+    'ai-interview-scheduler': 'Interview Scheduler',
+    'settings': 'Settings',
+    'interview-results': 'Interviews'
+  };
+  
   const getCurrentTab = () => {
     const path = location.pathname.split('/')[1];
-    switch (path) {
-      case 'candidates': return 'Candidates';
-      case 'jobs': return 'Jobs';
-      case 'hiring-agencies': return 'Hiring Agencies';
-      case 'ai-interview-scheduler': return 'Interview Scheduler';
-      case 'settings': return 'Settings';
-      case 'interview-results': return 'Interviews';
-      default: return null;
-    }
+    return tabMapping[path] || null;
   };
   const reduxSearchTerm = useSelector((state) => state.search?.searchTerm || ''); // Get current Redux search term
   
@@ -161,7 +163,6 @@ const Header = ({
     setIsProfileMenuOpen(false);
     if (path === 'logout') {
       onLogout();
-      // navigate('/login'); // Handled by onLogout prop
     } else {
       onProfileMenuItemClick(path);
     }
@@ -227,7 +228,7 @@ const Header = ({
       searchInputRef.current.focus();
     }
     if (searchModalInputRef.current) {
-      searchModalInputRef.focus();
+      searchModalInputRef.current.focus();
     }
   };
 
@@ -385,13 +386,35 @@ const Header = ({
         <ThemeToggle variant="button" showLabels={false} className="header-theme-toggle" />
 
         <div className="header-profile-wrapper" ref={profileMenuRef}>
-          <div className="header-profile" onClick={handleProfileClick} title="Profile">
+          <div 
+            className="header-profile" 
+            onClick={handleProfileClick} 
+            title={user?.email || 'Profile'}
+          >
             <FiUser size={20} />
           </div>
           {isProfileMenuOpen && (
             <div className="profile-context-menu">
-              <div className="menu-item" onClick={() => handleProfileMenuOptionClick('profile')}>View Profile</div>
-              <div className="menu-item logout" onClick={() => handleProfileMenuOptionClick('logout')}>Logout</div>
+              {user && (
+                <div className="profile-menu-header">
+                  <div className="profile-menu-user-icon">
+                    <FiUser size={24} />
+                  </div>
+                  <div className="profile-menu-user-info">
+                    <div className="profile-menu-user-name">{user.first_name || user.email?.split('@')[0] || 'User'}</div>
+                    <div className="profile-menu-user-email">{user.email}</div>
+                  </div>
+                </div>
+              )}
+              <div className="profile-menu-divider"></div>
+              <div className="menu-item" onClick={() => handleProfileMenuOptionClick('profile')}>
+                <FiUser size={16} />
+                <span>View Profile</span>
+              </div>
+              <div className="menu-item logout" onClick={() => handleProfileMenuOptionClick('logout')}>
+                <FiUser size={16} />
+                <span>Logout</span>
+              </div>
             </div>
           )}
         </div>

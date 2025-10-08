@@ -1088,24 +1088,78 @@ body, html {
 /* Profile Context Menu Styles */
 .profile-context-menu {
   position: absolute;
-  top: 100%; /* Position below the profile icon */
+  top: 100%;
   right: 0;
   background-color: var(--color-card);
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
   list-style: none;
-  padding: 0; /* Make more compact */
+  padding: 0;
   margin-top: 0.5rem;
-  z-index: 100; /* Ensure it's above other header elements */
-  min-width: 140px; /* Slightly reduced width */
+  z-index: 100;
+  min-width: 220px;
+  overflow: hidden;
+}
+
+.profile-menu-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--color-bg-secondary);
+  gap: 0.75rem;
+}
+
+.profile-menu-user-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.profile-menu-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.profile-menu-user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-menu-user-email {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-menu-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 0;
 }
 
 .profile-context-menu .menu-item {
-  padding: 0.6rem 1rem; /* Reduced padding for compactness */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   color: var(--color-text);
   transition: background-color var(--transition);
-  font-size: 0.95rem; /* Slightly smaller font */
+  font-size: 0.9rem;
 }
 
 .profile-context-menu .menu-item:hover {
@@ -1113,12 +1167,11 @@ body, html {
 }
 
 .profile-context-menu .menu-item.logout {
-  border-top: none; /* Removed the line above logout */
-  color: var(--color-error); /* Ensure light red color */
+  color: var(--color-error);
 }
 
 .profile-context-menu .menu-item.logout:hover {
-  background-color: rgba(244, 67, 54, 0.1); /* Light red on hover */
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 /* Profile Page Styles */
