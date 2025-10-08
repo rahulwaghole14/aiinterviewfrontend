@@ -49,9 +49,6 @@ const Login = ({ onLogin }) => {
         localStorage.setItem('authToken', loginData.token);
         localStorage.setItem('userData', JSON.stringify(loginData.user));
 
-        // Ensure localStorage is written before dispatching (fixes Windows race condition)
-        await new Promise(resolve => setTimeout(resolve, 0));
-
         dispatch(setUser(loginData.user));
         dispatch(fetchJobs());
         dispatch(fetchDomains());
