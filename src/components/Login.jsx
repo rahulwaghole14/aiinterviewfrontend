@@ -108,7 +108,6 @@ const Login = ({ onLogin }) => {
                 className="password-toggle-btn"
                 onClick={togglePasswordVisibility}
                 disabled={loading}
-                tabIndex={-1}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 aria-pressed={showPassword}
               >
