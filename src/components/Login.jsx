@@ -59,10 +59,13 @@ const Login = ({ onLogin }) => {
 
         if (onLogin) onLogin(loginData.user);
         notify.success('Successfully logged in! Welcome back.');
-        // Don't navigate here - let App.jsx handle navigation
       } else {
-        const errorData = await loginResponse.json();
-        notify.error(errorData.detail || 'Invalid email or password. Please try again.');
+        try {
+          const errorData = await loginResponse.json();
+          notify.error(errorData.detail || 'Invalid email or password. Please try again.');
+        } catch (jsonError) {
+          notify.error('Invalid email or password. Please try again.');
+        }
       }
     } catch (err) {
       notify.error('An error occurred. Please try again later.');
