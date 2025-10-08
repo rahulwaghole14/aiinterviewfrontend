@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { useNotification } from "../hooks/useNotification";
 import "./Candidates.css";
-import { candidateStatusList, baseURL } from '../data';
-import { updateCandidateStatus } from '../redux/slices/candidatesSlice'; // Keep updateCandidateStatus
+import { baseURL } from '../data';
+import { updateCandidateStatus } from '../redux/slices/candidatesSlice';
 import { fetchCandidates } from '../redux/slices/candidatesSlice'; // Import fetchCandidates thunk
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice'; // Import job and domain thunks
 import { FiChevronDown } from 'react-icons/fi';
