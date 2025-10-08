@@ -12,9 +12,8 @@ import {
   addDomain,
   updateDomain,
   deleteDomain,
-} from "../redux/slices/jobsSlice"; // Import actions and async thunks
+} from "../redux/slices/jobsSlice";
 import CustomDropdown from './common/CustomDropdown';
-import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import Modal, { FormModal, ConfirmModal } from "./common/Modal";
@@ -31,25 +30,17 @@ const Jobs = () => {
   const jobsError = useSelector((state) => state.jobs.jobsError);
   const domainsError = useSelector((state) => state.jobs.domainsError);
   const searchTerm = useSelector((state) => state.search.searchTerm);
-  
-  // Debug search term
-  useEffect(() => {
-  }, [searchTerm]);
 
   // Get user details from Redux store (userSlice)
-  const user = useSelector((state) => state.user.user); // Assuming user object is available here
-  const userRole = user?.role?.toUpperCase(); // Get the user's role and convert to uppercase for consistent comparison
-  const userCompanyName = user?.company_name; // Get the logged-in user's company name
+  const user = useSelector((state) => state.user.user);
+  const userRole = user?.role?.toUpperCase();
+  const userCompanyName = user?.company_name;
 
-  // Helper function to get domain name by ID - moved to top to avoid hoisting issues
+  // Helper function to get domain name by ID
   const getDomainName = (domainId) => {
     const domain = domains.find((d) => d.id === domainId);
     return domain ? domain.name : `Domain ${domainId}`;
   };
-
-  // Log user details for debugging
-  useEffect(() => {
-  }, [user, userRole, userCompanyName]);
 
   // Use useMemo to filter jobs based on user role and company name
   const jobsForUser = useMemo(() => {
