@@ -156,12 +156,12 @@ const AiInterviewScheduler = ({
     });
   }, [slots, searchTerm]);
 
-  // Initialize form with default values (updated for 10-minute slots)
+  // Initialize form with default values
   const [slotForm, setSlotForm] = useState(() => ({
     ai_interview_type: "technical",
     difficulty_level: "intermediate",
     question_count: "10",
-    time_limit: "10", // Default to 10 minutes for 10-minute slots
+    time_limit: "",
     topics: "",
     max_candidates: "1",
     job: "",
@@ -176,7 +176,7 @@ const AiInterviewScheduler = ({
       ai_interview_type: "technical",
       difficulty_level: "intermediate",
       question_count: "10",
-      time_limit: "10", // Default to 10 minutes for 10-minute slots
+      time_limit: "",
       topics: "",
       max_candidates: "1",
       job: "",
@@ -209,46 +209,6 @@ const AiInterviewScheduler = ({
     }
   }, [dispatch, notify]);
 
-  // Fetch jobs for a specific company
-  const fetchJobsForCompany = useCallback(async (companyId) => {
-    if (!companyId) {
-      setJobs([]);
-      return;
-    }
-    
-    setJobsLoading(true);
-    try {
-      const authToken = localStorage.getItem("authToken");
-      if (!authToken) throw new Error("Authentication token not found");
-
-      const response = await fetch(`${baseURL}/api/jobs/?company_id=${companyId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${authToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch jobs: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const jobsData = data.results || data;
-      
-      if (Array.isArray(jobsData) && jobsData.length === 0) {
-        notify.info('No jobs found for this company');
-      }
-      
-      setJobs(Array.isArray(jobsData) ? jobsData : []);
-    } catch {
-      console.error('Error fetching jobs');
-      notify.error('Failed to fetch jobs');
-      setJobs([]);
-    } finally {
-      setJobsLoading(false);
-    }
-  }, [notify]);
-
   // Fetch companies for admin users
   const fetchCompanies = useCallback(async () => {
     if (user?.role?.toLowerCase() !== 'admin') return;
@@ -280,6 +240,41 @@ const AiInterviewScheduler = ({
     }
   }, [user?.role, notify]);
 
+  // Fetch jobs for a specific company
+  const fetchJobsForCompany = useCallback(async (companyId) => {
+    if (!companyId) {
+      setJobs([]);
+      return;
+    }
+    
+    setJobsLoading(true);
+    try {
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) throw new Error("Authentication token not found");
+
+      const response = await fetch(`${baseURL}/api/jobs/?company_id=${companyId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch jobs: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const jobsData = data.results || data;
+      setJobs(Array.isArray(jobsData) ? jobsData : []);
+    } catch {
+      console.error('Error fetching jobs');
+      notify.error('Failed to fetch jobs');
+      setJobs([]);
+    } finally {
+      setJobsLoading(false);
+    }
+  }, [notify]);
+
   useEffect(() => {
     if (user && Object.keys(user).length > 0) {
       initializeData();
@@ -304,8 +299,7 @@ const AiInterviewScheduler = ({
       fetchJobsForCompany(selectedCompanyId);
       setSelectedJobId(null); // Reset job selection when company changes
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompanyId, user?.role]);
+  }, [selectedCompanyId, user?.role, fetchJobsForCompany]);
 
   // Context menu handlers
   const handleContextMenuClick = (event, rowData, rowIndex) => {
@@ -493,7 +487,7 @@ const AiInterviewScheduler = ({
           if (lastTime.includes("-")) {
             overallEndTime = lastTime.split("-")[1];
           } else {
-            overallEndTime = addMinutesToTime(lastTime, 10, selectedDate); // Changed from 30 to 10 minutes
+            overallEndTime = addMinutesToTime(lastTime, 30, selectedDate);
           }
 
           // Create single slot with calculated times
@@ -518,7 +512,7 @@ const AiInterviewScheduler = ({
             ai_configuration: {
               difficulty_level: slotForm.difficulty_level || "intermediate",
               question_count: parseInt(slotForm.question_count) || 10,
-              time_limit: parseInt(slotForm.time_limit) || 10, // Default to 10 minutes for 10-minute slots
+              time_limit: parseInt(slotForm.time_limit) || 60,
               topics: slotForm.topics ? slotForm.topics.split(",").map((t) => t.trim()) : ["algorithms", "data_structures"],
             },
             max_candidates: parseInt(slotForm.max_candidates) || 1,
