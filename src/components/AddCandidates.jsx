@@ -3,7 +3,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import "./AddCandidates.css";
 import { baseURL } from "../data";
-import { FiTrash2, FiEdit2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { fetchJobs, fetchDomains } from '../redux/slices/jobsSlice';
 import Modal, { ConfirmModal } from './common/Modal';
@@ -112,7 +112,6 @@ const AddCandidates = () => {
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    console.log('handleChange called with:', { name, value, type: typeof value });
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
@@ -230,17 +229,12 @@ const AddCandidates = () => {
 
   // Function to handle submitting candidates from parsed data
   const handleSubmitCandidates = async () => {
-    console.log('🚀 handleSubmitCandidates called');
-    console.log('📊 Parsed resume data length:', parsedResumeData.length);
-    
     if (parsedResumeData.length === 0) {
       notify.error("No candidate data to submit");
       return;
     }
 
     const authToken = localStorage.getItem('authToken');
-    console.log('🔑 Auth token exists:', !!authToken);
-    console.log('🔑 Auth token preview:', authToken ? authToken.substring(0, 20) + '...' : 'null');
     
     if (!authToken) {
       notify.error("Please log in to submit candidates.");
@@ -291,23 +285,15 @@ const AddCandidates = () => {
     }));
 
     const submissionPayload = {
-      domain: selectedDomainName, // Send domain name
-      role: selectedJobTitle, // Send job title (role)
+      domain: selectedDomainName,
+      role: selectedJobTitle,
       poc_email: formData.poc_email,
       candidates: candidatesToSubmit,
     };
 
-    console.log('📦 Submission payload:', {
-      domain: selectedDomainName,
-      role: selectedJobTitle,
-      poc_email: formData.poc_email,
-      candidatesCount: candidatesToSubmit.length
-    });
-    console.log('📤 Making POST request to:', `${baseURL}/api/candidates/bulk-create/?step=submit`);
-
     try {
       const response = await axios.post(
-        `${baseURL}/api/candidates/bulk-create/?step=submit`, // New API endpoint
+        `${baseURL}/api/candidates/bulk-create/?step=submit`,
         submissionPayload,
         {
           headers: {
@@ -316,9 +302,6 @@ const AddCandidates = () => {
           },
         }
       );
-      
-      console.log('✅ Response received:', response.status);
-      console.log('📄 Response data:', response.data);
 
       // Candidates submitted successfully
 
@@ -342,20 +325,12 @@ const AddCandidates = () => {
 
       // No need for setTimeout here, modal will be closed by user
     } catch (error) {
-      console.error('❌ Error submitting candidates:', error);
-      console.error('❌ Error response:', error.response);
-      console.error('❌ Error data:', error.response?.data);
-      console.error('❌ Error status:', error.response?.status);
-      
       if (error.response?.status === 401) {
-        console.error('❌ 401 Unauthorized - Auth token invalid or missing');
         notify.error("Authentication failed. Please log in again.");
         navigate('/login');
       } else if (error.response?.status === 400) {
-        console.error('❌ 400 Bad Request - Invalid data sent');
         notify.error(`Bad request: ${error.response?.data?.error || error.response?.data?.message || 'Invalid data'}`);
       } else if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
-        console.error('❌ Network Error - Cannot connect to backend');
         notify.error("Cannot connect to server. Please make sure the backend is running on port 8000.");
       } else {
         notify.error(error.response?.data?.message || "Failed to submit candidates. Please try again.");
