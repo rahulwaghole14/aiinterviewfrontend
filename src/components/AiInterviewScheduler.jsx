@@ -233,7 +233,6 @@ const AiInterviewScheduler = ({
       const companiesData = data.results || data;
       setCompanies(Array.isArray(companiesData) ? companiesData : []);
     } catch {
-      console.error('Error fetching companies');
       notify.error('Failed to fetch companies');
     } finally {
       setCompaniesLoading(false);
@@ -267,7 +266,6 @@ const AiInterviewScheduler = ({
       const jobsData = data.results || data;
       setJobs(Array.isArray(jobsData) ? jobsData : []);
     } catch {
-      console.error('Error fetching jobs');
       notify.error('Failed to fetch jobs');
       setJobs([]);
     } finally {
@@ -460,14 +458,6 @@ const AiInterviewScheduler = ({
         const authToken = localStorage.getItem("authToken");
         if (!authToken) throw new Error("Authentication token not found");
 
-        console.log('👤 User data:', user);
-        console.log('🏢 User company_id:', user?.company_id);
-        console.log('🆔 User id:', user?.id);
-        console.log('🎯 Selected company ID:', selectedCompanyId);
-        console.log('📋 Available companies:', companies);
-        console.log('💼 Selected job ID:', selectedJobId);
-        console.log('📋 Available jobs:', jobs);
-
         const formattedDate = selectedDate.toISOString().split("T")[0];
 
         if (selectedTimes.length > 0) {
@@ -521,8 +511,6 @@ const AiInterviewScheduler = ({
             company: selectedCompanyId || null,
           };
 
-          console.log('🚀 Sending slot data:', slotData);
-
           const response = await fetch(`${baseURL}/api/interviews/slots/`, {
             method: "POST",
             headers: {
@@ -534,8 +522,6 @@ const AiInterviewScheduler = ({
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.error('❌ API Error Response:', errorData);
-            console.error('❌ Response Status:', response.status);
             throw new Error(
               `Failed to create slot: ${JSON.stringify(errorData)}`
             );
@@ -564,10 +550,8 @@ const AiInterviewScheduler = ({
       resetSlotForm,
       addMinutesToTime,
       notify,
-      companies,
       selectedCompanyId,
       selectedJobId,
-      jobs,
     ]
   );
 
