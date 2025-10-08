@@ -399,7 +399,7 @@ body, html {
 .sidebar-item:hover {
   background-color: var(--color-card);
   color: var(--color-primary);
-  transform: translateX(2px);
+  transform: translateX(4px);
 }
 
 .sidebar-item:hover .sidebar-icon {
@@ -1573,27 +1573,6 @@ select:focus {
   background-color: var(--color-hover);
   transform: scale(1.01);
 }
-
-/* Sidebar Item Animations */
-.sidebar-item {
-  transition: var(--transition-bounce);
-  position: relative;
-}
-
-/* Left border removed */
-
-.sidebar-item:hover {
-  transform: translateX(4px);
-  background-color: var(--color-hover);
-}
-
-.sidebar-item.active {
-  background-color: var(--color-primary);
-  color: white;
-  transform: translateX(4px);
-}
-
-/* Active state left border removed */
 
 /* Modal Animations */
 .modal {
