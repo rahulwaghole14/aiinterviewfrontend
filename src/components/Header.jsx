@@ -277,7 +277,6 @@ const Header = ({
               <FiX
                 className="clear-search-icon"
                 size={18}
-                style={{ cursor: 'pointer', marginLeft: '4px', color: '#aaa' }}
                 onClick={handleClearSearch}
                 title="Clear search"
               />
