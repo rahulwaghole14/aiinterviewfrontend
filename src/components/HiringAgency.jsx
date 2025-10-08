@@ -1,18 +1,100 @@
 // src/components/HiringAgencies.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import "./HiringAgency.css";
 import { baseURL } from "../data";
+import { API_ENDPOINTS } from "../config/api";
 import { fetchCompanies } from "../redux/slices/companiesSlice";
 import { fetchHiringAgencies } from "../redux/slices/hiringAgenciesSlice";
 import { fetchRecruiters } from "../redux/slices/recruitersSlice";
-import { fetchAdmins } from "../redux/slices/adminSlice";
+import { fetchAdmins } from "../redux/slices/adminSlice"; // Import the dummy fetch for admins
 import DataTable from "./common/DataTable";
 import LoadingSpinner from "./common/LoadingSpinner";
 import ContextMenu from "./common/ContextMenu";
+import { FaSave, FaTimes, FaEdit, FaTrash } from "react-icons/fa";
 import { FormModal, ConfirmModal } from "./common/Modal";
+import { FiChevronDown } from 'react-icons/fi';
 import { useNotification } from "../hooks/useNotification";
 import CustomDropdown from './common/CustomDropdown';
+
+const formInputStyle = {
+  width: "100%",
+  padding: "0.5rem 0.75rem",
+  border: "1px solid var(--color-border)",
+  borderRadius: "var(--radius-small)",
+  fontSize: "0.9rem",
+  backgroundColor: "var(--color-card)",
+  color: "var(--color-text)",
+  transition: "border-color 0.2s, box-shadow 0.2s",
+};
+
+const formInputFocusStyle = {
+  outline: "none",
+  borderColor: "var(--color-primary)",
+  boxShadow: "0 0 0 2px rgba(127, 202, 146, 0.25)",
+};
+
+const actionButtonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "32px",
+  height: "32px",
+  borderRadius: "var(--radius-small)",
+  border: "1px solid var(--color-border)",
+  cursor: "pointer",
+  transition: "var(--transition)",
+  fontSize: "14px",
+  color: "var(--color-text)",
+  backgroundColor: "var(--color-card)",
+  "&:hover": {
+    backgroundColor: "var(--color-hover)",
+    boxShadow: "var(--shadow-button-hover)",
+  },
+  "&:focus": {
+    outline: "none",
+    boxShadow: "0 0 0 2px var(--color-primary)",
+  },
+};
+
+const saveButtonStyle = {
+  ...actionButtonStyle,
+  backgroundColor: "var(--color-success)",
+  color: "white",
+  borderColor: "var(--color-success-dark)",
+  "&:hover": {
+    backgroundColor: "var(--color-success-dark)",
+    borderColor: "var(--color-success-dark)",
+    boxShadow: "var(--shadow-button-hover)",
+  },
+  "&:active": {
+    transform: "translateY(1px)",
+  },
+};
+
+const cancelButtonStyle = {
+  ...actionButtonStyle,
+  backgroundColor: "var(--color-card)",
+  borderColor: "var(--color-border)",
+  color: "var(--color-text-secondary)",
+  "&:hover": {
+    backgroundColor: "var(--color-hover)",
+    borderColor: "var(--color-gray)",
+    color: "var(--color-text)",
+    boxShadow: "var(--shadow-button-hover)",
+  },
+  "&:active": {
+    transform: "translateY(1px)",
+  },
+};
+
+const buttonContainerStyle = {
+  display: "flex",
+  gap: "0.5rem",
+  justifyContent: "center",
+  alignItems: "center",
+};
 
 const HiringAgencies = () => {
   const dispatch = useDispatch();
