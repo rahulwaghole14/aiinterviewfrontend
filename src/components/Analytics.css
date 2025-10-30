@@ -1,6 +1,7 @@
 /* Analytics.css */
 .analytics-container {
   padding: 0;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
   overflow-x: hidden;
