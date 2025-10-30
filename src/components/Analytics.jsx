@@ -331,7 +331,7 @@ const Analytics = () => {
   // Get sort icon for a column
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return <FiMinimize2 className="sort-icon inactive" style={{ transform: 'rotate(90deg)' }} />;
+      return null; // Don't show icon until column is clicked
     }
     return sortDirection === "asc" ? (
       <FiArrowUp className="sort-icon active" />
