@@ -82,16 +82,16 @@
 }
 
 .summary-card {
-  background: white;
+  background: var(--color-background-card, white);
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.1));
   transition: all 0.3s ease;
 }
 
 .summary-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-card-hover, 0 4px 16px rgba(0, 0, 0, 0.15));
 }
 
 .summary-card h3 {
@@ -116,10 +116,10 @@
 }
 
 .chart-card {
-  background: white;
+  background: var(--color-background-card, white);
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.1));
 }
 
 .chart-card h2 {
@@ -152,10 +152,10 @@
 }
 
 .table-card {
-  background: white;
+  background: var(--color-background-card, white);
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.1));
   overflow: hidden;
 }
 
