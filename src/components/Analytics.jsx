@@ -295,23 +295,21 @@ const Analytics = () => {
     );
   }
 
-  // Handle column sorting with three states: none -> asc -> desc -> none
+  // Handle column sorting with three states: asc -> desc -> none -> asc
   const handleSort = (field) => {
     if (sortField === field) {
-      // Toggle direction if same field: none -> asc -> desc -> none
-      if (sortDirection === "none") {
-        setSortDirection("asc");
-      } else if (sortDirection === "asc") {
+      // Toggle direction if same field: asc -> desc -> none
+      if (sortDirection === "asc") {
         setSortDirection("desc");
-      } else {
-        // desc -> none (reset)
+      } else if (sortDirection === "desc") {
+        // desc -> none (reset to original order)
         setSortDirection("none");
         setSortField(null);
       }
     } else {
-      // New field, start with none (first click shows no icon, then cycles to asc)
+      // New field, start with ascending immediately
       setSortField(field);
-      setSortDirection("none");
+      setSortDirection("asc");
     }
   };
 
