@@ -205,7 +205,7 @@
 }
 
 .analytics-table th.sortable:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-hover-background, rgba(0, 0, 0, 0.05));
 }
 
 .analytics-table th.sortable {
@@ -226,7 +226,7 @@
 }
 
 .sort-icon.inactive {
-  color: #ccc;
+  color: var(--color-text-tertiary, #999);
 }
 
 .sort-icon.active {
