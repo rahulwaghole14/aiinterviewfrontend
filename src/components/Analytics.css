@@ -209,19 +209,20 @@
 }
 
 .analytics-table th.sortable {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  position: relative;
 }
 
 .analytics-table th.sortable span {
-  flex: 1;
+  display: inline-block;
 }
 
 .sort-icon {
   width: 16px;
   height: 16px;
   transition: color 0.2s ease;
+  margin-left: 0.5rem;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .sort-icon.inactive {
