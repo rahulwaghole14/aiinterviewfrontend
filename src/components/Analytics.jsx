@@ -39,7 +39,7 @@ const Analytics = () => {
   const [authToken, setAuthToken] = useState("");
   const [analyticsData, setAnalyticsData] = useState(null);
   const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortDirection, setSortDirection] = useState("none"); // none, asc, desc
 
   // Get auth token from localStorage when component mounts
   useEffect(() => {
@@ -295,21 +295,29 @@ const Analytics = () => {
     );
   }
 
-  // Handle column sorting
+  // Handle column sorting with three states: none -> asc -> desc -> none
   const handleSort = (field) => {
     if (sortField === field) {
-      // Toggle direction if same field
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      // Toggle direction if same field: none -> asc -> desc -> none
+      if (sortDirection === "none") {
+        setSortDirection("asc");
+      } else if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        // desc -> none (reset)
+        setSortDirection("none");
+        setSortField(null);
+      }
     } else {
-      // New field, start with ascending
+      // New field, start with none (first click shows no icon, then cycles to asc)
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection("none");
     }
   };
 
   // Sort agencies data
   const sortedAgencies = [...(analyticsData.all_agencies || [])].sort((a, b) => {
-    if (!sortField) return 0;
+    if (!sortField || sortDirection === "none") return 0;
 
     let aValue = a[sortField];
     let bValue = b[sortField];
@@ -331,13 +339,17 @@ const Analytics = () => {
   // Get sort icon for a column
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return null; // Don't show icon until column is clicked
+      return null; // Don't show icon for other columns
     }
-    return sortDirection === "asc" ? (
-      <FiArrowUp className="sort-icon active" />
-    ) : (
-      <FiArrowDown className="sort-icon active" />
-    );
+    
+    // Show icon based on sort direction
+    if (sortDirection === "asc") {
+      return <FiArrowUp className="sort-icon active" />;
+    } else if (sortDirection === "desc") {
+      return <FiArrowDown className="sort-icon active" />;
+    } else {
+      return null; // Show nothing for "none" state
+    }
   };
 
   // Prepare chart data
