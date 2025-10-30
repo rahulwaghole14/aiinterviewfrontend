@@ -2199,19 +2199,6 @@ const HiringAgencies = () => {
         showActions={true}
         defaultPageSize={10}
         pageSizeOptions={[10, 25, 50, 100]}
-        editingRow={editingUserId !== null ? sortedUsers.findIndex(item => item.id === editingUserId) : null}
-        editingData={editedUserData}
-        setEditingRow={(rowIndex) => {
-          if (rowIndex === null) {
-            setEditingUserId(null);
-            setEditedUserData(null);
-          } else {
-            const item = sortedUsers[rowIndex];
-            setEditingUserId(item?.id || null);
-            setEditedUserData(item ? { ...item } : null);
-          }
-        }}
-        setEditingData={setEditedUserData}
       />
 
               </div>

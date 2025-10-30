@@ -22,6 +22,13 @@ const StatusUpdateModal = ({
   editingInterview = null,
   editingEvaluation = null,
 }) => {
+  // ---- CONSOLE LOG: Show what evaluation data is coming from backend for debug purposes ----
+  if (editingEvaluation) {
+    console.log('[StatusUpdateModal] Editing evaluation:', editingEvaluation);
+    if (editingEvaluation.details) {
+      console.log('[StatusUpdateModal] Evaluation.details:', editingEvaluation.details);
+    }
+  }
   const notify = useNotification();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
@@ -35,7 +42,7 @@ const StatusUpdateModal = ({
     } else {
       notify.error("Authentication token not found. Please log in again.");
     }
-  }, []);
+  }, [notify]);
 
   // Common headers for API calls
   const getAuthHeaders = () => ({
@@ -97,7 +104,7 @@ const StatusUpdateModal = ({
         suggestions: editingEvaluation.suggestions || "",
       });
     }
-  }, [editingEvaluation?.id, isEditMode, action]); // Only run when evaluation ID changes
+  }, [editingEvaluation, isEditMode, action]);
 
   // Force form update when modal opens in edit mode
   useEffect(() => {
@@ -123,7 +130,7 @@ const StatusUpdateModal = ({
         suggestions: editingEvaluation.suggestions || "",
       });
     }
-  }, [editingEvaluation?.id]); // Only run when evaluation ID changes
+  }, [editingEvaluation, action, isEditMode]);
 
   // Evaluation Form State
   const [evaluationForm, setEvaluationForm] = useState({
@@ -473,8 +480,7 @@ const StatusUpdateModal = ({
         throw new Error(errorData.detail || errorData.message || JSON.stringify(errorData) || "Failed to create interview");
       }
 
-      const responseData = await response.json();
-      const interviewId = responseData.id;
+      // Removed: const responseData = await response.json();
 
       // Step 2: Update the slot booking (only if we found a matching slot)
       if (matchingSlot) {
@@ -577,8 +583,7 @@ const StatusUpdateModal = ({
   };
 
   const handleEvaluate = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
+    if (!authToken) {
       notify.error("Authentication token not found. Please log in again.");
       return;
     }
@@ -613,7 +618,7 @@ const StatusUpdateModal = ({
         method: method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+          Authorization: `Token ${authToken}`,
         },
         body: JSON.stringify(evaluationData),
       });
@@ -656,7 +661,7 @@ const StatusUpdateModal = ({
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("authToken");
+      // Removed: const token = localStorage.getItem("authToken");
 
       // Update candidate status
       const statusData = {
@@ -704,31 +709,6 @@ const StatusUpdateModal = ({
     }
   };
 
-  const fetchAvailableSlots = async (date) => {
-    if (!authToken) return [];
-
-    try {
-      const formattedDate = date.toISOString().split("T")[0];
-      const response = await fetch(
-        `${baseURL}/api/interviews/slots/?date=${formattedDate}&is_available=true`,
-        {
-          headers: getAuthHeaders(),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch available slots");
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      console.error("Error fetching available slots:", err);
-      notify.error("Failed to load available time slots");
-      return [];
-    }
-  };
-
   const renderScheduleInterviewForm = () => (
     <div className="modal-form">
       <h3>{isEditMode ? "Edit Interview" : "Schedule Interview"}</h3>
@@ -770,27 +750,6 @@ const StatusUpdateModal = ({
 
     </div>
   );
-
-  const renderAIEvaluationForm = () => {
-    return (
-      <div className="ai-evaluation-info">
-        <div className="info-card">
-          <h3>🤖 AI Evaluation</h3>
-          <p>AI evaluation is automatically generated based on the candidate's interview performance.</p>
-          <p>This evaluation includes:</p>
-          <ul>
-            <li>Technical skills assessment</li>
-            <li>Problem-solving abilities</li>
-            <li>Communication skills</li>
-            <li>Overall performance rating</li>
-            <li>Strengths and areas for improvement</li>
-            <li>Hire recommendation</li>
-          </ul>
-          <p><strong>Note:</strong> AI evaluation is generated automatically after the interview is completed. No manual input is required.</p>
-        </div>
-      </div>
-    );
-  };
 
   const renderEvaluationForm = () => {
     console.log("=== RENDERING EVALUATION FORM ===");
@@ -922,9 +881,8 @@ const StatusUpdateModal = ({
     switch (action) {
       case "schedule_interview":
         return renderScheduleInterviewForm();
-      case "ai_evaluate":
-        return renderAIEvaluationForm();
       case "manual_evaluate":
+      case "evaluate":
         return renderEvaluationForm();
       case "hire_reject":
         return renderHireRejectForm();
@@ -937,10 +895,9 @@ const StatusUpdateModal = ({
     switch (action) {
       case "schedule_interview":
         return isEditMode ? "Edit Interview" : "Schedule Interview";
-      case "ai_evaluate":
-        return "AI Evaluation";
       case "manual_evaluate":
-        return isEditMode ? "Edit Manual Evaluation" : "Manual Evaluation";
+      case "evaluate":
+        return isEditMode ? "Edit Evaluation" : "Manual Evaluation";
       case "hire_reject":
         return "Hire/Reject Decision";
       default:
@@ -968,15 +925,8 @@ const StatusUpdateModal = ({
             </button>
           </div>
         );
-      case "ai_evaluate":
-        return (
-          <div className="modal-form-actions">
-            <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">
-              Close
-            </button>
-          </div>
-        );
       case "manual_evaluate":
+      case "evaluate":
         return (
           <div className="modal-form-actions">
             <button type="button" onClick={onClose} className="common-modal-btn btn-cancel">

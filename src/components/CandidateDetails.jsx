@@ -900,9 +900,6 @@ const CandidateDetails = () => {
                     
                     <div className="performance-metrics">
                       <div className="metric-item">
-                        <strong>Total Questions:</strong> {interview.ai_result.questions_attempted || 0}
-                      </div>
-                      <div className="metric-item">
                         <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
                       </div>
                       <div className="metric-item">
