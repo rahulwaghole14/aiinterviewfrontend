@@ -4,6 +4,7 @@ import { baseURL } from "../data";
 import { useNotification } from "../hooks/useNotification";
 import BeatLoader from "react-spinners/BeatLoader";
 import jsPDF from "jspdf";
+import { FiArrowUp, FiArrowDown, FiArrowUpDown } from "react-icons/fi";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -37,6 +38,8 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState("");
   const [analyticsData, setAnalyticsData] = useState(null);
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
 
   // Get auth token from localStorage when component mounts
   useEffect(() => {
@@ -292,6 +295,51 @@ const Analytics = () => {
     );
   }
 
+  // Handle column sorting
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // New field, start with ascending
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  // Sort agencies data
+  const sortedAgencies = [...(analyticsData.all_agencies || [])].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let aValue = a[sortField];
+    let bValue = b[sortField];
+
+    // Handle numeric values
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // Handle string values
+    aValue = String(aValue || "").toLowerCase();
+    bValue = String(bValue || "").toLowerCase();
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Get sort icon for a column
+  const getSortIcon = (field) => {
+    if (sortField !== field) {
+      return <FiArrowUpDown className="sort-icon inactive" />;
+    }
+    return sortDirection === "asc" ? (
+      <FiArrowUp className="sort-icon active" />
+    ) : (
+      <FiArrowDown className="sort-icon active" />
+    );
+  };
+
   // Prepare chart data
   const top5AgenciesNames = analyticsData.top_5_agencies?.map(a => a.agency_name) || [];
   const top5AgenciesUploaded = analyticsData.top_5_agencies?.map(a => a.uploaded_profiles) || [];
@@ -416,68 +464,70 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Top 5 Agencies Table */}
-        <div className="table-card">
-          <h2>Top 5 Hiring Agencies</h2>
-          <p className="table-description">Top performing hiring agencies by number of profiles uploaded</p>
-          <div className="table-wrapper">
-            <table className="analytics-table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Agency Name</th>
-                  <th>Recruiter</th>
-                  <th>Profiles Uploaded</th>
-                  <th>Selected</th>
-                  <th>Rejected</th>
-                  <th>Selection Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analyticsData.top_5_agencies && analyticsData.top_5_agencies.length > 0 ? (
-                  analyticsData.top_5_agencies.map((agency, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{agency.agency_name}</td>
-                      <td>{agency.recruiter_name}</td>
-                      <td>{agency.uploaded_profiles}</td>
-                      <td>{agency.selected_profiles}</td>
-                      <td>{agency.rejected_profiles}</td>
-                      <td>{agency.selection_rate.toFixed(1)}%</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7">No data available</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        {/* Charts Section */}
+        <div className="charts-section">
+          <div className="chart-card">
+            <div className="chart-container">
+              <Bar data={barChartData} options={barChartOptions} />
+            </div>
+          </div>
+
+          <div className="chart-card">
+            <div className="chart-container">
+              <Pie data={pieChartData} options={pieChartOptions} />
+            </div>
           </div>
         </div>
 
         {/* All Agencies Table */}
         <div className="table-card">
           <h2>All Hiring Agency Statistics</h2>
-          <p className="table-description">Complete breakdown of profiles and interview statistics by hiring agency</p>
+          <p className="table-description">Complete breakdown of profiles and interview statistics by hiring agency. Click column headers to sort.</p>
           <div className="table-wrapper">
             <table className="analytics-table">
               <thead>
                 <tr>
-                  <th>Agency Name</th>
-                  <th>Recruiter</th>
-                  <th>Profiles Uploaded</th>
-                  <th>Selected</th>
-                  <th>Rejected</th>
-                  <th>Interviews Scheduled</th>
-                  <th>Interviews Selected</th>
-                  <th>Interviews Rejected</th>
-                  <th>Selection Rate</th>
+                  <th className="sortable" onClick={() => handleSort("agency_name")}>
+                    <span>Agency Name</span>
+                    {getSortIcon("agency_name")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("recruiter_name")}>
+                    <span>Recruiter</span>
+                    {getSortIcon("recruiter_name")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("uploaded_profiles")}>
+                    <span>Profiles Uploaded</span>
+                    {getSortIcon("uploaded_profiles")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("selected_profiles")}>
+                    <span>Selected</span>
+                    {getSortIcon("selected_profiles")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("rejected_profiles")}>
+                    <span>Rejected</span>
+                    {getSortIcon("rejected_profiles")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("interviews_scheduled")}>
+                    <span>Interviews Scheduled</span>
+                    {getSortIcon("interviews_scheduled")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("interviews_selected")}>
+                    <span>Interviews Selected</span>
+                    {getSortIcon("interviews_selected")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("interviews_rejected")}>
+                    <span>Interviews Rejected</span>
+                    {getSortIcon("interviews_rejected")}
+                  </th>
+                  <th className="sortable" onClick={() => handleSort("selection_rate")}>
+                    <span>Selection Rate</span>
+                    {getSortIcon("selection_rate")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {analyticsData.all_agencies && analyticsData.all_agencies.length > 0 ? (
-                  analyticsData.all_agencies.map((agency, index) => (
+                {sortedAgencies && sortedAgencies.length > 0 ? (
+                  sortedAgencies.map((agency, index) => (
                     <tr key={index}>
                       <td>{agency.agency_name}</td>
                       <td>{agency.recruiter_name}</td>
@@ -497,21 +547,6 @@ const Analytics = () => {
                 )}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* Charts Section */}
-        <div className="charts-section">
-          <div className="chart-card">
-            <div className="chart-container">
-              <Bar data={barChartData} options={barChartOptions} />
-            </div>
-          </div>
-
-          <div className="chart-card">
-            <div className="chart-container">
-              <Pie data={pieChartData} options={pieChartOptions} />
-            </div>
           </div>
         </div>
       </div>
