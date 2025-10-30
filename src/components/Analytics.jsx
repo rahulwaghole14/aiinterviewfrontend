@@ -4,7 +4,33 @@ import { baseURL } from "../data";
 import { useNotification } from "../hooks/useNotification";
 import BeatLoader from "react-spinners/BeatLoader";
 import jsPDF from "jspdf";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Pie } from "react-chartjs-2";
 import "./Analytics.css";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Analytics = () => {
   const notify = useNotification();
@@ -266,6 +292,90 @@ const Analytics = () => {
     );
   }
 
+  // Prepare chart data
+  const top5AgenciesNames = analyticsData.top_5_agencies?.map(a => a.agency_name) || [];
+  const top5AgenciesUploaded = analyticsData.top_5_agencies?.map(a => a.uploaded_profiles) || [];
+  const top5AgenciesSelected = analyticsData.top_5_agencies?.map(a => a.selected_profiles) || [];
+
+  // Bar chart data
+  const barChartData = {
+    labels: top5AgenciesNames,
+    datasets: [
+      {
+        label: "Profiles Uploaded",
+        data: top5AgenciesUploaded,
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 2,
+      },
+      {
+        label: "Selected",
+        data: top5AgenciesSelected,
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Top 5 Agencies Performance Comparison",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  // Pie chart data for status distribution
+  const pieChartData = {
+    labels: ["Hired", "Rejected", "Others"],
+    datasets: [
+      {
+        data: [
+          analyticsData.hired_candidates || 0,
+          analyticsData.rejected_candidates || 0,
+          (analyticsData.total_candidates || 0) - (analyticsData.hired_candidates || 0) - (analyticsData.rejected_candidates || 0),
+        ],
+        backgroundColor: [
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+        ],
+        borderColor: [
+          "rgba(75, 192, 192, 1)",
+          "rgba(255, 99, 132, 1)",
+          "rgba(255, 206, 86, 1)",
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Candidate Status Distribution",
+      },
+    },
+  };
+
   return (
     <div className="analytics-container">
       <div className="analytics-header">
@@ -390,12 +500,17 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Charts Placeholder */}
+        {/* Charts Section */}
         <div className="charts-section">
           <div className="chart-card">
-            <h2>Hiring Agency Performance</h2>
-            <div className="chart-placeholder">
-              Chart visualization coming soon
+            <div className="chart-container">
+              <Bar data={barChartData} options={barChartOptions} />
+            </div>
+          </div>
+
+          <div className="chart-card">
+            <div className="chart-container">
+              <Pie data={pieChartData} options={pieChartOptions} />
             </div>
           </div>
         </div>

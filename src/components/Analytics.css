@@ -139,6 +139,11 @@
   font-size: 1.1rem;
 }
 
+.chart-container {
+  height: 400px;
+  padding: 1rem;
+}
+
 /* Tables Section */
 .tables-section {
   display: flex;
