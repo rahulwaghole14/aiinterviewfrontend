@@ -4,7 +4,7 @@ import { baseURL } from "../data";
 import { useNotification } from "../hooks/useNotification";
 import BeatLoader from "react-spinners/BeatLoader";
 import jsPDF from "jspdf";
-import { FiArrowUp, FiArrowDown, FiArrowUpDown } from "react-icons/fi";
+import { FiArrowUp, FiArrowDown, FiMinimize2 } from "react-icons/fi";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -331,7 +331,7 @@ const Analytics = () => {
   // Get sort icon for a column
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return <FiArrowUpDown className="sort-icon inactive" />;
+      return <FiMinimize2 className="sort-icon inactive" style={{ transform: 'rotate(90deg)' }} />;
     }
     return sortDirection === "asc" ? (
       <FiArrowUp className="sort-icon active" />
