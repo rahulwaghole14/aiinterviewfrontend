@@ -22,6 +22,7 @@ const AiInterviewScheduler = lazy(() => import('./components/AiInterviewSchedule
 const InterviewPortal = lazy(() => import('./components/InterviewPortal'));
 const InterviewResults = lazy(() => import('./components/InterviewResults'));
 const InterviewResultsList = lazy(() => import('./components/InterviewResultsList'));
+const Analytics = lazy(() => import('./components/Analytics'));
 
 // Keep these as regular imports since they're used frequently
 import NotificationToast from './components/common/NotificationToast';
@@ -58,12 +59,15 @@ const getInitialHeaderTitle = () => {
     case 'hiring-agencies':
       title = 'Hiring Agencies';
       break;
-          case 'ai-interview-scheduler':
-        title = 'Talaro Interview Manager';
-        break;
-      case 'interview-results':
-        title = 'Interview Results';
-        break;
+    case 'ai-interview-scheduler':
+      title = 'Talaro Interview Manager';
+      break;
+    case 'interview-results':
+      title = 'Interview Results';
+      break;
+    case 'analytics':
+      title = 'Analytics';
+      break;
     case 'login':
       title = 'Login';
       break;
@@ -205,6 +209,15 @@ function App() {
         break;
       case 'hiring-agencies':
         title = 'All Users';
+        break;
+      case 'ai-interview-scheduler':
+        title = 'Talaro Interview Manager';
+        break;
+      case 'interview-results':
+        title = 'Interview Results';
+        break;
+      case 'analytics':
+        title = 'Analytics';
         break;
       case 'login':
         title = 'Login';
@@ -398,6 +411,11 @@ function App() {
                     </SectionErrorBoundary>
                   } 
                 />
+                <Route path="/analytics" element={
+                  <SectionErrorBoundary sectionName="Analytics">
+                    <Analytics />
+                  </SectionErrorBoundary>
+                } />
               </Routes>
               </Suspense>
             </ErrorBoundary>

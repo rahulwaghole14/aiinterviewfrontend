@@ -9,6 +9,7 @@ import {
   FiSettings,
   FiUserCheck, // Use FiUserCheck for Hiring Agencies
   FiCalendar, // Import new icon for AI Interview Scheduler
+  FiBarChart2, // Import new icon for Analytics
 } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/talaro-logo.png'; // Talaro logo
@@ -25,6 +26,7 @@ const SideBar = ({ isExpanded, onMenuItemClick }) => {
     { name: 'Jobs', path: 'jobs', icon: <FiBriefcase size={20} /> },
     { name: 'Hiring Agencies', path: 'hiring-agencies', icon: <FiUserCheck size={20} />, restrictedRoles: ['recruiter', 'hiring_agency'] },
     { name: 'Talaro Interview Scheduler', path: 'ai-interview-scheduler', icon: <FiCalendar size={20} />, allowedRoles: ['company', 'admin'] },
+    { name: 'Analytics', path: 'analytics', icon: <FiBarChart2 size={20} /> },
     { name: 'Settings', path: 'settings', icon: <FiSettings size={20} /> },
   ];
 
