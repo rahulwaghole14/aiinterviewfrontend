@@ -1,5 +1,5 @@
 // CandidateDetails.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiChevronLeft } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +16,8 @@ import BeatLoader from "react-spinners/BeatLoader";
 import StatusUpdateModal from "./StatusUpdateModal";
 import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour } from "../utils/timeFormatting";
+import AIEvaluationCharts from "./AIEvaluationCharts";
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 
 // Helper function to safely parse JSON fields
 const parseJsonField = (field) => {
@@ -23,7 +25,7 @@ const parseJsonField = (field) => {
   if (typeof field === 'string') {
     try {
       return JSON.parse(field);
-    } catch (e) {
+    } catch {
       return [];
     }
   }
@@ -36,6 +38,7 @@ const CandidateDetails = () => {
   const dispatch = useDispatch();
   const notify = useNotification();
 
+  // Selectors - use direct selectors (shallowEqual helps but arrays need proper memoization in slice)
   const allCandidates = useSelector((state) => state.candidates.allCandidates);
   const candidatesStatus = useSelector(
     (state) => state.candidates.candidatesStatus
@@ -47,6 +50,7 @@ const CandidateDetails = () => {
   const [loading, setLoading] = useState(true);
   const [interviews, setInterviews] = useState([]);
   const [interviewsLoading, setInterviewsLoading] = useState(false);
+  const [qaData, setQaData] = useState({}); // Store Q&A data by interview ID
   const [authToken, setAuthToken] = useState("");
 
   // Get auth token from localStorage when component mounts
@@ -72,14 +76,6 @@ const CandidateDetails = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteType, setDeleteType] = useState(null); // 'interview' or 'evaluation'
   const [itemToDelete, setItemToDelete] = useState(null);
-
-  // Helper function to get domain name by ID
-  const getDomainName = (domainId) => {
-    if (typeof domainId === "string" && !/^[0-9]+$/.test(domainId)) {
-      return domainId;
-    }
-    return domainId || "N/A";
-  };
 
   // Helper function to get job title by ID
   const getJobTitle = (jobId) => {
@@ -231,6 +227,97 @@ const CandidateDetails = () => {
 
       console.log("Processed interviews with evaluations and slots:", processedInterviews);
       setInterviews(processedInterviews);
+      
+      // Fetch Q&A data for interviews with AI results
+      const qaDataMap = {};
+      await Promise.all(processedInterviews.map(async (interview) => {
+        // Get session_id from ai_result (session_id is available in the serializer)
+        const sessionId = interview.ai_result?.session_id || interview.ai_result?.session;
+        console.log(`[Q&A Fetch] Interview ${interview.id}:`, {
+          hasAiResult: !!interview.ai_result,
+          sessionId: sessionId,
+          aiResultKeys: interview.ai_result ? Object.keys(interview.ai_result) : []
+        });
+        
+        if (sessionId) {
+          try {
+            // Fetch questions and responses
+            const questionsUrl = `${baseURL}/api/ai-interview/questions/?session_id=${sessionId}`;
+            const responsesUrl = `${baseURL}/api/ai-interview/responses/?session_id=${sessionId}`;
+            
+            console.log(`[Q&A Fetch] Fetching from: ${questionsUrl}`);
+            
+            const questionsResponse = await fetch(questionsUrl, {
+              method: "GET",
+              headers: {
+                Authorization: `Token ${authToken}`,
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            });
+            
+            const responsesResponse = await fetch(responsesUrl, {
+              method: "GET",
+              headers: {
+                Authorization: `Token ${authToken}`,
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+            });
+
+            console.log(`[Q&A Fetch] Response status - Questions: ${questionsResponse.status}, Responses: ${responsesResponse.status}`);
+
+            if (questionsResponse.ok && responsesResponse.ok) {
+              const questionsData = await questionsResponse.json();
+              const responsesData = await responsesResponse.json();
+              
+              const questions = Array.isArray(questionsData) 
+                ? questionsData 
+                : (questionsData.results || []);
+              const responses = Array.isArray(responsesData) 
+                ? responsesData 
+                : (responsesData.results || []);
+              
+              console.log(`[Q&A Fetch] Fetched ${questions.length} questions and ${responses.length} responses for interview ${interview.id}`);
+              
+              // Match responses with questions
+              const qaPairs = questions.map((question) => {
+                const response = responses.find((r) => {
+                  const rQuestionId = r.question?.id || r.question;
+                  const qId = question.id;
+                  return String(rQuestionId) === String(qId);
+                });
+                return {
+                  question: question.question_text,
+                  questionType: question.question_type,
+                  questionIndex: question.question_index,
+                  answer: response 
+                    ? (response.response_text || response.transcribed_text || "No answer provided")
+                    : "No answer provided",
+                  responseTime: response?.response_submitted_at || null,
+                };
+              });
+
+              if (qaPairs.length > 0) {
+                qaDataMap[interview.id] = qaPairs;
+                console.log(`[Q&A Fetch] Added ${qaPairs.length} Q&A pairs for interview ${interview.id}`);
+              }
+            } else {
+              console.error(`[Q&A Fetch] Failed to fetch Q&A data for interview ${interview.id}:`, {
+                questionsStatus: questionsResponse.status,
+                responsesStatus: responsesResponse.status
+              });
+            }
+          } catch (error) {
+            console.error(`[Q&A Fetch] Error fetching Q&A for interview ${interview.id}:`, error);
+          }
+        } else {
+          console.log(`[Q&A Fetch] No session_id found for interview ${interview.id}`);
+        }
+      }));
+      
+      console.log(`[Q&A Fetch] Final qaDataMap:`, qaDataMap);
+      setQaData(qaDataMap);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -296,16 +383,16 @@ const CandidateDetails = () => {
     return "NEW";
   };
 
-  // Available actions based on current status
-  const availableActions = [
-    {
-      id: "schedule_interview",
-      label: "Schedule Interview",
-      status: "INTERVIEW_SCHEDULED",
-    },
-    { id: "manual_evaluate", label: "Manual Evaluation", status: "MANUAL_EVALUATED" },
-    { id: "hire_reject", label: "Make Decision", status: "HIRED" },
-  ];
+  // Available actions based on current status (kept for future use)
+  // const availableActions = [
+  //   {
+  //     id: "schedule_interview",
+  //     label: "Schedule Interview",
+  //     status: "INTERVIEW_SCHEDULED",
+  //   },
+  //   { id: "manual_evaluate", label: "Manual Evaluation", status: "MANUAL_EVALUATED" },
+  //   { id: "hire_reject", label: "Make Decision", status: "HIRED" },
+  // ];
 
   // Get the next available action based on current status
   const getNextAction = (currentStatus) => {
@@ -321,6 +408,7 @@ const CandidateDetails = () => {
         // After AI evaluation, next step is manual evaluation
         return { id: "manual_evaluate", status: "MANUAL_EVALUATED" };
       case "MANUAL_EVALUATED":
+      case "AI_MANUAL_EVALUATED": // Handle combined status
         return { id: "hire_reject", status: "HIRE" }; // Show hire option
       default:
         return null;
@@ -752,124 +840,89 @@ const CandidateDetails = () => {
           <div className="details-grid">
             <div className="detail-row">
               <span className="detail-label">Email:</span>
-              <span className="detail-value">{candidate.email}</span>
+              <span className="detail-value">{candidate.email || "N/A"}</span>
             </div>
             <div className="detail-row">
               <span className="detail-label">Phone:</span>
-              <span className="detail-value">{candidate.phone}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Experience:</span>
-              <span className="detail-value">
-                {candidate.workExperience} years
-              </span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Domain:</span>
-              <span className="detail-value">
-                {getDomainName(candidate.domain)}
-              </span>
+              <span className="detail-value">{candidate.phone || "N/A"}</span>
             </div>
             <div className="detail-row">
               <span className="detail-label">Job Title:</span>
               <span className="detail-value">
-                {getJobTitle(candidate.jobRole)}
+                {getJobTitle(candidate.jobRole) || "N/A"}
               </span>
             </div>
-            <div className="detail-row">
-              <span className="detail-label">Applied On:</span>
-              <span className="detail-value">
-                {candidate.applicationDate
-                  ? (() => {
-                      try {
-                        const date = new Date(candidate.applicationDate);
-                        return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
-                      } catch (error) {
-                        console.error("Error parsing application date:", error);
-                        return "N/A";
-                      }
-                    })()
-                  : "N/A"}
-              </span>
-            </div>
-                <div className="detail-row">
-                  <span className="detail-label">Status:</span>
-                  <span className="detail-value">
-                    <span className={`status-badge ${currentStatus.toLowerCase()}`}>
-                      {currentStatus.replace(/_/g, " ")}
-                    </span>
-                  </span>
-          </div>
-                <div className="detail-row">
-                  <span className="detail-label">Last Updated:</span>
-                  <span className="detail-value">
-                    {candidate.last_updated
-                      ? (() => {
-                          try {
-                            const date = new Date(candidate.last_updated);
-                            return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            });
-                          } catch (error) {
-                            console.error("Error parsing last updated date:", error);
-                            return "N/A";
-                          }
-                        })()
-                      : "N/A"}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Interview Count:</span>
-                  <span className="detail-value">
-                    {interviews.length} interview{interviews.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">AI Evaluated:</span>
-                  <span className="detail-value">
-                    {interviews.some((i) => i.ai_result) ? (
-                      <span className="status-indicator evaluated">Yes</span>
-                    ) : (
-                      <span className="status-indicator pending">No</span>
-                    )}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Manual Evaluated:</span>
-                  <span className="detail-value">
-                    {interviews.some((i) => i.evaluation) ? (
-                      <span className="status-indicator evaluated">Yes</span>
-                    ) : (
-                      <span className="status-indicator pending">No</span>
-                    )}
-                  </span>
-                </div>
               </div>
             </div>
             
             {/* Hire Recommendation - Right side */}
-            {interviews.some((i) => i.ai_result) && (
-              <div className="hire-recommendation-section">
-                <div className="hire-recommendation-card">
-                  <div className="hire-status-row">
-                    <span className="label">Hire Status:</span>
-                    <span className={`value recommendation ${interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "recommended" : "not-recommended"}`}>
-                      {interviews.find(i => i.ai_result)?.ai_result.hire_recommendation ? "RECOMMENDED" : "NOT RECOMMENDED"}
-                    </span>
-                  </div>
-                  {interviews.find(i => i.ai_result)?.ai_result.total_score !== undefined && (
-                    <div className="score-row">
-                      <span className="label">Score:</span>
-                      <span className={`value score-value ${interviews.find(i => i.ai_result)?.ai_result.total_score >= 8 ? "high-score" : interviews.find(i => i.ai_result)?.ai_result.total_score >= 6 ? "medium-score" : "low-score"}`}>
-                        {interviews.find(i => i.ai_result)?.ai_result.total_score?.toFixed(1) || "N/A"}/10
+            {interviews.some((i) => i.ai_result) && (() => {
+              const aiResult = interviews.find(i => i.ai_result)?.ai_result;
+              const overallScorePercent = ((aiResult?.total_score || 0) / 10) * 100;
+              const radialData = [
+                {
+                  name: 'Score',
+                  value: overallScorePercent,
+                  fill: overallScorePercent >= 80 ? '#10b981' : overallScorePercent >= 60 ? '#f59e0b' : '#ef4444',
+                },
+              ];
+
+              return (
+                <div className="hire-recommendation-section">
+                  <div className="hire-recommendation-card">
+                    {/* Overall Score Title */}
+                    <h3 className="chart-title" style={{ textAlign: 'center' }}>Overall Score</h3>
+                    {/* Overall Score Radial Chart */}
+                    <div style={{ marginBottom: '1rem' }}>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <RadialBarChart
+                          cx="50%"
+                          cy="50%"
+                          innerRadius="60%"
+                          outerRadius="90%"
+                          data={radialData}
+                          startAngle={180}
+                          endAngle={0}
+                        >
+                          <RadialBar
+                            dataKey="value"
+                            cornerRadius={10}
+                            fill={radialData[0].fill}
+                          />
+                          <text
+                            x="50%"
+                            y="45%"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize="28"
+                            fontWeight="bold"
+                            fill={radialData[0].fill}
+                          >
+                            {aiResult?.total_score?.toFixed(1) || '0'}/10
+                          </text>
+                          <text
+                            x="50%"
+                            y="65%"
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize="12"
+                            fill="#666"
+                          >
+                            {overallScorePercent.toFixed(0)}%
+                          </text>
+                        </RadialBarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    {/* Hire Recommendation */}
+                    <div className="hire-recommendation-row">
+                      <span className={`value recommendation ${aiResult?.hire_recommendation ? "recommended" : "not-recommended"}`}>
+                        {aiResult?.hire_recommendation ? "RECOMMENDED" : "NOT RECOMMENDED"}
                       </span>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           <hr className="details-divider" />
@@ -883,145 +936,51 @@ const CandidateDetails = () => {
 
         {/* Evaluation Section - Moved here */}
         <div className="evaluation-section card">
-          {/* AI Results Section */}
+          {/* AI Results Section with Interactive Charts */}
           {interviews.some((i) => i.ai_result) && (
             <div className="evaluation-info">
               {interviews
                 .filter((i) => i.ai_result)
-              .map((interview) => (
+                .map((interview) => (
                   <div key={interview.id} className="evaluation-item">
-                  <div className="evaluation-header">
+                    <div className="evaluation-header">
                       <h4>AI Evaluation Results</h4>
                       <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
                         {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
                       </span>
                     </div>
                     
+                    {/* Interactive Charts Visualization */}
+                    <AIEvaluationCharts aiResult={interview.ai_result} />
                     
-                    <div className="performance-metrics">
-                      <div className="metric-item">
-                        <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Questions Correct:</strong> {interview.ai_result.questions_correct || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Accuracy:</strong> {interview.ai_result.accuracy_percentage?.toFixed(1) || 0}%
-                      </div>
-                      <div className="metric-item">
-                        <strong>Average Response Time:</strong> {interview.ai_result.average_response_time?.toFixed(1) || 0}s
-                      </div>
-                      <div className="metric-item">
-                        <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
-                      </div>
-                    </div>
-                    
-                    {/* Score Metrics Section */}
-                    <div className="score-metrics">
-                      <h4>Test Scores</h4>
-                      <div className="score-cards-container">
-                        <div className="score-card">
-                          <div className="score-card-label">Technical</div>
-                          <div className={`score-card-value ${interview.ai_result.technical_score >= 8 ? "high-score" : interview.ai_result.technical_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.technical_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Behavioral</div>
-                          <div className={`score-card-value ${interview.ai_result.behavioral_score >= 8 ? "high-score" : interview.ai_result.behavioral_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.behavioral_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Coding</div>
-                          <div className={`score-card-value ${interview.ai_result.coding_score >= 8 ? "high-score" : interview.ai_result.coding_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.coding_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Communication</div>
-                          <div className={`score-card-value ${interview.ai_result.communication_score >= 8 ? "high-score" : interview.ai_result.communication_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.communication_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Problem Solving</div>
-                          <div className={`score-card-value ${interview.ai_result.problem_solving_score >= 8 ? "high-score" : interview.ai_result.problem_solving_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.problem_solving_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {interview.ai_result.ai_summary && (
-                      <div className="ai-summary">
-                        <strong>AI Summary:</strong>
-                        <p>{interview.ai_result.ai_summary}</p>
-                      </div>
-                    )}
-                    
-                    {interview.ai_result.ai_recommendations && (
-                      <div className="ai-recommendations">
-                        <strong>AI Recommendations:</strong>
-                        <p>{interview.ai_result.ai_recommendations}</p>
-                      </div>
-                    )}
-                    
+                    {/* Coding Details (if available) */}
                     {interview.ai_result.coding_details && (() => {
                       const codingDetails = parseJsonField(interview.ai_result.coding_details);
                       return codingDetails.length > 0 && (
                         <div className="coding-details">
                           <strong>Coding Questions:</strong>
                           {codingDetails.map((coding, index) => (
-                          <div key={index} className="coding-question">
-                            <h4>Question {index + 1}</h4>
-                            <p><strong>Question:</strong> {coding.question_text}</p>
-                            <p><strong>Language:</strong> {coding.language}</p>
-                            <p><strong>Status:</strong> 
-                              <span className={`test-status ${coding.passed_all_tests ? 'passed' : 'failed'}`}>
-                                {coding.passed_all_tests ? '✅ PASSED' : '❌ FAILED'}
-                              </span>
-                            </p>
-                            <div className="code-block">
-                              <strong>Submitted Code:</strong>
-                              <pre><code>{coding.submitted_code}</code></pre>
-                            </div>
-                            {coding.output_log && (
-                              <div className="output-log">
-                                <strong>Test Results:</strong>
-                                <pre>{coding.output_log}</pre>
+                            <div key={index} className="coding-question">
+                              <h4>Question {index + 1}</h4>
+                              <p><strong>Question:</strong> {coding.question_text}</p>
+                              <p><strong>Language:</strong> {coding.language}</p>
+                              <p><strong>Status:</strong> 
+                                <span className={`test-status ${coding.passed_all_tests ? 'passed' : 'failed'}`}>
+                                  {coding.passed_all_tests ? '✅ PASSED' : '❌ FAILED'}
+                                </span>
+                              </p>
+                              <div className="code-block">
+                                <strong>Submitted Code:</strong>
+                                <pre><code>{coding.submitted_code}</code></pre>
                               </div>
-                            )}
-                          </div>
-                        ))}
-                        </div>
-                      );
-                    })()}
-                    
-                    {(() => {
-                      const strengths = parseJsonField(interview.ai_result.strengths);
-                      return strengths.length > 0 && (
-                        <div className="strengths">
-                          <strong>Strengths:</strong>
-                          <ul>
-                            {strengths.map((strength, index) => (
-                              <li key={index}>{strength}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })()}
-                    
-                    {(() => {
-                      const weaknesses = parseJsonField(interview.ai_result.weaknesses);
-                      return weaknesses.length > 0 && (
-                        <div className="weaknesses">
-                          <strong>Areas for Improvement:</strong>
-                          <ul>
-                            {weaknesses.map((weakness, index) => (
-                              <li key={index}>{weakness}</li>
-                            ))}
-                          </ul>
+                              {coding.output_log && (
+                                <div className="output-log">
+                                  <strong>Test Results:</strong>
+                                  <pre>{coding.output_log}</pre>
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       );
                     })()}
@@ -1163,8 +1122,30 @@ const CandidateDetails = () => {
                 "Hire",
               ];
 
-              const currentIndex = statusStages.indexOf(currentStatus);
-              const nextAction = getNextAction(currentStatus);
+              // Handle special status "AI_MANUAL_EVALUATED" which means both evaluations are done
+              let effectiveCurrentStatus = currentStatus;
+              let effectiveCurrentIndex = statusStages.indexOf(currentStatus);
+              
+              // If status is AI_MANUAL_EVALUATED, treat it as MANUAL_EVALUATED for progress calculation
+              if (currentStatus === "AI_MANUAL_EVALUATED") {
+                effectiveCurrentStatus = "MANUAL_EVALUATED";
+                effectiveCurrentIndex = statusStages.indexOf("MANUAL_EVALUATED");
+              }
+              
+              // If still not found, check for HIRED or REJECTED
+              if (effectiveCurrentIndex === -1) {
+                if (currentStatus === "HIRED" || currentStatus === "REJECTED") {
+                  effectiveCurrentIndex = statusStages.length - 1; // Last step (HIRE)
+                }
+              }
+              
+              const nextAction = getNextAction(effectiveCurrentStatus);
+              
+              // Debug: Log current status and next action
+              console.log('[Status Progress] Original Status:', currentStatus);
+              console.log('[Status Progress] Effective Status:', effectiveCurrentStatus);
+              console.log('[Status Progress] Effective Current Index:', effectiveCurrentIndex);
+              console.log('[Status Progress] Next Action:', nextAction);
 
               return statusLabels.map((label, index) => {
                 const stage = statusStages[index];
@@ -1185,38 +1166,98 @@ const CandidateDetails = () => {
                     isCompleted = true;
                     isCurrent = true;
                     isClickable = false;
+                    isRecommended = false;
                   } else {
-                    // Show "Hire" as the next action
+                    // Show "Hire" as the next action if we're at MANUAL_EVALUATED or AI_MANUAL_EVALUATED
+                    // Check if previous step (MANUAL_EVALUATED) is completed
+                    const manualEvalIndex = statusStages.indexOf("MANUAL_EVALUATED");
+                    const manualEvalCompleted = effectiveCurrentIndex > manualEvalIndex || 
+                                                  effectiveCurrentIndex === manualEvalIndex ||
+                                                  currentStatus === "AI_MANUAL_EVALUATED";
+                    
                     isNextAction = nextAction && nextAction.status === "HIRE";
-                    isClickable = isNextAction;
-                    isRecommended = isNextAction;
+                    isCompleted = false; // Never completed unless hired/rejected
+                    isCurrent = false; // Never current unless hired/rejected
+                    isClickable = isNextAction && manualEvalCompleted;
+                    // Only recommend if it's the next action and manual evaluation is done
+                    isRecommended = isNextAction && !isCompleted && !isCurrent && manualEvalCompleted;
                   }
                 } else {
                   // Regular status steps
-                  isCompleted = index < currentIndex;
-                  isCurrent = index === currentIndex;
+                  // First determine if this step is completed (all steps before current should be completed)
+                  isCompleted = index < effectiveCurrentIndex;
+                  isCurrent = index === effectiveCurrentIndex;
                   isNextAction = nextAction && statusStages[index] === nextAction.status;
                   
-                  // Special handling for AI_EVALUATED - make it non-clickable when completed
-                  if (stage === "AI_EVALUATED") {
+                  // Additional checks for completion based on actual data
+                  if (stage === "INTERVIEW_COMPLETED") {
+                    // Check if any interview is actually completed
+                    const hasCompletedInterview = interviews.some((i) => i.status?.toLowerCase() === 'completed');
+                    if (hasCompletedInterview && index <= effectiveCurrentIndex) {
+                      isCompleted = true;
+                      isCurrent = false;
+                    }
+                  } else if (stage === "INTERVIEW_SCHEDULED") {
+                    // Check if any interview is scheduled
+                    const hasScheduledInterview = interviews.some((i) => i.status?.toLowerCase() === 'scheduled');
+                    if (hasScheduledInterview && index < effectiveCurrentIndex) {
+                      isCompleted = true;
+                      isCurrent = false;
+                    }
+                  } else if (stage === "AI_EVALUATED") {
                     const hasAIEvaluation = interviews.some((i) => i.ai_result);
                     if (hasAIEvaluation) {
-                      isCompleted = true;
+                      // If AI evaluation exists and we're at or past this stage, mark as completed
+                      if (effectiveCurrentIndex >= index || currentStatus === "AI_MANUAL_EVALUATED") {
+                        isCompleted = true;
+                        isCurrent = false;
+                      }
                       isClickable = false; // AI evaluation is not clickable
-                      isCurrent = false; // Never current, always completed
                     } else {
                       isClickable = false; // AI evaluation is never clickable
-                      isCompleted = false; // Show as incomplete if no AI results
+                      // Only show as incomplete if no AI results AND we're past this stage
+                      if (effectiveCurrentIndex > index) {
+                        isCompleted = false;
+                      }
                     }
                   } else if (stage === "MANUAL_EVALUATED") {
-                    // Manual evaluation is always clickable as next action, even if AI evaluation is not complete
-                  isClickable = isNextAction || isCompleted;
+                    // Check if manual evaluation exists
+                    const hasManualEvaluation = interviews.some((i) => i.evaluation);
+                    // If currentStatus is AI_MANUAL_EVALUATED, Manual is the current step (both AI and Manual done)
+                    if (currentStatus === "AI_MANUAL_EVALUATED") {
+                      isCompleted = false; // Not completed, it's current
+                      isCurrent = true; // This is the current step
+                      isClickable = false; // Can't click current step
+                    } else if (hasManualEvaluation && index < effectiveCurrentIndex) {
+                      isCompleted = true;
+                      isCurrent = false;
+                    } else if (hasManualEvaluation && index === effectiveCurrentIndex) {
+                      isCompleted = false;
+                      isCurrent = true;
+                      isClickable = false;
+                    }
+                    // Manual evaluation is clickable only as next action, not if it's current
+                    if (!isCurrent) {
+                      isClickable = isNextAction || isCompleted;
+                    }
                   } else {
                     isClickable = isNextAction || isCompleted;
                   }
                   
-                  isRecommended = isNextAction;
+                  // Mark as recommended ONLY if it's the next action AND NOT completed AND NOT current AND is clickable
+                  // This ensures the next clickable step is purple
+                  isRecommended = isNextAction && !isCompleted && !isCurrent && isClickable;
                 }
+                
+                // Debug log for each step (before finalClassName is defined)
+                // console.log(`[Status Step ${index + 1}] ${stage}:`, {
+                //   isCompleted,
+                //   isCurrent,
+                //   isRecommended,
+                //   isNextAction,
+                //   isClickable,
+                //   effectiveCurrentIndex
+                // });
 
                 // Determine additional CSS classes based on status
                 let additionalClasses = "";
@@ -1228,12 +1269,51 @@ const CandidateDetails = () => {
                   }
                 }
 
+                // Determine final classes - recommended should override completed/current for styling
+                // Priority: recommended > current > completed
+                let classNames = ["status-step"];
+                
+                // Only add recommended if it's truly the next step and not completed/current
+                if (isRecommended) {
+                  classNames.push("recommended");
+                  // Don't add completed or current if recommended
+                } else {
+                  // Add current or completed only if not recommended
+                  if (isCurrent) {
+                    classNames.push("current");
+                  } else if (isCompleted) {
+                    classNames.push("completed");
+                  }
+                }
+                
+                if (isClickable) {
+                  classNames.push("clickable");
+                }
+                
+                if (additionalClasses) {
+                  classNames.push(additionalClasses);
+                }
+                
+                const finalClassName = classNames.join(" ").trim();
+                
+                // Debug: Log final class name for troubleshooting
+                // if (isRecommended || isCurrent || (isCompleted && index >= 3)) {
+                //   console.log(`[Status Step ${index + 1}] ${stage} - Final classes:`, finalClassName, {
+                //     isCompleted,
+                //     isCurrent,
+                //     isRecommended,
+                //     isClickable
+                //   });
+                // }
+                
                 return (
                   <div
                     key={stage}
-                    className={`status-step ${isCompleted ? "completed" : ""} ${
-                      isCurrent ? "current" : ""
-                    } ${isClickable ? "clickable" : ""} ${isRecommended ? "recommended" : ""} ${additionalClasses}`}
+                    className={finalClassName}
+                    data-completed={isCompleted}
+                    data-current={isCurrent}
+                    data-recommended={isRecommended}
+                    data-clickable={isClickable}
                     onClick={() => {
                       if (!isClickable || !shouldShowActions) return;
 
@@ -1268,12 +1348,13 @@ const CandidateDetails = () => {
           </div>
         </div>
 
-        <div className="interview-section card">
+        <div className="interview-section">
           {interviewsLoading ? (
             <BeatLoader color="var(--color-primary-dark)" size={8} />
           ) : interviews.length > 0 ? (
-            interviews.map((interview, index) => (
-              <div key={interview.id}>
+            interviews.map((interview) => (
+              <div key={interview.id} style={{ marginBottom: '2rem' }}>
+              <div className="card">
                 <div className="interview-header">
                   <h4>Interview Details - Round {interview.interview_round}</h4>
                   <span className={`interview-status ${interview.status.toLowerCase()}`}>
@@ -1454,6 +1535,108 @@ const CandidateDetails = () => {
                   </div>
                 )}
                 
+              </div>
+              
+              {/* Questions and Answers Card - Separate Card Below Interview Details */}
+              {qaData && qaData[interview.id] && Array.isArray(qaData[interview.id]) && qaData[interview.id].length > 0 && (
+                <div className="qa-section card" style={{ marginTop: '1.5rem' }}>
+                  <h3 style={{ 
+                    marginTop: 0, 
+                    marginBottom: '1rem', 
+                    fontSize: '1.1rem', 
+                    fontWeight: '600',
+                    color: 'var(--color-text)',
+                    paddingBottom: '0.75rem',
+                    borderBottom: '2px solid var(--color-border-light)'
+                  }}>
+                    Questions & Answers - Round {interview.interview_round}
+                  </h3>
+                  <div className="qa-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    {qaData[interview.id].map((qa, index) => (
+                      <div 
+                        key={index} 
+                        className="qa-item" 
+                        style={{
+                          padding: '1rem',
+                          backgroundColor: 'var(--color-bg-secondary)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--color-border-light)',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.5rem',
+                          marginBottom: '0.75rem'
+                        }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--color-primary)',
+                            color: '#fff',
+                            fontSize: '0.75rem',
+                            fontWeight: '600'
+                          }}>
+                            {qa.questionIndex}
+                          </span>
+                          <span style={{
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: '500',
+                            backgroundColor: qa.questionType === 'technical' ? '#dbeafe' : 
+                                           qa.questionType === 'behavioral' ? '#fef3c7' : 
+                                           qa.questionType === 'coding' ? '#e0e7ff' : '#f3e8ff',
+                            color: qa.questionType === 'technical' ? '#1e40af' : 
+                                  qa.questionType === 'behavioral' ? '#92400e' : 
+                                  qa.questionType === 'coding' ? '#3730a3' : '#6b21a8',
+                            textTransform: 'capitalize'
+                          }}>
+                            {qa.questionType}
+                          </span>
+                        </div>
+                        <div style={{ marginBottom: '0.75rem' }}>
+                          <p style={{ 
+                            margin: 0, 
+                            fontWeight: '600', 
+                            color: 'var(--color-text)',
+                            fontSize: '0.95rem',
+                            marginBottom: '0.5rem'
+                          }}>
+                            Q: {qa.question}
+                          </p>
+                          <p style={{ 
+                            margin: 0, 
+                            color: '#666',
+                            fontSize: '0.9rem',
+                            lineHeight: '1.5',
+                            paddingLeft: '1rem',
+                            borderLeft: '3px solid var(--color-primary)'
+                          }}>
+                            A: {qa.answer}
+                          </p>
+                        </div>
+                        {qa.responseTime && (
+                          <div style={{
+                            fontSize: '0.75rem',
+                            color: '#999',
+                            marginTop: '0.5rem',
+                            paddingTop: '0.5rem',
+                            borderTop: '1px solid var(--color-border-light)'
+                          }}>
+                            Answered: {new Date(qa.responseTime).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               </div>
             ))
           ) : (

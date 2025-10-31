@@ -7,6 +7,9 @@ export default defineConfig({
   define: {
     'process.env.VITE_API_URL': JSON.stringify('https://aiinterviewerbackend-2.onrender.com'),
   },
+  optimizeDeps: {
+    include: ['recharts', 'react-is'],
+  },
   build: {
     rollupOptions: {
       output: {
