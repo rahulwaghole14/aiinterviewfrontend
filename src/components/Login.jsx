@@ -114,6 +114,9 @@ const Login = ({ onLogin }) => {
                 {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
             </div>
+            <Link to="/forgot-password" className="forgot-password-link">
+              Forgot password?
+            </Link>
           </div>
           <button 
             type="submit" 

@@ -146,18 +146,19 @@ const AIEvaluationCharts = ({ aiResult }) => {
         {/* Interview Overview Card */}
         <div className="chart-card overall-score-card interview-overview-card">
           <h3 className="chart-title">Interview Overview</h3>
-          <div style={{ padding: '0.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ padding: '0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             {/* Total Questions with Icon */}
             <div className="overview-stat-item" style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '6px',
+              padding: '0.75rem',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
               border: '1px solid #bae6fd',
               transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minHeight: '52px'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '1.1rem' }}>❓</span>
@@ -177,13 +178,14 @@ const AIEvaluationCharts = ({ aiResult }) => {
             <div className="overview-stat-item" style={{ 
               display: 'flex', 
               flexDirection: 'column',
-              gap: '0.35rem',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '6px',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
               border: '1px solid #86efac',
               transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minHeight: '52px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -222,13 +224,14 @@ const AIEvaluationCharts = ({ aiResult }) => {
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '6px',
+              padding: '0.75rem',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
               border: '1px solid #c4b5fd',
               transition: 'all 0.3s ease',
               cursor: 'pointer',
-              position: 'relative'
+              position: 'relative',
+              minHeight: '52px'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '1.1rem' }}>🎯</span>
@@ -281,12 +284,13 @@ const AIEvaluationCharts = ({ aiResult }) => {
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '6px',
+              padding: '0.75rem',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
               border: '1px solid #fcd34d',
               transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minHeight: '52px'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '1.1rem' }}>⏱️</span>
@@ -304,12 +308,15 @@ const AIEvaluationCharts = ({ aiResult }) => {
 
             {/* Overall Rating */}
             <div style={{ 
-              marginTop: '0.1rem', 
-              padding: '0.5rem 0.75rem',
-              borderRadius: '6px',
+              padding: '0.75rem',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
               border: '1px solid #bae6fd',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              minHeight: '52px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '1rem' }}>⭐</span>
@@ -328,76 +335,90 @@ const AIEvaluationCharts = ({ aiResult }) => {
           </div>
         </div>
 
-        {/* Section Scores - Grouped Bar Comparison */}
+        {/* Section Scores - Horizontal Progress Bars */}
         <div className="chart-card radar-chart-card">
           <h3 className="chart-title" style={{ textAlign: 'left' }}>Section Scores</h3>
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart 
-              data={radarData.map(s => ({
-                ...s,
-                fullMark: 10,
-                percentage: ((s.score / 10) * 100).toFixed(0)
-              }))} 
-              margin={{ top: 10, right: 30, left: 10, bottom: 40 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-              <XAxis 
-                dataKey="subject" 
-                tick={{ fontSize: 10, fill: '#6b7280' }}
-                tickLine={false}
-                angle={-45}
-                textAnchor="end"
-                height={80}
-              />
-              <YAxis 
-                domain={[0, 10]} 
-                tick={{ fontSize: 10, fill: '#6b7280' }}
-                tickLine={false}
-                width={40}
-              />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: '#fff',
+          <div style={{ padding: '0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {radarData.map((section, index) => {
+              const score = section.score;
+              const percentage = (score / 10) * 100;
+              
+              // Determine bar color based on score range
+              // Blue for scores 6.0-10.0, Orange for scores below 6.0
+              const barColor = score >= 6 ? '#3b82f6' : '#f59e0b'; // Blue or Orange
+              
+              return (
+                <div key={index} style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                  padding: '8px 12px'
-                }}
-                cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-                formatter={(value, name) => [
-                  name === 'score' ? `${value.toFixed(1)}/10` : `${value}`,
-                  name === 'score' ? 'Score' : 'Maximum'
-                ]}
-              />
-              <Bar 
-                dataKey="fullMark" 
-                fill="#e5e7eb"
-                radius={[4, 4, 0, 0]}
-                opacity={0.3}
-              />
-              <Bar 
-                dataKey="score" 
-                radius={[4, 4, 0, 0]}
-                label={{ 
-                  position: 'top', 
-                  formatter: (value) => `${value.toFixed(1)}`, 
-                  fill: '#374151', 
-                  fontSize: 10,
-                  fontWeight: '600'
-                }}
-              >
-                {radarData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getScoreColor(entry.score)} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                  minHeight: '52px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{
+                      fontSize: '0.95rem',
+                      fontWeight: '500',
+                      color: '#374151'
+                    }}>
+                      {section.subject}
+                    </span>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem'
+                    }}>
+                      <span style={{
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        color: '#6b7280'
+                      }}>
+                        {percentage.toFixed(0)}%
+                      </span>
+                      <span style={{
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        color: '#374151'
+                      }}>
+                        {score.toFixed(1)}/10
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{
+                    width: '100%',
+                    height: '12px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '6px',
+                    overflow: 'hidden',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      width: `${percentage}%`,
+                      height: '100%',
+                      backgroundColor: barColor,
+                      borderRadius: '6px',
+                      transition: 'width 0.6s ease',
+                      boxShadow: `0 2px 4px rgba(0, 0, 0, 0.1)`
+                    }}></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Performance Metrics - Gauge Cards */}
         <div className="chart-card performance-chart-card">
           <h3 className="chart-title">Performance Metrics</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'space-around', padding: '1rem 0' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem 2rem', justifyContent: 'center', alignItems: 'center', alignContent: 'center', padding: '1.5rem 0', minHeight: '250px' }}>
             {performanceData.map((metric, index) => {
               // Calculate percentage for gauge (assuming max values)
               const maxValue = metric.name.includes('Accuracy') ? 100 : (metric.name.includes('Questions Attempted') ? aiResult.questions_attempted || 1 : Math.max(aiResult.questions_attempted || 1, metric.value));

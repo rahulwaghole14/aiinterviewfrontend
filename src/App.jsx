@@ -16,6 +16,7 @@ const Jobs = lazy(() => import('./components/Jobs'));
 const Settings = lazy(() => import('./components/Settings'));
 const Login = lazy(() => import('./components/Login'));
 const Register = lazy(() => import('./components/Registration'));
+const ForgotPassword = lazy(() => import('./components/ForgotPassword'));
 const Profile = lazy(() => import('./components/Profile'));
 const HiringAgencies = lazy(() => import('./components/HiringAgency'));
 const AiInterviewScheduler = lazy(() => import('./components/AiInterviewScheduler'));
@@ -170,13 +171,14 @@ function App() {
 
     if (isLoggedIn) {
       // Only redirect to dashboard if user is on login/register pages or root
+      // Allow forgot-password page to be accessed even when logged in
       if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
         navigate('/dashboard', { replace: true });
       }
       // For all other authenticated routes, stay on current page
     } else {
-      // If not logged in, redirect to login unless already on login/register or public candidate pages
-      if (currentPath !== '/login' && currentPath !== '/register' && !currentPath.startsWith('/candidates/')) {
+      // If not logged in, redirect to login unless already on login/register/forgot-password or public candidate pages
+      if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/forgot-password' && !currentPath.startsWith('/candidates/')) {
         navigate('/login', { replace: true });
       }
     }
@@ -446,6 +448,11 @@ function App() {
             <Route path="/register" element={
               <SectionErrorBoundary sectionName="Registration">
                 <Register autoFocusUsername={true} />
+              </SectionErrorBoundary>
+            } />
+            <Route path="/forgot-password" element={
+              <SectionErrorBoundary sectionName="Forgot Password">
+                <ForgotPassword />
               </SectionErrorBoundary>
             } />
             <Route path="*" element={
