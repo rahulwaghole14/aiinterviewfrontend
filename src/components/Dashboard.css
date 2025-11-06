@@ -54,6 +54,8 @@
   flex-direction: column;
   align-items: flex-start;
   transition: all 0.3s ease;
+  height: fit-content; /* Only take space needed */
+  min-height: auto; /* Remove minimum height constraint */
 }
 
 .dashboard-card:hover {
@@ -94,7 +96,7 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  min-height: 300px; /* Ensure charts have enough height */
+  min-height: 420px; /* Further increased height for better chart visibility */
   overflow: hidden; /* Prevent content from overflowing */
 }
 
@@ -144,7 +146,7 @@
 .chart-bars-wrapper {
   display: flex;
   width: 100%;
-  height: 180px; /* Fixed height for the bar area */
+  height: 280px; /* Further increased height for the bar area */
   margin-bottom: 0.5rem;
   align-items: flex-end; /* Bars start from the bottom */
   position: relative;
@@ -160,7 +162,7 @@
   color: var(--color-muted);
   white-space: nowrap;
   z-index: 1;
-  height: 180px; /* Match chart-bars-wrapper height */
+  height: 280px; /* Match chart-bars-wrapper height */
   display: flex;
   align-items: center;
   justify-content: center;

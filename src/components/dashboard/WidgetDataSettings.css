@@ -201,7 +201,7 @@
 .settings-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
   padding: 20px 24px;
   border-top: 1px solid var(--color-border-light, #e2e8f0);
   background: var(--color-background, #f8fafc);
@@ -210,7 +210,6 @@
 
 .cancel-btn,
 .apply-btn {
-  padding: 10px 20px;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
@@ -223,9 +222,14 @@
 }
 
 .cancel-btn {
+  padding: 8px 16px;
   background: var(--color-background-elevated, #ffffff);
   color: var(--color-text-secondary, #64748b);
   border: 1px solid var(--color-border-light, #e2e8f0);
+}
+
+.apply-btn {
+  padding: 10px 20px;
 }
 
 .cancel-btn:hover {

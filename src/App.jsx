@@ -11,7 +11,8 @@ const Header = lazy(() => import('./components/Header'));
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const AddCandidates = lazy(() => import('./components/AddCandidates'));
 const Candidates = lazy(() => import('./components/Candidates'));
-const CandidateDetails = lazy(() => import('./components/CandidateDetails'));
+// Import CandidateDetails directly to avoid Vite HMR issues with recharts
+import CandidateDetails from './components/CandidateDetails';
 const Jobs = lazy(() => import('./components/Jobs'));
 const Settings = lazy(() => import('./components/Settings'));
 const Login = lazy(() => import('./components/Login'));

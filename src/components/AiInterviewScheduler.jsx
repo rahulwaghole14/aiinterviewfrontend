@@ -156,12 +156,12 @@ const AiInterviewScheduler = ({
     });
   }, [slots, searchTerm]);
 
-  // Initialize form with default values
+  // Initialize form with default values (updated for 10-minute slots)
   const [slotForm, setSlotForm] = useState(() => ({
     ai_interview_type: "technical",
     difficulty_level: "intermediate",
     question_count: "10",
-    time_limit: "",
+    time_limit: "10", // Default to 10 minutes for 10-minute slots
     topics: "",
     max_candidates: "1",
     job: "",
@@ -176,7 +176,7 @@ const AiInterviewScheduler = ({
       ai_interview_type: "technical",
       difficulty_level: "intermediate",
       question_count: "10",
-      time_limit: "",
+      time_limit: "10", // Default to 10 minutes for 10-minute slots
       topics: "",
       max_candidates: "1",
       job: "",
@@ -493,7 +493,7 @@ const AiInterviewScheduler = ({
           if (lastTime.includes("-")) {
             overallEndTime = lastTime.split("-")[1];
           } else {
-            overallEndTime = addMinutesToTime(lastTime, 30, selectedDate);
+            overallEndTime = addMinutesToTime(lastTime, 10, selectedDate); // Changed from 30 to 10 minutes
           }
 
           // Create single slot with calculated times
@@ -518,7 +518,7 @@ const AiInterviewScheduler = ({
             ai_configuration: {
               difficulty_level: slotForm.difficulty_level || "intermediate",
               question_count: parseInt(slotForm.question_count) || 10,
-              time_limit: parseInt(slotForm.time_limit) || 60,
+              time_limit: parseInt(slotForm.time_limit) || 10, // Default to 10 minutes for 10-minute slots
               topics: slotForm.topics ? slotForm.topics.split(",").map((t) => t.trim()) : ["algorithms", "data_structures"],
             },
             max_candidates: parseInt(slotForm.max_candidates) || 1,

@@ -129,48 +129,32 @@ class ServerManager {
 
     async startFrontend() {
         this.log('🚀 Starting React frontend server...');
-        
         try {
-            const command = this.isWindows ? 'npm.cmd' : 'npm';
-            const args = ['run', 'dev'];
-            
-            this.frontendProcess = spawn(command, args, {
-                cwd: this.frontendDir,
-                stdio: ['pipe', 'pipe', 'pipe']
+            // Use exec with shell to avoid Windows spawn EINVAL issues
+            const child = exec('npm run dev', { cwd: this.frontendDir, windowsHide: true }, (error) => {
+                if (error) {
+                    this.log(`[FRONTEND ERROR] ${error.message}`, 'error');
+                }
             });
-            
-            this.frontendProcess.stdout.on('data', (data) => {
+
+            this.frontendProcess = child;
+
+            child.stdout.on('data', (data) => {
                 const lines = data.toString().trim().split('\n');
-                lines.forEach(line => {
-                    if (line.trim()) {
-                        this.log(`[FRONTEND] ${line}`, 'info');
-                    }
-                });
+                lines.forEach(line => line.trim() && this.log(`[FRONTEND] ${line}`, 'info'));
             });
-            
-            this.frontendProcess.stderr.on('data', (data) => {
+
+            child.stderr.on('data', (data) => {
                 const lines = data.toString().trim().split('\n');
-                lines.forEach(line => {
-                    if (line.trim()) {
-                        this.log(`[FRONTEND ERROR] ${line}`, 'error');
-                    }
-                });
+                lines.forEach(line => line.trim() && this.log(`[FRONTEND ERROR] ${line}`, 'error'));
             });
-            
-            this.frontendProcess.on('close', (code) => {
-                this.log(`Frontend process exited with code ${code}`, 'warning');
-            });
-            
-            // Wait a bit to ensure it started
+
+            // Wait briefly and assume successful spawn if still running
             await new Promise(resolve => setTimeout(resolve, 3000));
-            
-            if (this.frontendProcess.killed) {
-                throw new Error('Frontend process failed to start');
-            }
-            
+            if (child.killed) throw new Error('Frontend process failed to start');
+
             this.log('✅ Frontend server started on http://localhost:5173', 'success');
             return true;
-            
         } catch (error) {
             this.log(`❌ Failed to start frontend server: ${error.message}`, 'error');
             return false;

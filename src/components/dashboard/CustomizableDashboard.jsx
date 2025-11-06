@@ -27,6 +27,7 @@ const CustomizableDashboard = () => {
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
   const [widgets, setWidgets] = useState([]);
   const [lastSaved, setLastSaved] = useState(null);
+  const [currentRowHeight, setCurrentRowHeight] = useState(null);
 
   // Default widget configuration
   const defaultWidgets = [
@@ -156,24 +157,37 @@ const CustomizableDashboard = () => {
   ];
 
   // Initialize widgets from localStorage or default
+  // Get user-specific storage key
+  const getStorageKey = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || user.username || 'anonymous';
+    return `dashboard-widgets-${userId}`;
+  };
+
   useEffect(() => {
-    const savedWidgets = localStorage.getItem('dashboard-widgets');
+    const storageKey = getStorageKey();
+    const savedWidgets = localStorage.getItem(storageKey);
     if (savedWidgets) {
       try {
-        setWidgets(JSON.parse(savedWidgets));
+        const parsedWidgets = JSON.parse(savedWidgets);
+        console.log('Loading saved widgets for user:', parsedWidgets.length, 'widgets');
+        setWidgets(parsedWidgets);
       } catch (error) {
         console.error('Error loading saved widgets:', error);
         setWidgets(defaultWidgets);
       }
     } else {
+      console.log('No saved widgets found, using default layout');
       setWidgets(defaultWidgets);
     }
   }, []);
 
-  // Save widgets to localStorage
+  // Save widgets to localStorage with user-specific key
   const saveWidgets = useCallback((widgetsToSave) => {
-    localStorage.setItem('dashboard-widgets', JSON.stringify(widgetsToSave));
+    const storageKey = getStorageKey();
+    localStorage.setItem(storageKey, JSON.stringify(widgetsToSave));
     setLastSaved(new Date());
+    console.log('Saved widgets for user:', widgetsToSave.length, 'widgets');
   }, []);
 
   // Handle widget move with insertion behavior
@@ -362,9 +376,31 @@ const CustomizableDashboard = () => {
     return { x: 0, y: Math.max(...widgets.map(w => (w.position?.y || 0) + (w.size?.h || 1))) };
   };
 
+  // Get current row height for widget filtering
+  const getCurrentRowHeight = () => {
+    if (widgets.length === 0) return null;
+    
+    // Get the last widget's row height
+    const lastWidget = widgets[widgets.length - 1];
+    return lastWidget.size?.h || 1;
+  };
+
+  // Open widget library with current row height
+  const handleOpenWidgetLibrary = () => {
+    const rowHeight = getCurrentRowHeight();
+    setCurrentRowHeight(rowHeight);
+    setShowWidgetLibrary(true);
+  };
+
   // Add widget from library
   const handleAddWidget = (widgetTemplate) => {
     const size = widgetTemplate.defaultSize || { w: 1, h: 1 };
+    
+    // If we have a current row height, use it for the new widget
+    if (currentRowHeight) {
+      size.h = currentRowHeight;
+    }
+    
     const position = findAvailablePosition(size.w, size.h);
     
     const newWidget = {
@@ -378,6 +414,7 @@ const CustomizableDashboard = () => {
     setWidgets(updatedWidgets);
     saveWidgets(updatedWidgets);
     setShowWidgetLibrary(false);
+    setCurrentRowHeight(null);
     notify.success('Widget added successfully!');
   };
 
@@ -444,6 +481,14 @@ const CustomizableDashboard = () => {
     notify.success('Dashboard reset to default layout!');
   };
 
+  // Clear user's widget data (for debugging/admin purposes)
+  const clearUserWidgetData = () => {
+    const storageKey = getStorageKey();
+    localStorage.removeItem(storageKey);
+    setWidgets(defaultWidgets);
+    notify.success('Widget data cleared! Dashboard reset to default.');
+  };
+
   // Render widget content based on type
   const renderWidgetContent = (widget) => {
     switch (widget.type) {
@@ -491,7 +536,7 @@ const CustomizableDashboard = () => {
             <>
               <button
                 className="control-btn add-widget"
-                onClick={() => setShowWidgetLibrary(true)}
+                onClick={handleOpenWidgetLibrary}
               >
                 <FiPlus />
                 Add Widget
@@ -503,6 +548,15 @@ const CustomizableDashboard = () => {
               >
                 <FiRotateCcw />
                 Reset Layout
+              </button>
+              
+              <button
+                className="control-btn clear"
+                onClick={clearUserWidgetData}
+                style={{ backgroundColor: '#dc3545', color: 'white' }}
+              >
+                <FiX />
+                Clear Data
               </button>
             </>
           )}
@@ -552,6 +606,7 @@ const CustomizableDashboard = () => {
         <WidgetLibrary
           onAddWidget={handleAddWidget}
           onClose={() => setShowWidgetLibrary(false)}
+          currentRowHeight={currentRowHeight}
         />
       )}
     </div>

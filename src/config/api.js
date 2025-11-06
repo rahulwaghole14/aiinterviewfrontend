@@ -93,7 +93,8 @@ export const API_ENDPOINTS = {
 
 // API request helper
 export const apiRequest = async (url, options = {}) => {
-  const token = localStorage.getItem('token');
+  // Support both keys to avoid login/header mismatch
+  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
   
   const defaultOptions = {
     headers: {
@@ -110,6 +111,11 @@ export const apiRequest = async (url, options = {}) => {
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
   
+  // Gracefully handle empty responses (e.g., 204 No Content)
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return null;
+  }
   return response.json();
 };
 

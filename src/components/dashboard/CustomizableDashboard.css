@@ -117,8 +117,10 @@ body[data-theme='dark'] .customizable-dashboard {
 .dashboard-grid {
   width: 100%;
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+  max-height: calc(100vh - 150px); /* Reduce max height for more compact layout */
   /* Hide scrollbars */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
@@ -131,26 +133,56 @@ body[data-theme='dark'] .customizable-dashboard {
 .dashboard-grid-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(20, minmax(220px, auto));
+  grid-template-rows: repeat(auto-fit, minmax(150px, max-content));
   gap: 1rem;
-  min-height: 300px;
+  min-height: min-content;
   padding: 0.5rem 0;
   align-items: start;
   justify-items: stretch;
   width: 100%;
-  height: 100%;
+  height: auto;
   grid-auto-flow: row;
   position: relative;
-  overflow: auto;
-  max-height: calc(100vh - 200px);
-  /* Hide scrollbars */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
 }
 
-.dashboard-grid-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+/* Ensure widgets only take the height they need */
+.dashboard-widget {
+  height: fit-content !important;
+  min-height: 150px; /* Reduced minimum height */
+  max-height: none;
+  display: flex;
+  flex-direction: column;
 }
+
+.dashboard-widget .widget-content {
+  flex: 0 1 auto; /* Don't grow, shrink if needed */
+  height: fit-content;
+  overflow: hidden;
+}
+
+/* Specific widget height optimizations */
+.dashboard-widget .activity-feed {
+  height: fit-content !important;
+  min-height: 200px;
+  max-height: 400px;
+}
+
+.dashboard-widget .performance-metrics {
+  height: fit-content !important;
+  min-height: 200px;
+  max-height: 400px;
+}
+
+.dashboard-widget .kpi-card {
+  height: fit-content !important;
+  min-height: 120px;
+}
+
+.dashboard-widget .chart-widget {
+  height: fit-content !important;
+  min-height: 180px;
+}
+
 
 .dashboard-grid-container.dragging-over {
   background: rgba(139, 92, 246, 0.05);

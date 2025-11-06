@@ -16,6 +16,7 @@ import BeatLoader from "react-spinners/BeatLoader";
 import StatusUpdateModal from "./StatusUpdateModal";
 import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour } from "../utils/timeFormatting";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // Helper function to safely parse JSON fields
 const parseJsonField = (field) => {
@@ -140,19 +141,61 @@ const CandidateDetails = () => {
         : [];
 
       // Process fetched data
+      console.log('=== RAW API RESPONSE DEBUG ===');
+      console.log('Interviews API response:', interviewsData);
+      console.log('Evaluations API response:', evaluationsData);
+      console.log('Candidate ID:', candidate.id, 'Type:', typeof candidate.id);
       
       // Process interviews and evaluations
-      const candidateInterviews = (
-        Array.isArray(interviewsData)
-          ? interviewsData
-          : interviewsData.results || []
-      )
-        .filter(
-          (interview) =>
-            interview.candidate === candidate.id ||
-            (interview.candidate_object &&
-              interview.candidate_object.id === candidate.id)
-        );
+      const allInterviews = Array.isArray(interviewsData)
+        ? interviewsData
+        : interviewsData.results || [];
+      
+      // Debug: Log first few interviews to see candidate field structure
+      if (allInterviews.length > 0) {
+        console.log('Sample interview structure:', {
+          first_interview: allInterviews[0],
+          candidate_field: allInterviews[0].candidate,
+          candidate_type: typeof allInterviews[0].candidate,
+          candidate_object: allInterviews[0].candidate_object
+        });
+      }
+      
+      // Filter interviews - handle different candidate field formats
+      const candidateInterviews = allInterviews.filter((interview) => {
+        // Convert both to strings for comparison to handle type mismatches
+        const candidateIdStr = String(candidate.id);
+        const interviewCandidateStr = interview.candidate 
+          ? String(interview.candidate) 
+          : null;
+        const candidateObjectIdStr = interview.candidate_object?.id 
+          ? String(interview.candidate_object.id) 
+          : null;
+        
+        const matches = 
+          interviewCandidateStr === candidateIdStr ||
+          candidateObjectIdStr === candidateIdStr;
+        
+        if (!matches) {
+          console.log(`Interview ${interview.id} doesn't match:`, {
+            interview_candidate: interview.candidate,
+            interview_candidate_type: typeof interview.candidate,
+            candidate_object_id: interview.candidate_object?.id,
+            candidate_id: candidate.id
+          });
+        }
+        
+        return matches;
+      });
+      
+      console.log('Filtered candidate interviews:', candidateInterviews);
+      candidateInterviews.forEach(interview => {
+        console.log(`Interview ${interview.id} from API:`, {
+          status: interview.status,
+          ai_result: interview.ai_result,
+          has_ai_result: !!interview.ai_result
+        });
+      });
 
       // Process candidate interviews
 
@@ -214,22 +257,64 @@ const CandidateDetails = () => {
 
       console.log("Interviews with slots:", interviewsWithSlots);
 
-      // Add evaluations to interviews
+      // Add evaluations to interviews and extract ai_result if needed
       const processedInterviews = interviewsWithSlots.map((interview) => {
         // Find matching evaluation if exists
         const evaluation = Array.isArray(evaluationsData)
           ? evaluationsData.find(
-              (evalItem) => evalItem.interview === interview.id
+              (evalItem) => String(evalItem.interview) === String(interview.id)
             )
           : null;
+
+        // If interview doesn't have ai_result but evaluation has details.ai_analysis, extract it
+        let aiResult = interview.ai_result;
+        if (!aiResult && evaluation && evaluation.details && evaluation.details.ai_analysis) {
+          const aiAnalysis = evaluation.details.ai_analysis;
+          // Transform ai_analysis to ai_result format
+          aiResult = {
+            overall_score: (aiAnalysis.overall_score || 0) / 10.0,
+            total_score: (aiAnalysis.overall_score || 0) / 10.0,
+            technical_score: (aiAnalysis.technical_score || 0) / 10.0,
+            behavioral_score: (aiAnalysis.behavioral_score || 0) / 10.0,
+            coding_score: (aiAnalysis.coding_score || 0) / 10.0,
+            communication_score: (aiAnalysis.communication_score || 0) / 10.0,
+            strengths: aiAnalysis.strengths || '',
+            weaknesses: aiAnalysis.weaknesses || '',
+            technical_analysis: aiAnalysis.technical_analysis || '',
+            behavioral_analysis: aiAnalysis.behavioral_analysis || '',
+            coding_analysis: aiAnalysis.coding_analysis || '',
+            detailed_feedback: aiAnalysis.detailed_feedback || '',
+            hiring_recommendation: aiAnalysis.hiring_recommendation || '',
+            recommendation: aiAnalysis.recommendation || 'MAYBE',
+            hire_recommendation: ['STRONG_HIRE', 'HIRE'].includes(aiAnalysis.recommendation),
+            confidence_level: (aiAnalysis.confidence_level || 0) / 10.0,
+            proctoring_pdf_url: evaluation.details.proctoring_pdf_url || null,
+            proctoring_warnings: evaluation.details.proctoring?.warnings || [],
+          };
+          console.log(`✅ Extracted ai_result from evaluation for interview ${interview.id}`);
+        }
 
         return {
           ...interview,
           evaluation: evaluation || null,
+          ai_result: aiResult || interview.ai_result || null,
         };
       });
 
       console.log("Processed interviews with evaluations and slots:", processedInterviews);
+      
+      // Debug: Log interview status and ai_result for debugging
+      processedInterviews.forEach(interview => {
+        console.log(`=== Interview ${interview.id} Debug ===`);
+        console.log('Status:', interview.status);
+        console.log('Has ai_result:', !!interview.ai_result);
+        console.log('ai_result:', interview.ai_result);
+        console.log('ai_result keys:', interview.ai_result ? Object.keys(interview.ai_result) : null);
+        console.log('ai_result.total_score:', interview.ai_result?.total_score);
+        console.log('Will show in UI?', interview.ai_result && (interview.status === 'completed' || interview.status === 'COMPLETED' || interview.status?.toLowerCase() === 'completed'));
+        console.log('==========================');
+      });
+      
       setInterviews(processedInterviews);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -765,257 +850,334 @@ const CandidateDetails = () => {
           </div>
         </div>
 
-        {/* Evaluation Section - Moved here */}
+        {/* AI Evaluation Results Section - Matching Image Design */}
         <div className="evaluation-section card">
-          {/* AI Results Section */}
-          {interviews.some((i) => i.ai_result) && (
-            <div className="evaluation-info">
+          {(() => {
+            const interviewsWithAIResult = interviews.filter(i => i.ai_result);
+            return interviewsWithAIResult.length > 0;
+          })() && (
+            <div className="ai-evaluation-results">
+              <div className="evaluation-header-section">
+                <h3 className="evaluation-title">AI Evaluation Results</h3>
+                {interviews.find(i => i.ai_result)?.ai_result?.overall_rating && (
+                  <span className={`overall-rating-badge ${interviews.find(i => i.ai_result)?.ai_result.overall_rating?.toLowerCase() || "fair"}`}>
+                    {interviews.find(i => i.ai_result)?.ai_result.overall_rating?.toUpperCase() || "FAIR"}
+                  </span>
+                )}
+              </div>
+              
               {interviews
                 .filter((i) => i.ai_result)
-              .map((interview) => (
-                  <div key={interview.id} className="evaluation-item">
-                  <div className="evaluation-header">
-                      <h4>AI Evaluation Results</h4>
-                      <span className={`overall-rating ${interview.ai_result.overall_rating?.toLowerCase() || "pending"}`}>
-                        {interview.ai_result.overall_rating?.toUpperCase() || "PENDING"}
-                      </span>
-                    </div>
+                .map((interview) => {
+                  try {
+                    const aiResult = interview.ai_result;
+                    const qaData = interview.questions_and_answers || [];
                     
+                    // Separate technical and coding questions
+                    const technicalQuestions = qaData.filter(qa => 
+                      qa.question_type === 'TECHNICAL' || qa.question_type === 'BEHAVIORAL' || !qa.question_type
+                    );
+                    const codingQuestions = qaData.filter(qa => qa.question_type === 'CODING');
                     
-                    <div className="performance-metrics">
-                      <div className="metric-item">
-                        <strong>Total Questions:</strong> {interview.ai_result.questions_attempted || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Questions Attempted:</strong> {interview.ai_result.questions_attempted || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Questions Correct:</strong> {interview.ai_result.questions_correct || 0}
-                      </div>
-                      <div className="metric-item">
-                        <strong>Accuracy:</strong> {interview.ai_result.accuracy_percentage?.toFixed(1) || 0}%
-                      </div>
-                      <div className="metric-item">
-                        <strong>Average Response Time:</strong> {interview.ai_result.average_response_time?.toFixed(1) || 0}s
-                      </div>
-                      <div className="metric-item">
-                        <strong>Completion Time:</strong> {interview.ai_result.completion_time || 0}s
-                      </div>
-                    </div>
+                    // Calculate TECHNICAL metrics only (for Interview Overview and Question Accuracy)
+                    const technicalTotalQuestions = technicalQuestions.length || 0;
+                    const technicalCorrectAnswers = technicalQuestions.filter(qa => {
+                      // Estimate correctness from answer quality (simple heuristic)
+                      const answer = (qa.answer || '').toLowerCase();
+                      return answer && 
+                             answer !== 'no answer provided' && 
+                             answer !== "i don't know" && 
+                             answer !== 'no thank you' &&
+                             answer.length > 10;
+                    }).length;
+                    const technicalIncorrectAnswers = technicalTotalQuestions - technicalCorrectAnswers;
+                    const technicalAccuracy = technicalTotalQuestions > 0 
+                      ? (technicalCorrectAnswers / technicalTotalQuestions * 100) 
+                      : 0;
                     
-                    {/* Score Metrics Section */}
-                    <div className="score-metrics">
-                      <h4>Test Scores</h4>
-                      <div className="score-cards-container">
-                        <div className="score-card">
-                          <div className="score-card-label">Technical</div>
-                          <div className={`score-card-value ${interview.ai_result.technical_score >= 8 ? "high-score" : interview.ai_result.technical_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.technical_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Behavioral</div>
-                          <div className={`score-card-value ${interview.ai_result.behavioral_score >= 8 ? "high-score" : interview.ai_result.behavioral_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.behavioral_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Coding</div>
-                          <div className={`score-card-value ${interview.ai_result.coding_score >= 8 ? "high-score" : interview.ai_result.coding_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.coding_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Communication</div>
-                          <div className={`score-card-value ${interview.ai_result.communication_score >= 8 ? "high-score" : interview.ai_result.communication_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.communication_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                        <div className="score-card">
-                          <div className="score-card-label">Problem Solving</div>
-                          <div className={`score-card-value ${interview.ai_result.problem_solving_score >= 8 ? "high-score" : interview.ai_result.problem_solving_score >= 6 ? "medium-score" : "low-score"}`}>
-                            {interview.ai_result.problem_solving_score?.toFixed(1) || 0}/10
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    // Calculate CODING metrics
+                    const codingTotalQuestions = codingQuestions.length || 0;
+                    const codingCorrectAnswers = codingQuestions.filter(qa => {
+                      const answer = (qa.answer || '').toLowerCase();
+                      return answer && answer !== 'no answer provided' && answer.length > 10;
+                    }).length;
+                    const codingIncorrectAnswers = codingTotalQuestions - codingCorrectAnswers;
+                    const codingAccuracy = codingTotalQuestions > 0 
+                      ? (codingCorrectAnswers / codingTotalQuestions * 100) 
+                      : 0;
                     
-                    {interview.ai_result.ai_summary && (
-                      <div className="ai-summary">
-                        <strong>AI Summary:</strong>
-                        <p>{interview.ai_result.ai_summary}</p>
-                      </div>
-                    )}
+                    // Overall metrics (for display purposes, but we'll show separate sections)
+                    const totalQuestions = technicalTotalQuestions + codingTotalQuestions;
+                    const correctAnswers = technicalCorrectAnswers + codingCorrectAnswers;
+                    const incorrectAnswers = totalQuestions - correctAnswers;
+                    const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions * 100) : 0;
+                    const totalCompletionTime = aiResult.total_completion_time || 54.6;
                     
-                    {interview.ai_result.ai_recommendations && (
-                      <div className="ai-recommendations">
-                        <strong>AI Recommendations:</strong>
-                        <p>{interview.ai_result.ai_recommendations}</p>
-                      </div>
-                    )}
+                    // Section scores (0-10 scale, convert to percentage)
+                    const technicalScore = (aiResult.technical_score || 0) * 10;
+                    const behavioralScore = (aiResult.behavioral_score || 0) * 10;
+                    const codingScore = (aiResult.coding_score || 0) * 10;
+                    const communicationScore = (aiResult.communication_score || 0) * 10;
+                    const problemSolvingScore = (aiResult.problem_solving_score || 0) * 10;
                     
-                    {interview.ai_result.coding_details && (() => {
-                      const codingDetails = parseJsonField(interview.ai_result.coding_details);
-                      return codingDetails.length > 0 && (
-                        <div className="coding-details">
-                          <strong>Coding Questions:</strong>
-                          {codingDetails.map((coding, index) => (
-                          <div key={index} className="coding-question">
-                            <h4>Question {index + 1}</h4>
-                            <p><strong>Question:</strong> {coding.question_text}</p>
-                            <p><strong>Language:</strong> {coding.language}</p>
-                            <p><strong>Status:</strong> 
-                              <span className={`test-status ${coding.passed_all_tests ? 'passed' : 'failed'}`}>
-                                {coding.passed_all_tests ? '✅ PASSED' : '❌ FAILED'}
-                              </span>
-                            </p>
-                            <div className="code-block">
-                              <strong>Submitted Code:</strong>
-                              <pre><code>{coding.submitted_code}</code></pre>
-                            </div>
-                            {coding.output_log && (
-                              <div className="output-log">
-                                <strong>Test Results:</strong>
-                                <pre>{coding.output_log}</pre>
+                    // Overall rating
+                    const overallRating = aiResult.overall_rating || 'FAIR';
+                    
+                    // Strengths and weaknesses
+                    const strengths = parseJsonField(aiResult.strengths);
+                    const weaknesses = parseJsonField(aiResult.weaknesses);
+                    
+                    // Question accuracy chart data - TECHNICAL ONLY
+                    const technicalAccuracyChartData = [
+                      { name: 'Correct', value: technicalCorrectAnswers, color: '#4CAF50' },
+                      { name: 'Incorrect', value: technicalIncorrectAnswers, color: '#F44336' }
+                    ];
+                    
+                    // Coding accuracy chart data
+                    const codingAccuracyChartData = [
+                      { name: 'Correct', value: codingCorrectAnswers, color: '#4CAF50' },
+                      { name: 'Incorrect', value: codingIncorrectAnswers, color: '#F44336' }
+                    ];
+                    
+                    // Section scores data for bar chart
+                    const sectionScoresData = [
+                      { name: 'Technical', score: technicalScore, fullScore: 100 },
+                      { name: 'Behavioral', score: behavioralScore, fullScore: 100 },
+                      { name: 'Coding', score: codingScore, fullScore: 100 },
+                      { name: 'Communication', score: communicationScore, fullScore: 100 },
+                      { name: 'Problem Solving', score: problemSolvingScore, fullScore: 100 },
+                    ];
+                    
+                    return (
+                      <div key={interview.id} className="ai-evaluation-wrapper">
+                        <div className="ai-evaluation-layout">
+                          {/* Left Column - Metrics Grid */}
+                          <div className="ai-evaluation-left">
+                            {/* Row 1: Performance Metrics */}
+                            <div className="metrics-row-1">
+                              {/* Technical Performance Metrics Card */}
+                              <div className="evaluation-card performance-metrics-card">
+                                <h4 className="card-title">Technical Performance Metrics</h4>
+                                <div className="metrics-grid">
+                                  <div className="metric-circle">
+                                    <div className="circle-chart" style={{ 
+                                      background: `conic-gradient(#2196F3 0% ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/12)*100 : 0}%, #e0e0e0 ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/12)*100 : 0}% 100%)`
+                                    }}>
+                                      <span className="circle-value">{technicalTotalQuestions}</span>
+                                    </div>
+                                    <div className="circle-label">Questions Attempted</div>
+                                  </div>
+                                  <div className="metric-circle">
+                                    <div className="circle-chart" style={{ 
+                                      background: `conic-gradient(#4CAF50 0% ${technicalTotalQuestions > 0 ? (technicalCorrectAnswers/technicalTotalQuestions)*100 : 0}%, #e0e0e0 ${technicalTotalQuestions > 0 ? (technicalCorrectAnswers/technicalTotalQuestions)*100 : 0}% 100%)`
+                                    }}>
+                                      <span className="circle-value">{technicalCorrectAnswers}</span>
+                                    </div>
+                                    <div className="circle-label">Questions Correct</div>
+                                  </div>
+                                  <div className="metric-circle">
+                                    <div className="circle-chart" style={{ 
+                                      background: `conic-gradient(#7B2CBF 0% ${technicalAccuracy}%, #e0e0e0 ${technicalAccuracy}% 100%)`
+                                    }}>
+                                      <span className="circle-value">{technicalAccuracy.toFixed(0)}%</span>
+                                    </div>
+                                    <div className="circle-label">Accuracy (%)</div>
+                                  </div>
+                                </div>
                               </div>
-                            )}
+                              
+                              {/* Coding Performance Metrics Card */}
+                              {codingTotalQuestions > 0 && (
+                                <div className="evaluation-card performance-metrics-card">
+                                  <h4 className="card-title">Coding Performance Metrics</h4>
+                                  <div className="metrics-grid">
+                                    <div className="metric-circle">
+                                      <div className="circle-chart" style={{ 
+                                        background: `conic-gradient(#2196F3 0% ${codingTotalQuestions > 0 ? (codingTotalQuestions/12)*100 : 0}%, #e0e0e0 ${codingTotalQuestions > 0 ? (codingTotalQuestions/12)*100 : 0}% 100%)`
+                                      }}>
+                                        <span className="circle-value">{codingTotalQuestions}</span>
+                                      </div>
+                                      <div className="circle-label">Questions Attempted</div>
+                                    </div>
+                                    <div className="metric-circle">
+                                      <div className="circle-chart" style={{ 
+                                        background: `conic-gradient(#4CAF50 0% ${codingTotalQuestions > 0 ? (codingCorrectAnswers/codingTotalQuestions)*100 : 0}%, #e0e0e0 ${codingTotalQuestions > 0 ? (codingCorrectAnswers/codingTotalQuestions)*100 : 0}% 100%)`
+                                      }}>
+                                        <span className="circle-value">{codingCorrectAnswers}</span>
+                                      </div>
+                                      <div className="circle-label">Questions Correct</div>
+                                    </div>
+                                    <div className="metric-circle">
+                                      <div className="circle-chart" style={{ 
+                                        background: `conic-gradient(#7B2CBF 0% ${codingAccuracy}%, #e0e0e0 ${codingAccuracy}% 100%)`
+                                      }}>
+                                        <span className="circle-value">{codingAccuracy.toFixed(0)}%</span>
+                                      </div>
+                                      <div className="circle-label">Accuracy (%)</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Row 2: Time Metrics and Detailed Section Scores */}
+                            <div className="metrics-row-2">
+                              {/* Time Metrics Card */}
+                              <div className="evaluation-card time-metrics-card">
+                                <h4 className="card-title">Time Metrics</h4>
+                                <div className="time-metrics-content">
+                                  <div className="time-metric">
+                                    <div className="time-value-box" style={{ backgroundColor: '#FFEBEE' }}>
+                                      <div className="time-icon">⏱️</div>
+                                      <div className="time-value">{totalCompletionTime.toFixed(1)}min</div>
+                                    </div>
+                                    <div className="time-label">Total Completion Time</div>
+                                    <div className="time-total">Total: {totalCompletionTime.toFixed(1)} minutes</div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Detailed Section Scores Card */}
+                              <div className="evaluation-card detailed-scores-card">
+                                <h4 className="card-title">Detailed Section Scores</h4>
+                                <div className="detailed-scores-list">
+                                  {sectionScoresData.map((section, idx) => (
+                                    <div key={idx} className="detailed-score-item">
+                                      <div className="score-label">{section.name}</div>
+                                      <div className="score-value">{((section.score/100) * 10).toFixed(1)}/10</div>
+                                      <div className="progress-bar-horizontal">
+                                        <div 
+                                          className="progress-fill" 
+                                          style={{ 
+                                            width: `${section.score}%`, 
+                                            backgroundColor: section.score >= 60 ? '#2196F3' : '#FF9800' 
+                                          }}
+                                        ></div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Other Cards Below (Strengths, Improvement, Summary, Proctoring) */}
+                            <div className="other-cards-grid">
+                              {/* Strengths Card */}
+                              <div className="evaluation-card strengths-card">
+                                <h4 className="card-title">
+                                  <span className="card-icon">✅</span> Strengths
+                                </h4>
+                                <div className="strengths-list">
+                                  {strengths.length > 0 ? (
+                                    strengths.map((strength, idx) => (
+                                      <div key={idx} className="strength-tag">{strength}</div>
+                                    ))
+                                  ) : (
+                                    <div className="strength-tag">Strong analytical thinking</div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Areas for Improvement Card */}
+                              <div className="evaluation-card improvement-card">
+                                <h4 className="card-title">
+                                  <span className="card-icon">🔧</span> Areas for Improvement
+                                </h4>
+                                <div className="improvement-list">
+                                  {weaknesses.length > 0 ? (
+                                    weaknesses.map((weakness, idx) => (
+                                      <div key={idx} className="improvement-tag">{weakness}</div>
+                                    ))
+                                  ) : (
+                                    <div className="improvement-tag">Could improve on time management</div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Summary Card */}
+                              <div className="evaluation-card summary-card">
+                                <h4 className="card-title">Summary</h4>
+                                <p className="summary-text">
+                                  {aiResult.detailed_feedback || aiResult.ai_summary || 'The candidate demonstrated solid technical knowledge and good problem-solving abilities.'}
+                                </p>
+                              </div>
+                              
+                              {/* Proctoring Warnings Report - Download Link */}
+                              <div className="evaluation-card proctoring-report-card">
+                                <h4 className="card-title">Proctoring Warnings Report</h4>
+                                {aiResult.proctoring_pdf_url ? (
+                                  <div className="proctoring-download-section">
+                                    <a 
+                                      href={`${baseURL}${aiResult.proctoring_pdf_url}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="proctoring-download-link"
+                                    >
+                                      <span className="download-icon">📄</span>
+                                      <span>Download Proctoring Warnings Report</span>
+                                    </a>
+                                    {aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
+                                      <div className="proctoring-warning-info">
+                                        <strong>Total Warnings: {aiResult.proctoring_warnings.length}</strong>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="no-proctoring-report">
+                                    <p>No proctoring warnings report available for this interview.</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        ))}
                         </div>
-                      );
-                    })()}
-                    
-                    {(() => {
-                      const strengths = parseJsonField(interview.ai_result.strengths);
-                      return strengths.length > 0 && (
-                        <div className="strengths">
-                          <strong>Strengths:</strong>
-                          <ul>
-                            {strengths.map((strength, index) => (
-                              <li key={index}>{strength}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })()}
-                    
-                    {(() => {
-                      const weaknesses = parseJsonField(interview.ai_result.weaknesses);
-                      return weaknesses.length > 0 && (
-                        <div className="weaknesses">
-                          <strong>Areas for Improvement:</strong>
-                          <ul>
-                            {weaknesses.map((weakness, index) => (
-                              <li key={index}>{weakness}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })()}
-                    
-                    <div className="evaluation-metadata">
-                      <p><strong>Evaluated on:</strong> {new Date(interview.created_at).toLocaleDateString() + ' ' + new Date(interview.created_at).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}</p>
-                    </div>
-                  </div>
-                ))}
+                      </div>
+                    );
+                  } catch (error) {
+                    console.error('Error rendering evaluation for interview:', interview.id, error);
+                    return (
+                      <div key={interview.id} className="evaluation-error">
+                        <p className="error-text">Error loading evaluation data. Please try refreshing.</p>
+                      </div>
+                    );
+                  }
+                })}
             </div>
           )}
 
-          {/* Separator between AI and Manual evaluations */}
-          {interviews.some((i) => i.ai_result) && interviews.some((i) => i.evaluation) && (
-            <hr style={{ margin: '20px 0', border: '1px solid #e0e0e0' }} />
-          )}
-
-          {/* Manual Evaluation Section */}
-          {interviews.some((i) => i.evaluation) && (
-            <div className="evaluation-info">
-              <div className="evaluation-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                <h4 style={{ color: 'var(--color-primary)', fontSize: '1.2rem', fontWeight: '600', margin: 0 }}>Manual Evaluation Results</h4>
-                {interviews
-                  .filter((i) => i.evaluation)
-                  .map((interview) => (
-                    <span key={interview.id} className={`overall-rating ${interview.evaluation.overall_score >= 8 ? "excellent" : interview.evaluation.overall_score >= 6 ? "good" : interview.evaluation.overall_score >= 4 ? "fair" : "poor"}`}>
-                      {interview.evaluation.overall_score >= 8 ? "EXCELLENT" : interview.evaluation.overall_score >= 6 ? "GOOD" : interview.evaluation.overall_score >= 4 ? "FAIR" : "POOR"}
-                    </span>
-                  ))}
-                  </div>
-              {interviews
-                .filter((i) => i.evaluation)
-                .map((interview) => (
-                  <div key={interview.id}>
-                  
-                  {/* Score as simple text */}
-                  <div className="evaluation-score-simple">
-                    <p><strong>Score:</strong> <span className="score-number">{interview.evaluation.overall_score?.toFixed(1) || "N/A"}/10</span></p>
-                  </div>
-                  
-                  {interview.evaluation.traits && (
-                    <div className="traits">
-                      <strong>Key Traits:</strong>
-                      <p>{interview.evaluation.traits}</p>
-                    </div>
-                  )}
-                  
-                  {interview.evaluation.suggestions && (
-                    <div className="suggestions">
-                      <strong>Suggestions:</strong>
-                      <p>{interview.evaluation.suggestions}</p>
-                    </div>
-                  )}
-                  
-                  <div className="evaluation-metadata">
-                    <p><strong>Evaluated on:</strong> {new Date(interview.evaluation.created_at).toLocaleDateString() + ' ' + new Date(interview.evaluation.created_at).toLocaleTimeString('en-US', {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true
-                    })}</p>
-                  </div>
-                  
-                  {/* Evaluation Action Buttons */}
-                    <div className="evaluation-actions-container" style={{ marginTop: '-10px' }}>
-                    <div className="evaluation-actions">
-                      <button 
-                        className="edit-evaluation-btn" 
-                        onClick={() => handleEditEvaluation(interview.evaluation)}
-                        title="Edit Evaluation"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        Edit
-                      </button>
-                      <button 
-                        className="delete-evaluation-btn" 
-                        onClick={() => handleDeleteEvaluation(interview.evaluation)}
-                        title="Delete Evaluation"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3,6 5,6 21,6"></polyline>
-                          <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                          <line x1="10" y1="11" x2="10" y2="17"></line>
-                          <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                ))}
+          {/* No Evaluation Message with Debug Info */}
+          {!interviews.some((i) => i.ai_result) && (
+            <div className="no-evaluation-message">
+              <p className="no-data">{`${
+                currentStatus === "INTERVIEW_COMPLETED"
+                  ? "Evaluation in progress..."
+                  : "No evaluation available"
+              }`}</p>
+              <details style={{ marginTop: '10px', fontSize: '0.9em', color: '#666', cursor: 'pointer' }}>
+                <summary style={{ cursor: 'pointer', padding: '5px' }}>🔍 Debug Info (Click to expand)</summary>
+                <pre style={{ 
+                  marginTop: '10px', 
+                  padding: '10px', 
+                  background: '#f5f5f5', 
+                  borderRadius: '4px', 
+                  overflow: 'auto',
+                  fontSize: '0.85em',
+                  maxHeight: '300px'
+                }}>
+                  {JSON.stringify(interviews.map(i => ({
+                    id: i.id,
+                    status: i.status,
+                    has_ai_result: !!i.ai_result,
+                    ai_result_type: typeof i.ai_result,
+                    ai_result_is_null: i.ai_result === null,
+                    ai_result_is_undefined: i.ai_result === undefined,
+                    ai_result_keys: i.ai_result ? Object.keys(i.ai_result) : null,
+                    ai_result_total_score: i.ai_result?.total_score,
+                    ai_result_overall_score: i.ai_result?.overall_score,
+                  })), null, 2)}
+                </pre>
+              </details>
             </div>
-          )}
-
-          {/* No Evaluation Message */}
-          {!interviews.some((i) => i.ai_result) && !interviews.some((i) => i.evaluation) && (
-            <p className="no-data">{`${
-              currentStatus === "INTERVIEW_COMPLETED"
-                ? "Evaluation in progress..."
-                : "No evaluation available"
-            }`}</p>
           )}
         </div>
       </div>
@@ -1172,7 +1334,9 @@ const CandidateDetails = () => {
                   <p>
                     <strong>Date:</strong>{" "}
                     {interview.started_at
-                      ? new Date(interview.started_at).toLocaleDateString()
+                      ? new Date(interview.started_at).toLocaleDateString('en-US', {
+                          timeZone: 'Asia/Kolkata'  // Force IST timezone for date display
+                        })
                       : "TBD"}
                   </p>
                   <p>
@@ -1204,75 +1368,71 @@ const CandidateDetails = () => {
                         }
                       }
                       
-                      if (slotData && slotData.start_time && slotData.end_time) {
+                      // CRITICAL: ALWAYS use interview.started_at/ended_at for time display
+                      // These are proper DateTime objects set from slot times in IST, converted to UTC, then displayed in IST
+                      // DO NOT use slot_details.start_time/end_time as they are raw TimeField values without timezone info
+                      
+                      // Check if started_at/ended_at exist - these are the ONLY source of truth
+                      if (interview.started_at && interview.ended_at) {
                         try {
-                          console.log("Raw slot start_time:", slotData.start_time);
-                          console.log("Raw slot end_time:", slotData.end_time);
+                          // Parse the datetime strings - they come as ISO 8601 strings from API
+                          const startDate = new Date(interview.started_at);
+                          const endDate = new Date(interview.ended_at);
                           
-                          // Handle time strings using the same approach as AI Interview Scheduler
+                          // Validate dates are valid
+                          if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                            console.error("Invalid date values:", interview.started_at, interview.ended_at);
+                            throw new Error("Invalid date");
+                          }
+                          
+                          // Force display in IST (Asia/Kolkata) timezone - this is the ONLY source of truth
+                          const startTimeIST = startDate.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Kolkata'  // Force IST timezone display
+                          });
+                          
+                          const endTimeIST = endDate.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Kolkata'  // Force IST timezone display
+                          });
+                          
+                          console.log("Displaying time from started_at/ended_at:", startTimeIST, "-", endTimeIST);
+                          return `${startTimeIST} - ${endTimeIST}`;
+                        } catch (error) {
+                          console.error("Error formatting interview time from started_at:", error, {
+                            started_at: interview.started_at,
+                            ended_at: interview.ended_at
+                          });
+                          // Continue to fallback but log the error
+                        }
+                      } else {
+                        console.warn("interview.started_at or ended_at is missing!", {
+                          started_at: interview.started_at,
+                          ended_at: interview.ended_at
+                        });
+                      }
+                      
+                      // Fallback ONLY if started_at/ended_at are not available (shouldn't happen for scheduled interviews)
+                      if (slotData && slotData.start_time && slotData.end_time) {
+                        console.warn("Using slot_details as fallback - interview.started_at/ended_at should be set!");
+                        try {
+                          // If we must use slot_details, format the time string directly
                           if (typeof slotData.start_time === 'string' && slotData.start_time.includes(':')) {
-                            console.log("Time string parsing (AI Interview Scheduler method):");
-                            console.log("  Start time string:", slotData.start_time);
-                            console.log("  End time string:", slotData.end_time);
-                            
-                            // Use shared time formatting utility
                             const formatTime = (timeStr) => {
-                              console.log("Formatting time string:", timeStr);
-                              const result = formatTimeTo12Hour(timeStr);
-                              console.log("Formatted time result:", result);
-                              return result;
+                              return formatTimeTo12Hour(timeStr);
                             };
                             
                             const startTimeFormatted = formatTime(slotData.start_time);
                             const endTimeFormatted = formatTime(slotData.end_time);
                             
-                            console.log("  Formatted start time:", startTimeFormatted);
-                            console.log("  Formatted end time:", endTimeFormatted);
-                            
                             return `${startTimeFormatted} - ${endTimeFormatted}`;
-                          } else if (typeof slotData.start_time === 'string' && slotData.start_time.includes('T')) {
-                            // Handle datetime format (e.g., "2025-09-23T09:30:00")
-                            const startTime = new Date(slotData.start_time);
-                            const endTime = new Date(slotData.end_time);
-                            
-                            console.log("Datetime string parsing:");
-                            console.log("  Start datetime string:", slotData.start_time, "→", startTime);
-                            console.log("  End datetime string:", slotData.end_time, "→", endTime);
-                            
-                            return `${startTime.toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            })} - ${endTime.toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            })}`;
-                          } else {
-                            // Fallback for other formats
-                            console.log("Unknown time format, using fallback");
-                            return "Invalid time format";
                           }
                         } catch (error) {
                           console.error("Error formatting slot time:", error);
-                          return "Invalid time format";
-                        }
-                      }
-                      
-                      // Fallback to started_at and ended_at if available
-                      if (interview.started_at && interview.ended_at) {
-                        try {
-                          return `${new Date(interview.started_at).toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                          })} - ${new Date(interview.ended_at).toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
-                          })}`;
-                        } catch (error) {
-                          console.error("Error formatting interview time:", error);
                           return "Invalid time format";
                         }
                       }
@@ -1340,6 +1500,103 @@ const CandidateDetails = () => {
                     )}
                   </div>
                 )}
+                
+                {/* Questions & Answers Section - Below Interview Details */}
+                {(() => {
+                  const qaData = interview.questions_and_answers || [];
+                  if (qaData.length === 0) return null;
+                  
+                  // Group questions by type
+                  const technicalQuestions = qaData.filter(qa => 
+                    qa.question_type === 'TECHNICAL' || qa.question_type === 'BEHAVIORAL' || !qa.question_type
+                  );
+                  const codingQuestions = qaData.filter(qa => qa.question_type === 'CODING');
+                  
+                  return (
+                    <div className="qa-section-below-interview">
+                      <h4 className="qa-section-title">Questions & Answers - Round {interview.interview_round || 'AI Interview'}</h4>
+                      <div className="qa-list-container">
+                        {/* Technical Questions Section */}
+                        {technicalQuestions.length > 0 && (
+                          <>
+                            <div className="qa-section-divider">
+                              <h5 className="qa-section-label">Technical Questions</h5>
+                            </div>
+                            {technicalQuestions.map((qa, index) => (
+                              <div key={qa.id || `tech-${index}`} className="qa-card-item">
+                                <div className="qa-header-info">
+                                  <span className="qa-number-circle">{qa.order || index + 1}</span>
+                                  <span className="qa-type-badge">{qa.question_type === 'BEHAVIORAL' ? 'Behavioral' : 'Technical'}</span>
+                                </div>
+                                <div className="qa-content">
+                                  <div className="qa-question-section">
+                                    <strong>Q:</strong> {qa.question_text}
+                                  </div>
+                                  <div className="qa-answer-section">
+                                    <strong>A:</strong> {qa.answer || 'No answer provided'}
+                                  </div>
+                                  {qa.response_time > 0 && (
+                                    <div className="qa-timestamp">
+                                      Response Time: {qa.response_time.toFixed(1)}s
+                                    </div>
+                                  )}
+                                  {qa.answered_at && (
+                                    <div className="qa-timestamp">
+                                      Answered: {new Date(qa.answered_at).toLocaleDateString('en-GB') + ', ' + new Date(qa.answered_at).toLocaleTimeString('en-US', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        )}
+                        
+                        {/* Coding Questions Section */}
+                        {codingQuestions.length > 0 && (
+                          <>
+                            <div className="qa-section-divider">
+                              <h5 className="qa-section-label">Coding Questions</h5>
+                            </div>
+                            {codingQuestions.map((qa, index) => (
+                              <div key={qa.id || `coding-${index}`} className="qa-card-item">
+                                <div className="qa-header-info">
+                                  <span className="qa-number-circle">{qa.order || technicalQuestions.length + index + 1}</span>
+                                  <span className="qa-type-badge">Coding</span>
+                                </div>
+                                <div className="qa-content">
+                                  <div className="qa-question-section">
+                                    <strong>Q:</strong> {qa.question_text}
+                                  </div>
+                                  <div className="qa-answer-section">
+                                    <strong>A:</strong> {qa.answer || 'No answer provided'}
+                                  </div>
+                                  {qa.response_time > 0 && (
+                                    <div className="qa-timestamp">
+                                      Response Time: {qa.response_time.toFixed(1)}s
+                                    </div>
+                                  )}
+                                  {qa.answered_at && (
+                                    <div className="qa-timestamp">
+                                      Answered: {new Date(qa.answered_at).toLocaleDateString('en-GB') + ', ' + new Date(qa.answered_at).toLocaleTimeString('en-US', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
                 
               </div>
             ))

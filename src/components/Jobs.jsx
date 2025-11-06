@@ -94,7 +94,7 @@ const Jobs = () => {
     number_to_hire: "",
     position_level: "",
     current_process: "",
-    tech_stack_details: "",
+    coding_language: "PYTHON", // Default to Python
     job_description: "", // Long text field for job description
   });
 
@@ -117,6 +117,10 @@ const Jobs = () => {
   const [isCreatingDomain, setIsCreatingDomain] = useState(false);
   const [updatingDomainId, setUpdatingDomainId] = useState(null);
   const [deletingDomainId, setDeletingDomainId] = useState(null);
+
+  // Inline form feedback
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
 
   // Row-wise editing
   const [editingJobId, setEditingJobId] = useState(null);
@@ -415,7 +419,7 @@ const Jobs = () => {
       number_to_hire,
       position_level,
       current_process,
-      tech_stack_details,
+      coding_language,
       job_description,
     } = formData;
 
@@ -428,10 +432,10 @@ const Jobs = () => {
       !hiring_manager_email ||
       !number_to_hire ||
       !position_level ||
-      !tech_stack_details
+      !coding_language
     ) {
       setErrorMessage(
-        "Please fill all required fields: Job Title, Company Name, Domain, SPOC Email, Hiring Manager Email, Number to Hire, Position Level, and Tech Stack Details."
+        "Please fill all required fields: Job Title, Company Name, Domain, SPOC Email, Hiring Manager Email, Number to Hire, Position Level, and Coding Language."
       );
       setShowMessage(false);
       setIsCreatingJob(false); // Reset loading state on validation error
@@ -462,6 +466,15 @@ const Jobs = () => {
       const method = isEditing ? "PUT" : "POST";
       
 
+      // Validate domain before sending (prevent NaN)
+      const domainValue = domain && domain !== "" ? parseInt(domain, 10) : null;
+      if (!domainValue || isNaN(domainValue)) {
+        setErrorMessage("Please select a valid domain.");
+        setShowMessage(false);
+        setIsCreatingJob(false);
+        return;
+      }
+
       const response = await fetch(url, {
         method: method,
         headers: {
@@ -471,14 +484,14 @@ const Jobs = () => {
         body: JSON.stringify({
           job_title,
           company_name,
-          domain: parseInt(domain, 10),
+          domain: domainValue,
           spoc_email,
           hiring_manager_email,
           current_team_size_info: current_team_size_info || "",
           number_to_hire: parseInt(number_to_hire, 10),
           position_level,
           current_process: current_process || "",
-          tech_stack_details,
+          coding_language,
           job_description: job_description || "",
         }),
       });
@@ -489,9 +502,27 @@ const Jobs = () => {
         
         try {
           const errorData = JSON.parse(responseText);
-          throw new Error(
-            errorData.detail || `HTTP error! status: ${response.status}`
-          );
+          // Handle DRF validation errors (field-specific errors)
+          if (errorData.details && typeof errorData.details === 'object') {
+            const errorMessages = Object.entries(errorData.details).map(([field, errors]) => {
+              const fieldErrors = Array.isArray(errors) ? errors.join(', ') : errors;
+              return `${field}: ${fieldErrors}`;
+            }).join('\n');
+            throw new Error(`Validation errors:\n${errorMessages}`);
+          } else if (errorData.error) {
+            throw new Error(errorData.error);
+          } else if (errorData.detail) {
+            throw new Error(errorData.detail);
+          } else if (typeof errorData === 'object') {
+            // Handle DRF serializer errors (flat structure)
+            const errorMessages = Object.entries(errorData).map(([field, errors]) => {
+              const fieldErrors = Array.isArray(errors) ? errors.join(', ') : errors;
+              return `${field}: ${fieldErrors}`;
+            }).join('\n');
+            throw new Error(`Validation errors:\n${errorMessages}`);
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
         } catch (parseError) {
           throw new Error(`HTTP error! status: ${response.status}. Response: ${responseText.substring(0, 200)}`);
         }
@@ -519,7 +550,7 @@ const Jobs = () => {
         number_to_hire: "",
         position_level: "",
         current_process: "",
-        tech_stack_details: "",
+        coding_language: "PYTHON",
         job_description: "",
       });
       
@@ -563,7 +594,7 @@ const Jobs = () => {
         hiring_manager_email,
         number_to_hire,
         position_level,
-        tech_stack_details,
+        coding_language,
       } = editedJobData;
       if (
         !job_title ||
@@ -573,7 +604,7 @@ const Jobs = () => {
         !hiring_manager_email ||
         !number_to_hire ||
         !position_level ||
-        !tech_stack_details
+        !coding_language
       ) {
         setErrorMessage("Please fill all required fields before saving.");
         setUpdatingJobId(null); // Reset loading state on validation error
@@ -609,7 +640,7 @@ const Jobs = () => {
               number_to_hire: parseInt(editedJobData.number_to_hire, 10), // Ensure number
               position_level: editedJobData.position_level,
               current_process: editedJobData.current_process,
-              tech_stack_details: editedJobData.tech_stack_details,
+              coding_language: editedJobData.coding_language || "PYTHON",
               job_description: editedJobData.job_description || "",
             }),
           }
@@ -661,7 +692,7 @@ const Jobs = () => {
       number_to_hire: job.number_to_hire || "",
       position_level: job.position_level || "",
       current_process: job.current_process || "",
-      tech_stack_details: job.tech_stack_details || "",
+      coding_language: job.coding_language || "PYTHON",
       job_description: job.job_description || "",
     });
     // Set editing state to track which job is being edited
@@ -796,7 +827,7 @@ const Jobs = () => {
             number_to_hire: Math.max(1, parseInt(editedData.number_to_hire, 10) || 1), // Ensure number is at least 1
             position_level: editedData.position_level,
             current_process: editedData.current_process,
-            tech_stack_details: editedData.tech_stack_details,
+            coding_language: editedData.coding_language || "PYTHON",
             job_description: editedData.job_description || "",
             // Remove is_active field as it doesn't exist in the Job model
           }),
@@ -1153,16 +1184,21 @@ const Jobs = () => {
                     disabled={isCreatingJob}
                   />
 
-                  <label htmlFor="tech_stack_details">Tech Stack Details</label>
-                  <input
-                    type="text"
-                    id="tech_stack_details"
-                    name="tech_stack_details"
-                    placeholder="e.g., SQL, Python, Power BI"
-                    value={formData.tech_stack_details}
-                    onChange={handleChange}
-                    className="jobs-input"
-                    required
+                  <label htmlFor="coding_language">Coding Language</label>
+                  <CustomDropdown
+                    value={formData.coding_language || "PYTHON"}
+                    options={[
+                      { value: 'PYTHON', label: 'Python' },
+                      { value: 'JAVASCRIPT', label: 'JavaScript' },
+                      { value: 'C', label: 'C' },
+                      { value: 'CPP', label: 'C++' },
+                      { value: 'JAVA', label: 'Java' },
+                      { value: 'GO', label: 'Go' },
+                      { value: 'HTML', label: 'HTML' },
+                      { value: 'PHP', label: 'PHP' },
+                    ]}
+                    onChange={(value) => handleChange({ target: { name: 'coding_language', value } })}
+                    placeholder="Select coding language"
                     disabled={isCreatingJob}
                   />
 
@@ -1206,7 +1242,7 @@ const Jobs = () => {
                           number_to_hire: "",
                           position_level: "",
                           current_process: "",
-                          tech_stack_details: "",
+                          coding_language: "PYTHON",
                           job_description: "",
                         });
                         setShowMessage(false);
@@ -1335,16 +1371,29 @@ const Jobs = () => {
                 },
               },
               {
-                field: "tech_stack_details",
-                header: "Tech Stack Details",
-                width: "180px",
+                field: "coding_language",
+                header: "Coding Language",
+                width: "150px",
                 editable: true,
                 render: (value) => {
                   if (!value) return 'N/A';
-                  const truncated = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                  const languageLabels = {
+                    'PYTHON': 'Python',
+                    'JAVASCRIPT': 'JavaScript',
+                    'C': 'C',
+                    'CPP': 'C++',
+                    'JAVA': 'Java',
+                    'GO': 'Go',
+                    'HTML': 'HTML',
+                    'PHP': 'PHP',
+                    'RUBY': 'Ruby',
+                    'CSHARP': 'C#',
+                    'SQL': 'SQL',
+                  };
+                  const displayValue = languageLabels[value] || value;
                   return (
-                    <div title={value} className="text-truncate">
-                      {truncated}
+                    <div title={displayValue} className="text-truncate">
+                      {displayValue}
                     </div>
                   );
                 },

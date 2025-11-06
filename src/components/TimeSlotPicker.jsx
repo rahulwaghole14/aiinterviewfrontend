@@ -29,16 +29,30 @@ const TimeSlotPicker = ({
 
   const user = useSelector((state) => state.user?.user);
 
-  // Generate time slots from 9 AM to 8 PM in 30-minute intervals
+  // Generate time slots for 24 hours in 10-minute intervals
   const generateTimeSlots = () => {
     const slots = [];
-    for (let hour = 9; hour <= 19; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+    for (let hour = 0; hour <= 23; hour++) {
+      const maxMinute = 60;
+      for (let minute = 0; minute < maxMinute; minute += 10) {
         const startTime = `${String(hour).padStart(2, "0")}:${String(
           minute
         ).padStart(2, "0")}`;
-        const endHour = minute === 30 ? hour + 1 : hour;
-        const endMinute = minute === 30 ? 0 : minute + 30;
+        
+        // Calculate end time (10 minutes later)
+        let endHour = hour;
+        let endMinute = minute + 10;
+        
+        if (endMinute >= 60) {
+          endHour += 1;
+          endMinute -= 60;
+        }
+        
+        // Wrap around to next day hour but still allow displaying the closing segment
+        if (endHour >= 24) {
+          break;
+        }
+        
         const endTime = `${String(endHour).padStart(2, "0")}:${String(
           endMinute
         ).padStart(2, "0")}`;
@@ -663,33 +677,30 @@ const TimeSlotPicker = ({
     const isAvailable = availableSlotsInternal.includes(time);
     const isBooked = bookedSlots.includes(time);
     const isNewSlot = !isAvailable && !isBooked;
+    const selectionModeAvailable = isModal || isBooking;
     
     console.log("isAvailable:", isAvailable, "isBooked:", isBooked, "isNewSlot:", isNewSlot);
 
-    // In modal mode, only allow selection of available slots
-    if (isModal && !isAvailable) {
-      return;
+    // Selection gating: when booking (or modal), allow only available slots; otherwise allow creating new slots
+    if (selectionModeAvailable) {
+      if (!isAvailable) return;
+    } else {
+      if (!isNewSlot) return;
     }
 
-    // In non-modal mode, only allow selection of new slots
-    if (!isModal && !isNewSlot) {
-      return;
-    }
-
-    if (isCtrlHeld) {
-      // Multi-select mode: toggle individual slots
+    if (selectionModeAvailable) {
+      // When booking or in modal, always single-select the available slot
+      newSelectedTimes = [time];
+    } else if (isCtrlHeld) {
+      // Multi-select mode for creating new slots
       if (newSelectedTimes.includes(time)) {
         newSelectedTimes = newSelectedTimes.filter((t) => t !== time);
       } else {
         newSelectedTimes.push(time);
       }
     } else {
-      // Single-select mode: replace selection
-      if (newSelectedTimes.includes(time)) {
-        newSelectedTimes = [];
-      } else {
-        newSelectedTimes = [time];
-      }
+      // Single-select mode for creating new slots
+      newSelectedTimes = [time];
     }
 
     lastClickedTimeRef.current = time;
