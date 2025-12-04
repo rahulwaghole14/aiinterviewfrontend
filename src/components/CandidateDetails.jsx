@@ -18,17 +18,283 @@ import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour } from "../utils/timeFormatting";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// Helper function to safely parse JSON fields
+// Video Player Component with Error Handling
+const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
+  const [error, setError] = useState(null);
+  const [videoSrc, setVideoSrc] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!videoUrl) {
+      setError('No video URL provided');
+      setIsLoading(false);
+      return;
+    }
+
+    // Construct full video URL
+    let fullUrl = videoUrl;
+    
+    // If it's already a full URL (http/https), use it as is
+    if (videoUrl.startsWith('http://') || videoUrl.startsWith('https://')) {
+      fullUrl = videoUrl;
+    } 
+    // If it starts with /media/, just prepend baseURL
+    else if (videoUrl.startsWith('/media/')) {
+      fullUrl = `${baseURL}${videoUrl}`;
+    }
+    // If it starts with /, prepend baseURL
+    else if (videoUrl.startsWith('/')) {
+      fullUrl = `${baseURL}${videoUrl}`;
+    }
+    // If it's a relative path like "interview_videos/..." or "interview_videos_merged/...", add /media/ prefix
+    else if (videoUrl.includes('interview_videos/') || videoUrl.includes('interview_videos_merged/') || videoUrl.includes('interview_videos_raw/') || videoUrl.includes('interview_audio/')) {
+      // Ensure /media/ prefix
+      const cleanPath = videoUrl.startsWith('media/') ? videoUrl : `media/${videoUrl}`;
+      fullUrl = `${baseURL}/${cleanPath}`;
+    }
+    // Default: prepend baseURL
+    else {
+      fullUrl = `${baseURL}/${videoUrl}`;
+    }
+    
+    console.log('Video URL construction:', {
+      original: videoUrl,
+      constructed: fullUrl,
+      baseURL: baseURL
+    });
+    
+    setVideoSrc(fullUrl);
+    setIsLoading(false);
+  }, [videoUrl, baseURL]);
+
+  const handleError = (e) => {
+    const videoElement = e.target;
+    const error = videoElement?.error;
+    const actualSrc = videoElement?.src || videoElement?.currentSrc || videoSrc;
+    
+    console.error('Video playback error:', e);
+    console.error('Video source (state):', videoSrc);
+    console.error('Video source (element):', videoElement?.src);
+    console.error('Video currentSrc:', videoElement?.currentSrc);
+    console.error('Video error details:', {
+      code: error?.code,
+      message: error?.message,
+      networkState: videoElement?.networkState,
+      readyState: videoElement?.readyState,
+      src: videoElement?.src,
+      currentSrc: videoElement?.currentSrc
+    });
+    
+    // Try to fetch the video URL to check if it's accessible
+    const urlToCheck = actualSrc || videoSrc;
+    if (urlToCheck) {
+      fetch(urlToCheck, { method: 'HEAD' })
+        .then(response => {
+          console.log('Video URL accessibility check:', {
+            url: urlToCheck,
+            status: response.status,
+            statusText: response.statusText,
+            contentType: response.headers.get('content-type'),
+            contentLength: response.headers.get('content-length')
+          });
+          if (!response.ok) {
+            setError(`Video file not accessible (HTTP ${response.status}). URL: ${urlToCheck}`);
+          }
+        })
+        .catch(fetchError => {
+          console.error('Error checking video URL:', fetchError);
+          setError(`Cannot access video file. Please check: 1) Server is running, 2) File exists, 3) URL is correct: ${urlToCheck}`);
+        });
+    } else {
+      setError('Video URL is not set. Please check the interview video path.');
+    }
+    
+    // Provide more specific error messages
+    let errorMessage = 'Video cannot be played. The file may be corrupted or in an unsupported format.';
+    if (error) {
+      switch (error.code) {
+        case error.MEDIA_ERR_ABORTED:
+          errorMessage = 'Video playback was aborted.';
+          break;
+        case error.MEDIA_ERR_NETWORK:
+          errorMessage = `Network error while loading video. URL: ${videoSrc}`;
+          break;
+        case error.MEDIA_ERR_DECODE:
+          errorMessage = 'Video format is not supported or the file is corrupted. Try downloading and playing with VLC.';
+          break;
+        case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          errorMessage = 'Video format is not supported by your browser.';
+          break;
+        default:
+          errorMessage = `Video error (code: ${error.code}). The file may be corrupted or in an unsupported format.`;
+      }
+    }
+    
+    setError(errorMessage);
+  };
+
+  const handleLoadedMetadata = (e) => {
+    console.log('Video metadata loaded:', {
+      duration: e.target.duration,
+      videoWidth: e.target.videoWidth,
+      videoHeight: e.target.videoHeight,
+      readyState: e.target.readyState
+    });
+    setError(null);
+  };
+
+  const handleCanPlay = (e) => {
+    console.log('Video can play');
+    setIsLoading(false);
+    setError(null);
+  };
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffc107' }}>
+        <p style={{ color: '#856404', marginBottom: '10px' }}>⚠️ {error}</p>
+        {videoSrc && (
+          <>
+            <p style={{ marginTop: '10px', fontSize: '11px', color: '#666', wordBreak: 'break-all' }}>
+              Video URL: {videoSrc}
+            </p>
+            <a 
+              href={videoSrc} 
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ 
+                display: 'inline-block', 
+                padding: '8px 16px', 
+                backgroundColor: '#007bff', 
+                color: 'white', 
+                textDecoration: 'none', 
+                borderRadius: '4px',
+                marginTop: '10px'
+              }}
+            >
+              Download Video File
+            </a>
+            <p style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+              If the video doesn't play, try downloading it and playing with VLC or another media player.
+            </p>
+            <p style={{ marginTop: '10px', fontSize: '11px', color: '#856404' }}>
+              💡 Tip: Check browser console (F12) for detailed error information.
+            </p>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // Don't render video until we have a valid source
+  if (!videoSrc) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+        <p style={{ color: '#666' }}>Loading video URL...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {isLoading && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          zIndex: 10,
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          color: 'white',
+          padding: '10px 20px',
+          borderRadius: '4px'
+        }}>
+          Loading video...
+        </div>
+      )}
+      <video
+        key={videoSrc} // Force re-render when videoSrc changes
+        controls
+        style={{ width: '100%', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+        preload="auto"
+        crossOrigin="anonymous"
+        onError={handleError}
+        onLoadedMetadata={handleLoadedMetadata}
+        onCanPlay={handleCanPlay}
+        onLoadStart={() => setIsLoading(true)}
+        onLoadedData={() => {
+          console.log('Video data loaded successfully');
+          setIsLoading(false);
+          setError(null);
+        }}
+        playsInline
+        muted={false}
+      >
+        <source src={videoSrc} type="video/mp4; codecs=avc1.42E01E,mp4a.40.2" />
+        <source src={videoSrc} type="video/mp4" />
+        <source src={videoSrc} type="video/webm" />
+        <source src={videoSrc} type="video/quicktime" />
+        Your browser does not support the video tag.
+      </video>
+      {videoSrc && (
+        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+          <a 
+            href={videoSrc}
+            download
+            style={{ 
+              display: 'inline-block', 
+              padding: '6px 12px', 
+              color: '#007bff', 
+              textDecoration: 'none',
+              fontSize: '14px'
+            }}
+          >
+            📥 Download Video
+          </a>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Helper function to safely parse JSON fields or bullet-pointed text
 const parseJsonField = (field) => {
   if (!field) return [];
   if (typeof field === 'string') {
     try {
-      return JSON.parse(field);
+      // First try to parse as JSON
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
     } catch (e) {
+      // If not JSON, try to parse as bullet-pointed text
+      const lines = field.split('\n').map(line => line.trim()).filter(line => line);
+      if (lines.length > 0) {
+        // Check if it's bullet-pointed (starts with -, •, *, etc.)
+        const items = lines.map(line => {
+          // Remove bullet markers
+          return line.replace(/^[-•*]\s*/, '').trim();
+        }).filter(item => item);
+        return items.length > 0 ? items : [];
+      }
       return [];
     }
   }
   return Array.isArray(field) ? field : [];
+};
+
+const sortQAPairs = (list = []) => {
+  return [...list].sort((a, b) => {
+    const seqA = Number.isFinite(a?.conversation_sequence) ? a.conversation_sequence : Number.MAX_SAFE_INTEGER;
+    const seqB = Number.isFinite(b?.conversation_sequence) ? b.conversation_sequence : Number.MAX_SAFE_INTEGER;
+    if (seqA !== seqB) return seqA - seqB;
+    const orderA = Number.isFinite(a?.order) ? a.order : Number.MAX_SAFE_INTEGER;
+    const orderB = Number.isFinite(b?.order) ? b.order : Number.MAX_SAFE_INTEGER;
+    if (orderA !== orderB) return orderA - orderB;
+    const idA = a?.id || '';
+    const idB = b?.id || '';
+    return idA.localeCompare(idB);
+  });
 };
 
 const CandidateDetails = () => {
@@ -873,36 +1139,129 @@ const CandidateDetails = () => {
                     const aiResult = interview.ai_result;
                     const qaData = interview.questions_and_answers || [];
                     
-                    // Separate technical and coding questions
-                    const technicalQuestions = qaData.filter(qa => 
-                      qa.question_type === 'TECHNICAL' || qa.question_type === 'BEHAVIORAL' || !qa.question_type
+                    // Normalize question types for consistent grouping
+                    const technicalQuestions = sortQAPairs(
+                      qaData
+                      .filter(qa => {
+                        const normalizedType = (qa.question_type || '').toUpperCase();
+                        const normalizedLevel = (qa.question_level || '').toUpperCase();
+                        return (
+                          normalizedType === 'TECHNICAL' ||
+                          normalizedType === 'BEHAVIORAL' ||
+                          normalizedType === 'INTRODUCTION' ||
+                          normalizedType === 'CLOSING' ||
+                          normalizedLevel === 'CANDIDATE_QUESTION' ||
+                          normalizedType === ''
+                        );
+                      })
                     );
-                    const codingQuestions = qaData.filter(qa => qa.question_type === 'CODING');
+                    const codingQuestions = sortQAPairs(
+                      qaData.filter(qa => (qa.question_type || '').toUpperCase() === 'CODING')
+                    );
                     
-                    // Calculate TECHNICAL metrics only (for Interview Overview and Question Accuracy)
+                    // Calculate TECHNICAL metrics - use AI evaluation data (based on actual answer correctness analysis)
                     const technicalTotalQuestions = technicalQuestions.length || 0;
-                    const technicalCorrectAnswers = technicalQuestions.filter(qa => {
-                      // Estimate correctness from answer quality (simple heuristic)
-                      const answer = (qa.answer || '').toLowerCase();
-                      return answer && 
-                             answer !== 'no answer provided' && 
-                             answer !== "i don't know" && 
-                             answer !== 'no thank you' &&
-                             answer.length > 10;
-                    }).length;
-                    const technicalIncorrectAnswers = technicalTotalQuestions - technicalCorrectAnswers;
-                    const technicalAccuracy = technicalTotalQuestions > 0 
-                      ? (technicalCorrectAnswers / technicalTotalQuestions * 100) 
-                      : 0;
                     
-                    // Calculate CODING metrics
+                    // Use AI-provided correct/incorrect counts from AI analysis (not just answer presence)
+                    let technicalCorrectAnswers = 0;
+                    let technicalIncorrectAnswers = 0;
+                    let technicalAccuracy = 0;
+                    
+                    // CRITICAL: Use LLM analysis results from QUESTION CORRECTNESS ANALYSIS
+                    // Priority 1: Use technical_questions_correct and technical_questions_attempted (most accurate)
+                    if (aiResult.technical_questions_correct !== undefined && aiResult.technical_questions_attempted !== undefined) {
+                      // These come directly from LLM's QUESTION CORRECTNESS ANALYSIS section
+                      technicalCorrectAnswers = Math.round(aiResult.technical_questions_correct || 0);
+                      const technicalAttempted = Math.round(aiResult.technical_questions_attempted || 0);
+                      technicalIncorrectAnswers = Math.max(0, technicalAttempted - technicalCorrectAnswers);
+                      technicalAccuracy = technicalAttempted > 0 
+                        ? (technicalCorrectAnswers / technicalAttempted * 100) 
+                        : 0;
+                      console.log(`✅ Using LLM analysis (technical_questions_*): ${technicalCorrectAnswers}/${technicalAttempted} correct`);
+                    }
+                    // Priority 2: Use questions_correct and questions_attempted (backward compatibility)
+                    else if (aiResult.questions_correct !== undefined && aiResult.questions_attempted !== undefined) {
+                      // Use AI evaluation data - these are based on actual answer correctness analysis
+                      // AI analyzes each answer and determines if it's correct or incorrect
+                      technicalCorrectAnswers = Math.round(aiResult.questions_correct || 0);
+                      const technicalAttempted = Math.round(aiResult.questions_attempted || 0);
+                      technicalIncorrectAnswers = Math.max(0, technicalAttempted - technicalCorrectAnswers);
+                      technicalAccuracy = technicalAttempted > 0 
+                        ? (technicalCorrectAnswers / technicalAttempted * 100) 
+                        : 0;
+                      console.log(`✅ Using LLM analysis (questions_*): ${technicalCorrectAnswers}/${technicalAttempted} correct`);
+                    } 
+                    // Priority 3: Calculate from accuracy percentage if available
+                    else if (aiResult.technical_accuracy_percentage !== undefined && aiResult.technical_questions_attempted !== undefined) {
+                      const technicalAttempted = Math.round(aiResult.technical_questions_attempted || 0);
+                      technicalAccuracy = aiResult.technical_accuracy_percentage || 0;
+                      technicalCorrectAnswers = Math.round((technicalAccuracy / 100) * technicalAttempted);
+                      technicalIncorrectAnswers = Math.max(0, technicalAttempted - technicalCorrectAnswers);
+                      console.log(`✅ Using LLM analysis (from accuracy %): ${technicalCorrectAnswers}/${technicalAttempted} correct`);
+                    }
+                    else if (aiResult.accuracy_percentage !== undefined && aiResult.questions_attempted !== undefined) {
+                      // Calculate from accuracy percentage if available
+                      const technicalAttempted = Math.round(aiResult.questions_attempted || 0);
+                      technicalAccuracy = aiResult.accuracy_percentage || 0;
+                      technicalCorrectAnswers = Math.round((technicalAccuracy / 100) * technicalAttempted);
+                      technicalIncorrectAnswers = Math.max(0, technicalAttempted - technicalCorrectAnswers);
+                      console.log(`✅ Using LLM analysis (from accuracy %): ${technicalCorrectAnswers}/${technicalAttempted} correct`);
+                    } 
+                    // Final fallback: count from technical_questions if they have is_correct flag from AI analysis
+                    else {
+                      // Fallback: count from technical_questions if they have is_correct flag from AI analysis
+                      const technicalWithCorrectness = technicalQuestions.filter(qa => qa.is_correct === true);
+                      technicalCorrectAnswers = technicalWithCorrectness.length;
+                      technicalIncorrectAnswers = technicalTotalQuestions - technicalCorrectAnswers;
+                      technicalAccuracy = technicalTotalQuestions > 0 
+                        ? (technicalCorrectAnswers / technicalTotalQuestions * 100) 
+                        : 0;
+                      console.warn(`⚠️ Using fallback calculation: ${technicalCorrectAnswers}/${technicalTotalQuestions} correct (LLM analysis not available)`);
+                    }
+                    
+                    // Calculate CODING metrics - use test results if available
                     const codingTotalQuestions = codingQuestions.length || 0;
-                    const codingCorrectAnswers = codingQuestions.filter(qa => {
-                      const answer = (qa.answer || '').toLowerCase();
-                      return answer && answer !== 'no answer provided' && answer.length > 10;
-                    }).length;
-                    const codingIncorrectAnswers = codingTotalQuestions - codingCorrectAnswers;
-                    const codingAccuracy = codingTotalQuestions > 0 
+                    let codingCorrectAnswers = 0;
+                    let codingIncorrectAnswers = 0;
+                    let codingAccuracy = 0;
+                    
+                    // For coding questions, ONLY count as correct if ALL test cases passed
+                    codingQuestions.forEach(qa => {
+                      // For coding questions, we ONLY count as correct if all test cases passed
+                      // Priority: 1) code_submission.passed_all_tests (must be true), 2) check test case results from output_log
+                      let isCorrect = false;
+                      
+                      // Check if code submission exists and all tests passed
+                      if (qa.code_submission && qa.code_submission.passed_all_tests === true) {
+                        isCorrect = true;
+                      } else if (qa.code_submission && qa.code_submission.output_log) {
+                        // Parse output_log to check if all test cases passed
+                        const outputLog = qa.code_submission.output_log;
+                        // Check if output_log contains test case results
+                        const allPassedPattern = /(\d+)\/(\d+)\s+test.*passed/i;
+                        const match = outputLog.match(allPassedPattern);
+                        if (match) {
+                          const passed = parseInt(match[1] || 0);
+                          const total = parseInt(match[2] || 0);
+                          // Only correct if ALL test cases passed (passed === total)
+                          isCorrect = (total > 0 && passed === total);
+                        }
+                        // Also check for "all tests passed" indicators
+                        if (!isCorrect && (outputLog.includes('all tests passed') || outputLog.includes('all_passed: true'))) {
+                          isCorrect = true;
+                        }
+                      }
+                      // Note: We intentionally ignore qa.is_correct flag for coding questions
+                      // because correctness should be determined by test case results only
+                      
+                      if (isCorrect) {
+                        codingCorrectAnswers++;
+                      } else if (qa.answer && qa.answer !== 'No code submitted' && qa.answer !== 'no answer provided' && qa.answer !== 'None') {
+                        // If there's an answer but not all tests passed, count as incorrect
+                        codingIncorrectAnswers++;
+                      }
+                    });
+                    codingAccuracy = codingTotalQuestions > 0 
                       ? (codingCorrectAnswers / codingTotalQuestions * 100) 
                       : 0;
                     
@@ -913,19 +1272,20 @@ const CandidateDetails = () => {
                     const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions * 100) : 0;
                     const totalCompletionTime = aiResult.total_completion_time || 54.6;
                     
-                    // Section scores (0-10 scale, convert to percentage)
-                    const technicalScore = (aiResult.technical_score || 0) * 10;
-                    const behavioralScore = (aiResult.behavioral_score || 0) * 10;
-                    const codingScore = (aiResult.coding_score || 0) * 10;
-                    const communicationScore = (aiResult.communication_score || 0) * 10;
-                    const problemSolvingScore = (aiResult.problem_solving_score || 0) * 10;
+                    // Section scores (AI returns 0-100 scale, use directly as percentage)
+                    // Note: AI scores are already in 0-100 scale, so use them directly
+                    const technicalScore = aiResult.technical_score || 0;
+                    const behavioralScore = aiResult.behavioral_score || 0;
+                    const codingScore = aiResult.coding_score || 0;
+                    const communicationScore = aiResult.communication_score || 0;
+                    const problemSolvingScore = aiResult.problem_solving_score || 0;
                     
                     // Overall rating
                     const overallRating = aiResult.overall_rating || 'FAIR';
                     
-                    // Strengths and weaknesses
-                    const strengths = parseJsonField(aiResult.strengths);
-                    const weaknesses = parseJsonField(aiResult.weaknesses);
+                    // Strengths and weaknesses - try array fields first, then parse from string
+                    const strengths = aiResult.strengths_array || parseJsonField(aiResult.strengths || '');
+                    const weaknesses = aiResult.weaknesses_array || parseJsonField(aiResult.weaknesses || '');
                     
                     // Question accuracy chart data - TECHNICAL ONLY
                     const technicalAccuracyChartData = [
@@ -963,7 +1323,13 @@ const CandidateDetails = () => {
                                     <div className="circle-chart" style={{ 
                                       background: `conic-gradient(#2196F3 0% ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/12)*100 : 0}%, #e0e0e0 ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/12)*100 : 0}% 100%)`
                                     }}>
-                                      <span className="circle-value">{technicalTotalQuestions}</span>
+                                      <span className="circle-value">
+                                        {aiResult.questions_attempted !== undefined 
+                                          ? Math.round(aiResult.questions_attempted) 
+                                          : (aiResult.technical_questions_attempted !== undefined 
+                                              ? Math.round(aiResult.technical_questions_attempted)
+                                              : technicalTotalQuestions)}
+                                      </span>
                                     </div>
                                     <div className="circle-label">Questions Attempted</div>
                                   </div>
@@ -1094,12 +1460,100 @@ const CandidateDetails = () => {
                                 </div>
                               </div>
                               
-                              {/* Summary Card */}
+                              {/* Summary Card - 4 Point Summary */}
                               <div className="evaluation-card summary-card">
                                 <h4 className="card-title">Summary</h4>
-                                <p className="summary-text">
-                                  {aiResult.detailed_feedback || aiResult.ai_summary || 'The candidate demonstrated solid technical knowledge and good problem-solving abilities.'}
-                                </p>
+                                <div className="summary-points-list" style={{ marginTop: '15px' }}>
+                                  {/* Technical Summary */}
+                                  <div className="summary-point-item" style={{ marginBottom: '15px', paddingLeft: '24px', position: 'relative' }}>
+                                    <span style={{ position: 'absolute', left: '0', top: '2px', color: '#2196F3', fontSize: '18px', fontWeight: 'bold' }}>•</span>
+                                    <div style={{ fontWeight: '600', color: '#333', marginBottom: '6px', fontSize: '15px' }}>Technical Summary:</div>
+                                    <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', paddingLeft: '0' }}>
+                                      {aiResult.technical_analysis || (technicalScore > 0 ? `Technical performance: ${(technicalScore / 10).toFixed(1)}/10. ${technicalScore >= 70 ? 'Strong technical knowledge demonstrated.' : technicalScore >= 50 ? 'Moderate technical knowledge.' : 'Technical knowledge needs improvement.'}` : 'Technical evaluation not available.')}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Coding Summary */}
+                                  <div className="summary-point-item" style={{ marginBottom: '15px', paddingLeft: '24px', position: 'relative' }}>
+                                    <span style={{ position: 'absolute', left: '0', top: '2px', color: '#2196F3', fontSize: '18px', fontWeight: 'bold' }}>•</span>
+                                    <div style={{ fontWeight: '600', color: '#333', marginBottom: '6px', fontSize: '15px' }}>Coding Summary:</div>
+                                    <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', paddingLeft: '0' }}>
+                                      {aiResult.coding_analysis || (codingScore > 0 ? `Coding performance: ${(codingScore / 10).toFixed(1)}/10. ${codingScore >= 70 ? 'Strong coding skills demonstrated.' : codingScore >= 50 ? 'Moderate coding skills.' : 'Coding skills need improvement.'}` : codingTotalQuestions > 0 ? 'Coding evaluation completed but analysis not available.' : 'No coding questions were part of this interview.')}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Grammar/Communication Summary */}
+                                  <div className="summary-point-item" style={{ marginBottom: '15px', paddingLeft: '24px', position: 'relative' }}>
+                                    <span style={{ position: 'absolute', left: '0', top: '2px', color: '#2196F3', fontSize: '18px', fontWeight: 'bold' }}>•</span>
+                                    <div style={{ fontWeight: '600', color: '#333', marginBottom: '6px', fontSize: '15px' }}>Grammar/Communication Summary:</div>
+                                    <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', paddingLeft: '0' }}>
+                                      {(() => {
+                                        // Try to get communication analysis from behavioral_analysis or create from communication_score
+                                        if (aiResult.behavioral_analysis && aiResult.behavioral_analysis.trim()) {
+                                          return aiResult.behavioral_analysis;
+                                        } else if (communicationScore > 0) {
+                                          const commScore = (communicationScore / 10).toFixed(1);
+                                          if (communicationScore >= 80) {
+                                            return `Communication score: ${commScore}/10. Excellent communication skills with clear articulation, proper grammar, and effective expression.`;
+                                          } else if (communicationScore >= 60) {
+                                            return `Communication score: ${commScore}/10. Good communication skills with minor grammar issues.`;
+                                          } else if (communicationScore >= 40) {
+                                            return `Communication score: ${commScore}/10. Communication skills need improvement. Some grammar and clarity issues observed.`;
+                                          } else {
+                                            return `Communication score: ${commScore}/10. Poor communication skills with significant grammar and clarity issues.`;
+                                          }
+                                        } else {
+                                          return 'Communication evaluation not available.';
+                                        }
+                                      })()}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Select/Reject Reason */}
+                                  <div className="summary-point-item" style={{ marginBottom: '0', paddingLeft: '24px', position: 'relative' }}>
+                                    <span style={{ position: 'absolute', left: '0', top: '2px', color: aiResult.hire_recommendation ? '#4CAF50' : '#F44336', fontSize: '18px', fontWeight: 'bold' }}>•</span>
+                                    <div style={{ fontWeight: '600', color: '#333', marginBottom: '6px', fontSize: '15px' }}>
+                                      {aiResult.hire_recommendation ? 'Select Reason:' : 'Reject Reason:'}
+                                    </div>
+                                    <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', paddingLeft: '0' }}>
+                                      {(() => {
+                                        // Build select/reject reason from available data
+                                        if (aiResult.hiring_recommendation && aiResult.hiring_recommendation.trim()) {
+                                          return aiResult.hiring_recommendation;
+                                        } else if (aiResult.detailed_feedback && aiResult.detailed_feedback.trim()) {
+                                          return aiResult.detailed_feedback;
+                                        } else {
+                                          // Build reason from scores
+                                          const totalScore = aiResult.total_score || 0;
+                                          const reasons = [];
+                                          
+                                          if (technicalScore >= 70) reasons.push('strong technical knowledge');
+                                          if (codingScore >= 70) reasons.push('excellent coding skills');
+                                          if (communicationScore >= 70) reasons.push('good communication');
+                                          
+                                          if (aiResult.hire_recommendation) {
+                                            if (reasons.length > 0) {
+                                              return `Recommended for selection based on: ${reasons.join(', ')}. Overall score: ${totalScore.toFixed(1)}/10.`;
+                                            } else {
+                                              return `Recommended for selection. Overall score: ${totalScore.toFixed(1)}/10.`;
+                                            }
+                                          } else {
+                                            const issues = [];
+                                            if (technicalScore < 50) issues.push('weak technical knowledge');
+                                            if (codingScore > 0 && codingScore < 50) issues.push('poor coding skills');
+                                            if (communicationScore < 50) issues.push('communication issues');
+                                            
+                                            if (issues.length > 0) {
+                                              return `Not recommended due to: ${issues.join(', ')}. Overall score: ${totalScore.toFixed(1)}/10.`;
+                                            } else {
+                                              return `Not recommended. Overall score: ${totalScore.toFixed(1)}/10.`;
+                                            }
+                                          }
+                                        }
+                                      })()}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                               
                               {/* Proctoring Warnings Report - Download Link */}
@@ -1127,6 +1581,44 @@ const CandidateDetails = () => {
                                     <p>No proctoring warnings report available for this interview.</p>
                                   </div>
                                 )}
+                              </div>
+                              
+                              {/* Q&A Script + AI Evaluation PDF Report - Download Link */}
+                              <div className="evaluation-card qa-evaluation-report-card">
+                                <h4 className="card-title">Q&A Script + AI Evaluation Report</h4>
+                                <div className="qa-evaluation-download-section">
+                                  <a 
+                                    href={`${baseURL}/ai/transcript_pdf?${interview.session_key ? `session_key=${interview.session_key}` : `session_id=${interview.id}`}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="proctoring-download-link"
+                                    style={{ 
+                                      display: 'inline-flex', 
+                                      alignItems: 'center', 
+                                      gap: '8px',
+                                      padding: '10px 16px',
+                                      backgroundColor: '#2196F3',
+                                      color: 'white',
+                                      textDecoration: 'none',
+                                      borderRadius: '6px',
+                                      fontWeight: '500',
+                                      transition: 'background-color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#1976D2'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = '#2196F3'}
+                                  >
+                                    <span className="download-icon" style={{ fontSize: '18px' }}>📋</span>
+                                    <span>Download Q&A Script + AI Evaluation PDF</span>
+                                  </a>
+                                  <div style={{ marginTop: '10px', fontSize: '13px', color: '#666' }}>
+                                    <p style={{ margin: '0' }}>This PDF includes:</p>
+                                    <ul style={{ margin: '5px 0 0 20px', padding: 0 }}>
+                                      <li>Complete question and answer transcript</li>
+                                      <li>AI evaluation and analysis</li>
+                                      <li>Coding challenge results (if applicable)</li>
+                                    </ul>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1331,6 +1823,30 @@ const CandidateDetails = () => {
                 </div>
                 
                 <div className="interview-basic-info">
+                  {/* Verification ID Image - Show only if verification was successful */}
+                  {interview.verification_id_image && (
+                    <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+                      <p style={{ marginBottom: '10px', fontWeight: 'bold', color: '#4CAF50' }}>
+                        ✅ Identity Verification Successful
+                      </p>
+                      <div style={{ textAlign: 'center' }}>
+                        <img 
+                          src={interview.verification_id_image} 
+                          alt="Verification ID" 
+                          style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '400px', 
+                            borderRadius: '8px',
+                            border: '2px solid #4CAF50',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          }} 
+                        />
+                        <p style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                          Verification ID Image
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <p>
                     <strong>Date:</strong>{" "}
                     {interview.started_at
@@ -1474,7 +1990,23 @@ const CandidateDetails = () => {
                   </div>
                 )}
                 
-                {/* Video Recording Section */}
+                {/* Interview Video Recording Section */}
+                {interview.interview_video && (
+                  <div className="recording-section" style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+                    <h4 style={{ marginBottom: '15px', color: '#333' }}>📹 Complete Interview Video</h4>
+                    <p style={{ marginBottom: '15px', color: '#666', fontSize: '14px' }}>
+                      Full interview recording with camera, TTS questions, and candidate speech
+                    </p>
+                    <div className="video-player-container" style={{ width: '100%', maxWidth: '800px' }}>
+                      <VideoPlayerWithErrorHandling 
+                        videoUrl={interview.interview_video}
+                        baseURL={baseURL}
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Legacy Video Recording Section */}
                 {interview.ai_result?.recording_video && (
                   <div className="recording-section">
                     <h4>Interview Recording</h4>
@@ -1503,95 +2035,156 @@ const CandidateDetails = () => {
                 
                 {/* Questions & Answers Section - Below Interview Details */}
                 {(() => {
-                  const qaData = interview.questions_and_answers || [];
+                  const qaData = sortQAPairs(interview.questions_and_answers || []);
                   if (qaData.length === 0) return null;
                   
-                  // Group questions by type
-                  const technicalQuestions = qaData.filter(qa => 
-                    qa.question_type === 'TECHNICAL' || qa.question_type === 'BEHAVIORAL' || !qa.question_type
+                  // Get sequential conversation (like PDF format) from first Q&A item if available
+                  const sequentialConversation = qaData[0]?._sequential_conversation || [];
+                  
+                  // Group questions by type (case-insensitive)
+                  const codingQuestions = qaData.filter(
+                    (qa) => (qa.question_type || '').toUpperCase() === 'CODING'
                   );
-                  const codingQuestions = qaData.filter(qa => qa.question_type === 'CODING');
+                  const technicalQuestions = qaData.filter(
+                    (qa) => (qa.question_type || '').toUpperCase() !== 'CODING'
+                  );
                   
                   return (
                     <div className="qa-section-below-interview">
                       <h4 className="qa-section-title">Questions & Answers - Round {interview.interview_round || 'AI Interview'}</h4>
                       <div className="qa-list-container">
-                        {/* Technical Questions Section */}
-                        {technicalQuestions.length > 0 && (
-                          <>
-                            <div className="qa-section-divider">
+                        {/* Technical Questions Section - Sequential Script Format (like PDF) */}
+                        {sequentialConversation.length > 0 ? (
+                          <div style={{ marginBottom: '30px' }}>
+                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
                               <h5 className="qa-section-label">Technical Questions</h5>
                             </div>
-                            {technicalQuestions.map((qa, index) => (
-                              <div key={qa.id || `tech-${index}`} className="qa-card-item">
-                                <div className="qa-header-info">
-                                  <span className="qa-number-circle">{qa.order || index + 1}</span>
-                                  <span className="qa-type-badge">{qa.question_type === 'BEHAVIORAL' ? 'Behavioral' : 'Technical'}</span>
+                            <div style={{ 
+                              backgroundColor: '#f9f9f9', 
+                              padding: '20px', 
+                              borderRadius: '8px',
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              lineHeight: '1.8',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
+                              {sequentialConversation.map((msg, index) => (
+                                <div key={`msg-${index}`} style={{ marginBottom: '12px' }}>
+                                  <div style={{ 
+                                    marginBottom: '6px', 
+                                    fontWeight: '600', 
+                                    color: msg.role === 'interviewer' ? '#2196F3' : '#4CAF50'
+                                  }}>
+                                    {msg.role === 'interviewer' ? 'Interviewer' : 'Candidate'}:
+                                  </div>
+                                  <div style={{ 
+                                    marginBottom: '12px', 
+                                    paddingLeft: '15px', 
+                                    color: '#333' 
+                                  }}>
+                                    {msg.text || (msg.role === 'candidate' ? 'No answer provided' : '')}
+                                  </div>
                                 </div>
-                                <div className="qa-content">
-                                  <div className="qa-question-section">
-                                    <strong>Q:</strong> {qa.question_text}
+                              ))}
+                            </div>
+                          </div>
+                        ) : technicalQuestions.length > 0 ? (
+                          <div style={{ marginBottom: '30px' }}>
+                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
+                              <h5 className="qa-section-label">Technical Questions</h5>
+                            </div>
+                            <div style={{ 
+                              backgroundColor: '#f9f9f9', 
+                              padding: '20px', 
+                              borderRadius: '8px',
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              lineHeight: '1.8',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
+                            {technicalQuestions.map((qa, index) => (
+                                <div key={qa.id || `tech-${index}`} style={{ marginBottom: '15px' }}>
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3' }}>
+                                    Interviewer:
                                   </div>
-                                  <div className="qa-answer-section">
-                                    <strong>A:</strong> {qa.answer || 'No answer provided'}
+                                  <div style={{ marginBottom: '12px', paddingLeft: '15px', color: '#333' }}>
+                                    {qa.question_text}
                                   </div>
-                                  {qa.response_time > 0 && (
-                                    <div className="qa-timestamp">
-                                      Response Time: {qa.response_time.toFixed(1)}s
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#4CAF50' }}>
+                                    Candidate:
+                                  </div>
+                                  <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
+                                      {qa.answer || 'No answer provided'}
                                     </div>
+                                  {index < technicalQuestions.length - 1 && (
+                                    <div style={{ 
+                                      borderTop: '1px solid #e0e0e0', 
+                                      marginTop: '15px', 
+                                      marginBottom: '15px' 
+                                    }}></div>
                                   )}
-                                  {qa.answered_at && (
-                                    <div className="qa-timestamp">
-                                      Answered: {new Date(qa.answered_at).toLocaleDateString('en-GB') + ', ' + new Date(qa.answered_at).toLocaleTimeString('en-US', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: false
-                                      })}
                                     </div>
-                                  )}
+                              ))}
                                 </div>
                               </div>
-                            ))}
-                          </>
-                        )}
+                        ) : null}
                         
-                        {/* Coding Questions Section */}
+                        {/* Coding Questions Section - Continuous Script Format */}
                         {codingQuestions.length > 0 && (
-                          <>
-                            <div className="qa-section-divider">
+                          <div style={{ marginBottom: '30px' }}>
+                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
                               <h5 className="qa-section-label">Coding Questions</h5>
                             </div>
+                            <div style={{ 
+                              backgroundColor: '#f9f9f9', 
+                              padding: '20px', 
+                              borderRadius: '8px',
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              lineHeight: '1.8',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
                             {codingQuestions.map((qa, index) => (
-                              <div key={qa.id || `coding-${index}`} className="qa-card-item">
-                                <div className="qa-header-info">
-                                  <span className="qa-number-circle">{qa.order || technicalQuestions.length + index + 1}</span>
-                                  <span className="qa-type-badge">Coding</span>
+                                <div key={qa.id || `coding-${index}`} style={{ marginBottom: '15px' }}>
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3' }}>
+                                    Interviewer:
                                 </div>
-                                <div className="qa-content">
-                                  <div className="qa-question-section">
-                                    <strong>Q:</strong> {qa.question_text}
+                                  <div style={{ marginBottom: '12px', paddingLeft: '15px', color: '#333' }}>
+                                    {qa.question_text}
                                   </div>
-                                  <div className="qa-answer-section">
-                                    <strong>A:</strong> {qa.answer || 'No answer provided'}
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#4CAF50' }}>
+                                    Candidate:
                                   </div>
-                                  {qa.response_time > 0 && (
-                                    <div className="qa-timestamp">
-                                      Response Time: {qa.response_time.toFixed(1)}s
-                                    </div>
+                                  <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
+                                    {qa.answer && qa.answer !== 'No code submitted' ? (
+                                      <pre style={{ 
+                                        backgroundColor: '#f5f5f5', 
+                                        padding: '12px', 
+                                        borderRadius: '4px',
+                                        overflow: 'auto',
+                                        fontSize: '13px',
+                                        margin: 0
+                                      }}>
+                                        {qa.answer}
+                                      </pre>
+                                    ) : (
+                                      <span>{qa.answer || 'No code submitted'}</span>
+                                    )}
+                                  </div>
+                                  {index < codingQuestions.length - 1 && (
+                                    <div style={{ 
+                                      borderTop: '1px solid #e0e0e0', 
+                                      marginTop: '15px', 
+                                      marginBottom: '15px' 
+                                    }}></div>
                                   )}
-                                  {qa.answered_at && (
-                                    <div className="qa-timestamp">
-                                      Answered: {new Date(qa.answered_at).toLocaleDateString('en-GB') + ', ' + new Date(qa.answered_at).toLocaleTimeString('en-US', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: false
-                                      })}
                                     </div>
-                                  )}
+                              ))}
                                 </div>
                               </div>
-                            ))}
-                          </>
                         )}
                       </div>
                     </div>
