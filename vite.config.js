@@ -5,7 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env.VITE_API_URL': JSON.stringify('https://aiinterviewerbackend-2.onrender.com'),
+    // Use environment variable if set, otherwise default to Render backend
+    'process.env.VITE_API_URL': JSON.stringify(
+      process.env.VITE_API_URL || 'https://aiinterviewerbackend-2.onrender.com'
+    ),
   },
   optimizeDeps: {
     include: ['react-is', 'recharts'],
