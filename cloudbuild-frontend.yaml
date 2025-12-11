@@ -1,0 +1,31 @@
+# cloudbuild-frontend.yaml
+substitutions:
+  _FRONTEND_BUCKET: "gs://eastern-team-480811-e6-frontend"
+  _API_URL: "https://REPLACE_BACKEND_API_HOST"  # update later to your backend URL
+
+steps:
+# 1) Build the frontend (Node). Adjust if your project uses yarn or different build command
+- name: "node:18"
+  entrypoint: "bash"
+  args:
+    - "-c"
+    - |
+      echo "Injecting API URL for build: ${_API_URL}"
+      echo "REACT_APP_API_URL='${_API_URL}'" > .env.local
+      npm ci
+      npm run build
+
+# 2) Sync the build output to GCS bucket
+- name: "gcr.io/cloud-builders/gsutil"
+  args: ["-m", "rsync", "-r", "build/", "${_FRONTEND_BUCKET}"]
+
+# 3) Optional: set cache control headers for faster repeat loads
+- name: "gcr.io/cloud-builders/gsutil"
+  args:
+    - "-m"
+    - "setmeta"
+    - "-h"
+    - "Cache-Control:public, max-age=3600"
+    - "${_FRONTEND_BUCKET}/**"
+
+images: []
