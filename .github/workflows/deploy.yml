@@ -1,0 +1,78 @@
+name: Deploy Frontend to GCS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+      
+      - name: Build frontend
+        working-directory: ./frontend
+        env:
+          VITE_API_URL: ${{ secrets.BACKEND_URL }}
+          NODE_ENV: production
+        run: npm run build
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Configure gcloud
+        run: |
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+      
+      - name: Upload HTML files
+        run: |
+          gsutil -m cp -r frontend/dist/*.html gs://${{ secrets.GCS_BUCKET_NAME }}/
+      
+      - name: Upload assets
+        run: |
+          gsutil -m cp -r frontend/dist/assets/* gs://${{ secrets.GCS_BUCKET_NAME }}/assets/
+      
+      - name: Upload static files
+        run: |
+          gsutil -m cp -r frontend/dist/*.{png,jpg,jpeg,svg,ico,webp,json} gs://${{ secrets.GCS_BUCKET_NAME }}/ || true
+      
+      - name: Set content types
+        run: |
+          gsutil -m setmeta -h "Content-Type:text/html" gs://${{ secrets.GCS_BUCKET_NAME }}/*.html || true
+          gsutil -m setmeta -h "Content-Type:application/javascript" gs://${{ secrets.GCS_BUCKET_NAME }}/assets/*.js || true
+          gsutil -m setmeta -h "Content-Type:text/css" gs://${{ secrets.GCS_BUCKET_NAME }}/assets/*.css || true
+      
+      - name: Configure website hosting
+        run: |
+          gsutil web set -m index.html -e index.html gs://${{ secrets.GCS_BUCKET_NAME }}
+      
+      - name: Deployment Summary
+        run: |
+          echo "✅ Frontend deployed successfully!"
+          echo "🌐 Frontend URL: https://storage.googleapis.com/${{ secrets.GCS_BUCKET_NAME }}/index.html"
+
