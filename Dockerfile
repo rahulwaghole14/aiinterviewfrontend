@@ -36,9 +36,19 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 # Expose port (Cloud Run will set PORT env variable)
 EXPOSE 8080
 
+# Create startup script that properly handles PORT
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'set -e' >> /start.sh && \
+    echo 'PORT=${PORT:-8080}' >> /start.sh && \
+    echo 'export PORT' >> /start.sh && \
+    echo 'envsubst '"'"'$PORT'"'"' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf' >> /start.sh && \
+    echo 'echo "Starting nginx on port $PORT"' >> /start.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /start.sh && \
+    chmod +x /start.sh
+
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-8080}/ || exit 1
 
-# Start nginx with PORT substitution
-CMD sh -c "envsubst '\$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+# Use the startup script
+CMD ["/start.sh"]

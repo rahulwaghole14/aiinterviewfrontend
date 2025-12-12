@@ -1,5 +1,6 @@
 server {
-    listen ${PORT:-8080};
+    listen ${PORT} default_server;
+    listen [::]:${PORT} default_server;
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
@@ -38,4 +39,3 @@ server {
         add_header Cache-Control "no-cache, no-store, must-revalidate";
     }
 }
-
