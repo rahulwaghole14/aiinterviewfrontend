@@ -24,18 +24,14 @@ RUN npm run build
 # Stage 2: Serve the application with nginx
 FROM nginx:alpine
 
+# Install gettext for envsubst
+RUN apk add --no-cache gettext
+
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration template
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-
-# Create startup script to handle PORT environment variable
-RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
-    echo 'export PORT=${PORT:-8080}' >> /docker-entrypoint.sh && \
-    echo 'envsubst '"'"'$PORT'"'"' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf' >> /docker-entrypoint.sh && \
-    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
-    chmod +x /docker-entrypoint.sh
 
 # Expose port (Cloud Run will set PORT env variable)
 EXPOSE 8080
@@ -44,5 +40,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-8080}/ || exit 1
 
-# Start nginx with custom entrypoint
-ENTRYPOINT ["/docker-entrypoint.sh"]
+# Start nginx with PORT substitution
+CMD sh -c "envsubst '\$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
