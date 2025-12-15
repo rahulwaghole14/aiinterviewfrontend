@@ -2038,9 +2038,6 @@ const CandidateDetails = () => {
                   const qaData = sortQAPairs(interview.questions_and_answers || []);
                   if (qaData.length === 0) return null;
                   
-                  // Get sequential conversation (like PDF format) from first Q&A item if available
-                  const sequentialConversation = qaData[0]?._sequential_conversation || [];
-                  
                   // Group questions by type (case-insensitive)
                   const codingQuestions = qaData.filter(
                     (qa) => (qa.question_type || '').toUpperCase() === 'CODING'
@@ -2053,8 +2050,8 @@ const CandidateDetails = () => {
                     <div className="qa-section-below-interview">
                       <h4 className="qa-section-title">Questions & Answers - Round {interview.interview_round || 'AI Interview'}</h4>
                       <div className="qa-list-container">
-                        {/* Technical Questions Section - Sequential Script Format (like PDF) */}
-                        {sequentialConversation.length > 0 ? (
+                        {/* Technical Questions Section - show explicit Q & A pairs */}
+                        {technicalQuestions.length > 0 && (
                           <div style={{ marginBottom: '30px' }}>
                             <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
                               <h5 className="qa-section-label">Technical Questions</h5>
@@ -2069,42 +2066,7 @@ const CandidateDetails = () => {
                               whiteSpace: 'pre-wrap',
                               wordWrap: 'break-word'
                             }}>
-                              {sequentialConversation.map((msg, index) => (
-                                <div key={`msg-${index}`} style={{ marginBottom: '12px' }}>
-                                  <div style={{ 
-                                    marginBottom: '6px', 
-                                    fontWeight: '600', 
-                                    color: msg.role === 'interviewer' ? '#2196F3' : '#4CAF50'
-                                  }}>
-                                    {msg.role === 'interviewer' ? 'Interviewer' : 'Candidate'}:
-                                  </div>
-                                  <div style={{ 
-                                    marginBottom: '12px', 
-                                    paddingLeft: '15px', 
-                                    color: '#333' 
-                                  }}>
-                                    {msg.text || (msg.role === 'candidate' ? 'No answer provided' : '')}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ) : technicalQuestions.length > 0 ? (
-                          <div style={{ marginBottom: '30px' }}>
-                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
-                              <h5 className="qa-section-label">Technical Questions</h5>
-                            </div>
-                            <div style={{ 
-                              backgroundColor: '#f9f9f9', 
-                              padding: '20px', 
-                              borderRadius: '8px',
-                              fontFamily: 'monospace',
-                              fontSize: '14px',
-                              lineHeight: '1.8',
-                              whiteSpace: 'pre-wrap',
-                              wordWrap: 'break-word'
-                            }}>
-                            {technicalQuestions.map((qa, index) => (
+                              {technicalQuestions.map((qa, index) => (
                                 <div key={qa.id || `tech-${index}`} style={{ marginBottom: '15px' }}>
                                   <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3' }}>
                                     Interviewer:
@@ -2116,20 +2078,22 @@ const CandidateDetails = () => {
                                     Candidate:
                                   </div>
                                   <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
-                                      {qa.answer || 'No answer provided'}
-                                    </div>
+                                    {qa.answer || 'No answer provided'}
+                                  </div>
                                   {index < technicalQuestions.length - 1 && (
-                                    <div style={{ 
-                                      borderTop: '1px solid #e0e0e0', 
-                                      marginTop: '15px', 
-                                      marginBottom: '15px' 
-                                    }}></div>
+                                    <div
+                                      style={{
+                                        borderTop: '1px solid #e0e0e0',
+                                        marginTop: '15px',
+                                        marginBottom: '15px',
+                                      }}
+                                    ></div>
                                   )}
-                                    </div>
-                              ))}
                                 </div>
-                              </div>
-                        ) : null}
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         
                         {/* Coding Questions Section - Continuous Script Format */}
                         {codingQuestions.length > 0 && (
