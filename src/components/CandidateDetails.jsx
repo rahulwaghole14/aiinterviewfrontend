@@ -1608,15 +1608,29 @@ const CandidateDetails = () => {
                               {/* Proctoring Warnings Report - Download Link */}
                               <div className="evaluation-card proctoring-report-card">
                                 <h4 className="card-title">Proctoring Warnings Report</h4>
-                                {aiResult.proctoring_pdf_url ? (
+                                {aiResult.proctoring_pdf_url || (aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0) ? (
                                   <div className="proctoring-download-section">
                                     <a 
-                                      href={`${baseURL}${aiResult.proctoring_pdf_url}`}
+                                      href={`${baseURL}/api/proctoring/pdf/${interview.id}/`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="proctoring-download-link"
+                                      style={{ 
+                                        display: 'inline-flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        padding: '10px 16px',
+                                        backgroundColor: '#FF9800',
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        borderRadius: '6px',
+                                        fontWeight: '500',
+                                        transition: 'background-color 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => e.target.style.backgroundColor = '#F57C00'}
+                                      onMouseLeave={(e) => e.target.style.backgroundColor = '#FF9800'}
                                     >
-                                      <span className="download-icon">📄</span>
+                                      <span className="download-icon" style={{ fontSize: '18px' }}>📄</span>
                                       <span>Download Proctoring Warnings Report</span>
                                     </a>
                                     {aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
