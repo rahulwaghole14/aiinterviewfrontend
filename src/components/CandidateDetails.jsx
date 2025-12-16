@@ -1478,7 +1478,56 @@ const CandidateDetails = () => {
                                     <span style={{ position: 'absolute', left: '0', top: '2px', color: '#2196F3', fontSize: '18px', fontWeight: 'bold' }}>•</span>
                                     <div style={{ fontWeight: '600', color: '#333', marginBottom: '6px', fontSize: '15px' }}>Coding Summary:</div>
                                     <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', paddingLeft: '0' }}>
-                                      {aiResult.coding_analysis || (codingScore > 0 ? `Coding performance: ${(codingScore / 10).toFixed(1)}/10. ${codingScore >= 70 ? 'Strong coding skills demonstrated.' : codingScore >= 50 ? 'Moderate coding skills.' : 'Coding skills need improvement.'}` : codingTotalQuestions > 0 ? 'Coding evaluation completed but analysis not available.' : 'No coding questions were part of this interview.')}
+                                      {(() => {
+                                        // Priority 1: Use AI-generated coding_analysis if available
+                                        if (aiResult.coding_analysis && aiResult.coding_analysis.trim() && aiResult.coding_analysis !== 'No coding challenges were part of this interview.') {
+                                          return aiResult.coding_analysis;
+                                        }
+                                        
+                                        // Priority 2: Generate summary from coding submissions if available
+                                        if (codingTotalQuestions > 0 && codingQuestions.length > 0) {
+                                          const codingSubmissions = codingQuestions.filter(qa => qa.code_submission);
+                                          if (codingSubmissions.length > 0) {
+                                            const totalSubmissions = codingSubmissions.length;
+                                            const passedSubmissions = codingSubmissions.filter(qa => qa.code_submission && qa.code_submission.passed_all_tests === true).length;
+                                            const languages = [...new Set(codingSubmissions.map(qa => qa.code_submission?.language || 'Unknown').filter(Boolean))];
+                                            
+                                            let summary = `Completed ${totalSubmissions} coding challenge${totalSubmissions > 1 ? 's' : ''}`;
+                                            if (languages.length > 0) {
+                                              summary += ` in ${languages.join(', ')}`;
+                                            }
+                                            summary += `. `;
+                                            
+                                            if (passedSubmissions === totalSubmissions) {
+                                              summary += `All challenges passed successfully, demonstrating strong problem-solving and coding proficiency.`;
+                                            } else if (passedSubmissions > 0) {
+                                              summary += `${passedSubmissions} out of ${totalSubmissions} challenge${totalSubmissions > 1 ? 's' : ''} passed. Shows good coding fundamentals with room for improvement in test case coverage.`;
+                                            } else {
+                                              summary += `No challenges passed. Indicates need for improvement in coding logic, syntax, or test case handling.`;
+                                            }
+                                            
+                                            // Add coding score if available
+                                            if (codingScore > 0) {
+                                              summary += ` Overall coding score: ${(codingScore / 10).toFixed(1)}/10.`;
+                                            }
+                                            
+                                            return summary;
+                                          }
+                                        }
+                                        
+                                        // Priority 3: Fallback to score-based message
+                                        if (codingScore > 0) {
+                                          return `Coding performance: ${(codingScore / 10).toFixed(1)}/10. ${codingScore >= 70 ? 'Strong coding skills demonstrated.' : codingScore >= 50 ? 'Moderate coding skills.' : 'Coding skills need improvement.'}`;
+                                        }
+                                        
+                                        // Priority 4: Check if coding questions exist but no submissions
+                                        if (codingTotalQuestions > 0) {
+                                          return 'Coding challenges were presented but no code submissions were received.';
+                                        }
+                                        
+                                        // Final fallback
+                                        return 'No coding challenges were part of this interview.';
+                                      })()}
                                     </div>
                                   </div>
                                   
