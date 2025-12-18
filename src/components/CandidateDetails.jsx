@@ -555,6 +555,7 @@ const CandidateDetails = () => {
             hire_recommendation: ['STRONG_HIRE', 'HIRE'].includes(aiAnalysis.recommendation),
             confidence_level: (aiAnalysis.confidence_level || 0) / 10.0,
             proctoring_pdf_url: evaluation.details.proctoring_pdf_url || null,
+            proctoring_pdf_gcs_url: evaluation.details.proctoring_pdf_gcs_url || null,
             proctoring_warnings: evaluation.details.proctoring?.warnings || [],
           };
           console.log(`✅ Extracted ai_result from evaluation for interview ${interview.id}`);
@@ -1608,10 +1609,17 @@ const CandidateDetails = () => {
                               {/* Proctoring Warnings Report - Download Link */}
                               <div className="evaluation-card proctoring-report-card">
                                 <h4 className="card-title">Proctoring Warnings Report</h4>
-                                {aiResult.proctoring_pdf_url || (aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0) ? (
+                                {aiResult.proctoring_pdf_url || aiResult.proctoring_pdf_gcs_url || (aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0) ? (
                                   <div className="proctoring-download-section">
                                     <a 
-                                      href={`${baseURL}/api/proctoring/pdf/${interview.id}/`}
+                                      href={(() => {
+                                        // If GCS URL exists and is absolute (starts with http), use it directly
+                                        if (aiResult.proctoring_pdf_gcs_url && aiResult.proctoring_pdf_gcs_url.startsWith('http')) {
+                                          return aiResult.proctoring_pdf_gcs_url;
+                                        }
+                                        // Otherwise, use the Django API endpoint
+                                        return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
+                                      })()}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="proctoring-download-link"
@@ -1683,6 +1691,17 @@ const CandidateDetails = () => {
                                   </div>
                                 </div>
                               </div>
+                              
+                              {/* Interview Video Player */}
+                              {interview.interview_video && (
+                                <div className="evaluation-card" style={{ marginTop: '1.5rem' }}>
+                                  <h4 className="card-title">Interview Video</h4>
+                                  <VideoPlayerWithErrorHandling 
+                                    videoUrl={interview.interview_video} 
+                                    baseURL={baseURL}
+                                  />
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
