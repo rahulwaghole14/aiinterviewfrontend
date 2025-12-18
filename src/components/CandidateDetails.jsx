@@ -1607,15 +1607,16 @@ const CandidateDetails = () => {
                               </div>
                               
                               {/* Proctoring Warnings Report - Download Link */}
-                              <div className="evaluation-card proctoring-report-card">
-                                <h4 className="card-title">Proctoring Warnings Report</h4>
-                                {/* Always show download button if evaluation exists - API will handle if PDF exists */}
-                                {interview.evaluation ? (
+                              {/* Show proctoring PDF button if evaluation exists, regardless of aiResult */}
+                              {interview.evaluation && (
+                                <div className="evaluation-card proctoring-report-card">
+                                  <h4 className="card-title">Proctoring Warnings Report</h4>
                                   <div className="proctoring-download-section">
                                     <a 
                                       href={(() => {
-                                        // Prioritize GCS URL if it's a valid absolute URL (like AI evaluation PDF)
-                                        const gcsUrl = aiResult?.proctoring_pdf_gcs_url;
+                                        // Get GCS URL from aiResult or evaluation details
+                                        const gcsUrl = aiResult?.proctoring_pdf_gcs_url || 
+                                                      interview.evaluation?.details?.proctoring_pdf_gcs_url;
                                         if (gcsUrl && typeof gcsUrl === 'string') {
                                           // Normalize URL - ensure it starts with https://
                                           let normalizedUrl = gcsUrl.trim();
@@ -1627,12 +1628,11 @@ const CandidateDetails = () => {
                                             return `https://${normalizedUrl}`;
                                           }
                                         }
-                                        // Fallback to API endpoint - it will handle PDF generation/download
+                                        // Fallback to API endpoint - it will handle PDF generation/download from GCS or generate if needed
                                         return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
                                       })()}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      download="proctoring_report.pdf"
                                       className="proctoring-download-link"
                                       style={{ 
                                         display: 'inline-flex', 
@@ -1652,23 +1652,27 @@ const CandidateDetails = () => {
                                       <span className="download-icon" style={{ fontSize: '18px' }}>📄</span>
                                       <span>Download Proctoring Warnings Report</span>
                                     </a>
-                                    {aiResult?.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
-                                      <div className="proctoring-warning-info">
-                                        <strong>Total Warnings: {aiResult.proctoring_warnings.length}</strong>
-                                      </div>
-                                    )}
-                                    {(!aiResult?.proctoring_warnings || aiResult.proctoring_warnings.length === 0) && (
-                                      <div className="proctoring-warning-info" style={{ color: '#4CAF50', fontSize: '0.875rem' }}>
-                                        No warnings detected during this interview.
-                                      </div>
-                                    )}
+                                    {(() => {
+                                      const warnings = aiResult?.proctoring_warnings || 
+                                                      interview.evaluation?.details?.proctoring?.warnings || [];
+                                      return warnings.length > 0 ? (
+                                        <div className="proctoring-warning-info">
+                                          <strong>Total Warnings: {warnings.length}</strong>
+                                        </div>
+                                      ) : (
+                                        <div className="proctoring-warning-info" style={{ marginTop: '10px', fontSize: '13px', color: '#666' }}>
+                                          <p style={{ margin: '0' }}>This PDF includes:</p>
+                                          <ul style={{ margin: '5px 0 0 20px', padding: 0 }}>
+                                            <li>Proctoring warnings and snapshots (if any)</li>
+                                            <li>Warning timestamps and details</li>
+                                            <li>Interview monitoring report</li>
+                                          </ul>
+                                        </div>
+                                      );
+                                    })()}
                                   </div>
-                                ) : (
-                                  <div className="no-proctoring-report">
-                                    <p>No evaluation available yet. Please wait for the evaluation to be generated.</p>
-                                  </div>
-                                )}
-                              </div>
+                                </div>
+                              )}
                               
                               {/* Q&A Script + AI Evaluation PDF Report - Download Link */}
                               <div className="evaluation-card qa-evaluation-report-card">
