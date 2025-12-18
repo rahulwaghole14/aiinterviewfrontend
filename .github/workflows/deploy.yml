@@ -76,3 +76,6 @@ jobs:
           echo "✅ Frontend deployed successfully!"
           echo "🌐 Frontend URL: https://storage.googleapis.com/${{ secrets.GCS_BUCKET_NAME }}/index.html"
 
+
+
+

@@ -1613,8 +1613,13 @@ const CandidateDetails = () => {
                                   <div className="proctoring-download-section">
                                     <a 
                                       href={(() => {
-                                        // Always use the Django API endpoint for reliable download
-                                        // The API will handle GCS URL redirect or direct download
+                                        // Use GCS URL directly if it's a valid absolute URL (like AI evaluation PDF)
+                                        if (aiResult.proctoring_pdf_gcs_url && 
+                                            typeof aiResult.proctoring_pdf_gcs_url === 'string' && 
+                                            aiResult.proctoring_pdf_gcs_url.startsWith('https://')) {
+                                          return aiResult.proctoring_pdf_gcs_url;
+                                        }
+                                        // Fallback to API endpoint
                                         return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
                                       })()}
                                       target="_blank"
