@@ -1609,12 +1609,13 @@ const CandidateDetails = () => {
                               {/* Proctoring Warnings Report - Download Link */}
                               <div className="evaluation-card proctoring-report-card">
                                 <h4 className="card-title">Proctoring Warnings Report</h4>
-                                {aiResult.proctoring_pdf_url || aiResult.proctoring_pdf_gcs_url || (aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0) ? (
+                                {/* Always show download button if evaluation exists - API will handle if PDF exists */}
+                                {interview.evaluation ? (
                                   <div className="proctoring-download-section">
                                     <a 
                                       href={(() => {
                                         // Prioritize GCS URL if it's a valid absolute URL (like AI evaluation PDF)
-                                        const gcsUrl = aiResult.proctoring_pdf_gcs_url;
+                                        const gcsUrl = aiResult?.proctoring_pdf_gcs_url;
                                         if (gcsUrl && typeof gcsUrl === 'string') {
                                           // Normalize URL - ensure it starts with https://
                                           let normalizedUrl = gcsUrl.trim();
@@ -1626,7 +1627,7 @@ const CandidateDetails = () => {
                                             return `https://${normalizedUrl}`;
                                           }
                                         }
-                                        // Fallback to API endpoint
+                                        // Fallback to API endpoint - it will handle PDF generation/download
                                         return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
                                       })()}
                                       target="_blank"
@@ -1651,15 +1652,20 @@ const CandidateDetails = () => {
                                       <span className="download-icon" style={{ fontSize: '18px' }}>📄</span>
                                       <span>Download Proctoring Warnings Report</span>
                                     </a>
-                                    {aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
+                                    {aiResult?.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
                                       <div className="proctoring-warning-info">
                                         <strong>Total Warnings: {aiResult.proctoring_warnings.length}</strong>
+                                      </div>
+                                    )}
+                                    {(!aiResult?.proctoring_warnings || aiResult.proctoring_warnings.length === 0) && (
+                                      <div className="proctoring-warning-info" style={{ color: '#4CAF50', fontSize: '0.875rem' }}>
+                                        No warnings detected during this interview.
                                       </div>
                                     )}
                                   </div>
                                 ) : (
                                   <div className="no-proctoring-report">
-                                    <p>No proctoring warnings report available for this interview.</p>
+                                    <p>No evaluation available yet. Please wait for the evaluation to be generated.</p>
                                   </div>
                                 )}
                               </div>
