@@ -1613,11 +1613,18 @@ const CandidateDetails = () => {
                                   <div className="proctoring-download-section">
                                     <a 
                                       href={(() => {
-                                        // Use GCS URL directly if it's a valid absolute URL (like AI evaluation PDF)
-                                        if (aiResult.proctoring_pdf_gcs_url && 
-                                            typeof aiResult.proctoring_pdf_gcs_url === 'string' && 
-                                            aiResult.proctoring_pdf_gcs_url.startsWith('https://')) {
-                                          return aiResult.proctoring_pdf_gcs_url;
+                                        // Prioritize GCS URL if it's a valid absolute URL (like AI evaluation PDF)
+                                        const gcsUrl = aiResult.proctoring_pdf_gcs_url;
+                                        if (gcsUrl && typeof gcsUrl === 'string') {
+                                          // Normalize URL - ensure it starts with https://
+                                          let normalizedUrl = gcsUrl.trim();
+                                          if (normalizedUrl.startsWith('https://')) {
+                                            return normalizedUrl;
+                                          } else if (normalizedUrl.startsWith('http://')) {
+                                            return normalizedUrl.replace('http://', 'https://');
+                                          } else if (normalizedUrl.startsWith('storage.googleapis.com')) {
+                                            return `https://${normalizedUrl}`;
+                                          }
                                         }
                                         // Fallback to API endpoint
                                         return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
