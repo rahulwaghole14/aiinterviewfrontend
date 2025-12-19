@@ -1679,6 +1679,34 @@ const CandidateDetails = () => {
                                       download="proctoring_report.pdf"
                                       target="_blank"
                                       rel="noopener noreferrer"
+                                      onClick={(e) => {
+                                        // Get the GCS URL from evaluation details
+                                        const gcsUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
+                                                      interview.evaluation?.details?.proctoring_pdf_url;
+                                        
+                                        // If we have a valid GCS URL, open it directly without any app URL concatenation
+                                        if (gcsUrl && typeof gcsUrl === 'string' && gcsUrl.includes('storage.googleapis.com')) {
+                                          // Extract clean GCS URL
+                                          let cleanUrl = gcsUrl.trim();
+                                          const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
+                                          if (gcsIndex !== -1) {
+                                            cleanUrl = cleanUrl.substring(gcsIndex);
+                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');
+                                            cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
+                                            if (!cleanUrl.startsWith('https://')) {
+                                              cleanUrl = `https://${cleanUrl}`;
+                                            }
+                                            
+                                            // If it's a valid GCS URL, prevent default and open directly
+                                            if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
+                                              e.preventDefault();
+                                              window.open(cleanUrl, '_blank');
+                                              return false;
+                                            }
+                                          }
+                                        }
+                                        // Otherwise, let the default href behavior work (API endpoint)
+                                      }}
                                       className="proctoring-download-link"
                                       style={{ 
                                         display: 'inline-flex', 
