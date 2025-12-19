@@ -1613,53 +1613,7 @@ const CandidateDetails = () => {
                                   <h4 className="card-title">Proctoring Warnings Report</h4>
                                   <div className="proctoring-download-section">
                                     <a 
-                                      href={(() => {
-                                        // Get GCS URL from aiResult or evaluation details
-                                        const gcsUrl = aiResult?.proctoring_pdf_gcs_url || 
-                                                      interview.evaluation?.details?.proctoring_pdf_gcs_url;
-                                        if (gcsUrl && typeof gcsUrl === 'string') {
-                                          // Normalize URL - ensure it starts with https://
-                                          let normalizedUrl = gcsUrl.trim();
-                                          
-                                          // CRITICAL: Always extract GCS URL if storage.googleapis.com is present
-                                          // This handles cases where baseURL was concatenated incorrectly
-                                          // Pattern examples:
-                                          // - https://talaroai-...run.apphttps//storage.googleapis.com/...
-                                          // - talaroai-...run.apphttps//storage.googleapis.com/...
-                                          // - https://talaroai-...run.app/storage.googleapis.com/...
-                                          if (normalizedUrl.includes('storage.googleapis.com')) {
-                                            // Extract everything from storage.googleapis.com onwards
-                                            const gcsIndex = normalizedUrl.indexOf('storage.googleapis.com');
-                                            if (gcsIndex !== -1) {
-                                              normalizedUrl = normalizedUrl.substring(gcsIndex);
-                                            }
-                                          }
-                                          
-                                          // Remove any double slashes or malformed prefixes (like https://https:// or https//)
-                                          normalizedUrl = normalizedUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
-                                          normalizedUrl = normalizedUrl.replace(/^https?:\/\/\/+/g, 'https://');
-                                          normalizedUrl = normalizedUrl.replace(/^https?\/\/+/g, 'https://'); // Handle https// pattern
-                                          
-                                          // Ensure it starts with https://
-                                          if (normalizedUrl.startsWith('https://')) {
-                                            // Verify it's a valid GCS URL format: https://storage.googleapis.com/...
-                                            if (normalizedUrl.includes('storage.googleapis.com/')) {
-                                              return normalizedUrl;
-                                            }
-                                          } else if (normalizedUrl.startsWith('http://')) {
-                                            const httpsUrl = normalizedUrl.replace('http://', 'https://');
-                                            if (httpsUrl.includes('storage.googleapis.com/')) {
-                                              return httpsUrl;
-                                            }
-                                          } else if (normalizedUrl.startsWith('storage.googleapis.com')) {
-                                            return `https://${normalizedUrl}`;
-                                          } else if (normalizedUrl.startsWith('//storage.googleapis.com')) {
-                                            return `https:${normalizedUrl}`;
-                                          }
-                                        }
-                                        // Fallback to API endpoint - it will handle PDF generation/download from GCS or generate if needed
-                                        return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
-                                      })()}
+                                      href={`${baseURL}/api/proctoring/pdf/${interview.id}/`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="proctoring-download-link"
