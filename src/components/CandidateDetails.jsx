@@ -1621,27 +1621,24 @@ const CandidateDetails = () => {
                                           // Normalize URL - ensure it starts with https://
                                           let normalizedUrl = gcsUrl.trim();
                                           
-                                          // CRITICAL: Remove any baseURL that might have been accidentally prepended
-                                          // Check if baseURL is in the URL and remove it
-                                          if (normalizedUrl.includes(baseURL) && normalizedUrl.includes('storage.googleapis.com')) {
-                                            // Extract the GCS URL part (everything from storage.googleapis.com onwards)
+                                          // CRITICAL: Always extract GCS URL if storage.googleapis.com is present
+                                          // This handles cases where baseURL was concatenated incorrectly
+                                          // Pattern examples:
+                                          // - https://talaroai-...run.apphttps//storage.googleapis.com/...
+                                          // - talaroai-...run.apphttps//storage.googleapis.com/...
+                                          // - https://talaroai-...run.app/storage.googleapis.com/...
+                                          if (normalizedUrl.includes('storage.googleapis.com')) {
+                                            // Extract everything from storage.googleapis.com onwards
                                             const gcsIndex = normalizedUrl.indexOf('storage.googleapis.com');
                                             if (gcsIndex !== -1) {
                                               normalizedUrl = normalizedUrl.substring(gcsIndex);
                                             }
                                           }
                                           
-                                          // Remove any double slashes or malformed prefixes (like https://https://)
+                                          // Remove any double slashes or malformed prefixes (like https://https:// or https//)
                                           normalizedUrl = normalizedUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
                                           normalizedUrl = normalizedUrl.replace(/^https?:\/\/\/+/g, 'https://');
-                                          
-                                          // Remove any baseURL that might be embedded (like talaroai-...run.apphttps//)
-                                          if (normalizedUrl.includes('run.app') && normalizedUrl.includes('storage.googleapis.com')) {
-                                            const gcsIndex = normalizedUrl.indexOf('storage.googleapis.com');
-                                            if (gcsIndex !== -1) {
-                                              normalizedUrl = normalizedUrl.substring(gcsIndex);
-                                            }
-                                          }
+                                          normalizedUrl = normalizedUrl.replace(/^https?\/\/+/g, 'https://'); // Handle https// pattern
                                           
                                           // Ensure it starts with https://
                                           if (normalizedUrl.startsWith('https://')) {
