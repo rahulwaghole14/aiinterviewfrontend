@@ -1680,34 +1680,64 @@ const CandidateDetails = () => {
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        
                                         // Get the GCS URL from evaluation details
                                         const gcsUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
                                                       interview.evaluation?.details?.proctoring_pdf_url;
                                         
-                                        // If we have a valid GCS URL, open it directly without any app URL concatenation
+                                        console.log('🔍 Proctoring PDF Button Clicked');
+                                        console.log('🔍 Raw GCS URL from evaluation:', gcsUrl);
+                                        
+                                        // If we have a valid GCS URL, open it directly
                                         if (gcsUrl && typeof gcsUrl === 'string' && gcsUrl.includes('storage.googleapis.com')) {
-                                          // Extract clean GCS URL
+                                          // Extract clean GCS URL - remove any app URL prefix
                                           let cleanUrl = gcsUrl.trim();
+                                          
+                                          // Find storage.googleapis.com and extract everything from there
                                           const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
                                           if (gcsIndex !== -1) {
                                             cleanUrl = cleanUrl.substring(gcsIndex);
+                                            console.log('🔍 Extracted GCS part:', cleanUrl);
+                                            
+                                            // Remove malformed prefixes
                                             cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');
                                             cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
+                                            
+                                            // Ensure it starts with https://
                                             if (!cleanUrl.startsWith('https://')) {
                                               cleanUrl = `https://${cleanUrl}`;
                                             }
                                             
-                                            // If it's a valid GCS URL, prevent default and open directly
+                                            // Final validation
                                             if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                              console.log('🔗 Opening GCS URL directly:', cleanUrl);
-                                              window.open(cleanUrl, '_blank');
+                                              console.log('✅ Opening GCS URL directly:', cleanUrl);
+                                              // Open in new tab and trigger download
+                                              const link = document.createElement('a');
+                                              link.href = cleanUrl;
+                                              link.target = '_blank';
+                                              link.download = 'proctoring_report.pdf';
+                                              link.rel = 'noopener noreferrer';
+                                              document.body.appendChild(link);
+                                              link.click();
+                                              document.body.removeChild(link);
                                               return false;
+                                            } else {
+                                              console.error('❌ Invalid GCS URL format:', cleanUrl);
                                             }
+                                          } else {
+                                            console.error('❌ storage.googleapis.com not found in URL:', gcsUrl);
                                           }
+                                        } else {
+                                          console.log('⚠️ No GCS URL found, using API endpoint');
                                         }
-                                        // Otherwise, let the default href behavior work (API endpoint)
+                                        
+                                        // Fallback: Use API endpoint
+                                        const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
+                                        console.log('🔍 Using API endpoint as fallback:', apiUrl);
+                                        window.open(apiUrl, '_blank');
+                                        return false;
                                       }}
                                       className="proctoring-download-link"
                                       style={{ 
