@@ -1612,73 +1612,8 @@ const CandidateDetails = () => {
                                 <div className="evaluation-card proctoring-report-card">
                                   <h4 className="card-title">Proctoring Warnings Report</h4>
                                   <div className="proctoring-download-section">
-                                    <a 
-                                      href={(() => {
-                                        // Get GCS URL from evaluation details
-                                        const gcsUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
-                                                      interview.evaluation?.details?.proctoring_pdf_url;
-                                        
-                                        console.log('🔍 Proctoring PDF URL Debug:', {
-                                          raw_gcs_url: interview.evaluation?.details?.proctoring_pdf_gcs_url,
-                                          raw_pdf_url: interview.evaluation?.details?.proctoring_pdf_url,
-                                          final_gcsUrl: gcsUrl,
-                                          interview_id: interview.id
-                                        });
-                                        
-                                        if (gcsUrl && typeof gcsUrl === 'string') {
-                                          // CRITICAL: Extract ONLY the GCS URL part, removing any app URL prefix
-                                          let cleanUrl = gcsUrl.trim();
-                                          
-                                          console.log('🔍 Step 1 - Original URL:', cleanUrl);
-                                          
-                                          // CRITICAL FIX: Handle malformed URLs like:
-                                          // - https://talaroai-...run.apphttps//storage.googleapis.com/...
-                                          // - talaroai-...run.apphttps//storage.googleapis.com/...
-                                          // - https://talaroai-...run.app/storage.googleapis.com/...
-                                          
-                                          // First, find the position of storage.googleapis.com
-                                          const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
-                                          
-                                          if (gcsIndex !== -1) {
-                                            // Extract everything from storage.googleapis.com onwards
-                                            cleanUrl = cleanUrl.substring(gcsIndex);
-                                            console.log('🔍 Step 2 - Extracted from storage.googleapis.com:', cleanUrl);
-                                            
-                                            // Now ensure it starts with https://
-                                            // Remove any malformed prefixes BEFORE storage.googleapis.com
-                                            // Handle patterns like: https//storage..., https://https://storage..., etc.
-                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');
-                                            cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
-                                            
-                                            // If it doesn't start with https://, add it
-                                            if (!cleanUrl.startsWith('https://')) {
-                                              cleanUrl = `https://${cleanUrl}`;
-                                            }
-                                            
-                                            console.log('🔍 Step 3 - After prefix fix:', cleanUrl);
-                                            
-                                            // Final validation: Must be a valid GCS URL format
-                                            if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
-                                              console.log('✅ Valid GCS URL:', cleanUrl);
-                                              return cleanUrl;
-                                            } else {
-                                              console.log('❌ Invalid GCS URL format:', cleanUrl);
-                                            }
-                                          } else {
-                                            console.log('❌ storage.googleapis.com not found in URL:', cleanUrl);
-                                          }
-                                        } else {
-                                          console.log('❌ No GCS URL found, using API endpoint');
-                                        }
-                                        
-                                        // Fallback to API endpoint if GCS URL not available or invalid
-                                        const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
-                                        console.log('🔍 Using API endpoint:', apiUrl);
-                                        return apiUrl;
-                                      })()}
-                                      download="proctoring_report.pdf"
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                                    <button
+                                      type="button"
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -1689,19 +1624,22 @@ const CandidateDetails = () => {
                                         
                                         console.log('🔍 Proctoring PDF Button Clicked');
                                         console.log('🔍 Raw GCS URL from evaluation:', gcsUrl);
+                                        console.log('🔍 Interview ID:', interview.id);
                                         
                                         // If we have a valid GCS URL, open it directly
                                         if (gcsUrl && typeof gcsUrl === 'string' && gcsUrl.includes('storage.googleapis.com')) {
                                           // Extract clean GCS URL - remove any app URL prefix
                                           let cleanUrl = gcsUrl.trim();
                                           
+                                          console.log('🔍 Step 1 - Original URL:', cleanUrl);
+                                          
                                           // Find storage.googleapis.com and extract everything from there
                                           const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
                                           if (gcsIndex !== -1) {
                                             cleanUrl = cleanUrl.substring(gcsIndex);
-                                            console.log('🔍 Extracted GCS part:', cleanUrl);
+                                            console.log('🔍 Step 2 - Extracted GCS part:', cleanUrl);
                                             
-                                            // Remove malformed prefixes
+                                            // Remove malformed prefixes (https//, https://https://, etc.)
                                             cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');
                                             cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
                                             
@@ -1710,33 +1648,55 @@ const CandidateDetails = () => {
                                               cleanUrl = `https://${cleanUrl}`;
                                             }
                                             
+                                            console.log('🔍 Step 3 - After prefix fix:', cleanUrl);
+                                            
                                             // Final validation
                                             if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
-                                              console.log('✅ Opening GCS URL directly:', cleanUrl);
-                                              // Open in new tab and trigger download
+                                              console.log('✅ Valid GCS URL - Opening directly:', cleanUrl);
+                                              
+                                              // Create a temporary link element and click it to trigger download
                                               const link = document.createElement('a');
                                               link.href = cleanUrl;
                                               link.target = '_blank';
-                                              link.download = 'proctoring_report.pdf';
+                                              link.download = `proctoring_report_${interview.id}.pdf`;
                                               link.rel = 'noopener noreferrer';
+                                              
+                                              // Append to body, click, then remove
                                               document.body.appendChild(link);
                                               link.click();
-                                              document.body.removeChild(link);
+                                              
+                                              // Remove link after a short delay
+                                              setTimeout(() => {
+                                                document.body.removeChild(link);
+                                              }, 100);
+                                              
                                               return false;
                                             } else {
-                                              console.error('❌ Invalid GCS URL format:', cleanUrl);
+                                              console.error('❌ Invalid GCS URL format after cleaning:', cleanUrl);
                                             }
                                           } else {
                                             console.error('❌ storage.googleapis.com not found in URL:', gcsUrl);
                                           }
                                         } else {
-                                          console.log('⚠️ No GCS URL found, using API endpoint');
+                                          console.log('⚠️ No valid GCS URL found, using API endpoint');
                                         }
                                         
                                         // Fallback: Use API endpoint
                                         const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
                                         console.log('🔍 Using API endpoint as fallback:', apiUrl);
-                                        window.open(apiUrl, '_blank');
+                                        
+                                        // Open API endpoint in new tab
+                                        const link = document.createElement('a');
+                                        link.href = apiUrl;
+                                        link.target = '_blank';
+                                        link.download = `proctoring_report_${interview.id}.pdf`;
+                                        link.rel = 'noopener noreferrer';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        setTimeout(() => {
+                                          document.body.removeChild(link);
+                                        }, 100);
+                                        
                                         return false;
                                       }}
                                       className="proctoring-download-link"
@@ -1748,16 +1708,19 @@ const CandidateDetails = () => {
                                         backgroundColor: '#FF9800',
                                         color: 'white',
                                         textDecoration: 'none',
+                                        border: 'none',
                                         borderRadius: '6px',
                                         fontWeight: '500',
-                                        transition: 'background-color 0.2s'
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.2s',
+                                        fontSize: '14px'
                                       }}
                                       onMouseEnter={(e) => e.target.style.backgroundColor = '#F57C00'}
                                       onMouseLeave={(e) => e.target.style.backgroundColor = '#FF9800'}
                                     >
                                       <span className="download-icon" style={{ fontSize: '18px' }}>📄</span>
                                       <span>Download Proctoring Warnings Report</span>
-                                    </a>
+                                    </button>
                                     {(() => {
                                       const warnings = aiResult?.proctoring_warnings || 
                                                       interview.evaluation?.details?.proctoring?.warnings || [];
