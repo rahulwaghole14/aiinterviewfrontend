@@ -1613,7 +1613,46 @@ const CandidateDetails = () => {
                                   <h4 className="card-title">Proctoring Warnings Report</h4>
                                   <div className="proctoring-download-section">
                                     <a 
-                                      href={`${baseURL}/api/proctoring/pdf/${interview.id}/`}
+                                      href={(() => {
+                                        // Get GCS URL from evaluation details
+                                        const gcsUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
+                                                      interview.evaluation?.details?.proctoring_pdf_url;
+                                        
+                                        if (gcsUrl && typeof gcsUrl === 'string') {
+                                          // CRITICAL: Extract ONLY the GCS URL part, removing any app URL prefix
+                                          let cleanUrl = gcsUrl.trim();
+                                          
+                                          // Remove any app URL prefix (like https://talaroai-...run.app)
+                                          // Find storage.googleapis.com and extract everything from there
+                                          const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
+                                          if (gcsIndex !== -1) {
+                                            cleanUrl = cleanUrl.substring(gcsIndex);
+                                          }
+                                          
+                                          // Remove malformed prefixes (https//, https://https://, etc.)
+                                          cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');
+                                          cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
+                                          
+                                          // Ensure it starts with https://
+                                          if (!cleanUrl.startsWith('https://')) {
+                                            if (cleanUrl.startsWith('storage.googleapis.com')) {
+                                              cleanUrl = `https://${cleanUrl}`;
+                                            } else {
+                                              // Invalid URL, fallback to API endpoint
+                                              return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
+                                            }
+                                          }
+                                          
+                                          // Final validation: Must be a valid GCS URL
+                                          if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
+                                            return cleanUrl;
+                                          }
+                                        }
+                                        
+                                        // Fallback to API endpoint if GCS URL not available or invalid
+                                        return `${baseURL}/api/proctoring/pdf/${interview.id}/`;
+                                      })()}
+                                      download="proctoring_report.pdf"
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="proctoring-download-link"
