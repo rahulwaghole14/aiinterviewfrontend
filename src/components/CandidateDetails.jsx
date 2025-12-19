@@ -1620,12 +1620,44 @@ const CandidateDetails = () => {
                                         if (gcsUrl && typeof gcsUrl === 'string') {
                                           // Normalize URL - ensure it starts with https://
                                           let normalizedUrl = gcsUrl.trim();
+                                          
+                                          // CRITICAL: Remove any baseURL that might have been accidentally prepended
+                                          // Check if baseURL is in the URL and remove it
+                                          if (normalizedUrl.includes(baseURL) && normalizedUrl.includes('storage.googleapis.com')) {
+                                            // Extract the GCS URL part (everything from storage.googleapis.com onwards)
+                                            const gcsIndex = normalizedUrl.indexOf('storage.googleapis.com');
+                                            if (gcsIndex !== -1) {
+                                              normalizedUrl = normalizedUrl.substring(gcsIndex);
+                                            }
+                                          }
+                                          
+                                          // Remove any double slashes or malformed prefixes (like https://https://)
+                                          normalizedUrl = normalizedUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
+                                          normalizedUrl = normalizedUrl.replace(/^https?:\/\/\/+/g, 'https://');
+                                          
+                                          // Remove any baseURL that might be embedded (like talaroai-...run.apphttps//)
+                                          if (normalizedUrl.includes('run.app') && normalizedUrl.includes('storage.googleapis.com')) {
+                                            const gcsIndex = normalizedUrl.indexOf('storage.googleapis.com');
+                                            if (gcsIndex !== -1) {
+                                              normalizedUrl = normalizedUrl.substring(gcsIndex);
+                                            }
+                                          }
+                                          
+                                          // Ensure it starts with https://
                                           if (normalizedUrl.startsWith('https://')) {
-                                            return normalizedUrl;
+                                            // Verify it's a valid GCS URL format: https://storage.googleapis.com/...
+                                            if (normalizedUrl.includes('storage.googleapis.com/')) {
+                                              return normalizedUrl;
+                                            }
                                           } else if (normalizedUrl.startsWith('http://')) {
-                                            return normalizedUrl.replace('http://', 'https://');
+                                            const httpsUrl = normalizedUrl.replace('http://', 'https://');
+                                            if (httpsUrl.includes('storage.googleapis.com/')) {
+                                              return httpsUrl;
+                                            }
                                           } else if (normalizedUrl.startsWith('storage.googleapis.com')) {
                                             return `https://${normalizedUrl}`;
+                                          } else if (normalizedUrl.startsWith('//storage.googleapis.com')) {
+                                            return `https:${normalizedUrl}`;
                                           }
                                         }
                                         // Fallback to API endpoint - it will handle PDF generation/download from GCS or generate if needed
@@ -2286,6 +2318,166 @@ const CandidateDetails = () => {
           }}
           onEvaluationSubmitted={() => {
             // Refresh both interview data and candidate data when evaluation is submitted
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+        />
+      )}
+
+      {/* Edit Interview Modal */}
+      {showEditInterviewModal && editingInterview && (
+        <StatusUpdateModal
+          isOpen={showEditInterviewModal}
+          onClose={() => {
+            setShowEditInterviewModal(false);
+            setEditingInterview(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="schedule_interview"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingInterview={editingInterview}
+        />
+      )}
+
+      {/* Edit Evaluation Modal */}
+      {showEditEvaluationModal && editingEvaluation && (
+        <StatusUpdateModal
+          isOpen={showEditEvaluationModal}
+          onClose={() => {
+            setShowEditEvaluationModal(false);
+            setEditingEvaluation(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="evaluate"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingEvaluation={editingEvaluation}
+        />
+      )}
+
+      {/* Delete Confirmation Modal - Matching DataTable Style */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{deleteType === 'interview' ? "Delete Interview" : "Delete Evaluation"}</h3>
+            <p>
+              {deleteType === 'interview' 
+                ? "Are you sure you want to delete this interview? This will also release the slot and cannot be undone."
+                : "Are you sure you want to delete this evaluation? This action cannot be undone."
+              }
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteType(null);
+                  setItemToDelete(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={deleteType === 'interview' ? confirmDeleteInterview : confirmDeleteEvaluation} 
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CandidateDetails;
+
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+        />
+      )}
+
+      {/* Edit Interview Modal */}
+      {showEditInterviewModal && editingInterview && (
+        <StatusUpdateModal
+          isOpen={showEditInterviewModal}
+          onClose={() => {
+            setShowEditInterviewModal(false);
+            setEditingInterview(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="schedule_interview"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingInterview={editingInterview}
+        />
+      )}
+
+      {/* Edit Evaluation Modal */}
+      {showEditEvaluationModal && editingEvaluation && (
+        <StatusUpdateModal
+          isOpen={showEditEvaluationModal}
+          onClose={() => {
+            setShowEditEvaluationModal(false);
+            setEditingEvaluation(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="evaluate"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingEvaluation={editingEvaluation}
+        />
+      )}
+
+      {/* Delete Confirmation Modal - Matching DataTable Style */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{deleteType === 'interview' ? "Delete Interview" : "Delete Evaluation"}</h3>
+            <p>
+              {deleteType === 'interview' 
+                ? "Are you sure you want to delete this interview? This will also release the slot and cannot be undone."
+                : "Are you sure you want to delete this evaluation? This action cannot be undone."
+              }
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteType(null);
+                  setItemToDelete(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={deleteType === 'interview' ? confirmDeleteInterview : confirmDeleteEvaluation} 
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CandidateDetails;
+
             fetchInterviews();
             dispatch(fetchCandidates());
           }}
