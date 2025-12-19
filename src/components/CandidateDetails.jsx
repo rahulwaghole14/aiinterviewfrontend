@@ -1700,6 +1700,8 @@ const CandidateDetails = () => {
                                             // If it's a valid GCS URL, prevent default and open directly
                                             if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
                                               e.preventDefault();
+                                              e.stopPropagation();
+                                              console.log('🔗 Opening GCS URL directly:', cleanUrl);
                                               window.open(cleanUrl, '_blank');
                                               return false;
                                             }
