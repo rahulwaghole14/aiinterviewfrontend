@@ -1633,15 +1633,22 @@ const CandidateDetails = () => {
                                           
                                           console.log('🔍 Step 1 - Original URL:', cleanUrl);
                                           
+                                          // CRITICAL: Handle malformed URLs like:
+                                          // https://talaroai-...run.apphttps//storage.googleapis.com/...
+                                          // Pattern: app_url + https// + gcs_url
+                                          
                                           // Find storage.googleapis.com and extract everything from there
                                           const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
                                           if (gcsIndex !== -1) {
+                                            // Extract everything from storage.googleapis.com onwards
                                             cleanUrl = cleanUrl.substring(gcsIndex);
                                             console.log('🔍 Step 2 - Extracted GCS part:', cleanUrl);
                                             
-                                            // Remove malformed prefixes (https//, https://https://, etc.)
-                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');
-                                            cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');
+                                            // Remove any malformed prefixes before storage.googleapis.com
+                                            // Handle patterns like: https//, https://https://, http://, etc.
+                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');  // https// -> https://
+                                            cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');  // https://https:// -> https://
+                                            cleanUrl = cleanUrl.replace(/^http:\/\//g, 'https://');  // http:// -> https://
                                             
                                             // Ensure it starts with https://
                                             if (!cleanUrl.startsWith('https://')) {
@@ -1650,25 +1657,13 @@ const CandidateDetails = () => {
                                             
                                             console.log('🔍 Step 3 - After prefix fix:', cleanUrl);
                                             
-                                            // Final validation
+                                            // Final validation - must be a proper GCS URL
                                             if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
                                               console.log('✅ Valid GCS URL - Opening directly:', cleanUrl);
                                               
-                                              // Create a temporary link element and click it to trigger download
-                                              const link = document.createElement('a');
-                                              link.href = cleanUrl;
-                                              link.target = '_blank';
-                                              link.download = `proctoring_report_${interview.id}.pdf`;
-                                              link.rel = 'noopener noreferrer';
-                                              
-                                              // Append to body, click, then remove
-                                              document.body.appendChild(link);
-                                              link.click();
-                                              
-                                              // Remove link after a short delay
-                                              setTimeout(() => {
-                                                document.body.removeChild(link);
-                                              }, 100);
+                                              // Use window.open to directly open the GCS URL
+                                              // This prevents any browser URL concatenation
+                                              window.open(cleanUrl, '_blank');
                                               
                                               return false;
                                             } else {
