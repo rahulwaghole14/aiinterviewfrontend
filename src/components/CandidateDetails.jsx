@@ -1618,24 +1618,29 @@ const CandidateDetails = () => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         
-                                        // Get the GCS URL from evaluation details
-                                        const gcsUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
-                                                      interview.evaluation?.details?.proctoring_pdf_url;
+                                        // Get the GCS URL - check aiResult first (already cleaned by serializer), then evaluation details
+                                        let gcsUrl = aiResult?.proctoring_pdf_gcs_url;
+                                        if (!gcsUrl) {
+                                          gcsUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
+                                                   interview.evaluation?.details?.proctoring_pdf_url;
+                                        }
                                         
                                         console.log('🔍 Proctoring PDF Button Clicked');
-                                        console.log('🔍 Raw GCS URL from evaluation:', gcsUrl);
                                         console.log('🔍 Interview ID:', interview.id);
+                                        console.log('🔍 GCS URL from aiResult (cleaned):', aiResult?.proctoring_pdf_gcs_url);
+                                        console.log('🔍 GCS URL from evaluation (raw):', interview.evaluation?.details?.proctoring_pdf_gcs_url);
+                                        console.log('🔍 Final GCS URL to process:', gcsUrl);
                                         
-                                        // If we have a valid GCS URL, open it directly
+                                        // If we have a valid GCS URL, clean and open it directly
                                         if (gcsUrl && typeof gcsUrl === 'string' && gcsUrl.includes('storage.googleapis.com')) {
                                           // Extract clean GCS URL - remove any app URL prefix
-                                          let cleanUrl = gcsUrl.trim();
+                                          let cleanUrl = String(gcsUrl).trim();
                                           
                                           console.log('🔍 Step 1 - Original URL:', cleanUrl);
                                           
                                           // CRITICAL: Handle malformed URLs like:
                                           // https://talaroai-...run.apphttps//storage.googleapis.com/...
-                                          // Pattern: app_url + https// + gcs_url
+                                          // Pattern: app_url + https// (missing colon) + gcs_url
                                           
                                           // Find storage.googleapis.com and extract everything from there
                                           const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
@@ -1644,10 +1649,13 @@ const CandidateDetails = () => {
                                             cleanUrl = cleanUrl.substring(gcsIndex);
                                             console.log('🔍 Step 2 - Extracted GCS part:', cleanUrl);
                                             
-                                            // Remove any malformed prefixes before storage.googleapis.com
-                                            // Handle patterns like: https//, https://https://, http://, etc.
-                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, 'https://');  // https// -> https://
+                                            // CRITICAL: Handle https// pattern (missing colon) - must be FIRST
+                                            // Pattern: https//storage.googleapis.com/...
+                                            cleanUrl = cleanUrl.replace(/^https?\/\//g, 'https://');  // https// -> https:// (MUST BE FIRST)
+                                            
+                                            // Remove other malformed prefixes
                                             cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');  // https://https:// -> https://
+                                            cleanUrl = cleanUrl.replace(/^https?:\/\/+/g, 'https://');  // https://// -> https://
                                             cleanUrl = cleanUrl.replace(/^http:\/\//g, 'https://');  // http:// -> https://
                                             
                                             // Ensure it starts with https://
@@ -1661,9 +1669,14 @@ const CandidateDetails = () => {
                                             if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
                                               console.log('✅ Valid GCS URL - Opening directly:', cleanUrl);
                                               
-                                              // Use window.open to directly open the GCS URL
+                                              // CRITICAL: Use window.open with the clean URL directly
                                               // This prevents any browser URL concatenation
-                                              window.open(cleanUrl, '_blank');
+                                              try {
+                                                window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                                              } catch (e) {
+                                                console.error('❌ window.open blocked, using location.href:', e);
+                                                window.location.href = cleanUrl;
+                                              }
                                               
                                               return false;
                                             } else {
