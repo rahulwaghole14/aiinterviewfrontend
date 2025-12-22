@@ -1634,56 +1634,73 @@ const CandidateDetails = () => {
                                         }
                                         
                                         console.log('🔍 Stored URL from database:', storedUrl);
+                                        console.log('🔍 baseURL:', baseURL);
                                         
-                                        // Clean the URL - remove any malformed prefixes
-                                        let cleanUrl = storedUrl.trim();
+                                        // CRITICAL: Clean the URL - remove any malformed prefixes
+                                        // Handle pattern: talaroai-...run.apphttps//storage.googleapis.com/...
+                                        let cleanUrl = String(storedUrl).trim();
                                         
-                                        // Extract ONLY the GCS URL part (everything from storage.googleapis.com onwards)
+                                        // Step 1: Extract ONLY the GCS URL part (everything from storage.googleapis.com onwards)
                                         if (cleanUrl.includes('storage.googleapis.com')) {
                                           const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
                                           if (gcsIndex !== -1) {
+                                            // Extract everything from storage.googleapis.com onwards
                                             cleanUrl = cleanUrl.substring(gcsIndex);
+                                            console.log('🔍 Extracted GCS part:', cleanUrl.substring(0, 100) + '...');
                                             
-                                            // Remove any malformed prefixes that might exist
+                                            // Step 2: Remove ALL malformed prefixes that might exist
+                                            // Pattern: anything ending with .app, .run, .com followed by https// or https://
                                             cleanUrl = cleanUrl.replace(/^[^/]*\.(app|run|com)https?\/\/+/g, '');
                                             cleanUrl = cleanUrl.replace(/^[^/]*\.(app|run|com)https?:\/\/+/g, '');
                                             cleanUrl = cleanUrl.replace(/^https?\/\/+/g, '');
                                             cleanUrl = cleanUrl.replace(/^https?:\/\/+/g, '');
                                             
-                                            // Ensure it starts with storage.googleapis.com
-                                            if (cleanUrl.startsWith('storage.googleapis.com')) {
-                                              cleanUrl = `https://${cleanUrl}`;
-                                            } else {
-                                              // Try to find storage.googleapis.com again
+                                            // Step 3: Ensure it starts with storage.googleapis.com
+                                            if (!cleanUrl.startsWith('storage.googleapis.com')) {
+                                              // Try to find storage.googleapis.com again (in case cleaning removed too much)
                                               const gcsIndex2 = cleanUrl.indexOf('storage.googleapis.com');
                                               if (gcsIndex2 !== -1) {
-                                                cleanUrl = `https://${cleanUrl.substring(gcsIndex2)}`;
+                                                cleanUrl = cleanUrl.substring(gcsIndex2);
                                               } else {
                                                 console.error('❌ Could not extract GCS URL from:', storedUrl);
                                                 alert('Error: Invalid PDF URL format.');
                                                 return;
                                               }
                                             }
+                                            
+                                            // Step 4: Add https:// prefix
+                                            if (cleanUrl.startsWith('storage.googleapis.com')) {
+                                              cleanUrl = `https://${cleanUrl}`;
+                                            }
+                                          } else {
+                                            console.error('❌ storage.googleapis.com not found in URL:', storedUrl);
+                                            alert('Error: Invalid PDF URL format.');
+                                            return;
                                           }
+                                        } else {
+                                          console.error('❌ storage.googleapis.com not found in URL:', storedUrl);
+                                          alert('Error: Invalid PDF URL format.');
+                                          return;
                                         }
                                         
-                                        // Final validation
+                                        // Step 5: Final validation - MUST start with https://storage.googleapis.com/
                                         if (!cleanUrl.startsWith('https://storage.googleapis.com/')) {
-                                          console.error('❌ Invalid GCS URL format:', cleanUrl);
+                                          console.error('❌ Invalid GCS URL format after cleaning:', cleanUrl);
                                           console.error('❌ Original URL was:', storedUrl);
                                           alert('Error: Invalid PDF URL format. Expected GCS URL.');
                                           return;
                                         }
                                         
                                         console.log('✅ Cleaned GCS URL:', cleanUrl);
+                                        console.log('✅ URL starts with https://storage.googleapis.com/:', cleanUrl.startsWith('https://storage.googleapis.com/'));
                                         
-                                        // Open the clean GCS URL directly
+                                        // Step 6: Open the clean GCS URL directly - NO baseURL, NO concatenation
                                         try {
                                           const urlObj = new URL(cleanUrl);
                                           console.log('✅ URL validation passed:', urlObj.href);
-                                          console.log('✅ Opening clean GCS URL in new tab');
+                                          console.log('✅ Opening ONLY clean GCS URL in new tab (no baseURL, no concatenation)');
                                           
-                                          // Open ONLY the clean GCS URL - no concatenation, no baseURL
+                                          // CRITICAL: Open ONLY the clean GCS URL - never concatenate with baseURL
                                           window.open(cleanUrl, '_blank', 'noopener,noreferrer');
                                         } catch (urlError) {
                                           console.error('❌ Invalid URL format:', urlError);
