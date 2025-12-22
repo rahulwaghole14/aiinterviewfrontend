@@ -1630,13 +1630,18 @@ const CandidateDetails = () => {
                                                          interview.evaluation?.details?.proctoring_pdf_url;
                                         if (storedUrl) {
                                           console.log('⚠️ WARNING: Found stored URL (should NOT be used directly):', storedUrl);
+                                          console.log('⚠️ WARNING: This URL will be ignored - API will be called instead');
                                         }
                                         
+                                        // CRITICAL: ALWAYS call backend API - never use stored URL directly
+                                        // This ensures we always get a clean, validated URL
                                         try {
                                           // Call backend API to get clean GCS URL
                                           const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
                                           console.log('🔍 Calling backend API:', apiUrl);
                                           console.log('🔍 Full API URL:', apiUrl);
+                                          console.log('🔍 Interview ID type:', typeof interview.id);
+                                          console.log('🔍 Interview ID value:', interview.id);
                                           
                                           const response = await fetch(apiUrl, {
                                             method: 'GET',
