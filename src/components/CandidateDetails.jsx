@@ -1614,98 +1614,70 @@ const CandidateDetails = () => {
                                   <div className="proctoring-download-section">
                                     <button
                                       type="button"
-                                      onClick={(e) => {
+                                      onClick={async (e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         
-                                        // CRITICAL: Function to extract clean GCS URL from any malformed URL
-                                        const extractCleanGcsUrl = (url) => {
-                                          if (!url || typeof url !== 'string') return null;
-                                          
-                                          const trimmed = url.trim();
-                                          
-                                          // Find storage.googleapis.com in the URL
-                                          const gcsIndex = trimmed.indexOf('storage.googleapis.com');
-                                          if (gcsIndex === -1) return null;
-                                          
-                                          // Extract everything from storage.googleapis.com onwards
-                                          let extracted = trimmed.substring(gcsIndex);
-                                          
-                                          // Remove any prefix patterns: https//, https://, http://
-                                          extracted = extracted.replace(/^https?\/\//, '');  // Remove https//
-                                          extracted = extracted.replace(/^https?:\/\//, '');  // Remove https://
-                                          extracted = extracted.replace(/^http:\/\//, '');  // Remove http://
-                                          
-                                          // Ensure it starts with storage.googleapis.com
-                                          if (!extracted.startsWith('storage.googleapis.com')) {
-                                            return null;
-                                          }
-                                          
-                                          // Construct clean URL
-                                          const cleanUrl = `https://${extracted}`;
-                                          
-                                          // Validate it's a proper GCS URL
-                                          if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
-                                            return cleanUrl;
-                                          }
-                                          
-                                          return null;
-                                        };
-                                        
-                                        // Get the GCS URL from multiple sources
-                                        let rawUrl = aiResult?.proctoring_pdf_gcs_url || 
-                                                   interview.evaluation?.details?.proctoring_pdf_gcs_url || 
-                                                   interview.evaluation?.details?.proctoring_pdf_url;
-                                        
                                         console.log('🔍 Proctoring PDF Button Clicked');
                                         console.log('🔍 Interview ID:', interview.id);
-                                        console.log('🔍 Raw URL from database:', rawUrl);
                                         
-                                        // Extract clean GCS URL
-                                        const cleanGcsUrl = extractCleanGcsUrl(rawUrl);
-                                        
-                                        if (cleanGcsUrl) {
-                                          console.log('✅ Clean GCS URL extracted:', cleanGcsUrl);
-                                          
-                                          // CRITICAL: Open the clean URL directly using window.open
-                                          // Use setTimeout to ensure the URL is fully processed
-                                          setTimeout(() => {
-                                            try {
-                                              // Validate URL
-                                              const urlObj = new URL(cleanGcsUrl);
-                                              console.log('✅ URL validation passed:', urlObj.href);
-                                              
-                                              // Open in new window - use the clean URL directly
-                                              const newWindow = window.open(cleanGcsUrl, '_blank', 'noopener,noreferrer');
-                                              
-                                              if (!newWindow) {
-                                                console.error('❌ Popup blocked, using location.href');
-                                                window.location.href = cleanGcsUrl;
-                                              }
-                                            } catch (urlError) {
-                                              console.error('❌ Invalid URL format:', urlError);
-                                              console.error('❌ URL was:', cleanGcsUrl);
-                                              
-                                              // Fallback to API endpoint
-                                              const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
-                                              window.open(apiUrl, '_blank');
-                                            }
-                                          }, 0);
-                                          
-                                          return false;
-                                        } else {
-                                          console.log('⚠️ Could not extract clean GCS URL, using API endpoint');
-                                          
-                                          // Fallback: Use API endpoint
+                                        try {
+                                          // Call backend API to get clean GCS URL
                                           const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
-                                          console.log('🔍 Using API endpoint:', apiUrl);
+                                          console.log('🔍 Calling backend API:', apiUrl);
                                           
-                                          setTimeout(() => {
-                                            window.open(apiUrl, '_blank', 'noopener,noreferrer');
-                                          }, 0);
+                                          const response = await fetch(apiUrl, {
+                                            method: 'GET',
+                                            headers: {
+                                              'Content-Type': 'application/json',
+                                            },
+                                          });
                                           
-                                          return false;
+                                          if (response.ok) {
+                                            const data = await response.json();
+                                            
+                                            if (data.gcs_url && data.status === 'success') {
+                                              const cleanGcsUrl = data.gcs_url;
+                                              console.log('✅ Clean GCS URL from backend:', cleanGcsUrl);
+                                              
+                                              // Validate URL
+                                              try {
+                                                const urlObj = new URL(cleanGcsUrl);
+                                                console.log('✅ URL validation passed:', urlObj.href);
+                                                
+                                                // Open clean GCS URL directly in new tab
+                                                window.open(cleanGcsUrl, '_blank', 'noopener,noreferrer');
+                                              } catch (urlError) {
+                                                console.error('❌ Invalid URL format:', urlError);
+                                                console.error('❌ URL was:', cleanGcsUrl);
+                                                alert('Error: Invalid PDF URL format');
+                                              }
+                                            } else {
+                                              console.error('❌ Backend did not return GCS URL:', data);
+                                              alert('Error: Could not retrieve PDF URL');
+                                            }
+                                          } else {
+                                            // If response is PDF (old behavior), handle it
+                                            const contentType = response.headers.get('content-type');
+                                            if (contentType && contentType.includes('application/pdf')) {
+                                              // Backend returned PDF directly, open it
+                                              const blob = await response.blob();
+                                              const url = window.URL.createObjectURL(blob);
+                                              window.open(url, '_blank', 'noopener,noreferrer');
+                                              // Clean up after a delay
+                                              setTimeout(() => window.URL.revokeObjectURL(url), 100);
+                                            } else {
+                                              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                                              console.error('❌ API error:', errorData);
+                                              alert(`Error: ${errorData.error || 'Failed to retrieve PDF'}`);
+                                            }
+                                          }
+                                        } catch (error) {
+                                          console.error('❌ Error calling backend API:', error);
+                                          alert('Error: Failed to retrieve PDF. Please try again.');
                                         }
+                                        
+                                        return false;
                                       }}
                                       className="proctoring-download-link"
                                       style={{ 
