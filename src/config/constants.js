@@ -27,21 +27,7 @@ export const isProduction = import.meta.env.PROD;
 export const isDevelopment = import.meta.env.DEV;
 
 // Log configuration in development
-
-  if (import.meta.env.PROD) {
-    return 'https://aiinterviewerbackend-2.onrender.com';
-  }
-  // Development: Use localhost
-  return 'http://127.0.0.1:8000';
-};
-
-export const API_BASE_URL = getApiBaseUrl();
-
-// Legacy support - keep baseURL for existing components
-export const baseURL = API_BASE_URL;
-
-// Environment detection
-export const isProduction = import.meta.env.PROD;
-export const isDevelopment = import.meta.env.DEV;
-
-// Log configuration in development
+if (import.meta.env.DEV) {
+  console.log('API Base URL:', API_BASE_URL);
+  console.log('Environment:', isProduction ? 'Production' : 'Development');
+}
