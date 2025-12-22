@@ -1646,19 +1646,19 @@ const CandidateDetails = () => {
                                           const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
                                           if (gcsIndex !== -1) {
                                             // Extract everything from storage.googleapis.com onwards
+                                            // This removes any prefix including app URL and https//
                                             cleanUrl = cleanUrl.substring(gcsIndex);
                                             console.log('🔍 Step 2 - Extracted GCS part:', cleanUrl);
                                             
-                                            // CRITICAL: Handle https// pattern (missing colon) - must be FIRST
-                                            // Pattern: https//storage.googleapis.com/...
-                                            cleanUrl = cleanUrl.replace(/^https?\/\//g, 'https://');  // https// -> https:// (MUST BE FIRST)
+                                            // Now cleanUrl should be: storage.googleapis.com/... or https//storage.googleapis.com/...
                                             
-                                            // Remove other malformed prefixes
-                                            cleanUrl = cleanUrl.replace(/^https?:\/\/https?:\/\//gi, 'https://');  // https://https:// -> https://
-                                            cleanUrl = cleanUrl.replace(/^https?:\/\/+/g, 'https://');  // https://// -> https://
-                                            cleanUrl = cleanUrl.replace(/^http:\/\//g, 'https://');  // http:// -> https://
+                                            // CRITICAL: Remove any prefix before storage.googleapis.com
+                                            // Handle patterns: https//, https://, http://, etc.
+                                            cleanUrl = cleanUrl.replace(/^https?\/\//, 'https://');  // https// -> https://
+                                            cleanUrl = cleanUrl.replace(/^https?:\/\//, 'https://');  // https:// -> https:// (normalize)
+                                            cleanUrl = cleanUrl.replace(/^http:\/\//, 'https://');  // http:// -> https://
                                             
-                                            // Ensure it starts with https://
+                                            // If it doesn't start with https://, add it
                                             if (!cleanUrl.startsWith('https://')) {
                                               cleanUrl = `https://${cleanUrl}`;
                                             }
@@ -1669,18 +1669,24 @@ const CandidateDetails = () => {
                                             if (cleanUrl.startsWith('https://storage.googleapis.com/')) {
                                               console.log('✅ Valid GCS URL - Opening directly:', cleanUrl);
                                               
-                                              // CRITICAL: Use window.open with the clean URL directly
-                                              // This prevents any browser URL concatenation
+                                              // CRITICAL: Use window.open with the ABSOLUTE clean URL
+                                              // Pass the full URL as a string to prevent any concatenation
+                                              const finalUrl = cleanUrl; // Store in variable to ensure it's clean
+                                              
+                                              // Verify it's a valid URL before opening
                                               try {
-                                                window.open(cleanUrl, '_blank', 'noopener,noreferrer');
-                                              } catch (e) {
-                                                console.error('❌ window.open blocked, using location.href:', e);
-                                                window.location.href = cleanUrl;
+                                                new URL(finalUrl); // This will throw if URL is invalid
+                                                console.log('✅ URL validation passed, opening:', finalUrl);
+                                                window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                                              } catch (urlError) {
+                                                console.error('❌ Invalid URL format:', urlError);
+                                                console.error('❌ URL was:', finalUrl);
                                               }
                                               
                                               return false;
                                             } else {
                                               console.error('❌ Invalid GCS URL format after cleaning:', cleanUrl);
+                                              console.error('❌ URL does not start with https://storage.googleapis.com/');
                                             }
                                           } else {
                                             console.error('❌ storage.googleapis.com not found in URL:', gcsUrl);
