@@ -1636,34 +1636,37 @@ const CandidateDetails = () => {
                                           if (response.ok) {
                                             const data = await response.json();
                                             
-                                            // CRITICAL: Only accept clean GCS URLs from backend
-                                            if (data.gcs_url && data.status === 'success') {
-                                              const cleanGcsUrl = data.gcs_url.trim();
+                                            // FLOW: Backend generates public URL → Browser opens file
+                                            // Accept either 'gcs_url' or 'url' field from backend
+                                            const pdfUrl = data.gcs_url || data.url;
+                                            
+                                            if (pdfUrl && data.status === 'success') {
+                                              const cleanUrl = pdfUrl.trim();
                                               
                                               // Validate that it's a proper GCS URL
-                                              if (!cleanGcsUrl.startsWith('https://storage.googleapis.com/')) {
-                                                console.error('❌ Invalid GCS URL format:', cleanGcsUrl);
+                                              if (!cleanUrl.startsWith('https://storage.googleapis.com/')) {
+                                                console.error('❌ Invalid GCS URL format:', cleanUrl);
                                                 alert('Error: Invalid PDF URL format. Expected GCS URL.');
                                                 return;
                                               }
                                               
-                                              console.log('✅ Clean GCS URL from backend:', cleanGcsUrl);
+                                              console.log('✅ Public URL from backend:', cleanUrl);
                                               
                                               // Validate URL format
                                               try {
-                                                const urlObj = new URL(cleanGcsUrl);
+                                                const urlObj = new URL(cleanUrl);
                                                 console.log('✅ URL validation passed:', urlObj.href);
                                                 
-                                                // CRITICAL: Open ONLY the clean GCS URL directly in new tab
-                                                // No concatenation, no baseURL, just the pure GCS URL
-                                                window.open(cleanGcsUrl, '_blank', 'noopener,noreferrer');
+                                                // Browser opens the public URL in new tab
+                                                // No concatenation, no baseURL, just the pure GCS public URL
+                                                window.open(cleanUrl, '_blank', 'noopener,noreferrer');
                                               } catch (urlError) {
                                                 console.error('❌ Invalid URL format:', urlError);
-                                                console.error('❌ URL was:', cleanGcsUrl);
+                                                console.error('❌ URL was:', cleanUrl);
                                                 alert('Error: Invalid PDF URL format');
                                               }
                                             } else {
-                                              console.error('❌ Backend did not return valid GCS URL:', data);
+                                              console.error('❌ Backend did not return valid URL:', data);
                                               const errorMsg = data.error || data.message || 'Could not retrieve PDF URL';
                                               alert(`Error: ${errorMsg}`);
                                             }
