@@ -1614,100 +1614,81 @@ const CandidateDetails = () => {
                                   <div className="proctoring-download-section">
                                     <button
                                       type="button"
-                                      onClick={async (e) => {
+                                      onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         
                                         console.log('========== PROCTORING PDF BUTTON CLICKED ==========');
                                         console.log('🔍 Interview ID:', interview.id);
-                                        console.log('🔍 Interview object:', interview);
-                                        console.log('🔍 baseURL:', baseURL);
                                         
-                                        // CRITICAL: Check if there's a stored URL that might be used instead
+                                        // Get stored GCS URL from database
                                         const storedUrl = interview.ai_result?.proctoring_pdf_gcs_url || 
                                                          interview.evaluation?.details?.proctoring_pdf_gcs_url ||
                                                          interview.ai_result?.proctoring_pdf_url ||
                                                          interview.evaluation?.details?.proctoring_pdf_url;
-                                        if (storedUrl) {
-                                          console.log('⚠️ WARNING: Found stored URL (should NOT be used directly):', storedUrl);
-                                          console.log('⚠️ WARNING: This URL will be ignored - API will be called instead');
+                                        
+                                        if (!storedUrl) {
+                                          console.error('❌ No proctoring PDF URL found in database');
+                                          alert('Proctoring PDF not available. Please ensure the evaluation is complete.');
+                                          return;
                                         }
                                         
-                                        // CRITICAL: ALWAYS call backend API - never use stored URL directly
-                                        // This ensures we always get a clean, validated URL
-                                        try {
-                                          // Call backend API to get clean GCS URL
-                                          const apiUrl = `${baseURL}/api/proctoring/pdf/${interview.id}/`;
-                                          console.log('🔍 Calling backend API:', apiUrl);
-                                          console.log('🔍 Full API URL:', apiUrl);
-                                          console.log('🔍 Interview ID type:', typeof interview.id);
-                                          console.log('🔍 Interview ID value:', interview.id);
-                                          
-                                          const response = await fetch(apiUrl, {
-                                            method: 'GET',
-                                            headers: {
-                                              'Content-Type': 'application/json',
-                                            },
-                                          });
-                                          
-                                          console.log('🔍 API Response status:', response.status);
-                                          console.log('🔍 API Response ok:', response.ok);
-                                          
-                                          if (response.ok) {
-                                            const data = await response.json();
-                                            console.log('✅ API Response data:', data);
+                                        console.log('🔍 Stored URL from database:', storedUrl);
+                                        
+                                        // Clean the URL - remove any malformed prefixes
+                                        let cleanUrl = storedUrl.trim();
+                                        
+                                        // Extract ONLY the GCS URL part (everything from storage.googleapis.com onwards)
+                                        if (cleanUrl.includes('storage.googleapis.com')) {
+                                          const gcsIndex = cleanUrl.indexOf('storage.googleapis.com');
+                                          if (gcsIndex !== -1) {
+                                            cleanUrl = cleanUrl.substring(gcsIndex);
                                             
-                                            // FLOW: Backend generates public URL → Browser opens file
-                                            // Accept either 'gcs_url' or 'url' field from backend
-                                            const pdfUrl = data.gcs_url || data.url;
-                                            console.log('🔍 Extracted PDF URL:', pdfUrl);
+                                            // Remove any malformed prefixes that might exist
+                                            cleanUrl = cleanUrl.replace(/^[^/]*\.(app|run|com)https?\/\/+/g, '');
+                                            cleanUrl = cleanUrl.replace(/^[^/]*\.(app|run|com)https?:\/\/+/g, '');
+                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, '');
+                                            cleanUrl = cleanUrl.replace(/^https?:\/\/+/g, '');
                                             
-                                            if (pdfUrl && data.status === 'success') {
-                                              const cleanUrl = pdfUrl.trim();
-                                              
-                                              // Validate that it's a proper GCS URL
-                                              if (!cleanUrl.startsWith('https://storage.googleapis.com/')) {
-                                                console.error('❌ Invalid GCS URL format:', cleanUrl);
-                                                console.error('❌ URL does not start with https://storage.googleapis.com/');
-                                                alert('Error: Invalid PDF URL format. Expected GCS URL.');
+                                            // Ensure it starts with storage.googleapis.com
+                                            if (cleanUrl.startsWith('storage.googleapis.com')) {
+                                              cleanUrl = `https://${cleanUrl}`;
+                                            } else {
+                                              // Try to find storage.googleapis.com again
+                                              const gcsIndex2 = cleanUrl.indexOf('storage.googleapis.com');
+                                              if (gcsIndex2 !== -1) {
+                                                cleanUrl = `https://${cleanUrl.substring(gcsIndex2)}`;
+                                              } else {
+                                                console.error('❌ Could not extract GCS URL from:', storedUrl);
+                                                alert('Error: Invalid PDF URL format.');
                                                 return;
                                               }
-                                              
-                                              console.log('✅ Public URL from backend (validated):', cleanUrl);
-                                              
-                                              // Validate URL format
-                                              try {
-                                                const urlObj = new URL(cleanUrl);
-                                                console.log('✅ URL validation passed:', urlObj.href);
-                                                console.log('✅ Opening URL in new tab:', cleanUrl);
-                                                
-                                                // Browser opens the public URL in new tab
-                                                // No concatenation, no baseURL, just the pure GCS public URL
-                                                window.open(cleanUrl, '_blank', 'noopener,noreferrer');
-                                                console.log('✅ window.open() called successfully');
-                                              } catch (urlError) {
-                                                console.error('❌ Invalid URL format:', urlError);
-                                                console.error('❌ URL was:', cleanUrl);
-                                                alert('Error: Invalid PDF URL format');
-                                              }
-                                            } else {
-                                              console.error('❌ Backend did not return valid URL');
-                                              console.error('❌ Response data:', data);
-                                              const errorMsg = data.error || data.message || 'Could not retrieve PDF URL';
-                                              alert(`Error: ${errorMsg}`);
                                             }
-                                          } else {
-                                            // Backend returned an error
-                                            console.error('❌ API returned non-OK status:', response.status);
-                                            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                                            console.error('❌ API error data:', errorData);
-                                            const errorMsg = errorData.error || errorData.message || 'Failed to retrieve PDF';
-                                            alert(`Error: ${errorMsg}`);
                                           }
-                                        } catch (error) {
-                                          console.error('❌ Exception calling backend API:', error);
-                                          console.error('❌ Error stack:', error.stack);
-                                          alert(`Error: Failed to retrieve PDF. Please check browser console for details.`);
+                                        }
+                                        
+                                        // Final validation
+                                        if (!cleanUrl.startsWith('https://storage.googleapis.com/')) {
+                                          console.error('❌ Invalid GCS URL format:', cleanUrl);
+                                          console.error('❌ Original URL was:', storedUrl);
+                                          alert('Error: Invalid PDF URL format. Expected GCS URL.');
+                                          return;
+                                        }
+                                        
+                                        console.log('✅ Cleaned GCS URL:', cleanUrl);
+                                        
+                                        // Open the clean GCS URL directly
+                                        try {
+                                          const urlObj = new URL(cleanUrl);
+                                          console.log('✅ URL validation passed:', urlObj.href);
+                                          console.log('✅ Opening clean GCS URL in new tab');
+                                          
+                                          // Open ONLY the clean GCS URL - no concatenation, no baseURL
+                                          window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+                                        } catch (urlError) {
+                                          console.error('❌ Invalid URL format:', urlError);
+                                          console.error('❌ URL was:', cleanUrl);
+                                          alert('Error: Invalid PDF URL format');
                                         }
                                         
                                         console.log('========== PROCTORING PDF BUTTON CLICK END ==========');
