@@ -1636,16 +1636,26 @@ const CandidateDetails = () => {
                                           if (response.ok) {
                                             const data = await response.json();
                                             
+                                            // CRITICAL: Only accept clean GCS URLs from backend
                                             if (data.gcs_url && data.status === 'success') {
-                                              const cleanGcsUrl = data.gcs_url;
+                                              const cleanGcsUrl = data.gcs_url.trim();
+                                              
+                                              // Validate that it's a proper GCS URL
+                                              if (!cleanGcsUrl.startsWith('https://storage.googleapis.com/')) {
+                                                console.error('❌ Invalid GCS URL format:', cleanGcsUrl);
+                                                alert('Error: Invalid PDF URL format. Expected GCS URL.');
+                                                return;
+                                              }
+                                              
                                               console.log('✅ Clean GCS URL from backend:', cleanGcsUrl);
                                               
-                                              // Validate URL
+                                              // Validate URL format
                                               try {
                                                 const urlObj = new URL(cleanGcsUrl);
                                                 console.log('✅ URL validation passed:', urlObj.href);
                                                 
-                                                // Open clean GCS URL directly in new tab
+                                                // CRITICAL: Open ONLY the clean GCS URL directly in new tab
+                                                // No concatenation, no baseURL, just the pure GCS URL
                                                 window.open(cleanGcsUrl, '_blank', 'noopener,noreferrer');
                                               } catch (urlError) {
                                                 console.error('❌ Invalid URL format:', urlError);
@@ -1653,24 +1663,16 @@ const CandidateDetails = () => {
                                                 alert('Error: Invalid PDF URL format');
                                               }
                                             } else {
-                                              console.error('❌ Backend did not return GCS URL:', data);
-                                              alert('Error: Could not retrieve PDF URL');
+                                              console.error('❌ Backend did not return valid GCS URL:', data);
+                                              const errorMsg = data.error || data.message || 'Could not retrieve PDF URL';
+                                              alert(`Error: ${errorMsg}`);
                                             }
                                           } else {
-                                            // If response is PDF (old behavior), handle it
-                                            const contentType = response.headers.get('content-type');
-                                            if (contentType && contentType.includes('application/pdf')) {
-                                              // Backend returned PDF directly, open it
-                                              const blob = await response.blob();
-                                              const url = window.URL.createObjectURL(blob);
-                                              window.open(url, '_blank', 'noopener,noreferrer');
-                                              // Clean up after a delay
-                                              setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                                            } else {
-                                              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                                              console.error('❌ API error:', errorData);
-                                              alert(`Error: ${errorData.error || 'Failed to retrieve PDF'}`);
-                                            }
+                                            // Backend returned an error
+                                            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                                            console.error('❌ API error:', errorData);
+                                            const errorMsg = errorData.error || errorData.message || 'Failed to retrieve PDF';
+                                            alert(`Error: ${errorMsg}`);
                                           }
                                         } catch (error) {
                                           console.error('❌ Error calling backend API:', error);
