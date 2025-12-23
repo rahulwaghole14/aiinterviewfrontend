@@ -1607,7 +1607,7 @@ const CandidateDetails = () => {
                               </div>
                               
                               {/* Proctoring Warnings Report - Download Link */}
-                              {/* Show proctoring PDF button if evaluation exists, regardless of aiResult */}
+                              {/* Show proctoring PDF button if evaluation exists - ALWAYS show if evaluation exists */}
                               {interview.evaluation && (
                                 <div className="evaluation-card proctoring-report-card">
                                   <h4 className="card-title">Proctoring Warnings Report</h4>
@@ -1621,32 +1621,31 @@ const CandidateDetails = () => {
                                         console.log('========== PROCTORING PDF BUTTON CLICKED ==========');
                                         console.log('🔍 Interview ID:', interview.id);
                                         
-                                        // Get stored GCS URL from separate ProctoringPDF table (primary source)
-                                        // Fallback to evaluation.details if not available
-                                        const storedUrl = interview.proctoring_pdf?.gcs_url ||
-                                                         interview.evaluation?.details?.proctoring_pdf_gcs_url || 
-                                                         interview.ai_result?.proctoring_pdf_gcs_url;
+                                        // CRITICAL: Use ONLY gcs_url from ProctoringPDF table (evaluation_proctoringpdf)
+                                        // NO fallbacks - use only the dedicated table
+                                        const gcsUrl = interview.proctoring_pdf?.gcs_url;
                                         
-                                        if (!storedUrl) {
-                                          console.error('❌ No proctoring PDF URL found in database');
-                                          alert('Proctoring PDF not available. Please ensure the evaluation is complete.');
+                                        if (!gcsUrl) {
+                                          console.error('❌ No proctoring PDF GCS URL found in ProctoringPDF table');
+                                          console.error('   interview.proctoring_pdf:', interview.proctoring_pdf);
+                                          alert('Proctoring PDF not available. The PDF may still be generating. Please try again later.');
                                           return;
                                         }
                                         
-                                        console.log('🔍 URL from database (using as-is):', storedUrl);
+                                        console.log('✅ Using GCS URL from ProctoringPDF table:', gcsUrl);
                                         
-                                        // Open the URL directly from database - NO cleaning, NO modifications, use exactly as stored
+                                        // Open the GCS URL directly - NO modifications, use exactly as stored
                                         try {
-                                          const urlObj = new URL(storedUrl);
+                                          const urlObj = new URL(gcsUrl);
                                           console.log('✅ URL validation passed:', urlObj.href);
-                                          console.log('✅ Opening URL directly from database (no changes)');
+                                          console.log('✅ Opening GCS URL directly from ProctoringPDF table');
                                           
-                                          // Open the URL exactly as stored in database
-                                          window.open(storedUrl, '_blank', 'noopener,noreferrer');
+                                          // Open the GCS URL exactly as stored in database
+                                          window.open(gcsUrl, '_blank', 'noopener,noreferrer');
                                         } catch (urlError) {
                                           console.error('❌ Invalid URL format:', urlError);
-                                          console.error('❌ URL was:', storedUrl);
-                                          alert('Error: Invalid PDF URL format');
+                                          console.error('❌ URL was:', gcsUrl);
+                                          alert('Error: Invalid PDF URL format. Please contact support.');
                                         }
                                         
                                         console.log('========== PROCTORING PDF BUTTON CLICK END ==========');
