@@ -1621,8 +1621,10 @@ const CandidateDetails = () => {
                                         console.log('========== PROCTORING PDF BUTTON CLICKED ==========');
                                         console.log('🔍 Interview ID:', interview.id);
                                         
-                                        // Get stored GCS URL directly from database - use as-is without any changes
-                                        const storedUrl = interview.evaluation?.details?.proctoring_pdf_gcs_url || 
+                                        // Get stored GCS URL from separate ProctoringPDF table (primary source)
+                                        // Fallback to evaluation.details if not available
+                                        const storedUrl = interview.proctoring_pdf?.gcs_url ||
+                                                         interview.evaluation?.details?.proctoring_pdf_gcs_url || 
                                                          interview.ai_result?.proctoring_pdf_gcs_url;
                                         
                                         if (!storedUrl) {
