@@ -1623,7 +1623,7 @@ const CandidateDetails = () => {
                                         
                                         // CRITICAL: Use ONLY gcs_url from ProctoringPDF table (evaluation_proctoringpdf)
                                         // NO fallbacks - use only the dedicated table
-                                        const gcsUrl = interview.proctoring_pdf?.gcs_url;
+                                        let gcsUrl = interview.proctoring_pdf?.gcs_url;
                                         
                                         if (!gcsUrl) {
                                           console.error('❌ No proctoring PDF GCS URL found in ProctoringPDF table');
@@ -1632,15 +1632,60 @@ const CandidateDetails = () => {
                                           return;
                                         }
                                         
-                                        console.log('✅ Using GCS URL from ProctoringPDF table:', gcsUrl);
+                                        // CRITICAL: Clean URL to remove any malformed prefixes (safety check)
+                                        // Pattern: https://talaroai-...run.apphttps//storage.googleapis.com/...
+                                        const originalUrl = gcsUrl;
+                                        if (gcsUrl.includes('storage.googleapis.com')) {
+                                          // Extract ONLY the GCS URL part
+                                          const gcsIndex = gcsUrl.indexOf('storage.googleapis.com');
+                                          if (gcsIndex !== -1) {
+                                            // Extract everything from storage.googleapis.com onwards
+                                            let cleanUrl = gcsUrl.substring(gcsIndex);
+                                            
+                                            // Remove any malformed prefixes
+                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, ''); // Remove https// or https///
+                                            cleanUrl = cleanUrl.replace(/^https?:\/\/+/g, ''); // Remove https:// or https:///
+                                            
+                                            // Remove app URL patterns
+                                            cleanUrl = cleanUrl.replace(/^[^/]+\.(app|run|com)https?\/\/+/g, '');
+                                            cleanUrl = cleanUrl.replace(/^[^/]+\.(app|run|com)https?:\/\/+/g, '');
+                                            
+                                            // Ensure it starts with storage.googleapis.com
+                                            if (!cleanUrl.startsWith('storage.googleapis.com')) {
+                                              const newGcsIndex = cleanUrl.indexOf('storage.googleapis.com');
+                                              if (newGcsIndex !== -1) {
+                                                cleanUrl = cleanUrl.substring(newGcsIndex);
+                                              }
+                                            }
+                                            
+                                            // Construct clean URL
+                                            if (cleanUrl.startsWith('storage.googleapis.com')) {
+                                              gcsUrl = `https://${cleanUrl}`;
+                                              
+                                              if (gcsUrl !== originalUrl) {
+                                                console.warn('⚠️ Cleaned malformed URL:', originalUrl);
+                                                console.log('✅ Cleaned URL:', gcsUrl);
+                                              }
+                                            }
+                                          }
+                                        }
                                         
-                                        // Open the GCS URL directly - NO modifications, use exactly as stored
+                                        // Validate URL format
+                                        if (!gcsUrl.startsWith('https://storage.googleapis.com/')) {
+                                          console.error('❌ Invalid GCS URL format:', gcsUrl);
+                                          alert('Error: Invalid PDF URL format. Please contact support.');
+                                          return;
+                                        }
+                                        
+                                        console.log('✅ Using cleaned GCS URL from ProctoringPDF table:', gcsUrl);
+                                        
+                                        // Open the clean GCS URL
                                         try {
                                           const urlObj = new URL(gcsUrl);
                                           console.log('✅ URL validation passed:', urlObj.href);
-                                          console.log('✅ Opening GCS URL directly from ProctoringPDF table');
+                                          console.log('✅ Opening clean GCS URL');
                                           
-                                          // Open the GCS URL exactly as stored in database
+                                          // Open the clean GCS URL
                                           window.open(gcsUrl, '_blank', 'noopener,noreferrer');
                                         } catch (urlError) {
                                           console.error('❌ Invalid URL format:', urlError);
