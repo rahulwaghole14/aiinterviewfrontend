@@ -536,6 +536,10 @@ const CandidateDetails = () => {
         let aiResult = interview.ai_result;
         if (!aiResult && evaluation && evaluation.details && evaluation.details.ai_analysis) {
           const aiAnalysis = evaluation.details.ai_analysis;
+          // Get proctoring PDF URL ONLY from interview.proctoring_pdf.gcs_url (from API response)
+          // Do NOT use evaluation.details.proctoring_pdf_url as fallback
+          const proctoringPdfUrl = interview.proctoring_pdf?.gcs_url || null;
+          
           // Transform ai_analysis to ai_result format
           aiResult = {
             overall_score: (aiAnalysis.overall_score || 0) / 10.0,
@@ -554,8 +558,7 @@ const CandidateDetails = () => {
             recommendation: aiAnalysis.recommendation || 'MAYBE',
             hire_recommendation: ['STRONG_HIRE', 'HIRE'].includes(aiAnalysis.recommendation),
             confidence_level: (aiAnalysis.confidence_level || 0) / 10.0,
-            proctoring_pdf_url: evaluation.details.proctoring_pdf_url || null,
-            proctoring_pdf_gcs_url: evaluation.details.proctoring_pdf_gcs_url || null,
+            proctoring_pdf_url: proctoringPdfUrl,  // Use ONLY from ProctoringPDF table via API
             proctoring_warnings: evaluation.details.proctoring?.warnings || [],
           };
           console.log(`✅ Extracted ai_result from evaluation for interview ${interview.id}`);
@@ -1479,56 +1482,7 @@ const CandidateDetails = () => {
                                     <span style={{ position: 'absolute', left: '0', top: '2px', color: '#2196F3', fontSize: '18px', fontWeight: 'bold' }}>•</span>
                                     <div style={{ fontWeight: '600', color: '#333', marginBottom: '6px', fontSize: '15px' }}>Coding Summary:</div>
                                     <div style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', paddingLeft: '0' }}>
-                                      {(() => {
-                                        // Priority 1: Use AI-generated coding_analysis if available
-                                        if (aiResult.coding_analysis && aiResult.coding_analysis.trim() && aiResult.coding_analysis !== 'No coding challenges were part of this interview.') {
-                                          return aiResult.coding_analysis;
-                                        }
-                                        
-                                        // Priority 2: Generate summary from coding submissions if available
-                                        if (codingTotalQuestions > 0 && codingQuestions.length > 0) {
-                                          const codingSubmissions = codingQuestions.filter(qa => qa.code_submission);
-                                          if (codingSubmissions.length > 0) {
-                                            const totalSubmissions = codingSubmissions.length;
-                                            const passedSubmissions = codingSubmissions.filter(qa => qa.code_submission && qa.code_submission.passed_all_tests === true).length;
-                                            const languages = [...new Set(codingSubmissions.map(qa => qa.code_submission?.language || 'Unknown').filter(Boolean))];
-                                            
-                                            let summary = `Completed ${totalSubmissions} coding challenge${totalSubmissions > 1 ? 's' : ''}`;
-                                            if (languages.length > 0) {
-                                              summary += ` in ${languages.join(', ')}`;
-                                            }
-                                            summary += `. `;
-                                            
-                                            if (passedSubmissions === totalSubmissions) {
-                                              summary += `All challenges passed successfully, demonstrating strong problem-solving and coding proficiency.`;
-                                            } else if (passedSubmissions > 0) {
-                                              summary += `${passedSubmissions} out of ${totalSubmissions} challenge${totalSubmissions > 1 ? 's' : ''} passed. Shows good coding fundamentals with room for improvement in test case coverage.`;
-                                            } else {
-                                              summary += `No challenges passed. Indicates need for improvement in coding logic, syntax, or test case handling.`;
-                                            }
-                                            
-                                            // Add coding score if available
-                                            if (codingScore > 0) {
-                                              summary += ` Overall coding score: ${(codingScore / 10).toFixed(1)}/10.`;
-                                            }
-                                            
-                                            return summary;
-                                          }
-                                        }
-                                        
-                                        // Priority 3: Fallback to score-based message
-                                        if (codingScore > 0) {
-                                          return `Coding performance: ${(codingScore / 10).toFixed(1)}/10. ${codingScore >= 70 ? 'Strong coding skills demonstrated.' : codingScore >= 50 ? 'Moderate coding skills.' : 'Coding skills need improvement.'}`;
-                                        }
-                                        
-                                        // Priority 4: Check if coding questions exist but no submissions
-                                        if (codingTotalQuestions > 0) {
-                                          return 'Coding challenges were presented but no code submissions were received.';
-                                        }
-                                        
-                                        // Final fallback
-                                        return 'No coding challenges were part of this interview.';
-                                      })()}
+                                      {aiResult.coding_analysis || (codingScore > 0 ? `Coding performance: ${(codingScore / 10).toFixed(1)}/10. ${codingScore >= 70 ? 'Strong coding skills demonstrated.' : codingScore >= 50 ? 'Moderate coding skills.' : 'Coding skills need improvement.'}` : codingTotalQuestions > 0 ? 'Coding evaluation completed but analysis not available.' : 'No coding questions were part of this interview.')}
                                     </div>
                                   </div>
                                   
@@ -1607,139 +1561,31 @@ const CandidateDetails = () => {
                               </div>
                               
                               {/* Proctoring Warnings Report - Download Link */}
-                              {/* Show proctoring PDF button if evaluation exists - ALWAYS show if evaluation exists */}
-                              {interview.evaluation && (
-                                <div className="evaluation-card proctoring-report-card">
-                                  <h4 className="card-title">Proctoring Warnings Report</h4>
+                              <div className="evaluation-card proctoring-report-card">
+                                <h4 className="card-title">Proctoring Warnings Report</h4>
+                                {aiResult.proctoring_pdf_url ? (
                                   <div className="proctoring-download-section">
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        
-                                        console.log('========== PROCTORING PDF BUTTON CLICKED ==========');
-                                        console.log('🔍 Interview ID:', interview.id);
-                                        
-                                        // CRITICAL: Use ONLY gcs_url from ProctoringPDF table (evaluation_proctoringpdf)
-                                        // NO fallbacks - use only the dedicated table
-                                        let gcsUrl = interview.proctoring_pdf?.gcs_url;
-                                        
-                                        if (!gcsUrl) {
-                                          console.error('❌ No proctoring PDF GCS URL found in ProctoringPDF table');
-                                          console.error('   interview.proctoring_pdf:', interview.proctoring_pdf);
-                                          alert('Proctoring PDF not available. The PDF may still be generating. Please try again later.');
-                                          return;
-                                        }
-                                        
-                                        // CRITICAL: Clean URL to remove any malformed prefixes (safety check)
-                                        // Pattern: https://talaroai-...run.apphttps//storage.googleapis.com/...
-                                        const originalUrl = gcsUrl;
-                                        if (gcsUrl.includes('storage.googleapis.com')) {
-                                          // Extract ONLY the GCS URL part
-                                          const gcsIndex = gcsUrl.indexOf('storage.googleapis.com');
-                                          if (gcsIndex !== -1) {
-                                            // Extract everything from storage.googleapis.com onwards
-                                            let cleanUrl = gcsUrl.substring(gcsIndex);
-                                            
-                                            // Remove any malformed prefixes
-                                            cleanUrl = cleanUrl.replace(/^https?\/\/+/g, ''); // Remove https// or https///
-                                            cleanUrl = cleanUrl.replace(/^https?:\/\/+/g, ''); // Remove https:// or https:///
-                                            
-                                            // Remove app URL patterns
-                                            cleanUrl = cleanUrl.replace(/^[^/]+\.(app|run|com)https?\/\/+/g, '');
-                                            cleanUrl = cleanUrl.replace(/^[^/]+\.(app|run|com)https?:\/\/+/g, '');
-                                            
-                                            // Ensure it starts with storage.googleapis.com
-                                            if (!cleanUrl.startsWith('storage.googleapis.com')) {
-                                              const newGcsIndex = cleanUrl.indexOf('storage.googleapis.com');
-                                              if (newGcsIndex !== -1) {
-                                                cleanUrl = cleanUrl.substring(newGcsIndex);
-                                              }
-                                            }
-                                            
-                                            // Construct clean URL
-                                            if (cleanUrl.startsWith('storage.googleapis.com')) {
-                                              gcsUrl = `https://${cleanUrl}`;
-                                              
-                                              if (gcsUrl !== originalUrl) {
-                                                console.warn('⚠️ Cleaned malformed URL:', originalUrl);
-                                                console.log('✅ Cleaned URL:', gcsUrl);
-                                              }
-                                            }
-                                          }
-                                        }
-                                        
-                                        // Validate URL format
-                                        if (!gcsUrl.startsWith('https://storage.googleapis.com/')) {
-                                          console.error('❌ Invalid GCS URL format:', gcsUrl);
-                                          alert('Error: Invalid PDF URL format. Please contact support.');
-                                          return;
-                                        }
-                                        
-                                        console.log('✅ Using cleaned GCS URL from ProctoringPDF table:', gcsUrl);
-                                        
-                                        // Open the clean GCS URL
-                                        try {
-                                          const urlObj = new URL(gcsUrl);
-                                          console.log('✅ URL validation passed:', urlObj.href);
-                                          console.log('✅ Opening clean GCS URL');
-                                          
-                                          // Open the clean GCS URL
-                                          window.open(gcsUrl, '_blank', 'noopener,noreferrer');
-                                        } catch (urlError) {
-                                          console.error('❌ Invalid URL format:', urlError);
-                                          console.error('❌ URL was:', gcsUrl);
-                                          alert('Error: Invalid PDF URL format. Please contact support.');
-                                        }
-                                        
-                                        console.log('========== PROCTORING PDF BUTTON CLICK END ==========');
-                                        
-                                        return false;
-                                      }}
+                                    <a 
+                                      href={aiResult.proctoring_pdf_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="proctoring-download-link"
-                                      style={{ 
-                                        display: 'inline-flex', 
-                                        alignItems: 'center', 
-                                        gap: '8px',
-                                        padding: '10px 16px',
-                                        backgroundColor: '#FF9800',
-                                        color: 'white',
-                                        textDecoration: 'none',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        fontWeight: '500',
-                                        cursor: 'pointer',
-                                        transition: 'background-color 0.2s',
-                                        fontSize: '14px'
-                                      }}
-                                      onMouseEnter={(e) => e.target.style.backgroundColor = '#F57C00'}
-                                      onMouseLeave={(e) => e.target.style.backgroundColor = '#FF9800'}
                                     >
-                                      <span className="download-icon" style={{ fontSize: '18px' }}>📄</span>
+                                      <span className="download-icon">📄</span>
                                       <span>Download Proctoring Warnings Report</span>
-                                    </button>
-                                    {(() => {
-                                      const warnings = aiResult?.proctoring_warnings || 
-                                                      interview.evaluation?.details?.proctoring?.warnings || [];
-                                      return warnings.length > 0 ? (
-                                        <div className="proctoring-warning-info">
-                                          <strong>Total Warnings: {warnings.length}</strong>
-                                        </div>
-                                      ) : (
-                                        <div className="proctoring-warning-info" style={{ marginTop: '10px', fontSize: '13px', color: '#666' }}>
-                                          <p style={{ margin: '0' }}>This PDF includes:</p>
-                                          <ul style={{ margin: '5px 0 0 20px', padding: 0 }}>
-                                            <li>Proctoring warnings and snapshots (if any)</li>
-                                            <li>Warning timestamps and details</li>
-                                            <li>Interview monitoring report</li>
-                                          </ul>
-                                        </div>
-                                      );
-                                    })()}
+                                    </a>
+                                    {aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
+                                      <div className="proctoring-warning-info">
+                                        <strong>Total Warnings: {aiResult.proctoring_warnings.length}</strong>
+                                      </div>
+                                    )}
                                   </div>
-                                </div>
-                              )}
+                                ) : (
+                                  <div className="no-proctoring-report">
+                                    <p>No proctoring warnings report available for this interview.</p>
+                                  </div>
+                                )}
+                              </div>
                               
                               {/* Q&A Script + AI Evaluation PDF Report - Download Link */}
                               <div className="evaluation-card qa-evaluation-report-card">
@@ -1778,17 +1624,6 @@ const CandidateDetails = () => {
                                   </div>
                                 </div>
                               </div>
-                              
-                              {/* Interview Video Player */}
-                              {interview.interview_video && (
-                                <div className="evaluation-card" style={{ marginTop: '1.5rem' }}>
-                                  <h4 className="card-title">Interview Video</h4>
-                                  <VideoPlayerWithErrorHandling 
-                                    videoUrl={interview.interview_video} 
-                                    baseURL={baseURL}
-                                  />
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -2207,6 +2042,9 @@ const CandidateDetails = () => {
                   const qaData = sortQAPairs(interview.questions_and_answers || []);
                   if (qaData.length === 0) return null;
                   
+                  // Get sequential conversation (like PDF format) from first Q&A item if available
+                  const sequentialConversation = qaData[0]?._sequential_conversation || [];
+                  
                   // Group questions by type (case-insensitive)
                   const codingQuestions = qaData.filter(
                     (qa) => (qa.question_type || '').toUpperCase() === 'CODING'
@@ -2219,8 +2057,8 @@ const CandidateDetails = () => {
                     <div className="qa-section-below-interview">
                       <h4 className="qa-section-title">Questions & Answers - Round {interview.interview_round || 'AI Interview'}</h4>
                       <div className="qa-list-container">
-                        {/* Technical Questions Section - show explicit Q & A pairs */}
-                        {technicalQuestions.length > 0 && (
+                        {/* Technical Questions Section - Sequential Script Format (like PDF) */}
+                        {sequentialConversation.length > 0 ? (
                           <div style={{ marginBottom: '30px' }}>
                             <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
                               <h5 className="qa-section-label">Technical Questions</h5>
@@ -2235,7 +2073,42 @@ const CandidateDetails = () => {
                               whiteSpace: 'pre-wrap',
                               wordWrap: 'break-word'
                             }}>
-                              {technicalQuestions.map((qa, index) => (
+                              {sequentialConversation.map((msg, index) => (
+                                <div key={`msg-${index}`} style={{ marginBottom: '12px' }}>
+                                  <div style={{ 
+                                    marginBottom: '6px', 
+                                    fontWeight: '600', 
+                                    color: msg.role === 'interviewer' ? '#2196F3' : '#4CAF50'
+                                  }}>
+                                    {msg.role === 'interviewer' ? 'Interviewer' : 'Candidate'}:
+                                  </div>
+                                  <div style={{ 
+                                    marginBottom: '12px', 
+                                    paddingLeft: '15px', 
+                                    color: '#333' 
+                                  }}>
+                                    {msg.text || (msg.role === 'candidate' ? 'No answer provided' : '')}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : technicalQuestions.length > 0 ? (
+                          <div style={{ marginBottom: '30px' }}>
+                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
+                              <h5 className="qa-section-label">Technical Questions</h5>
+                            </div>
+                            <div style={{ 
+                              backgroundColor: '#f9f9f9', 
+                              padding: '20px', 
+                              borderRadius: '8px',
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              lineHeight: '1.8',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
+                            {technicalQuestions.map((qa, index) => (
                                 <div key={qa.id || `tech-${index}`} style={{ marginBottom: '15px' }}>
                                   <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3' }}>
                                     Interviewer:
@@ -2247,22 +2120,20 @@ const CandidateDetails = () => {
                                     Candidate:
                                   </div>
                                   <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
-                                    {qa.answer || 'No answer provided'}
-                                  </div>
+                                      {qa.answer || 'No answer provided'}
+                                    </div>
                                   {index < technicalQuestions.length - 1 && (
-                                    <div
-                                      style={{
-                                        borderTop: '1px solid #e0e0e0',
-                                        marginTop: '15px',
-                                        marginBottom: '15px',
-                                      }}
-                                    ></div>
+                                    <div style={{ 
+                                      borderTop: '1px solid #e0e0e0', 
+                                      marginTop: '15px', 
+                                      marginBottom: '15px' 
+                                    }}></div>
                                   )}
-                                </div>
+                                    </div>
                               ))}
-                            </div>
-                          </div>
-                        )}
+                                </div>
+                              </div>
+                        ) : null}
                         
                         {/* Coding Questions Section - Continuous Script Format */}
                         {codingQuestions.length > 0 && (
@@ -2432,3 +2303,163 @@ const CandidateDetails = () => {
 };
 
 export default CandidateDetails;
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+        />
+      )}
+
+      {/* Edit Interview Modal */}
+      {showEditInterviewModal && editingInterview && (
+        <StatusUpdateModal
+          isOpen={showEditInterviewModal}
+          onClose={() => {
+            setShowEditInterviewModal(false);
+            setEditingInterview(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="schedule_interview"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingInterview={editingInterview}
+        />
+      )}
+
+      {/* Edit Evaluation Modal */}
+      {showEditEvaluationModal && editingEvaluation && (
+        <StatusUpdateModal
+          isOpen={showEditEvaluationModal}
+          onClose={() => {
+            setShowEditEvaluationModal(false);
+            setEditingEvaluation(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="evaluate"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingEvaluation={editingEvaluation}
+        />
+      )}
+
+      {/* Delete Confirmation Modal - Matching DataTable Style */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{deleteType === 'interview' ? "Delete Interview" : "Delete Evaluation"}</h3>
+            <p>
+              {deleteType === 'interview' 
+                ? "Are you sure you want to delete this interview? This will also release the slot and cannot be undone."
+                : "Are you sure you want to delete this evaluation? This action cannot be undone."
+              }
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteType(null);
+                  setItemToDelete(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={deleteType === 'interview' ? confirmDeleteInterview : confirmDeleteEvaluation} 
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CandidateDetails;
+
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+        />
+      )}
+
+      {/* Edit Interview Modal */}
+      {showEditInterviewModal && editingInterview && (
+        <StatusUpdateModal
+          isOpen={showEditInterviewModal}
+          onClose={() => {
+            setShowEditInterviewModal(false);
+            setEditingInterview(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="schedule_interview"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingInterview={editingInterview}
+        />
+      )}
+
+      {/* Edit Evaluation Modal */}
+      {showEditEvaluationModal && editingEvaluation && (
+        <StatusUpdateModal
+          isOpen={showEditEvaluationModal}
+          onClose={() => {
+            setShowEditEvaluationModal(false);
+            setEditingEvaluation(null);
+            fetchInterviews();
+            dispatch(fetchCandidates());
+          }}
+          action="evaluate"
+          candidate={candidate}
+          interviews={interviews}
+          isEditMode={true}
+          editingEvaluation={editingEvaluation}
+        />
+      )}
+
+      {/* Delete Confirmation Modal - Matching DataTable Style */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{deleteType === 'interview' ? "Delete Interview" : "Delete Evaluation"}</h3>
+            <p>
+              {deleteType === 'interview' 
+                ? "Are you sure you want to delete this interview? This will also release the slot and cannot be undone."
+                : "Are you sure you want to delete this evaluation? This action cannot be undone."
+              }
+            </p>
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteType(null);
+                  setItemToDelete(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={deleteType === 'interview' ? confirmDeleteInterview : confirmDeleteEvaluation} 
+                className="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CandidateDetails;
+
