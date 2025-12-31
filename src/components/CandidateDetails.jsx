@@ -1563,35 +1563,60 @@ const CandidateDetails = () => {
                               {/* Proctoring Warnings Report - Download Link */}
                               <div className="evaluation-card proctoring-report-card">
                                 <h4 className="card-title">Proctoring Warnings Report</h4>
-                                {aiResult.proctoring_pdf_url ? (() => {
-                                  // Extract clean GCS URL if malformed (has app URL prepended)
-                                  let cleanPdfUrl = aiResult.proctoring_pdf_url;
-                                  if (cleanPdfUrl && cleanPdfUrl.includes('storage.googleapis.com')) {
-                                    const gcsIndex = cleanPdfUrl.indexOf('storage.googleapis.com');
-                                    if (gcsIndex > 0) {
-                                      // Extract from storage.googleapis.com onwards
-                                      cleanPdfUrl = 'https://' + cleanPdfUrl.substring(gcsIndex);
-                                    }
-                                  }
-                                  return (
-                                    <div className="proctoring-download-section">
-                                      <a 
-                                        href={cleanPdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="proctoring-download-link"
-                                      >
-                                        <span className="download-icon">📄</span>
-                                        <span>Download Proctoring Warnings Report</span>
-                                      </a>
-                                      {aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
-                                        <div className="proctoring-warning-info">
-                                          <strong>Total Warnings: {aiResult.proctoring_warnings.length}</strong>
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })() : (
+                                {interview.id ? (
+                                  <div className="proctoring-download-section">
+                                    <button
+                                      onClick={async () => {
+                                        try {
+                                          // Fetch GCS URL from backend API
+                                          const response = await fetch(
+                                            `${baseURL}/api/proctoring/pdf-url/?interview_id=${interview.id}`,
+                                            {
+                                              method: 'GET',
+                                              headers: {
+                                                'Authorization': `Token ${authToken}`,
+                                                'Content-Type': 'application/json',
+                                              },
+                                            }
+                                          );
+
+                                          const data = await response.json();
+
+                                          if (data.success && data.gcs_url) {
+                                            // Open GCS URL directly in new tab - no modification, no baseURL prepending
+                                            window.open(data.gcs_url, '_blank', 'noopener,noreferrer');
+                                          } else {
+                                            alert(data.error || 'Failed to get proctoring PDF URL');
+                                          }
+                                        } catch (error) {
+                                          console.error('Error fetching proctoring PDF URL:', error);
+                                          alert('Error: Failed to fetch proctoring PDF URL. Please try again.');
+                                        }
+                                      }}
+                                      className="proctoring-download-link"
+                                      style={{
+                                        cursor: 'pointer',
+                                        border: 'none',
+                                        background: 'none',
+                                        padding: 0,
+                                        font: 'inherit',
+                                        color: 'inherit',
+                                        textDecoration: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                      }}
+                                    >
+                                      <span className="download-icon">📄</span>
+                                      <span>Download Proctoring Warnings Report</span>
+                                    </button>
+                                    {aiResult.proctoring_warnings && aiResult.proctoring_warnings.length > 0 && (
+                                      <div className="proctoring-warning-info">
+                                        <strong>Total Warnings: {aiResult.proctoring_warnings.length}</strong>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
                                   <div className="no-proctoring-report">
                                     <p>No proctoring warnings report available for this interview.</p>
                                   </div>
