@@ -1568,9 +1568,9 @@ const CandidateDetails = () => {
                                     <button
                                       onClick={async () => {
                                         try {
-                                          // Fetch GCS URL from backend API
+                                          // Fetch GCS URL from backend API - directly from ProctoringPDF table
                                           const response = await fetch(
-                                            `${baseURL}/api/proctoring/pdf-url/?interview_id=${interview.id}`,
+                                            `${baseURL}/api/evaluation/proctoring-pdf-url/?interview_id=${interview.id}`,
                                             {
                                               method: 'GET',
                                               headers: {
@@ -1584,6 +1584,7 @@ const CandidateDetails = () => {
 
                                           if (data.success && data.gcs_url) {
                                             // Open GCS URL directly in new tab - no modification, no baseURL prepending
+                                            // URL is already clean from backend
                                             window.open(data.gcs_url, '_blank', 'noopener,noreferrer');
                                           } else {
                                             alert(data.error || 'Failed to get proctoring PDF URL');
