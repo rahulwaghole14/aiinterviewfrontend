@@ -1568,29 +1568,41 @@ const CandidateDetails = () => {
                                     <button
                                       onClick={async () => {
                                         try {
+                                          console.log('🔍 Fetching proctoring PDF URL for interview:', interview.id);
+                                          
                                           // Fetch GCS URL from backend API - directly from ProctoringPDF table
-                                          const response = await fetch(
-                                            `${baseURL}/api/evaluation/proctoring-pdf-url/?interview_id=${interview.id}`,
-                                            {
-                                              method: 'GET',
-                                              headers: {
-                                                'Authorization': `Token ${authToken}`,
-                                                'Content-Type': 'application/json',
-                                              },
-                                            }
-                                          );
+                                          const apiUrl = `${baseURL}/api/evaluation/proctoring-pdf-url/?interview_id=${interview.id}`;
+                                          console.log('📡 API URL:', apiUrl);
+                                          
+                                          const response = await fetch(apiUrl, {
+                                            method: 'GET',
+                                            headers: {
+                                              'Authorization': `Token ${authToken}`,
+                                              'Content-Type': 'application/json',
+                                            },
+                                          });
 
                                           const data = await response.json();
+                                          console.log('📥 API Response:', data);
 
                                           if (data.success && data.gcs_url) {
+                                            // Verify URL is clean (starts with https://storage.googleapis.com/)
+                                            if (!data.gcs_url.startsWith('https://storage.googleapis.com/')) {
+                                              console.error('❌ Invalid GCS URL format:', data.gcs_url);
+                                              alert('Error: Invalid PDF URL format received from server.');
+                                              return;
+                                            }
+                                            
+                                            console.log('✅ Opening clean GCS URL:', data.gcs_url);
                                             // Open GCS URL directly in new tab - no modification, no baseURL prepending
                                             // URL is already clean from backend
                                             window.open(data.gcs_url, '_blank', 'noopener,noreferrer');
                                           } else {
+                                            console.error('❌ API Error:', data.error);
                                             alert(data.error || 'Failed to get proctoring PDF URL');
                                           }
                                         } catch (error) {
-                                          console.error('Error fetching proctoring PDF URL:', error);
+                                          console.error('❌ Error fetching proctoring PDF URL:', error);
                                           alert('Error: Failed to fetch proctoring PDF URL. Please try again.');
                                         }
                                       }}
