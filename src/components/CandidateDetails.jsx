@@ -2095,11 +2095,16 @@ const CandidateDetails = () => {
                   const sequentialConversation = qaData[0]?._sequential_conversation || [];
                   
                   // Group questions by type (case-insensitive)
+                  // CRITICAL: Exclude CODING questions from technical section
                   const codingQuestions = qaData.filter(
                     (qa) => (qa.question_type || '').toUpperCase() === 'CODING'
                   );
                   const technicalQuestions = qaData.filter(
-                    (qa) => (qa.question_type || '').toUpperCase() !== 'CODING'
+                    (qa) => {
+                      const normalizedType = (qa.question_type || '').toUpperCase();
+                      // Explicitly exclude CODING questions
+                      return normalizedType !== 'CODING';
+                    }
                   );
                   
                   return (
@@ -2184,11 +2189,11 @@ const CandidateDetails = () => {
                               </div>
                         ) : null}
                         
-                        {/* Coding Questions Section - Continuous Script Format */}
+                        {/* Coding Evaluation Section - Below Technical Evaluation */}
                         {codingQuestions.length > 0 && (
-                          <div style={{ marginBottom: '30px' }}>
+                          <div style={{ marginBottom: '30px', marginTop: '40px' }}>
                             <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
-                              <h5 className="qa-section-label">Coding Questions</h5>
+                              <h5 className="qa-section-label">Coding Evaluation</h5>
                             </div>
                             <div style={{ 
                               backgroundColor: '#f9f9f9', 
@@ -2201,40 +2206,85 @@ const CandidateDetails = () => {
                               wordWrap: 'break-word'
                             }}>
                             {codingQuestions.map((qa, index) => (
-                                <div key={qa.id || `coding-${index}`} style={{ marginBottom: '15px' }}>
-                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3' }}>
-                                    Interviewer:
-                                </div>
-                                  <div style={{ marginBottom: '12px', paddingLeft: '15px', color: '#333' }}>
-                                    {qa.question_text}
+                                <div key={qa.id || `coding-${index}`} style={{ marginBottom: '20px' }}>
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3', fontSize: '15px' }}>
+                                    Question {index + 1}:
                                   </div>
-                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#4CAF50' }}>
-                                    Candidate:
+                                  <div style={{ marginBottom: '12px', paddingLeft: '15px', color: '#333', fontSize: '14px' }}>
+                                    {qa.question || qa.question_text || 'Coding Challenge'}
+                                  </div>
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#4CAF50', fontSize: '15px' }}>
+                                    Submitted Code:
                                   </div>
                                   <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
-                                    {qa.answer && qa.answer !== 'No code submitted' ? (
+                                    {qa.answer && qa.answer !== 'No code submitted' && qa.answer !== 'no code submitted' ? (
                                       <pre style={{ 
                                         backgroundColor: '#f5f5f5', 
-                                        padding: '12px', 
-                                        borderRadius: '4px',
+                                        padding: '15px', 
+                                        borderRadius: '6px',
                                         overflow: 'auto',
                                         fontSize: '13px',
-                                        margin: 0
+                                        margin: 0,
+                                        border: '1px solid #e0e0e0',
+                                        maxHeight: '400px',
+                                        fontFamily: 'monospace',
+                                        lineHeight: '1.5'
                                       }}>
                                         {qa.answer}
                                       </pre>
                                     ) : (
-                                      <span>{qa.answer || 'No code submitted'}</span>
+                                      <div style={{ 
+                                        padding: '12px', 
+                                        backgroundColor: '#fff3cd', 
+                                        borderRadius: '4px',
+                                        color: '#856404',
+                                        fontStyle: 'italic'
+                                      }}>
+                                        No code submitted
+                                      </div>
                                     )}
                                   </div>
+                                  {/* Show additional code submission details if available */}
+                                  {qa.code_submission && (
+                                    <div style={{ 
+                                      marginTop: '10px', 
+                                      padding: '10px', 
+                                      backgroundColor: '#f0f0f0', 
+                                      borderRadius: '4px',
+                                      fontSize: '12px'
+                                    }}>
+                                      <div style={{ marginBottom: '5px' }}>
+                                        <strong>Language:</strong> {qa.code_submission.language || 'N/A'}
+                                      </div>
+                                      <div style={{ marginBottom: '5px' }}>
+                                        <strong>Tests Passed:</strong> {qa.code_submission.passed_all_tests ? 'Yes' : 'No'}
+                                      </div>
+                                      {qa.code_submission.output_log && (
+                                        <div style={{ marginTop: '8px' }}>
+                                          <strong>Output/Test Results:</strong>
+                                          <pre style={{ 
+                                            marginTop: '5px',
+                                            padding: '8px',
+                                            backgroundColor: '#fff',
+                                            borderRadius: '3px',
+                                            fontSize: '11px',
+                                            maxHeight: '150px',
+                                            overflow: 'auto'
+                                          }}>
+                                            {qa.code_submission.output_log}
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
                                   {index < codingQuestions.length - 1 && (
                                     <div style={{ 
-                                      borderTop: '1px solid #e0e0e0', 
-                                      marginTop: '15px', 
-                                      marginBottom: '15px' 
+                                      borderTop: '2px solid #e0e0e0', 
+                                      marginTop: '20px', 
+                                      marginBottom: '20px' 
                                     }}></div>
                                   )}
-                                    </div>
+                                </div>
                               ))}
                                 </div>
                               </div>
