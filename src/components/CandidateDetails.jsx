@@ -17,6 +17,7 @@ import StatusUpdateModal from "./StatusUpdateModal";
 import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour } from "../utils/timeFormatting";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import VideoPlayer from './VideoPlayer';
 
 // Video Player Component with Error Handling
 const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
@@ -2066,6 +2067,31 @@ const CandidateDetails = () => {
                         baseURL={baseURL}
                       />
                     </div>
+                  </div>
+                )}
+                
+                {/* Screen Recording Section */}
+                {(interview.screen_recording_file || interview.screen_recording_url) && (
+                  <div className="recording-section" style={{ marginTop: '20px', padding: '20px', backgroundColor: '#e8f4fd', borderRadius: '8px', border: '1px solid #bee5eb' }}>
+                    <h4 style={{ marginBottom: '15px', color: '#0c5460' }}>🖥️ Screen Recording with Audio</h4>
+                    <p style={{ marginBottom: '15px', color: '#0c5460', fontSize: '14px' }}>
+                      Screen recording with audio captured during technical and coding interview
+                    </p>
+                    <div className="video-player-container" style={{ width: '100%', maxWidth: '800px' }}>
+                      <VideoPlayer
+                        src={interview.screen_recording_url || `${baseURL}${interview.screen_recording_file}`}
+                        title={`${interview.candidate_name} - Screen Recording`}
+                        controls={true}
+                        showDownload={true}
+                        width="100%"
+                        height="auto"
+                      />
+                    </div>
+                    {interview.screen_recording_duration && (
+                      <p style={{ marginTop: '10px', color: '#0c5460', fontSize: '13px' }}>
+                        <strong>Duration:</strong> {Math.floor(interview.screen_recording_duration / 60)}m {interview.screen_recording_duration % 60}s
+                      </p>
+                    )}
                   </div>
                 )}
                 

@@ -5,6 +5,7 @@ import { BeatLoader } from 'react-spinners';
 import InterviewIdVerification from './InterviewIdVerification';
 import InterviewSession from './InterviewSession';
 import InterviewComplete from './InterviewComplete';
+import ScreenRecordingControls from './ScreenRecordingControls';
 import { baseURL } from '../config/constants';
 import './InterviewPortal.css';
 
@@ -17,6 +18,7 @@ const InterviewPortal = () => {
   const [mediaStream, setMediaStream] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [screenRecordingEnabled, setScreenRecordingEnabled] = useState(false);
   
   const videoRef = useRef(null);
   const audioRef = useRef(null);
@@ -101,14 +103,14 @@ const InterviewPortal = () => {
   };
 
   // Handle ID verification completion
-  const handleIdVerificationComplete = async () => {
-    try {
-      setInterviewState('interview');
-      await setupMedia();
-    } catch (err) {
-      setInterviewState('error');
-      setError('Failed to start interview. Please refresh the page and try again.');
-    }
+  const handleIdVerificationComplete = (data) => {
+    setSessionData({
+      ...sessionData,
+      ...data
+    });
+    setMediaStream(data.mediaStream);
+    setScreenRecordingEnabled(data.screenRecordingEnabled || false);
+    setInterviewState('interview');
   };
 
   // Handle interview completion
@@ -229,12 +231,25 @@ const InterviewPortal = () => {
       )}
 
       {interviewState === 'interview' && (
-        <InterviewSession
-          sessionData={sessionData}
-          mediaStream={mediaStream}
-          onComplete={handleInterviewComplete}
-          onError={handleInterviewError}
-        />
+        <>
+          {/* Screen Recording Controls */}
+          <ScreenRecordingControls
+            interviewId={sessionData?.interview?.id}
+            onRecordingComplete={(result) => {
+              console.log('Screen recording saved:', result);
+              toast.success('Screen recording saved successfully!');
+            }}
+            autoStart={screenRecordingEnabled}
+            showControls={false} // Hidden controls for automatic recording
+          />
+          
+          <InterviewSession
+            sessionData={sessionData}
+            mediaStream={mediaStream}
+            onComplete={handleInterviewComplete}
+            onError={handleInterviewError}
+          />
+        </>
       )}
 
       {interviewState === 'complete' && (

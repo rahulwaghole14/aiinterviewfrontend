@@ -4,11 +4,12 @@ import { BeatLoader } from 'react-spinners';
 import './InterviewIdVerification.css';
 
 const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
-  const [step, setStep] = useState('camera-setup'); // camera-setup, id-verification, ready
+  const [step, setStep] = useState('camera-setup'); // camera-setup, id-verification, screen-permission, ready
   const [mediaStream, setMediaStream] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [screenPermissionGranted, setScreenPermissionGranted] = useState(false);
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -82,6 +83,64 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
     });
   };
 
+  const requestScreenRecordingPermission = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Request screen recording permission
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          mediaSource: 'screen',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      });
+      
+      // Get microphone audio for screen recording
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      });
+
+      // Combine screen video with microphone audio
+      const audioTrack = audioStream.getAudioTracks()[0];
+      if (audioTrack) {
+        screenStream.addTrack(audioTrack);
+      }
+
+      // Stop the streams immediately (we just needed permission)
+      screenStream.getTracks().forEach(track => track.stop());
+      audioStream.getTracks().forEach(track => track.stop());
+      
+      setScreenPermissionGranted(true);
+      toast.success('Screen recording permission granted!');
+      
+      // Auto-proceed after getting permission
+      setTimeout(() => {
+        handleScreenPermissionComplete();
+      }, 1000);
+      
+    } catch (err) {
+      console.error('Screen recording permission error:', err);
+      if (err.name === 'NotAllowedError') {
+        setError('Screen recording permission is required for this interview. Please allow screen recording and try again.');
+      } else {
+        setError('Failed to get screen recording permission. Please check your browser settings.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleIdVerification = async () => {
     try {
       setLoading(true);
@@ -93,21 +152,28 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
       // In a real implementation, you would send the photo to your backend
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
       
-      setStep('ready');
+      setStep('screen-permission');
       toast.success('ID verification completed successfully!');
-      
-      // Auto-proceed to interview after a short delay
-      setTimeout(() => {
-        onComplete();
-      }, 2000);
       
     } catch (err) {
       console.error('ID verification error:', err);
-      setError('Failed to verify ID. Please try again.');
-      toast.error('ID verification failed. Please try again.');
+      setError('ID verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleScreenPermissionComplete = () => {
+    setStep('ready');
+    toast.success('All permissions granted! Ready to start the interview.');
+    
+    // Auto-proceed to interview after a short delay
+    setTimeout(() => {
+      onComplete({
+        mediaStream: mediaStream,
+        screenRecordingEnabled: true
+      });
+    }, 1500);
   };
 
   const retryCameraSetup = () => {
@@ -215,6 +281,55 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
     );
   }
 
+  // Render screen permission step
+  if (step === 'screen-permission') {
+    return (
+      <div className="interview-id-verification">
+        <div className="verification-container">
+          <div className="verification-header">
+            <h2>Screen Recording Permission</h2>
+            <p>Please allow screen recording with audio to continue with the interview</p>
+          </div>
+          
+          {loading ? (
+            <div className="camera-loading">
+              <BeatLoader color="var(--color-primary)" size={15} />
+              <p>Requesting screen recording permission...</p>
+            </div>
+          ) : error ? (
+            <div className="camera-error">
+              <div className="error-icon">🖥️</div>
+              <p>{error}</p>
+              <button className="retry-button" onClick={requestScreenRecordingPermission}>
+                Retry Screen Recording Permission
+              </button>
+            </div>
+          ) : (
+            <div className="permission-content">
+              <div className="permission-icon">🖥️</div>
+              <h3>Screen Recording Required</h3>
+              <p>This interview requires screen recording with audio to be enabled for assessment purposes.</p>
+              <div className="permission-info">
+                <ul>
+                  <li>Your screen will be recorded during the technical and coding interview</li>
+                  <li>Audio will be captured along with the screen recording</li>
+                  <li>The recording is used for evaluation purposes only</li>
+                  <li>You can stop sharing your screen at any time</li>
+                </ul>
+              </div>
+              <button 
+                className="permission-button" 
+                onClick={requestScreenRecordingPermission}
+              >
+                Grant Screen Recording Permission
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Render ready step
   if (step === 'ready') {
     return (
@@ -222,7 +337,7 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
         <div className="verification-container">
           <div className="verification-header">
             <h2>Ready to Start!</h2>
-            <p>ID verification completed successfully</p>
+            <p>All permissions granted successfully</p>
           </div>
           
           <div className="ready-content">
@@ -242,10 +357,3 @@ const InterviewIdVerification = ({ sessionData, onComplete, onError }) => {
 };
 
 export default InterviewIdVerification;
-
-
-
-
-
-
-
