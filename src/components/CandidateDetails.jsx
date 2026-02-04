@@ -1271,7 +1271,10 @@ const CandidateDetails = () => {
                     const correctAnswers = technicalCorrectAnswers + codingCorrectAnswers;
                     const incorrectAnswers = totalQuestions - correctAnswers;
                     const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions * 100) : 0;
-                    const totalCompletionTime = aiResult.total_completion_time || 54.6;
+                    // Use actual completion time from technical interview start to coding round completion
+                    // Fallback to estimated time if not available (for older interviews or non-coding interviews)
+                    const totalCompletionTime = aiResult.total_completion_time_minutes || 
+                                               (aiResult.analytics?.communication_metrics?.total_questions > 0 ? 45.0 : 0);
                     
                     // Section scores (AI returns 0-100 scale, use directly as percentage)
                     // Note: AI scores are already in 0-100 scale, so use them directly
