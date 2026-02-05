@@ -192,6 +192,11 @@ const AddCandidates = () => {
 
     uploadPayload.append("domain", selectedDomainName); // Send domain name
     uploadPayload.append("role", selectedJobTitle); // Send job title (role)
+    
+    // Add job_id for Gemini AI match calculation
+    if (formData.job_title) {
+      uploadPayload.append("job_id", formData.job_title);
+    }
 
     formData.resumes.forEach((file) => {
       uploadPayload.append("resume_files", file);
@@ -828,7 +833,13 @@ const AddCandidates = () => {
                             className="add-candidates-input-inline"
                           />
                         ) : (
-                          candidate.extracted_data.work_experience || '-'
+                          <div className="experience-display">
+                            <span className="candidate-experience">
+                              {candidate.extracted_data.work_experience ? 
+                                `${candidate.extracted_data.work_experience} years` : '-'
+                              }
+                            </span>
+                          </div>
                         )}
                       </td>
                       {/* Display Domain from formData, not editable */}
@@ -837,22 +848,20 @@ const AddCandidates = () => {
                       <td>{getJobTitle(parseInt(formData.job_title, 10)) || '-'}</td>
                       {/* Display Matching Percentage */}
                       <td>
-                        {candidate.extracted_data.job_matching ? (
+                        {candidate.extracted_data.match_percentage !== undefined ? (
                           <div className="match-percentage">
                             <span 
-                              className={"match-score"}
-                              title={`Overall: ${candidate.extracted_data.job_matching.overall_match}%
-Skills: ${candidate.extracted_data.job_matching.skill_match}%
-Text Similarity: ${candidate.extracted_data.job_matching.text_similarity}%
-Experience: ${candidate.extracted_data.job_matching.experience_match}%`}
+                              className={`match-score ${candidate.extracted_data.match_percentage >= 80 ? 'high' : candidate.extracted_data.match_percentage >= 60 ? 'medium' : 'low'}`}
+                              title={`🤖 Gemini AI Analysis
+Overall Match: ${candidate.extracted_data.match_percentage}%
+Skill Match: ${candidate.extracted_data.skill_match || 0}%
+Experience Match: ${candidate.extracted_data.experience_match || 0}%
+Education Match: ${candidate.extracted_data.education_match || 0}%
+Relevance Score: ${candidate.extracted_data.relevance_score || 0}%`}
                             >
-                              {candidate.extracted_data.job_matching.overall_match}%
+                              {candidate.extracted_data.match_percentage}%
+                              <span className="ai-indicator">🤖</span>
                             </span>
-                            {candidate.extracted_data.job_matching.error && (
-                              <div className="match-error" title={candidate.extracted_data.job_matching.error}>
-                                ⚠️
-                              </div>
-                            )}
                           </div>
                         ) : (
                           '-'

@@ -1679,8 +1679,32 @@
 .match-score.low {
   background-color: #fee2e2;
   color: #991b1b;
-  border: 1px solid #fca5a5;
-  font-weight: 700;
+  border: 1px solid #fecaca;
+}
+
+.match-score.fallback {
+  opacity: 0.8;
+  border-style: dashed;
+}
+
+.ai-indicator, .fallback-indicator {
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
+
+.ai-indicator {
+  color: #059669;
+}
+
+.fallback-indicator {
+  color: #d97706;
+}
+
+.match-error {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
 }
 
 /* Row Background Colors */
@@ -1721,4 +1745,46 @@
   white-space: nowrap;
   margin-top: -2rem;
   margin-left: 1rem;
+}
+
+/* Experience Display Styles */
+.experience-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.candidate-experience {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9rem;
+}
+
+.job-exp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.required-exp {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+}
+
+.required-exp.good-match {
+  color: #059669;
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.required-exp.poor-match {
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-color: #fecaca;
 }

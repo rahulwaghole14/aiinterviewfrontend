@@ -88,18 +88,25 @@ const CandidateCard = ({ candidate, onViewReport, getDomainName, getJobTitle }) 
           <p className="candidate-domain">{getDomainName(candidate.domain) || '-'}</p> {/* Use helper */}
           <p className="candidate-updated">Last Updated: {candidate.lastUpdated ? new Date(candidate.lastUpdated).toLocaleDateString("en-GB") : '-'}</p>
           {/* Display matching percentage if available */}
-          {candidate.job_matching && (
+          {candidate.match_percentage !== undefined && candidate.match_percentage !== null ? (
             <p className="candidate-match">
               Match: 
               <span 
-                className={`match-score ${candidate.job_matching.overall_match >= 80 ? 'high' : candidate.job_matching.overall_match >= 60 ? 'medium' : 'low'}`}
-                title={`Overall: ${candidate.job_matching.overall_match}%
-Skills: ${candidate.job_matching.skill_match}%
-Text Similarity: ${candidate.job_matching.text_similarity}%
-Experience: ${candidate.job_matching.experience_match}%`}
+                className={`match-score ${candidate.match_percentage >= 80 ? 'high' : candidate.match_percentage >= 60 ? 'medium' : 'low'}`}
+                title={`🤖 Gemini AI Analysis
+Overall Match: ${candidate.match_percentage}%
+Skill Match: ${candidate.skill_match || 0}%
+Experience Match: ${candidate.experience_match || 0}%
+Education Match: ${candidate.education_match || 0}%
+Relevance Score: ${candidate.relevance_score || 0}%`}
               >
-                {candidate.job_matching.overall_match}%
+                {candidate.match_percentage}%
+                <span className="ai-indicator">🤖</span>
               </span>
+            </p>
+          ) : (
+            <p className="candidate-match">
+              Match: <span className="match-score">-</span>
             </p>
           )}
         </div>
