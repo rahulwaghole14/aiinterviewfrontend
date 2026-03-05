@@ -1038,14 +1038,23 @@ const CandidateDetails = () => {
                     );
                     
                     // Calculate TECHNICAL metrics - use AI evaluation data (based on actual answer correctness analysis)
-                    const technicalTotalQuestions = technicalQuestions.length || 0;
+                    let technicalTotalQuestions = technicalQuestions.length || 0;
                     
-                    // Use AI-provided correct/incorrect counts from AI analysis (not just answer presence)
+                    // Use the same technical question count as LLM analysis for consistency
+                    if (aiResult.technical_questions_attempted !== undefined) {
+                      technicalTotalQuestions = Math.round(aiResult.technical_questions_attempted || 0);
+                      console.log(`✅ Using LLM technical_questions_attempted for count: ${technicalTotalQuestions}`);
+                    }
+                    // Priority 2: Use questions_attempted from LLM analysis (backward compatibility)
+                    else if (aiResult.questions_attempted !== undefined) {
+                      technicalTotalQuestions = Math.round(aiResult.questions_attempted || 0);
+                      console.log(`✅ Using LLM questions_attempted for count: ${technicalTotalQuestions}`);
+                    }
+                    
                     let technicalCorrectAnswers = 0;
                     let technicalIncorrectAnswers = 0;
                     let technicalAccuracy = 0;
                     
-                    // CRITICAL: Use LLM analysis results from QUESTION CORRECTNESS ANALYSIS
                     // Priority 1: Use technical_questions_correct and technical_questions_attempted (most accurate)
                     if (aiResult.technical_questions_correct !== undefined && aiResult.technical_questions_attempted !== undefined) {
                       // These come directly from LLM's QUESTION CORRECTNESS ANALYSIS section
