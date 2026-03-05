@@ -1165,7 +1165,7 @@ const CandidateDetails = () => {
                         
                         if (isCorrect) {
                           codingCorrectAnswers++;
-                        } else if (qa.answer && qa.answer !== 'No code submitted' && qa.answer !== 'no answer provided' && qa.answer !== 'None') {
+                        } else if (qa.answer_text && qa.answer_text !== 'No code submitted' && qa.answer_text !== 'no answer provided' && qa.answer_text !== 'None') {
                           // If there's an answer but not all tests passed, count as incorrect
                           codingIncorrectAnswers++;
                         }
@@ -2175,7 +2175,7 @@ const CandidateDetails = () => {
                                     Candidate:
                                   </div>
                                   <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
-                                    {qa.answer && qa.answer !== 'No code submitted' ? (
+                                    {qa.answer_text && qa.answer_text !== 'No code submitted' ? (
                                       <pre style={{ 
                                         backgroundColor: '#f5f5f5', 
                                         padding: '12px', 
@@ -2184,10 +2184,10 @@ const CandidateDetails = () => {
                                         fontSize: '13px',
                                         margin: 0
                                       }}>
-                                        {qa.answer}
+                                        {qa.answer_text}
                                       </pre>
                                     ) : (
-                                      <span>{qa.answer || 'No code submitted'}</span>
+                                      <span>{qa.answer_text || 'No code submitted'}</span>
                                     )}
                                   </div>
                                   {index < codingQuestions.length - 1 && (
