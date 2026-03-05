@@ -19,6 +19,10 @@ import { formatTimeTo12Hour } from "../utils/timeFormatting";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import VideoPlayer from './VideoPlayer';
 
+// Constants for question limits
+const MAX_TECHNICAL_QUESTIONS = 12;
+const MAX_CODING_QUESTIONS = 12;
+
 // Video Player Component with Error Handling
 const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
   const [error, setError] = useState(null);
@@ -38,7 +42,7 @@ const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
     // If it's already a full URL (http/https), use it as is
     if (videoUrl.startsWith('http://') || videoUrl.startsWith('https://')) {
       fullUrl = videoUrl;
-    } 
+    }
     // If it starts with /media/, just prepend baseURL
     else if (videoUrl.startsWith('/media/')) {
       fullUrl = `${baseURL}${videoUrl}`;
@@ -47,214 +51,86 @@ const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
     else if (videoUrl.startsWith('/')) {
       fullUrl = `${baseURL}${videoUrl}`;
     }
-    // If it's a relative path like "interview_videos/..." or "interview_videos_merged/...", add /media/ prefix
-    else if (videoUrl.includes('interview_videos/') || videoUrl.includes('interview_videos_merged/') || videoUrl.includes('interview_videos_raw/') || videoUrl.includes('interview_audio/')) {
-      // Ensure /media/ prefix
-      const cleanPath = videoUrl.startsWith('media/') ? videoUrl : `media/${videoUrl}`;
-      fullUrl = `${baseURL}/${cleanPath}`;
-    }
-    // Default: prepend baseURL
+    // Otherwise, assume it's a relative path and prepend baseURL
     else {
       fullUrl = `${baseURL}/${videoUrl}`;
     }
-    
-    console.log('Video URL construction:', {
-      original: videoUrl,
-      constructed: fullUrl,
-      baseURL: baseURL
-    });
-    
+
     setVideoSrc(fullUrl);
     setIsLoading(false);
   }, [videoUrl, baseURL]);
 
-  const handleError = (e) => {
-    const videoElement = e.target;
-    const error = videoElement?.error;
-    const actualSrc = videoElement?.src || videoElement?.currentSrc || videoSrc;
-    
-    console.error('Video playback error:', e);
-    console.error('Video source (state):', videoSrc);
-    console.error('Video source (element):', videoElement?.src);
-    console.error('Video currentSrc:', videoElement?.currentSrc);
-    console.error('Video error details:', {
-      code: error?.code,
-      message: error?.message,
-      networkState: videoElement?.networkState,
-      readyState: videoElement?.readyState,
-      src: videoElement?.src,
-      currentSrc: videoElement?.currentSrc
-    });
-    
-    // Try to fetch the video URL to check if it's accessible
-    const urlToCheck = actualSrc || videoSrc;
-    if (urlToCheck) {
-      fetch(urlToCheck, { method: 'HEAD' })
-        .then(response => {
-          console.log('Video URL accessibility check:', {
-            url: urlToCheck,
-            status: response.status,
-            statusText: response.statusText,
-            contentType: response.headers.get('content-type'),
-            contentLength: response.headers.get('content-length')
-          });
-          if (!response.ok) {
-            setError(`Video file not accessible (HTTP ${response.status}). URL: ${urlToCheck}`);
-          }
-        })
-        .catch(fetchError => {
-          console.error('Error checking video URL:', fetchError);
-          setError(`Cannot access video file. Please check: 1) Server is running, 2) File exists, 3) URL is correct: ${urlToCheck}`);
-        });
-    } else {
-      setError('Video URL is not set. Please check the interview video path.');
-    }
-    
-    // Provide more specific error messages
-    let errorMessage = 'Video cannot be played. The file may be corrupted or in an unsupported format.';
-    if (error) {
-      switch (error.code) {
-        case error.MEDIA_ERR_ABORTED:
-          errorMessage = 'Video playback was aborted.';
-          break;
-        case error.MEDIA_ERR_NETWORK:
-          errorMessage = `Network error while loading video. URL: ${videoSrc}`;
-          break;
-        case error.MEDIA_ERR_DECODE:
-          errorMessage = 'Video format is not supported or the file is corrupted. Try downloading and playing with VLC.';
-          break;
-        case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-          errorMessage = 'Video format is not supported by your browser.';
-          break;
-        default:
-          errorMessage = `Video error (code: ${error.code}). The file may be corrupted or in an unsupported format.`;
-      }
-    }
-    
-    setError(errorMessage);
-  };
-
-  const handleLoadedMetadata = (e) => {
-    console.log('Video metadata loaded:', {
-      duration: e.target.duration,
-      videoWidth: e.target.videoWidth,
-      videoHeight: e.target.videoHeight,
-      readyState: e.target.readyState
-    });
+  const handleRetry = () => {
     setError(null);
-  };
-
-  const handleCanPlay = (e) => {
-    console.log('Video can play');
-    setIsLoading(false);
-    setError(null);
+    setIsLoading(true);
+    // Force re-render by clearing and setting videoSrc
+    const currentSrc = videoSrc;
+    setVideoSrc(null);
+    setTimeout(() => setVideoSrc(currentSrc), 100);
   };
 
   if (error) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffc107' }}>
-        <p style={{ color: '#856404', marginBottom: '10px' }}>⚠️ {error}</p>
-        {videoSrc && (
-          <>
-            <p style={{ marginTop: '10px', fontSize: '11px', color: '#666', wordBreak: 'break-all' }}>
-              Video URL: {videoSrc}
-            </p>
-            <a 
-              href={videoSrc} 
-              download
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ 
-                display: 'inline-block', 
-                padding: '8px 16px', 
-                backgroundColor: '#007bff', 
-                color: 'white', 
-                textDecoration: 'none', 
-                borderRadius: '4px',
-                marginTop: '10px'
-              }}
-            >
-              Download Video File
-            </a>
-            <p style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-              If the video doesn't play, try downloading it and playing with VLC or another media player.
-            </p>
-            <p style={{ marginTop: '10px', fontSize: '11px', color: '#856404' }}>
-              💡 Tip: Check browser console (F12) for detailed error information.
-            </p>
-          </>
-        )}
+      <div style={{ padding: '20px', border: '1px solid #dc3545', borderRadius: '4px', backgroundColor: '#f8d7da' }}>
+        <h5 style={{ color: '#721c24', marginBottom: '10px' }}>Video Playback Error</h5>
+        <p style={{ color: '#721c24', marginBottom: '10px' }}>{error}</p>
+        <button 
+          onClick={handleRetry}
+          style={{
+            padding: '5px 10px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
-  // Don't render video until we have a valid source
   if (!videoSrc) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-        <p style={{ color: '#666' }}>Loading video URL...</p>
+      <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+        No video source available
       </div>
     );
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div>
       {isLoading && (
-        <div style={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)',
-          zIndex: 10,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          color: 'white',
-          padding: '10px 20px',
-          borderRadius: '4px'
-        }}>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+          <div className="loading-spinner" style={{ 
+            border: '3px solid #f3f3f3',
+            borderTop: '3px solid #3498db',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 10px'
+          }}></div>
           Loading video...
         </div>
       )}
-      <video
-        key={videoSrc} // Force re-render when videoSrc changes
-        controls
-        style={{ width: '100%', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-        preload="auto"
-        crossOrigin="anonymous"
-        onError={handleError}
-        onLoadedMetadata={handleLoadedMetadata}
-        onCanPlay={handleCanPlay}
-        onLoadStart={() => setIsLoading(true)}
-        onLoadedData={() => {
-          console.log('Video data loaded successfully');
+      <VideoPlayer
+        src={videoSrc}
+        title="Screen Recording"
+        controls={true}
+        showDownload={true}
+        width="100%"
+        height="auto"
+        onError={() => {
+          setError('Video failed to load. The file format may not be supported in your browser.');
+          setIsLoading(false);
+        }}
+        onLoadedMetadata={() => {
           setIsLoading(false);
           setError(null);
         }}
-        playsInline
-        muted={false}
-      >
-        <source src={videoSrc} type="video/mp4; codecs=avc1.42E01E,mp4a.40.2" />
-        <source src={videoSrc} type="video/mp4" />
-        <source src={videoSrc} type="video/webm" />
-        <source src={videoSrc} type="video/quicktime" />
-        Your browser does not support the video tag.
-      </video>
-      {videoSrc && (
-        <div style={{ marginTop: '10px', textAlign: 'center' }}>
-          <a 
-            href={videoSrc}
-            download
-            style={{ 
-              display: 'inline-block', 
-              padding: '6px 12px', 
-              color: '#007bff', 
-              textDecoration: 'none',
-              fontSize: '14px'
-            }}
-          >
-            📥 Download Video
-          </a>
-        </div>
-      )}
+      />
     </div>
   );
 };
@@ -1271,10 +1147,6 @@ const CandidateDetails = () => {
                     const correctAnswers = technicalCorrectAnswers + codingCorrectAnswers;
                     const incorrectAnswers = totalQuestions - correctAnswers;
                     const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions * 100) : 0;
-                    // Use actual completion time from technical interview start to coding round completion
-                    // Fallback to estimated time if not available (for older interviews or non-coding interviews)
-                    const totalCompletionTime = aiResult.total_completion_time_minutes || 
-                                               (aiResult.analytics?.communication_metrics?.total_questions > 0 ? 45.0 : 0);
                     
                     // Section scores (AI returns 0-100 scale, use directly as percentage)
                     // Note: AI scores are already in 0-100 scale, so use them directly
@@ -1325,15 +1197,9 @@ const CandidateDetails = () => {
                                 <div className="metrics-grid">
                                   <div className="metric-circle">
                                     <div className="circle-chart" style={{ 
-                                      background: `conic-gradient(#2196F3 0% ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/12)*100 : 0}%, #e0e0e0 ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/12)*100 : 0}% 100%)`
+                                      background: `conic-gradient(#2196F3 0% ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/MAX_TECHNICAL_QUESTIONS)*100 : 0}%, #e0e0e0 ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/MAX_TECHNICAL_QUESTIONS)*100 : 0}% 100%)`
                                     }}>
-                                      <span className="circle-value">
-                                        {aiResult.questions_attempted !== undefined 
-                                          ? Math.round(aiResult.questions_attempted) 
-                                          : (aiResult.technical_questions_attempted !== undefined 
-                                              ? Math.round(aiResult.technical_questions_attempted)
-                                              : technicalTotalQuestions)}
-                                      </span>
+                                      <span className="circle-value">{technicalTotalQuestions}/{MAX_TECHNICAL_QUESTIONS}</span>
                                     </div>
                                     <div className="circle-label">Questions Attempted</div>
                                   </div>
@@ -1363,9 +1229,9 @@ const CandidateDetails = () => {
                                   <div className="metrics-grid">
                                     <div className="metric-circle">
                                       <div className="circle-chart" style={{ 
-                                        background: `conic-gradient(#2196F3 0% ${codingTotalQuestions > 0 ? (codingTotalQuestions/12)*100 : 0}%, #e0e0e0 ${codingTotalQuestions > 0 ? (codingTotalQuestions/12)*100 : 0}% 100%)`
+                                        background: `conic-gradient(#2196F3 0% ${codingTotalQuestions > 0 ? (codingTotalQuestions/MAX_CODING_QUESTIONS)*100 : 0}%, #e0e0e0 ${codingTotalQuestions > 0 ? (codingTotalQuestions/MAX_CODING_QUESTIONS)*100 : 0}% 100%)`
                                       }}>
-                                        <span className="circle-value">{codingTotalQuestions}</span>
+                                        <span className="circle-value">{codingTotalQuestions}/{MAX_CODING_QUESTIONS}</span>
                                       </div>
                                       <div className="circle-label">Questions Attempted</div>
                                     </div>
@@ -1390,23 +1256,8 @@ const CandidateDetails = () => {
                               )}
                             </div>
                             
-                            {/* Row 2: Time Metrics and Detailed Section Scores */}
+                            {/* Row 2: Detailed Section Scores Only */}
                             <div className="metrics-row-2">
-                              {/* Time Metrics Card */}
-                              <div className="evaluation-card time-metrics-card">
-                                <h4 className="card-title">Time Metrics</h4>
-                                <div className="time-metrics-content">
-                                  <div className="time-metric">
-                                    <div className="time-value-box" style={{ backgroundColor: '#FFEBEE' }}>
-                                      <div className="time-icon">⏱️</div>
-                                      <div className="time-value">{totalCompletionTime.toFixed(1)}min</div>
-                                    </div>
-                                    <div className="time-label">Total Completion Time</div>
-                                    <div className="time-total">Total: {totalCompletionTime.toFixed(1)} minutes</div>
-                                  </div>
-                                </div>
-                              </div>
-                              
                               {/* Detailed Section Scores Card */}
                               <div className="evaluation-card detailed-scores-card">
                                 <h4 className="card-title">Detailed Section Scores</h4>
@@ -2080,7 +1931,39 @@ const CandidateDetails = () => {
                     <p style={{ marginBottom: '15px', color: '#0c5460', fontSize: '14px' }}>
                       Screen recording with audio captured during technical and coding interview
                     </p>
+                    
                     <div className="video-player-container" style={{ width: '100%', maxWidth: '800px' }}>
+                      {/* Debug: Show what we're passing to VideoPlayer */}
+                      {console.log('Screen Recording Debug:', {
+                        hasScreenRecordingFile: !!interview.screen_recording_file,
+                        hasScreenRecordingUrl: !!interview.screen_recording_url,
+                        screenRecordingFile: interview.screen_recording_file,
+                        screenRecordingUrl: interview.screen_recording_url,
+                        finalSrc: interview.screen_recording_url || `${baseURL}${interview.screen_recording_file}`,
+                        baseURL: baseURL
+                      })}
+                      
+                      {/* Try with a simple video element first */}
+                      <video
+                        controls
+                        style={{ width: '100%', borderRadius: '8px', backgroundColor: '#000' }}
+                        preload="metadata"
+                        onError={(e) => console.error('Video error:', e)}
+                        onLoadedMetadata={(e) => console.log('Video loaded:', e.target.duration)}
+                      >
+                        <source 
+                          src={interview.screen_recording_url || `${baseURL}${interview.screen_recording_file}`} 
+                          type="video/webm" 
+                        />
+                        <source 
+                          src={interview.screen_recording_url || `${baseURL}${interview.screen_recording_file}`} 
+                          type="video/mp4" 
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                      
+                      {/* Uncomment to use VideoPlayer component instead */}
+                      {/*
                       <VideoPlayer
                         src={interview.screen_recording_url || `${baseURL}${interview.screen_recording_file}`}
                         title={`${interview.candidate_name} - Screen Recording`}
@@ -2089,6 +1972,7 @@ const CandidateDetails = () => {
                         width="100%"
                         height="auto"
                       />
+                      */}
                     </div>
                     {interview.screen_recording_duration && (
                       <p style={{ marginTop: '10px', color: '#0c5460', fontSize: '13px' }}>
@@ -2181,6 +2065,48 @@ const CandidateDetails = () => {
                                       }}
                                     ></div>
                                   )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Technical Q&A Conversations - New Continuous Format */}
+                        {interview.technical_qa_conversations && interview.technical_qa_conversations.length > 0 && (
+                          <div style={{ marginBottom: '30px' }}>
+                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
+                              <h5 className="qa-section-label">Technical Q&A Conversations</h5>
+                            </div>
+                            <div style={{ 
+                              backgroundColor: '#e8f5e8', 
+                              padding: '20px', 
+                              borderRadius: '8px',
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              lineHeight: '1.8',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
+                              {interview.technical_qa_conversations.map((conv, index) => (
+                                <div key={conv.question_number || `qa-conv-${index}`} style={{ marginBottom: '25px', border: '1px solid #ddd', padding: '15px', borderRadius: '5px', backgroundColor: '#fafafa' }}>
+                                  <div style={{ marginBottom: '10px', fontWeight: '600', color: '#2196F3', fontSize: '16px' }}>
+                                    Q&A Pair {conv.question_number}
+                                  </div>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <div style={{ fontWeight: '600', color: '#1976D2', marginBottom: '5px' }}>
+                                      AI Analysis Score: {conv.analysis_score ? `${conv.analysis_score}/100` : 'N/A'}
+                                    </div>
+                                    {conv.analysis_feedback && (
+                                      <div style={{ fontSize: '12px', color: '#666', fontStyle: 'italic' }}>
+                                        {conv.analysis_feedback}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div style={{ whiteSpace: 'pre-wrap', fontSize: '13px' }}>
+                                    {conv.overall_qa.split('\n').map((line, lineIndex) => (
+                                      <div key={lineIndex}>{line}</div>
+                                    ))}
+                                  </div>
                                 </div>
                               ))}
                             </div>

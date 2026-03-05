@@ -12,6 +12,8 @@ const VideoPlayer = ({
   showDownload = true,
   className = ""
 }) => {
+  console.log('VideoPlayer props:', { src, title, controls, showDownload, width, height });
+  
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -35,10 +37,28 @@ const VideoPlayer = ({
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  // Add source validation
+  useEffect(() => {
+    if (!src) {
+      setError('No video source provided');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Validate URL format
+    try {
+      new URL(src);
+    } catch (e) {
+      setError(`Invalid video URL: ${src}`);
+      setIsLoading(false);
+      return;
+    }
+  }, [src]);
+
   // Handle video events
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !src) return;
 
     const handleLoadedMetadata = () => {
       setDuration(video.duration);
@@ -63,8 +83,36 @@ const VideoPlayer = ({
       setCurrentTime(0);
     };
 
-    const handleError = () => {
-      setError('Failed to load video');
+    const handleError = (e) => {
+      let errorMessage = 'Failed to load video';
+      if (video.error) {
+        switch (video.error.code) {
+          case video.error.MEDIA_ERR_ABORTED:
+            errorMessage = 'Video loading was aborted';
+            break;
+          case video.error.MEDIA_ERR_NETWORK:
+            errorMessage = 'Network error occurred while loading video';
+            break;
+          case video.error.MEDIA_ERR_DECODE:
+            errorMessage = 'Video decoding error occurred (format may not be supported)';
+            break;
+          case video.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMessage = 'Video format not supported by your browser';
+            break;
+          default:
+            errorMessage = `Video error: ${video.error.message}`;
+        }
+      }
+      
+      setError(errorMessage);
+      setIsLoading(false);
+    };
+
+    const handleLoadStart = () => {
+      setIsLoading(true);
+    };
+
+    const handleCanPlay = () => {
       setIsLoading(false);
     };
 
@@ -74,6 +122,8 @@ const VideoPlayer = ({
     video.addEventListener('pause', handlePause);
     video.addEventListener('ended', handleEnded);
     video.addEventListener('error', handleError);
+    video.addEventListener('loadstart', handleLoadStart);
+    video.addEventListener('canplay', handleCanPlay);
 
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -82,8 +132,10 @@ const VideoPlayer = ({
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('ended', handleEnded);
       video.removeEventListener('error', handleError);
+      video.removeEventListener('loadstart', handleLoadStart);
+      video.removeEventListener('canplay', handleCanPlay);
     };
-  }, []);
+  }, [src]);
 
   // Control functions
   const togglePlay = () => {
