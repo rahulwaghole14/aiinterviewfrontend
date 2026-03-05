@@ -20,8 +20,9 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import VideoPlayer from './VideoPlayer';
 
 // Constants for question limits
-const MAX_TECHNICAL_QUESTIONS = 12;
-const MAX_CODING_QUESTIONS = 12;
+// Remove hardcoded max questions - use actual counts
+// const MAX_TECHNICAL_QUESTIONS = 12;
+// const MAX_CODING_QUESTIONS = 12;
 
 // Video Player Component with Error Handling
 const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
@@ -1068,7 +1069,7 @@ const CandidateDetails = () => {
                         : 0;
                       console.log(`✅ Using LLM analysis (questions_*): ${technicalCorrectAnswers}/${technicalAttempted} correct`);
                     } 
-                    // Priority 3: Calculate from accuracy percentage if available
+                    // Priority 3: Use AI-provided technical_accuracy_percentage
                     else if (aiResult.technical_accuracy_percentage !== undefined && aiResult.technical_questions_attempted !== undefined) {
                       const technicalAttempted = Math.round(aiResult.technical_questions_attempted || 0);
                       technicalAccuracy = aiResult.technical_accuracy_percentage || 0;
@@ -1084,6 +1085,17 @@ const CandidateDetails = () => {
                       technicalIncorrectAnswers = Math.max(0, technicalAttempted - technicalCorrectAnswers);
                       console.log(`✅ Using LLM analysis (from accuracy %): ${technicalCorrectAnswers}/${technicalAttempted} correct`);
                     } 
+                    // Priority 4: Use AI-provided technical_score to estimate correct answers
+                    else if (aiResult.technical_score !== undefined) {
+                      // Estimate from technical score (0-100 scale)
+                      const technicalScore = aiResult.technical_score || 0;
+                      technicalCorrectAnswers = Math.round((technicalScore / 100) * technicalTotalQuestions);
+                      technicalIncorrectAnswers = Math.max(0, technicalTotalQuestions - technicalCorrectAnswers);
+                      technicalAccuracy = technicalTotalQuestions > 0 
+                        ? (technicalCorrectAnswers / technicalTotalQuestions * 100) 
+                        : 0;
+                      console.log(`✅ Using LLM analysis (from technical score): ${technicalCorrectAnswers}/${technicalTotalQuestions} correct`);
+                    }
                     // Final fallback: count from technical_questions if they have is_correct flag from AI analysis
                     else {
                       // Fallback: count from technical_questions if they have is_correct flag from AI analysis
@@ -1096,51 +1108,73 @@ const CandidateDetails = () => {
                       console.warn(`⚠️ Using fallback calculation: ${technicalCorrectAnswers}/${technicalTotalQuestions} correct (LLM analysis not available)`);
                     }
                     
-                    // Calculate CODING metrics - use test results if available
+                    // Calculate CODING metrics - use AI analysis when available, fallback to test results
                     const codingTotalQuestions = codingQuestions.length || 0;
                     let codingCorrectAnswers = 0;
                     let codingIncorrectAnswers = 0;
                     let codingAccuracy = 0;
                     
-                    // For coding questions, ONLY count as correct if ALL test cases passed
-                    codingQuestions.forEach(qa => {
-                      // For coding questions, we ONLY count as correct if all test cases passed
-                      // Priority: 1) code_submission.passed_all_tests (must be true), 2) check test case results from output_log
-                      let isCorrect = false;
-                      
-                      // Check if code submission exists and all tests passed
-                      if (qa.code_submission && qa.code_submission.passed_all_tests === true) {
-                        isCorrect = true;
-                      } else if (qa.code_submission && qa.code_submission.output_log) {
-                        // Parse output_log to check if all test cases passed
-                        const outputLog = qa.code_submission.output_log;
-                        // Check if output_log contains test case results
-                        const allPassedPattern = /(\d+)\/(\d+)\s+test.*passed/i;
-                        const match = outputLog.match(allPassedPattern);
-                        if (match) {
-                          const passed = parseInt(match[1] || 0);
-                          const total = parseInt(match[2] || 0);
-                          // Only correct if ALL test cases passed (passed === total)
-                          isCorrect = (total > 0 && passed === total);
+                    // Priority 1: Use AI analysis results for coding questions
+                    if (aiResult.coding_questions_correct !== undefined && aiResult.coding_questions_attempted !== undefined) {
+                      codingCorrectAnswers = Math.round(aiResult.coding_questions_correct || 0);
+                      const codingAttempted = Math.round(aiResult.coding_questions_attempted || 0);
+                      codingIncorrectAnswers = Math.max(0, codingAttempted - codingCorrectAnswers);
+                      codingAccuracy = codingAttempted > 0 
+                        ? (codingCorrectAnswers / codingAttempted * 100) 
+                        : 0;
+                      console.log(`✅ Using LLM analysis for coding: ${codingCorrectAnswers}/${codingAttempted} correct`);
+                    }
+                    // Priority 2: Use AI coding score to estimate correct answers
+                    else if (aiResult.coding_score !== undefined) {
+                      const codingScore = aiResult.coding_score || 0;
+                      codingCorrectAnswers = Math.round((codingScore / 100) * codingTotalQuestions);
+                      codingIncorrectAnswers = Math.max(0, codingTotalQuestions - codingCorrectAnswers);
+                      codingAccuracy = codingTotalQuestions > 0 
+                        ? (codingCorrectAnswers / codingTotalQuestions * 100) 
+                        : 0;
+                      console.log(`✅ Using LLM coding score: ${codingCorrectAnswers}/${codingTotalQuestions} correct`);
+                    }
+                    // Priority 3: Fallback to test results analysis
+                    else {
+                      // For coding questions, ONLY count as correct if ALL test cases passed
+                      codingQuestions.forEach(qa => {
+                        // For coding questions, we ONLY count as correct if all test cases passed
+                        // Priority: 1) code_submission.passed_all_tests (must be true), 2) check test case results from output_log
+                        let isCorrect = false;
+                        
+                        if (qa.code_submission) {
+                          // Check if all test cases passed (this is the most accurate measure)
+                          if (qa.code_submission.passed_all_tests === true) {
+                            isCorrect = true;
+                          } else if (qa.code_submission.output_log) {
+                            // Parse output log to check test results
+                            const outputLog = qa.code_submission.output_log;
+                            const testResults = outputLog.match(/Test\s+\d+:\s+(PASSED|FAILED)/gi);
+                            if (testResults) {
+                              const passedTests = testResults.filter(result => result.includes('PASSED')).length;
+                              const totalTests = testResults.length;
+                              if (passedTests === totalTests && totalTests > 0) {
+                                isCorrect = true;
+                              }
+                            }
+                          }
                         }
-                        // Also check for "all tests passed" indicators
-                        if (!isCorrect && (outputLog.includes('all tests passed') || outputLog.includes('all_passed: true'))) {
-                          isCorrect = true;
+                        
+                        // Note: We intentionally ignore qa.is_correct flag for coding questions
+                        // because correctness should be determined by test case results only
+                        
+                        if (isCorrect) {
+                          codingCorrectAnswers++;
+                        } else if (qa.answer && qa.answer !== 'No code submitted' && qa.answer !== 'no answer provided' && qa.answer !== 'None') {
+                          // If there's an answer but not all tests passed, count as incorrect
+                          codingIncorrectAnswers++;
                         }
-                      }
-                      // Note: We intentionally ignore qa.is_correct flag for coding questions
-                      // because correctness should be determined by test case results only
-                      
-                      if (isCorrect) {
-                        codingCorrectAnswers++;
-                      } else if (qa.answer && qa.answer !== 'No code submitted' && qa.answer !== 'no answer provided' && qa.answer !== 'None') {
-                        // If there's an answer but not all tests passed, count as incorrect
-                        codingIncorrectAnswers++;
-                      }
-                    });
-                    codingAccuracy = codingTotalQuestions > 0 
-                      ? (codingCorrectAnswers / codingTotalQuestions * 100) 
-                      : 0;
+                      });
+                      codingAccuracy = codingTotalQuestions > 0 
+                        ? (codingCorrectAnswers / codingTotalQuestions * 100) 
+                        : 0;
+                      console.log(`✅ Using test results for coding: ${codingCorrectAnswers}/${codingTotalQuestions} correct`);
+                    }
                     
                     // Overall metrics (for display purposes, but we'll show separate sections)
                     const totalQuestions = technicalTotalQuestions + codingTotalQuestions;
@@ -1197,9 +1231,9 @@ const CandidateDetails = () => {
                                 <div className="metrics-grid">
                                   <div className="metric-circle">
                                     <div className="circle-chart" style={{ 
-                                      background: `conic-gradient(#2196F3 0% ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/MAX_TECHNICAL_QUESTIONS)*100 : 0}%, #e0e0e0 ${technicalTotalQuestions > 0 ? (technicalTotalQuestions/MAX_TECHNICAL_QUESTIONS)*100 : 0}% 100%)`
+                                      background: `conic-gradient(#2196F3 0% 100%, #e0e0e0 100% 100%)`
                                     }}>
-                                      <span className="circle-value">{technicalTotalQuestions}/{MAX_TECHNICAL_QUESTIONS}</span>
+                                      <span className="circle-value">{technicalTotalQuestions}</span>
                                     </div>
                                     <div className="circle-label">Questions Attempted</div>
                                   </div>
@@ -1229,9 +1263,9 @@ const CandidateDetails = () => {
                                   <div className="metrics-grid">
                                     <div className="metric-circle">
                                       <div className="circle-chart" style={{ 
-                                        background: `conic-gradient(#2196F3 0% ${codingTotalQuestions > 0 ? (codingTotalQuestions/MAX_CODING_QUESTIONS)*100 : 0}%, #e0e0e0 ${codingTotalQuestions > 0 ? (codingTotalQuestions/MAX_CODING_QUESTIONS)*100 : 0}% 100%)`
+                                        background: `conic-gradient(#2196F3 0% 100%, #e0e0e0 100% 100%)`
                                       }}>
-                                        <span className="circle-value">{codingTotalQuestions}/{MAX_CODING_QUESTIONS}</span>
+                                        <span className="circle-value">{codingTotalQuestions}</span>
                                       </div>
                                       <div className="circle-label">Questions Attempted</div>
                                     </div>
