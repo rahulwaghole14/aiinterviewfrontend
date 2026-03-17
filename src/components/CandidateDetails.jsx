@@ -1026,12 +1026,15 @@ const CandidateDetails = () => {
                         return (
                           normalizedType === 'TECHNICAL' ||
                           normalizedType === 'BEHAVIORAL' ||
-                          normalizedType === 'INTRODUCTION' ||
-                          normalizedType === 'CLOSING' ||
+                          normalizedType === 'FOLLOW_UP' ||
+                          normalizedType === 'CLARIFICATION' ||
                           normalizedLevel === 'CANDIDATE_QUESTION' ||
                           normalizedType === ''
                         );
                       })
+                    );
+                    const introductionQuestions = sortQAPairs(
+                      qaData.filter(qa => (qa.question_type || '').toUpperCase() === 'INTRODUCTION')
                     );
                     const codingQuestions = sortQAPairs(
                       qaData.filter(qa => (qa.question_type || '').toUpperCase() === 'CODING')
@@ -1540,6 +1543,180 @@ const CandidateDetails = () => {
                                 ) : (
                                   <div className="no-proctoring-report">
                                     <p>No proctoring warnings report available for this interview.</p>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Voice Analysis Warnings Report */}
+                              <div className="evaluation-card voice-analysis-report-card">
+                                <h4 className="card-title">Voice Analysis Warnings</h4>
+                                {interview.voice_analysis_data ? (
+                                  interview.voice_analysis_data.summary && interview.voice_analysis_data.summary.total_warnings > 0 ? (
+                                    <div style={{ padding: '15px' }}>
+                                      <div style={{ 
+                                        marginBottom: '15px',
+                                        padding: '10px',
+                                        backgroundColor: interview.voice_analysis_data.summary.has_critical ? '#ffebee' : '#fff3e0',
+                                        borderRadius: '6px',
+                                        border: `1px solid ${interview.voice_analysis_data.summary.has_critical ? '#f44336' : '#ff9800'}`
+                                      }}>
+                                        <strong style={{ color: interview.voice_analysis_data.summary.has_critical ? '#d32f2f' : '#f57c00' }}>
+                                          Total Warnings: {interview.voice_analysis_data.summary.total_warnings}
+                                        </strong>
+                                        {interview.voice_analysis_data.summary.has_critical && (
+                                          <div style={{ color: '#d32f2f', fontSize: '12px', marginTop: '5px' }}>
+                                            ⚠️ Critical issues detected
+                                          </div>
+                                        )}
+                                      </div>
+                                      
+                                      {interview.voice_analysis_data.summary.warnings.map((warning, index) => (
+                                        <div key={index} style={{
+                                          marginBottom: '10px',
+                                          padding: '10px',
+                                          backgroundColor: warning.severity === 'critical' ? '#ffebee' : '#f5f5f5',
+                                          borderRadius: '4px',
+                                          borderLeft: `4px solid ${warning.severity === 'critical' ? '#f44336' : '#ff9800'}`
+                                        }}>
+                                          <div style={{ fontWeight: '500', marginBottom: '5px' }}>
+                                            {warning.type === 'multiple_speakers' && '👥 Multiple Speakers'}
+                                            {warning.type === 'high_silence' && '🔇 High Silence'}
+                                            {warning.type === 'response_delay' && '⏱️ Response Delay'}
+                                            {warning.type === 'speaker_changes' && '🔄 Speaker Changes'}
+                                          </div>
+                                          <div style={{ fontSize: '14px', color: '#666' }}>
+                                            {warning.message}
+                                          </div>
+                                        </div>
+                                      ))}
+                                      
+                                      <details style={{ marginTop: '15px' }}>
+                                        <summary style={{ cursor: 'pointer', fontWeight: '500', color: '#666' }}>
+                                          📊 Detailed Analysis
+                                        </summary>
+                                        <div style={{ marginTop: '10px', fontSize: '13px' }}>
+                                          {interview.voice_analysis_data.vad_data && interview.voice_analysis_data.vad_data.length > 0 && (
+                                            <div style={{ marginBottom: '15px' }}>
+                                              <strong>Voice Activity Detection:</strong>
+                                              {interview.voice_analysis_data.vad_data.map((vad, index) => (
+                                                <div key={index} style={{ marginLeft: '10px', marginTop: '5px' }}>
+                                                  Q{vad.question_order || index + 1}: Speech {vad.speech_percentage?.toFixed(1)}%, 
+                                                  Silence {vad.silence_percentage?.toFixed(1)}%
+                                                  {vad.response_delay_seconds && (
+                                                    <span>, Response delay: {vad.response_delay_seconds.toFixed(1)}s</span>
+                                                  )}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                          
+                                          {interview.voice_analysis_data.diarization_data && interview.voice_analysis_data.diarization_data.length > 0 && (
+                                            <div>
+                                              <strong>Speaker Diarization:</strong>
+                                              {interview.voice_analysis_data.diarization_data.map((diar, index) => (
+                                                <div key={index} style={{ marginLeft: '10px', marginTop: '5px' }}>
+                                                  Q{diar.question_order || index + 1}: {diar.num_speakers} speakers, 
+                                                  {diar.speaker_changes} changes
+                                                  <div style={{ marginLeft: '10px', fontSize: '12px', color: '#666' }}>
+                                                    Candidate: {diar.candidate_speech_percentage?.toFixed(1)}%, 
+                                                    Interviewer: {diar.interviewer_speech_percentage?.toFixed(1)}%
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </details>
+                                      
+                                      <div style={{ marginTop: '15px' }}>
+                                        <a 
+                                          href={`${baseURL}/voice-analysis-pdf/${interview.session_key}/`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="voice-analysis-download-link"
+                                          style={{ 
+                                            display: 'inline-flex', 
+                                            alignItems: 'center', 
+                                            gap: '8px',
+                                            padding: '8px 16px',
+                                            backgroundColor: '#4CAF50',
+                                            color: 'white',
+                                            textDecoration: 'none',
+                                            borderRadius: '6px',
+                                            fontWeight: '500',
+                                            fontSize: '14px',
+                                            transition: 'background-color 0.2s'
+                                          }}
+                                          onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                          onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                        >
+                                          <span style={{ fontSize: '16px' }}>🎤</span>
+                                          Download Full Voice Analysis Report
+                                        </a>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div style={{ padding: '15px', textAlign: 'center', color: '#666' }}>
+                                      <div style={{ fontSize: '24px', marginBottom: '10px' }}>✅</div>
+                                      <p style={{ margin: '0' }}>No voice analysis warnings detected</p>
+                                      <div style={{ marginTop: '15px' }}>
+                                        <a 
+                                          href={`${baseURL}/voice-analysis-pdf/${interview.session_key}/`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="voice-analysis-download-link"
+                                          style={{ 
+                                            display: 'inline-flex', 
+                                            alignItems: 'center', 
+                                            gap: '8px',
+                                            padding: '8px 16px',
+                                            backgroundColor: '#4CAF50',
+                                            color: 'white',
+                                            textDecoration: 'none',
+                                            borderRadius: '6px',
+                                            fontWeight: '500',
+                                            fontSize: '14px',
+                                            transition: 'background-color 0.2s'
+                                          }}
+                                          onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                          onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                        >
+                                          <span style={{ fontSize: '16px' }}>🎤</span>
+                                          Download Voice Analysis Report
+                                        </a>
+                                      </div>
+                                    </div>
+                                  )
+                                ) : (
+                                  <div style={{ padding: '15px', textAlign: 'center', color: '#666' }}>
+                                    <div style={{ fontSize: '24px', marginBottom: '10px' }}>🎤</div>
+                                    <p style={{ margin: '0' }}>No voice analysis data available</p>
+                                    <div style={{ marginTop: '15px' }}>
+                                      <a 
+                                        href={`${baseURL}/voice-analysis-pdf/${interview.session_key}/`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="voice-analysis-download-link"
+                                        style={{ 
+                                          display: 'inline-flex', 
+                                          alignItems: 'center', 
+                                          gap: '8px',
+                                          padding: '8px 16px',
+                                          backgroundColor: '#4CAF50',
+                                          color: 'white',
+                                          textDecoration: 'none',
+                                          borderRadius: '6px',
+                                          fontWeight: '500',
+                                          fontSize: '14px',
+                                          transition: 'background-color 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+                                      >
+                                        <span style={{ fontSize: '16px' }}>🎤</span>
+                                        Generate Voice Analysis Report
+                                      </a>
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -2061,14 +2238,65 @@ const CandidateDetails = () => {
                   const codingQuestions = qaData.filter(
                     (qa) => (qa.question_type || '').toUpperCase() === 'CODING'
                   );
+                  const introductionQuestions = qaData.filter(
+                    (qa) => (qa.question_type || '').toUpperCase() === 'INTRODUCTION'
+                  );
                   const technicalQuestions = qaData.filter(
-                    (qa) => (qa.question_type || '').toUpperCase() !== 'CODING'
+                    (qa) => {
+                      const normalizedType = (qa.question_type || '').toUpperCase();
+                      return normalizedType !== 'CODING' && normalizedType !== 'INTRODUCTION';
+                    }
                   );
                   
                   return (
                     <div className="qa-section-below-interview">
                       <h4 className="qa-section-title">Questions & Answers - Round {interview.interview_round || 'AI Interview'}</h4>
                       <div className="qa-list-container">
+                        {/* Introduction Questions Section */}
+                        {introductionQuestions.length > 0 && (
+                          <div style={{ marginBottom: '30px' }}>
+                            <div className="qa-section-divider" style={{ marginBottom: '20px' }}>
+                              <h5 className="qa-section-label">Introduction Questions</h5>
+                            </div>
+                            <div style={{ 
+                              backgroundColor: '#f0f8ff', 
+                              padding: '20px', 
+                              borderRadius: '8px',
+                              fontFamily: 'monospace',
+                              fontSize: '14px',
+                              lineHeight: '1.8',
+                              whiteSpace: 'pre-wrap',
+                              wordWrap: 'break-word'
+                            }}>
+                              {introductionQuestions.map((qa, index) => (
+                                <div key={qa.id || `intro-${index}`} style={{ marginBottom: '15px' }}>
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#2196F3' }}>
+                                    Interviewer:
+                                  </div>
+                                  <div style={{ marginBottom: '12px', paddingLeft: '15px', color: '#333' }}>
+                                    {qa.question_text}
+                                  </div>
+                                  <div style={{ marginBottom: '8px', fontWeight: '600', color: '#4CAF50' }}>
+                                    Candidate:
+                                  </div>
+                                  <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
+                                    {qa.answer_text || 'No answer provided'}
+                                  </div>
+                                  {index < introductionQuestions.length - 1 && (
+                                    <div
+                                      style={{
+                                        borderTop: '1px solid #e0e0e0',
+                                        marginTop: '15px',
+                                        marginBottom: '15px',
+                                      }}
+                                    ></div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Technical Questions Section - show explicit Q & A pairs */}
                         {technicalQuestions.length > 0 && (
                           <div style={{ marginBottom: '30px' }}>
@@ -2097,7 +2325,7 @@ const CandidateDetails = () => {
                                     Candidate:
                                   </div>
                                   <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
-                                    {qa.answer || 'No answer provided'}
+                                    {qa.answer_text || 'No answer provided'}
                                   </div>
                                   {index < technicalQuestions.length - 1 && (
                                     <div
