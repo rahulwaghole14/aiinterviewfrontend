@@ -1544,6 +1544,38 @@ const CandidateDetails = () => {
                                 )}
                               </div>
                               
+                              {/* Voice Analysis Report - Download Link */}
+                              {interview.voice_analysis_pdf_url && (
+                                <div className="evaluation-card voice-analysis-report-card">
+                                  <h4 className="card-title">Voice Analysis Report</h4>
+                                  <div className="voice-analysis-download-section">
+                                    <a 
+                                      href={`${baseURL}${interview.voice_analysis_pdf_url}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="voice-analysis-download-link"
+                                      style={{ 
+                                        display: 'inline-flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        padding: '10px 16px',
+                                        backgroundColor: '#8B5CF6',
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        borderRadius: '6px',
+                                        fontWeight: '500',
+                                        transition: 'background-color 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => e.target.style.backgroundColor = '#7C3AED'}
+                                      onMouseLeave={(e) => e.target.style.backgroundColor = '#8B5CF6'}
+                                    >
+                                      <span className="download-icon" style={{ fontSize: '18px' }}>🎙</span>
+                                      <span>Download Voice Analysis Report</span>
+                                    </a>
+                                  </div>
+                                </div>
+                              )}
+                              
                               {/* Q&A Script + AI Evaluation PDF Report - Download Link */}
                               <div className="evaluation-card qa-evaluation-report-card">
                                 <h4 className="card-title">Q&A Script + AI Evaluation Report</h4>
