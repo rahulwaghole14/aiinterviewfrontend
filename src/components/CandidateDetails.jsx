@@ -2129,7 +2129,7 @@ const CandidateDetails = () => {
                                     Candidate:
                                   </div>
                                   <div style={{ marginBottom: '15px', paddingLeft: '15px', color: '#333' }}>
-                                    {qa.answer || 'No answer provided'}
+                                    {qa.answer_text || 'No answer provided'}
                                   </div>
                                   {index < technicalQuestions.length - 1 && (
                                     <div
