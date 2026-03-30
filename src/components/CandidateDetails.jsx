@@ -1547,179 +1547,37 @@ const CandidateDetails = () => {
                                 )}
                               </div>
                               
-                              {/* Voice Analysis Warnings Report */}
-                              <div className="evaluation-card voice-analysis-report-card">
-                                <h4 className="card-title">Voice Analysis Warnings</h4>
-                                {interview.voice_analysis_data ? (
-                                  interview.voice_analysis_data.summary && interview.voice_analysis_data.summary.total_warnings > 0 ? (
-                                    <div style={{ padding: '15px' }}>
-                                      <div style={{ 
-                                        marginBottom: '15px',
-                                        padding: '10px',
-                                        backgroundColor: interview.voice_analysis_data.summary.has_critical ? '#ffebee' : '#fff3e0',
+{/* Voice Analysis Report - Download Link */}
+                              {interview.voice_analysis_pdf_url && (
+                                <div className="evaluation-card voice-analysis-report-card">
+                                  <h4 className="card-title">Voice Analysis Report</h4>
+                                  <div className="voice-analysis-download-section">
+                                    <a 
+                                      href={`${baseURL}${interview.voice_analysis_pdf_url}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="voice-analysis-download-link"
+                                      style={{ 
+                                        display: 'inline-flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        padding: '10px 16px',
+                                        backgroundColor: '#8B5CF6',
+                                        color: 'white',
+                                        textDecoration: 'none',
                                         borderRadius: '6px',
-                                        border: `1px solid ${interview.voice_analysis_data.summary.has_critical ? '#f44336' : '#ff9800'}`
-                                      }}>
-                                        <strong style={{ color: interview.voice_analysis_data.summary.has_critical ? '#d32f2f' : '#f57c00' }}>
-                                          Total Warnings: {interview.voice_analysis_data.summary.total_warnings}
-                                        </strong>
-                                        {interview.voice_analysis_data.summary.has_critical && (
-                                          <div style={{ color: '#d32f2f', fontSize: '12px', marginTop: '5px' }}>
-                                            ⚠️ Critical issues detected
-                                          </div>
-                                        )}
-                                      </div>
-                                      
-                                      {interview.voice_analysis_data.summary.warnings.map((warning, index) => (
-                                        <div key={index} style={{
-                                          marginBottom: '10px',
-                                          padding: '10px',
-                                          backgroundColor: warning.severity === 'critical' ? '#ffebee' : '#f5f5f5',
-                                          borderRadius: '4px',
-                                          borderLeft: `4px solid ${warning.severity === 'critical' ? '#f44336' : '#ff9800'}`
-                                        }}>
-                                          <div style={{ fontWeight: '500', marginBottom: '5px' }}>
-                                            {warning.type === 'multiple_speakers' && '👥 Multiple Speakers'}
-                                            {warning.type === 'high_silence' && '🔇 High Silence'}
-                                            {warning.type === 'response_delay' && '⏱️ Response Delay'}
-                                            {warning.type === 'speaker_changes' && '🔄 Speaker Changes'}
-                                          </div>
-                                          <div style={{ fontSize: '14px', color: '#666' }}>
-                                            {warning.message}
-                                          </div>
-                                        </div>
-                                      ))}
-                                      
-                                      <details style={{ marginTop: '15px' }}>
-                                        <summary style={{ cursor: 'pointer', fontWeight: '500', color: '#666' }}>
-                                          📊 Detailed Analysis
-                                        </summary>
-                                        <div style={{ marginTop: '10px', fontSize: '13px' }}>
-                                          {interview.voice_analysis_data.vad_data && interview.voice_analysis_data.vad_data.length > 0 && (
-                                            <div style={{ marginBottom: '15px' }}>
-                                              <strong>Voice Activity Detection:</strong>
-                                              {interview.voice_analysis_data.vad_data.map((vad, index) => (
-                                                <div key={index} style={{ marginLeft: '10px', marginTop: '5px' }}>
-                                                  Q{vad.question_order || index + 1}: Speech {vad.speech_percentage?.toFixed(1)}%, 
-                                                  Silence {vad.silence_percentage?.toFixed(1)}%
-                                                  {vad.response_delay_seconds && (
-                                                    <span>, Response delay: {vad.response_delay_seconds.toFixed(1)}s</span>
-                                                  )}
-                                                </div>
-                                              ))}
-                                            </div>
-                                          )}
-                                          
-                                          {interview.voice_analysis_data.diarization_data && interview.voice_analysis_data.diarization_data.length > 0 && (
-                                            <div>
-                                              <strong>Speaker Diarization:</strong>
-                                              {interview.voice_analysis_data.diarization_data.map((diar, index) => (
-                                                <div key={index} style={{ marginLeft: '10px', marginTop: '5px' }}>
-                                                  Q{diar.question_order || index + 1}: {diar.num_speakers} speakers, 
-                                                  {diar.speaker_changes} changes
-                                                  <div style={{ marginLeft: '10px', fontSize: '12px', color: '#666' }}>
-                                                    Candidate: {diar.candidate_speech_percentage?.toFixed(1)}%, 
-                                                    Interviewer: {diar.interviewer_speech_percentage?.toFixed(1)}%
-                                                  </div>
-                                                </div>
-                                              ))}
-                                            </div>
-                                          )}
-                                        </div>
-                                      </details>
-                                      
-                                      <div style={{ marginTop: '15px' }}>
-                                        <a 
-                                          href={`${baseURL}/voice-analysis-pdf/${interview.session_key}/`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="voice-analysis-download-link"
-                                          style={{ 
-                                            display: 'inline-flex', 
-                                            alignItems: 'center', 
-                                            gap: '8px',
-                                            padding: '8px 16px',
-                                            backgroundColor: '#4CAF50',
-                                            color: 'white',
-                                            textDecoration: 'none',
-                                            borderRadius: '6px',
-                                            fontWeight: '500',
-                                            fontSize: '14px',
-                                            transition: 'background-color 0.2s'
-                                          }}
-                                          onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                                          onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-                                        >
-                                          <span style={{ fontSize: '16px' }}>🎤</span>
-                                          Download Full Voice Analysis Report
-                                        </a>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div style={{ padding: '15px', textAlign: 'center', color: '#666' }}>
-                                      <div style={{ fontSize: '24px', marginBottom: '10px' }}>✅</div>
-                                      <p style={{ margin: '0' }}>No voice analysis warnings detected</p>
-                                      <div style={{ marginTop: '15px' }}>
-                                        <a 
-                                          href={`${baseURL}/voice-analysis-pdf/${interview.session_key}/`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="voice-analysis-download-link"
-                                          style={{ 
-                                            display: 'inline-flex', 
-                                            alignItems: 'center', 
-                                            gap: '8px',
-                                            padding: '8px 16px',
-                                            backgroundColor: '#4CAF50',
-                                            color: 'white',
-                                            textDecoration: 'none',
-                                            borderRadius: '6px',
-                                            fontWeight: '500',
-                                            fontSize: '14px',
-                                            transition: 'background-color 0.2s'
-                                          }}
-                                          onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                                          onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-                                        >
-                                          <span style={{ fontSize: '16px' }}>🎤</span>
-                                          Download Voice Analysis Report
-                                        </a>
-                                      </div>
-                                    </div>
-                                  )
-                                ) : (
-                                  <div style={{ padding: '15px', textAlign: 'center', color: '#666' }}>
-                                    <div style={{ fontSize: '24px', marginBottom: '10px' }}>🎤</div>
-                                    <p style={{ margin: '0' }}>No voice analysis data available</p>
-                                    <div style={{ marginTop: '15px' }}>
-                                      <a 
-                                        href={`${baseURL}/voice-analysis-pdf/${interview.session_key}/`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="voice-analysis-download-link"
-                                        style={{ 
-                                          display: 'inline-flex', 
-                                          alignItems: 'center', 
-                                          gap: '8px',
-                                          padding: '8px 16px',
-                                          backgroundColor: '#4CAF50',
-                                          color: 'white',
-                                          textDecoration: 'none',
-                                          borderRadius: '6px',
-                                          fontWeight: '500',
-                                          fontSize: '14px',
-                                          transition: 'background-color 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-                                        onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-                                      >
-                                        <span style={{ fontSize: '16px' }}>🎤</span>
-                                        Generate Voice Analysis Report
-                                      </a>
-                                    </div>
+                                        fontWeight: '500',
+                                        transition: 'background-color 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => e.target.style.backgroundColor = '#7C3AED'}
+                                      onMouseLeave={(e) => e.target.style.backgroundColor = '#8B5CF6'}
+                                    >
+                                      <span className="download-icon" style={{ fontSize: '18px' }}>🎙</span>
+                                      <span>Download Voice Analysis Report</span>
+                                    </a>
                                   </div>
-                                )}
-                              </div>
+                                </div>
+                              )}
                               
                               {/* Q&A Script + AI Evaluation PDF Report - Download Link */}
                               <div className="evaluation-card qa-evaluation-report-card">
