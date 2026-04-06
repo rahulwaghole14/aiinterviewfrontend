@@ -17,124 +17,11 @@ import StatusUpdateModal from "./StatusUpdateModal";
 import { useNotification } from "../hooks/useNotification";
 import { formatTimeTo12Hour } from "../utils/timeFormatting";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import VideoPlayer from './VideoPlayer';
 
 // Constants for question limits
 // Remove hardcoded max questions - use actual counts
 // const MAX_TECHNICAL_QUESTIONS = 12;
 // const MAX_CODING_QUESTIONS = 12;
-
-// Video Player Component with Error Handling
-const VideoPlayerWithErrorHandling = ({ videoUrl, baseURL }) => {
-  const [error, setError] = useState(null);
-  const [videoSrc, setVideoSrc] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!videoUrl) {
-      setError('No video URL provided');
-      setIsLoading(false);
-      return;
-    }
-
-    // Construct full video URL
-    let fullUrl = videoUrl;
-    
-    // If it's already a full URL (http/https), use it as is
-    if (videoUrl.startsWith('http://') || videoUrl.startsWith('https://')) {
-      fullUrl = videoUrl;
-    }
-    // If it starts with /media/, just prepend baseURL
-    else if (videoUrl.startsWith('/media/')) {
-      fullUrl = `${baseURL}${videoUrl}`;
-    }
-    // If it starts with /, prepend baseURL
-    else if (videoUrl.startsWith('/')) {
-      fullUrl = `${baseURL}${videoUrl}`;
-    }
-    // Otherwise, assume it's a relative path and prepend baseURL
-    else {
-      fullUrl = `${baseURL}/${videoUrl}`;
-    }
-
-    setVideoSrc(fullUrl);
-    setIsLoading(false);
-  }, [videoUrl, baseURL]);
-
-  const handleRetry = () => {
-    setError(null);
-    setIsLoading(true);
-    // Force re-render by clearing and setting videoSrc
-    const currentSrc = videoSrc;
-    setVideoSrc(null);
-    setTimeout(() => setVideoSrc(currentSrc), 100);
-  };
-
-  if (error) {
-    return (
-      <div style={{ padding: '20px', border: '1px solid #dc3545', borderRadius: '4px', backgroundColor: '#f8d7da' }}>
-        <h5 style={{ color: '#721c24', marginBottom: '10px' }}>Video Playback Error</h5>
-        <p style={{ color: '#721c24', marginBottom: '10px' }}>{error}</p>
-        <button 
-          onClick={handleRetry}
-          style={{
-            padding: '5px 10px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  if (!videoSrc) {
-    return (
-      <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-        No video source available
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {isLoading && (
-        <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-          <div className="loading-spinner" style={{ 
-            border: '3px solid #f3f3f3',
-            borderTop: '3px solid #3498db',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 10px'
-          }}></div>
-          Loading video...
-        </div>
-      )}
-      <VideoPlayer
-        src={videoSrc}
-        title="Screen Recording"
-        controls={true}
-        showDownload={true}
-        width="100%"
-        height="auto"
-        onError={() => {
-          setError('Video failed to load. The file format may not be supported in your browser.');
-          setIsLoading(false);
-        }}
-        onLoadedMetadata={() => {
-          setIsLoading(false);
-          setError(null);
-        }}
-      />
-    </div>
-  );
-};
 
 // Helper function to safely parse JSON fields or bullet-pointed text
 const parseJsonField = (field) => {
@@ -1638,8 +1525,8 @@ const CandidateDetails = () => {
             <div className="no-evaluation-message">
               <p className="no-data">{`${
                 currentStatus === "INTERVIEW_COMPLETED"
-                  ? "Evaluation in progress..."
-                  : "No evaluation available"
+                  ? "No evaluation available"
+                  : "Evaluation in progress..."
               }`}</p>
               <details style={{ marginTop: '10px', fontSize: '0.9em', color: '#666', cursor: 'pointer' }}>
                 <summary style={{ cursor: 'pointer', padding: '5px' }}>🔍 Debug Info (Click to expand)</summary>
@@ -1986,22 +1873,6 @@ const CandidateDetails = () => {
                   </div>
                 )}
                 
-                {/* Interview Video Recording Section */}
-                {interview.interview_video && (
-                  <div className="recording-section" style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                    <h4 style={{ marginBottom: '15px', color: '#333' }}>📹 Complete Interview Video</h4>
-                    <p style={{ marginBottom: '15px', color: '#666', fontSize: '14px' }}>
-                      Full interview recording with camera, TTS questions, and candidate speech
-                    </p>
-                    <div className="video-player-container" style={{ width: '100%', maxWidth: '800px' }}>
-                      <VideoPlayerWithErrorHandling 
-                        videoUrl={interview.interview_video}
-                        baseURL={baseURL}
-                      />
-                    </div>
-                  </div>
-                )}
-                
                 {/* Screen Recording Section */}
                 {(interview.screen_recording_file || interview.screen_recording_url) && (
                   <div className="recording-section" style={{ marginTop: '20px', padding: '20px', backgroundColor: '#e8f4fd', borderRadius: '8px', border: '1px solid #bee5eb' }}>
@@ -2055,33 +1926,6 @@ const CandidateDetails = () => {
                     {interview.screen_recording_duration && (
                       <p style={{ marginTop: '10px', color: '#0c5460', fontSize: '13px' }}>
                         <strong>Duration:</strong> {Math.floor(interview.screen_recording_duration / 60)}m {interview.screen_recording_duration % 60}s
-                      </p>
-                    )}
-                  </div>
-                )}
-                
-                {/* Legacy Video Recording Section */}
-                {interview.ai_result?.recording_video && (
-                  <div className="recording-section">
-                    <h4>Interview Recording</h4>
-                    <div className="video-player-container">
-                      <video
-                        controls
-                        className="video-player"
-                        preload="metadata"
-                      >
-                        <source src={`${baseURL}${interview.ai_result.recording_video}`} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                    {interview.ai_result.recording_created_at && (
-                      <p className="recording-metadata">
-                        <strong>Recorded:</strong>{" "}
-                        {new Date(interview.ai_result.recording_created_at).toLocaleDateString() + ' ' + new Date(interview.ai_result.recording_created_at).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
-                        })}
                       </p>
                     )}
                   </div>
